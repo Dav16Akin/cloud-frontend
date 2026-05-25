@@ -94,7 +94,7 @@ export default function HostingPage() {
       <section className="relative pt-32 pb-20 overflow-hidden section-navy-tint">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4 bg-[#fffaf0] border border-[#f9d59f] rounded-full px-4 py-1.5">Web Hosting</span> */}
+          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 bg-[#fff8ee] border border-[#f5d38a] rounded-full px-4 py-1.5">Web Hosting</span> */}
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5 leading-tight">
             Fast, Secure &amp; Reliable{" "}
             <span className="gradient-text">Hosting</span>
@@ -132,10 +132,10 @@ export default function HostingPage() {
                   className="feature-card p-7 flex flex-col gap-4 group"
                 >
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${isOrange ? "bg-[#fffaf0] border border-[#f9d59f]" : "bg-[#f2f5fc] border border-[#dce4f7]"} group-hover:scale-110 transition-transform`}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${isOrange ? "bg-[#fff8ee] border border-[#f5d38a]" : "bg-[#f2f5fc] border border-[#dce4f7]"} group-hover:scale-110 transition-transform`}
                   >
                     <Icon
-                      className={`w-6 h-6 ${isOrange ? "text-[#fd9f09]" : "text-[#031033]"}`}
+                      className={`w-6 h-6 ${isOrange ? "text-[#e8900a]" : "text-[#031033]"}`}
                       strokeWidth={1.8}
                     />
                   </div>
@@ -181,7 +181,7 @@ export default function HostingPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-[#031033] font-bold">{type.title}</h3>
                       {!type.available && (
-                        <span className="text-[10px] bg-[#fffaf0] text-[#fd9f09] border border-[#f9d59f] px-2 py-0.5 rounded-full font-semibold">
+                        <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 font-semibold">
                           Coming Soon
                         </span>
                       )}
@@ -196,9 +196,9 @@ export default function HostingPage() {
       </section>
 
       {/* Why Nupat */}
-      <section className="section-pad section-white relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="bg-[#031033] rounded-3xl p-10 lg:p-14 text-center overflow-hidden relative">
+      <section className="bg-[#031033] section-white relative overflow-hidden">
+        <div className="mx-auto relative z-10">
+          <div className="bg-[#031033] section-pad  rounded-3xl p-10 lg:p-14 text-center overflow-hidden relative">
             <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
             <div className="flex justify-center mb-6">
               <Image 
@@ -209,7 +209,7 @@ export default function HostingPage() {
                 className="object-contain h-auto w-auto"
               />
             </div>
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4">
+            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4">
               Why Nupat Cloud
             </span> */}
             <h2 className="text-3xl font-extrabold text-white mb-5">

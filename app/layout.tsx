@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import Providers from "./providers";
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -12,7 +13,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Nupat Cloud — Cloud Infrastructure for African Businesses",
+  title: "NupatCloud — Cloud Infrastructure for African Businesses",
   description:
     "Launch, host, and grow your business online with reliable hosting, domain registration, business emails, and developer-friendly cloud infrastructure designed for Africa.",
   keywords: [
@@ -48,7 +49,7 @@ export default function RootLayout({
       className={cn("h-full antialiased", inter.variable, jakarta.variable)}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

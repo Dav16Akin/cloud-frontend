@@ -96,7 +96,7 @@ export default function Footer() {
                 <span>hello@nupatcloud.com</span>
               </div>
               <div className="flex items-center gap-2.5 text-sm text-[#5a6a85]">
-                <MapPin className="w-4 h-4 text-[#fd9f09]" />
+                <MapPin className="w-4 h-4 text-[#e8900a]" />
                 <span>Lagos, Nigeria 🇳🇬</span>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-[#5a6a85] text-sm hover:text-[#fd9f09] transition-colors"
+                      className="text-[#5a6a85] text-sm hover:text-[#e8900a] transition-colors"
                     >
                       {link.label}
                     </Link>

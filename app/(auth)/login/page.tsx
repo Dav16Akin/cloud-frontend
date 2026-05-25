@@ -2,10 +2,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { useLogin } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { mutate: login, isPending } = useLogin();
+
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    login({ email, password });
+  };
 
   return (
     <div className="flex-1 flex items-center justify-center min-h-screen relative overflow-hidden py-24 px-4 section-navy-tint">
@@ -15,7 +26,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl p-8 border-none shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
           {/* Logo */}
           <div className="flex flex-col items-center gap-3 mb-8">
-            <Image 
+            <Image
               src="/images/nupat-cloud-logo-whitebg.png"
               alt="Nupat Cloud Logo"
               width={140}
@@ -32,7 +43,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <form className="flex flex-col gap-5" id="login-form">
+          <form className="flex flex-col gap-5" id="login-form" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="login-email"
@@ -44,6 +55,9 @@ export default function LoginPage() {
                 id="login-email"
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors"
               />
             </div>
@@ -60,6 +74,9 @@ export default function LoginPage() {
                   id="login-password"
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   className="w-full bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors"
                 />
                 <button
@@ -98,10 +115,20 @@ export default function LoginPage() {
             <button
               id="login-submit"
               type="submit"
-              className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold mt-1 flex items-center justify-center gap-2"
+              disabled={isPending}
+              className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Login
-              <ArrowRight className="w-4 h-4" />
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Logging in…
+                </>
+              ) : (
+                <>
+                  Login
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 

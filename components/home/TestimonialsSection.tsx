@@ -40,10 +40,10 @@ export default function TestimonialsSection() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-14">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-3">Testimonials</span> */}
+          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-3">Testimonials</span> */}
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] mb-4">
             Trusted by Businesses &amp;{" "}
-            <span className="text-[#fd9f09]">Developers</span>
+            <span className="text-[#e8900a]">Developers</span>
           </h2>
         </div>
 
@@ -58,10 +58,10 @@ export default function TestimonialsSection() {
               >
                 {/* Quote icon */}
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${isOrange ? "bg-[#fffaf0]" : "bg-[#f2f5fc]"}`}
+                  className={`w-10 h-10 flex items-center justify-center ${isOrange ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"}`}
                 >
                   <Quote
-                    className={`w-5 h-5 ${isOrange ? "text-[#fd9f09]" : "text-[#031033]"}`}
+                    className={`w-5 h-5 ${isOrange ? "text-[#e8900a]" : "text-[#031033]"}`}
                     strokeWidth={1.8}
                   />
                 </div>
@@ -72,7 +72,7 @@ export default function TestimonialsSection() {
 
                 <div className="flex items-center gap-3 pt-4 border-t border-[#dce4f7]">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white ${isOrange ? "bg-[#fd9f09]" : "bg-[#031033]"}`}
+                    className={`w-10 h-10 flex items-center justify-center font-bold text-sm text-white ${isOrange ? "bg-[#e8900a]" : "bg-[#031033]"}`}
                   >
                     {t.initials}
                   </div>
@@ -89,7 +89,7 @@ export default function TestimonialsSection() {
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
-                      className="w-3.5 h-3.5 fill-[#fd9f09] text-[#fd9f09]"
+                      className="w-3.5 h-3.5 fill-[#e8900a] text-[#e8900a]"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >

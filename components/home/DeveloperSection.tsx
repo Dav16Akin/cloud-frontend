@@ -19,12 +19,12 @@ export default function DeveloperSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
           {/* Left: text */}
           <div>
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4">
+            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4">
               For Developers
             </span> */}
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] mb-5 leading-tight">
               Hosting Infrastructure{" "}
-              <span className="text-[#fd9f09]">for Developers</span>
+              <span className="text-[#e8900a]">for Developers</span>
             </h2>
             <p className="text-[#5a6a85] text-base leading-relaxed mb-4">
               Nupat Cloud gives developers and agencies reliable infrastructure to deploy websites, manage projects, host applications, and scale digital products efficiently.
@@ -36,15 +36,15 @@ export default function DeveloperSection() {
             <ul className="flex flex-col gap-3 mb-10">
               {devFeatures.map((feat) => (
                 <li key={feat} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#fffaf0] border border-[#f9d59f] flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-[#fd9f09]" strokeWidth={2.5} />
+                  <div className="w-5 h-5 bg-[#fff8ee] border border-[#f5d38a] flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#e8900a]" strokeWidth={2.5} />
                   </div>
                   <span className={`text-sm ${feat.includes("Coming Soon") ? "text-[#9ba8c0]" : "text-[#5a6a85]"}`}>{feat}</span>
                 </li>
               ))}
             </ul>
 
-            <Link href="/hosting" id="developer-start-building" className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 rounded-xl text-base">
+            <Link href="/hosting" id="developer-start-building" className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 text-base">
               Start Building
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -52,7 +52,7 @@ export default function DeveloperSection() {
 
           {/* Right: terminal mockup */}
           <div className="relative">
-            <div className="bg-[#031033] rounded-2xl overflow-hidden border border-[#1e2d4a] shadow-2xl shadow-[#031033]/20">
+            <div className="bg-[#031033] overflow-hidden border border-[#1e2d4a] shadow-2xl shadow-[#031033]/20">
               {/* Terminal header */}
               <div className="flex items-center gap-2 px-4 py-3 bg-[#111d35] border-b border-[#1e2d4a]">
                 <div className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -67,7 +67,7 @@ export default function DeveloperSection() {
               <div className="p-6 font-mono text-sm">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#fd9f09]">$</span>
+                    <span className="text-[#e8900a]">$</span>
                     <span className="text-[#8fa8d8]">nupat deploy --env production</span>
                   </div>
                   <div className="text-[#4a6080] text-xs pl-4">Deploying to Nupat Cloud...</div>
@@ -76,17 +76,17 @@ export default function DeveloperSection() {
                   <div className="text-green-400 text-xs pl-4">✓ CDN active</div>
                   <div className="text-green-400 text-xs pl-4">✓ Backups enabled</div>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[#fd9f09]">→</span>
+                    <span className="text-[#e8900a]">→</span>
                     <span className="text-white text-xs font-semibold">Live at: yourdomain.com</span>
-                    <span className="w-1.5 h-4 bg-[#fd9f09] animate-pulse inline-block" />
+                    <span className="w-1.5 h-4 bg-[#e8900a] animate-pulse inline-block" />
                   </div>
                   <div className="mt-4 pt-4 border-t border-[#1e2d4a]">
                     <div className="flex items-center gap-2">
-                      <span className="text-[#fd9f09]">$</span>
+                      <span className="text-[#e8900a]">$</span>
                       <span className="text-[#8fa8d8]">nupat status</span>
                     </div>
                     <div className="text-xs pl-4 mt-1 text-[#4a6080]">
-                      Uptime: <span className="text-green-400">99.9%</span> | Region: <span className="text-[#fd9f09]">Lagos, NG</span>
+                      Uptime: <span className="text-green-400">99.9%</span> | Region: <span className="text-[#e8900a]">Lagos, NG</span>
                     </div>
                   </div>
                 </div>

@@ -12,22 +12,22 @@ export default function StartupProgramSection() {
 
       {/* Decorative blobs */}
       <div className="absolute -left-32 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#f2f5fc] blur-[60px] pointer-events-none" />
-      <div className="absolute -right-32 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#fffaf0] blur-[60px] pointer-events-none" />
+      <div className="absolute -right-32 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#fff8ee] blur-[60px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="section-navy rounded-3xl p-8 lg:p-14 border-none shadow-apple overflow-hidden relative">
+        <div className="section-navy p-8 lg:p-14 border border-[#1e2d4a] shadow-apple overflow-hidden relative">
           {/* Top accent line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-linear-to-r from-transparent via-[#031033]/50 to-transparent" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left */}
             <div>
-              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4 rounded-full">
+              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 rounded-full">
                 Startup Program
               </span> */}
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Helping African Businesses{" "}
-                <span className="text-[#fd9f09]">Launch Online</span>
+                <span className="text-[#e8900a]">Launch Online</span>
               </h2>
               <p className="text-white/80 text-base leading-relaxed mb-4">
                 Through the Nupat Startup Program, selected businesses can
@@ -41,7 +41,7 @@ export default function StartupProgramSection() {
               <Link
                 href="https://nupat.africa/startup-program"
                 id="startup-apply-cta"
-                className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 rounded-xl text-base"
+                className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 text-base"
               >
                 Apply for Startup Program
                 <ArrowRight className="w-4 h-4" />
@@ -72,13 +72,13 @@ export default function StartupProgramSection() {
               ].map(({ icon: Icon, title, desc, color }) => (
                 <div
                   key={title}
-                  className="flex items-start gap-4 p-4 bg-white rounded-xl border-none shadow-apple hover:shadow-md transition-all"
+                  className="flex items-start gap-4 p-4 bg-white border border-[#e2eaff] hover:shadow-md transition-all"
                 >
                   <div
-                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fffaf0]" : "bg-[#f2f5fc]"}`}
+                    className={`w-10 h-10 shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"}`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${color === "orange" ? "text-[#fd9f09]" : "text-[#031033]"}`}
+                      className={`w-5 h-5 ${color === "orange" ? "text-[#e8900a]" : "text-[#031033]"}`}
                       strokeWidth={1.8}
                     />
                   </div>

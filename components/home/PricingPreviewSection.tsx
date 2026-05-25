@@ -45,10 +45,10 @@ export default function PricingPreviewSection() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-14">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-3">Hosting Plans</span>
+          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#e8900a] mb-3">Hosting Plans</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] mb-4">
             Plans for Every{" "}
-            <span className="text-[#fd9f09]">Stage of Growth</span>
+            <span className="text-[#e8900a]">Stage of Growth</span>
           </h2>
           <p className="text-[#5a6a85] text-lg max-w-2xl mx-auto">
             Flexible hosting plans for startups, growing businesses, agencies, and developers.
@@ -60,15 +60,15 @@ export default function PricingPreviewSection() {
             <div
               key={plan.id}
               id={`plan-${plan.id}`}
-              className={`relative flex flex-col rounded-2xl p-7 transition-all duration-300 ${
+              className={`relative flex flex-col p-7 transition-all duration-300 ${
                 plan.popular
-                  ? "bg-[#031033] text-white shadow-2xl shadow-[#031033]/30 scale-[1.03] md:-mt-2"
+                  ? "bg-[#031033] text-white shadow-xl shadow-[#031033]/20 scale-[1.02] md:-mt-2 border border-[#031033]"
                   : "feature-card"
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1.5 bg-[#fd9f09] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-[#fd9f09]/20">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1.5 bg-[#e8900a] text-white text-xs font-bold px-4 py-1 shadow-lg shadow-[#e8900a]/20">
                     <Star className="w-3 h-3 fill-white" />
                     Most Popular
                   </span>
@@ -101,9 +101,9 @@ export default function PricingPreviewSection() {
               <Link
                 href={plan.href}
                 id={`plan-${plan.id}-cta`}
-                className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all ${
+                className={`flex items-center justify-center gap-2 py-3.5 font-semibold text-sm transition-all ${
                   plan.popular
-                    ? "bg-white text-[#031033] hover:bg-gray-100 shadow-md"
+                    ? "bg-[#e8900a] text-white hover:bg-[#c97a08]"
                     : "btn-primary"
                 }`}
               >
@@ -115,7 +115,7 @@ export default function PricingPreviewSection() {
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/pricing" id="view-all-pricing" className="text-[#fd9f09] text-sm font-medium hover:underline underline-offset-4 inline-flex items-center gap-1.5">
+          <Link href="/pricing" id="view-all-pricing" className="text-[#e8900a] text-sm font-medium hover:underline underline-offset-4 inline-flex items-center gap-1.5">
             View full pricing details
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>

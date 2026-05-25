@@ -44,7 +44,7 @@ export default function PricingPage() {
       <section className="relative pt-32 pb-20 overflow-hidden section-navy-tint">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4 bg-[#fffaf0] border border-[#f9d59f] rounded-full px-4 py-1.5">Pricing</span> */}
+          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 bg-[#fff8ee] border border-[#f5d38a] rounded-full px-4 py-1.5">Pricing</span> */}
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5">
             Transparent <span className="gradient-text">Hosting Pricing</span>
           </h1>
@@ -68,7 +68,7 @@ export default function PricingPage() {
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1.5 bg-[#fd9f09] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-[#fd9f09]/30">
+                    <span className="inline-flex items-center gap-1.5 bg-[#e8900a] text-white text-xs font-bold px-4 py-1.5 shadow-sm shadow-[#e8900a]/20">
                       <Star className="w-3 h-3 fill-white" />Most Popular
                     </span>
                   </div>
@@ -119,7 +119,7 @@ export default function PricingPage() {
             {faqs.map((faq, i) => (
               <div key={i} id={`faq-${i}`} className="feature-card p-6 rounded-xl">
                 <div className="flex items-start gap-3">
-                  <HelpCircle className="w-5 h-5 text-[#fd9f09] shrink-0 mt-0.5" strokeWidth={1.8} />
+                  <HelpCircle className="w-5 h-5 text-[#e8900a] shrink-0 mt-0.5" strokeWidth={1.8} />
                   <div>
                     <p className="text-[#031033] font-semibold text-sm mb-2">{faq.q}</p>
                     <p className="text-[#5a6a85] text-sm leading-relaxed">{faq.a}</p>

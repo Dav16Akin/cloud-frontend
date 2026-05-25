@@ -54,7 +54,7 @@ export default function DomainsPage() {
       <section className="relative pt-32 pb-24 overflow-hidden section-navy-tint">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4 bg-[#fffaf0] border border-[#f9d59f] rounded-full px-4 py-1.5">Domain Registration</span> */}
+          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 bg-[#fff8ee] border border-[#f5d38a] rounded-full px-4 py-1.5">Domain Registration</span> */}
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5 leading-tight">
             Find the <span className="gradient-text">Perfect Domain Name</span>
           </h1>
@@ -152,7 +152,7 @@ export default function DomainsPage() {
       <section className="section-pad section-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-3">Extensions</span> */}
+            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-3">Extensions</span> */}
             <h2 className="text-3xl font-extrabold text-[#031033] mb-3">
               Popular <span className="gradient-text">Extensions</span>
             </h2>
@@ -170,7 +170,7 @@ export default function DomainsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-[#031033] font-semibold">{ext.ext}</h3>
                     {ext.popular && (
-                      <span className="text-[10px] bg-[#fffaf0] text-[#fd9f09] border border-[#f9d59f] px-2 py-0.5 rounded-full font-semibold">
+                      <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 font-semibold">
                         Popular
                       </span>
                     )}
@@ -189,7 +189,7 @@ export default function DomainsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#fd9f09] mb-4">Why It Matters</span> */}
+              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4">Why It Matters</span> */}
               <h2 className="text-3xl font-extrabold text-[#031033] mb-5">
                 Why Your <span className="gradient-text">Domain Matters</span>
               </h2>
@@ -234,10 +234,10 @@ export default function DomainsPage() {
                   className="feature-card p-4 flex items-start gap-4"
                 >
                   <div
-                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fffaf0]" : "bg-[#f2f5fc]"}`}
+                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"}`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${color === "orange" ? "text-[#fd9f09]" : "text-[#031033]"}`}
+                      className={`w-5 h-5 ${color === "orange" ? "text-[#e8900a]" : "text-[#031033]"}`}
                       strokeWidth={1.8}
                     />
                   </div>

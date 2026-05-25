@@ -39,44 +39,27 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
   --shadow-apple: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
-
-
-  --animate-aurora: aurora 60s linear infinite;
-  @keyframes aurora {
-    from {
-      background-position:
-        50% 50%,
-        50% 50%;
-    }
-    to {
-      background-position:
-        350% 50%,
-        350% 50%;
-    }
-  }
 }
 
 /* ============================================================
-   NUPAT CLOUD — Light Theme Design Tokens
-   Navy primary / Black text / Orange accent / White backgrounds
+   NUPAT CLOUD — Design Tokens
    ============================================================ */
 :root {
   /* Brand */
   --brand-navy: #031033;
   --brand-navy-light: #f2f5fc;
-  --brand-orange: #fd9f09;
-  --brand-orange-light: #fffaf0;
-  --brand-black: #031033;
+  --brand-orange: #e8900a;
+  --brand-orange-light: #fff8ee;
 
-  /* Shadcn overrides — light palette */
+  /* Shadcn */
   --background: #ffffff;
   --foreground: #031033;
   --card: #ffffff;
@@ -89,19 +72,19 @@
   --secondary-foreground: #031033;
   --muted: #f2f5fc;
   --muted-foreground: #5a6a85;
-  --accent: #fd9f09;
+  --accent: #e8900a;
   --accent-foreground: #ffffff;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #e2eaff;
   --input: #e2eaff;
   --ring: #031033;
-  --radius: 0.75rem;
+  --radius: 0px;                 /* All corners sharp by default */
 
   /* Charts */
   --chart-1: #031033;
-  --chart-2: #fd9f09;
+  --chart-2: #e8900a;
   --chart-3: #1a2a5a;
-  --chart-4: #ffaf33;
+  --chart-4: #f5a520;
   --chart-5: #3a4a7a;
 
   /* Sidebar */
@@ -122,6 +105,7 @@
   * {
     @apply border-border outline-ring/50;
     box-sizing: border-box;
+    border-radius: 0 !important;   /* Force sharp corners everywhere */
   }
   body {
     @apply bg-background text-foreground;
@@ -133,26 +117,16 @@
     @apply font-sans;
     scroll-behavior: smooth;
   }
+  /* Only allow rounded on elements that explicitly need it */
+  .allow-rounded { border-radius: revert !important; }
 }
 
 /* ============================================================
-   CUSTOM ANIMATIONS
+   ANIMATIONS
    ============================================================ */
-@keyframes gradient-x {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
-}
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-12px); }
-}
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(3, 16, 51, 0.25); }
-  50%       { box-shadow: 0 0 40px rgba(3, 16, 51, 0.5), 0 0 80px rgba(3, 16, 51, 0.15); }
+  50%       { transform: translateY(-10px); }
 }
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(24px); }
@@ -162,82 +136,208 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
 
 /* ============================================================
-   UTILITY CLASSES
+   BUTTON SYSTEM — Flat, sharp corners, no gradients
    ============================================================ */
 
-/* Accent text — solid brand orange (no gradients) */
-.gradient-text {
-  color: #fd9f09;
-}
-
-/* Primary button — flat orange, no gradient */
+/* ── Primary orange button (main CTA everywhere) ── */
 .btn-primary {
-  background: #fd9f09;
-  color: #ffffff;
-  border: none;
-  border-radius: 0.625rem;
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+  color: #ffffff;
+  background: #e8900a;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
-  background: #e08b08;
-  box-shadow: 0 8px 24px rgba(253, 159, 9, 0.35);
+  background: #c97a08;
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── Navy filled button ── */
+.btn-navy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+  color: #ffffff;
+  background: #031033;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
+  color: #031033;
+  background: #ffffff;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-white:hover {
+  background: rgb(228, 225, 225);
   transform: translateY(-1px);
 }
 
-/* Orange outline button */
-.btn-outline-orange {
-  background: transparent;
-  color: #fd9f09;
-  border: 1.5px solid #fd9f09;
-  border-radius: 0.625rem;
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
+.btn-navy:hover {
+  background: #071d55;
+  transform: translateY(-1px);
+}
+
+/* ── Outline button — navy border ── */
+.btn-outline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: 1.5px solid #031033;
+  border-radius: 0;
+  color: #031033;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-outline:hover {
+  background: #031033;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ── Outline white button — white border for dark/navy sections ── */
+.btn-outline-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: 1.5px solid #ffffff;
+  border-radius: 0;
+  color: #ffffff;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-outline-white:hover {
+  background: #ffffff;
+  color: #031033;
+  transform: translateY(-1px);
+}
+
+/* ── Outline orange ── */
+.btn-outline-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: 1.5px solid #e8900a;
+  border-radius: 0;
+  color: #e8900a;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .btn-outline-orange:hover {
-  background: #fd9f09;
+  background: #e8900a;
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(253, 159, 9, 0.3);
-  transform: translateY(-1px);
 }
 
-/* Navy outline button */
-.btn-outline-navy {
-  background: white !important;
-  color: #031033;
-  border: 1.5px solid #031033;
-  border-radius: 0.625rem;
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
+/* ── Small button variant ── */
+.btn-sm {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+/* Legacy aliases — same styles as btn-primary / btn-outline */
+.btn-gradient {
   display: inline-flex;
   align-items: center;
-}
-.btn-outline-navy:hover {
-  background: #031033 !important;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 0;
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(3, 16, 51, 0.3);
-  transform: translateY(-1px);
+  background: #e8900a;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
+.btn-gradient:hover { background: #c97a08; transform: translateY(-1px); }
 
-/* Section backgrounds */
-.section-white { background: #ffffff; }
-.section-light { background: #f6f9ff; }
-.section-navy-tint { background: #f2f5fc; }
-.section-navy { background: #031033; }
+.btn-gradient-outline,
+.btn-outline-navy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border: 1.5px solid #031033;
+  border-radius: 0;
+  color: #031033;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.btn-gradient-outline:hover,
+.btn-outline-navy:hover { background: #031033; color: #ffffff; }
 
-/* Light grid background */
+/* ============================================================
+   ACCENT TEXT
+   ============================================================ */
+.gradient-text { color: #e8900a; }
+
+/* ============================================================
+   SECTION BACKGROUNDS
+   ============================================================ */
+.section-white      { background: #ffffff; }
+.section-light      { background: #f6f9ff; }
+.section-navy-tint  { background: #f2f5fc; }
+.section-navy       { background: #031033; }
+
+/* ============================================================
+   GRID BACKGROUND
+   ============================================================ */
 .grid-bg {
   background-image:
     linear-gradient(rgba(3, 16, 51, 0.04) 1px, transparent 1px),
@@ -245,61 +345,70 @@
   background-size: 60px 60px;
 }
 
-/* Card styles */
+/* ============================================================
+   CARD STYLES — Vesper / sharp
+   ============================================================ */
 .feature-card {
   background: #ffffff;
-  border: none;
-  border-radius: 1rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
-  transition: all 0.25s ease;
+  border: 1px solid #e2eaff;
+  border-left: 3px solid transparent;
+  box-shadow: none;
+  transition: border-left-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 .feature-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.04);
-  transform: translateY(-3px);
+  border-left-color: #e8900a;
+  box-shadow: 0 4px 20px rgba(3, 16, 51, 0.06);
+  transform: translateY(-2px);
 }
 
-/* Trust badge */
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid #e2eaff;
+  box-shadow: none;
+  transition: box-shadow 0.15s ease;
+}
+.dashboard-card:hover {
+  box-shadow: 0 2px 12px rgba(3, 16, 51, 0.06);
+}
+
+/* ============================================================
+   TRUST BADGE
+   ============================================================ */
 .trust-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   background: #f2f5fc;
   border: 1px solid #dce4f7;
-  border-radius: 999px;
   padding: 0.3rem 0.9rem;
   font-size: 0.78rem;
   font-weight: 500;
   color: #031033;
 }
 
-/* Hero top-fade — solid background */
-.hero-top-fade {
-  background: transparent;
-}
-.hero-bottom-fade {
-  background: transparent;
-}
+/* ============================================================
+   HERO FADES
+   ============================================================ */
+.hero-top-fade    { background: transparent; }
+.hero-bottom-fade { background: transparent; }
 
-/* Animate in on load */
-.animate-fade-up {
-  animation: fade-up 0.7s ease forwards;
-}
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-.animate-pulse-glow {
-  animation: pulse-glow 2.5s ease-in-out infinite;
-}
-.animate-spin-slow {
-  animation: spin-slow 12s linear infinite;
-}
+/* ============================================================
+   ANIMATION UTILITIES
+   ============================================================ */
+.animate-fade-up   { animation: fade-up 0.7s ease forwards; }
+.animate-float     { animation: float 4s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 12s linear infinite; }
 
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 6px; }
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar       { width: 6px; }
 ::-webkit-scrollbar-track { background: #f2f5fc; }
-::-webkit-scrollbar-thumb { background: rgba(3, 16, 51, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(3, 16, 51, 0.3); }
 ::-webkit-scrollbar-thumb:hover { background: #031033; }
 
-/* Section spacing */
-.section-pad { padding: 5rem 0; }
+/* ============================================================
+   SECTION SPACING
+   ============================================================ */
+.section-pad    { padding: 5rem 0; }
 .section-pad-lg { padding: 7rem 0; }

@@ -7,6 +7,9 @@ import {
   registerUser,
   verifyOTP,
   resendOTP,
+  forgotPassword,
+  verifyResetOTP,
+  resetPassword,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
@@ -109,6 +112,66 @@ export const useLogout = () => {
       logout();
       queryClient.clear();
       router.push("/login");
+    },
+  });
+};
+
+// ── Forgot Password (Step 1) ──────────────────────────────────────────────────
+
+export const useForgotPassword = () => {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { email: string }) => forgotPassword(data),
+    onSuccess: (_res, variables) => {
+      toast.success("A reset code has been sent to your email.");
+      // Persist email in sessionStorage as fallback for the OTP page
+      sessionStorage.setItem("reset_email", variables.email);
+      router.push(
+        `/verify-reset-otp?email=${encodeURIComponent(variables.email)}`
+      );
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+// ── Verify Reset OTP (Step 2) ─────────────────────────────────────────────────
+
+export const useVerifyResetOTP = () => {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { email: string; code: string }) =>
+      verifyResetOTP(data),
+    onSuccess: (res) => {
+      const resetToken =
+        res?.resetToken ?? res?.data?.resetToken ?? res?.token ?? "";
+      sessionStorage.removeItem("reset_email");
+      toast.success("Code verified! Set your new password.");
+      router.push(`/reset-password?resetToken=${encodeURIComponent(resetToken)}`);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+// ── Reset Password (Step 3) ───────────────────────────────────────────────────
+
+export const useResetPassword = () => {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { resetToken: string; newPassword: string }) =>
+      resetPassword(data),
+    onSuccess: () => {
+      toast.success("Password reset successfully! You can now log in.");
+      router.push("/login");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
     },
   });
 };

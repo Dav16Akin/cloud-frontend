@@ -2,22 +2,32 @@
 import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Loader2, ArrowRight, MailCheck } from "lucide-react";
-import { useVerifyOTP, useResendOTP } from "@/hooks/useAuth";
+import { Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import { useVerifyResetOTP, useForgotPassword } from "@/hooks/useAuth";
 
-function VerifyContent() {
+function VerifyResetOTPContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const email = searchParams.get("email") || "";
+
+  // Email comes from URL param with sessionStorage as fallback
+  const emailParam = searchParams.get("email") || "";
+  const [email, setEmail] = useState(emailParam);
 
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const { mutate: verify, isPending } = useVerifyOTP();
-  const { mutate: resend, isPending: isResending } = useResendOTP();
+  const { mutate: verify, isPending } = useVerifyResetOTP();
+  const { mutate: resend, isPending: isResending } = useForgotPassword();
 
-  // 20-second cooldown for resend button
+  // 20-second cooldown for resend
   const [resendCooldown, setResendCooldown] = useState(20);
+
+  // Read email fallback from sessionStorage on mount
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem("reset_email") ?? "";
+    if (!emailParam && storedEmail) setEmail(storedEmail);
+    if (!emailParam && !storedEmail) router.push("/forgot-password");
+  }, [emailParam, router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -31,14 +41,6 @@ function VerifyContent() {
     setCode(["", "", "", "", "", ""]); // clear inputs for fresh entry
     inputRefs.current[0]?.focus();
   };
-
-
-  // Redirect to login if no email param
-  useEffect(() => {
-    if (!email) router.push("/login");
-  }, [email, router]);
-
-
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
@@ -89,22 +91,22 @@ function VerifyContent() {
           className="object-contain h-auto w-auto mb-1"
         />
         <div className="w-14 h-14 rounded-full bg-[#fffaf0] border border-[#fde8c0] flex items-center justify-center">
-          <MailCheck className="w-7 h-7 text-[#fd9f09]" />
+          <ShieldCheck className="w-7 h-7 text-[#fd9f09]" />
         </div>
         <div className="text-center">
           <h1 className="text-2xl font-extrabold text-[#031033]">
-            Verify Your Email
+            Enter Reset Code
           </h1>
           <p className="text-[#5a6a85] text-sm mt-1 max-w-xs">
             We sent a 6-digit code to{" "}
-            <span className="font-semibold text-[#031033]">{email}</span>.
-            Enter it below to activate your account.
+            <span className="font-semibold text-[#031033]">{email}</span>. Enter
+            it below to continue.
           </p>
         </div>
       </div>
 
       <form
-        id="verify-otp-form"
+        id="verify-reset-otp-form"
         onSubmit={handleSubmit}
         className="flex flex-col gap-6"
       >
@@ -113,7 +115,7 @@ function VerifyContent() {
           {code.map((digit, i) => (
             <input
               key={i}
-              id={`otp-input-${i}`}
+              id={`reset-otp-input-${i}`}
               ref={(el) => {
                 inputRefs.current[i] = el;
               }}
@@ -129,7 +131,7 @@ function VerifyContent() {
         </div>
 
         <button
-          id="verify-submit"
+          id="verify-reset-submit"
           type="submit"
           disabled={isPending || code.join("").length < 6}
           className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -141,7 +143,7 @@ function VerifyContent() {
             </>
           ) : (
             <>
-              Verify Email
+              Verify Code
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -151,7 +153,7 @@ function VerifyContent() {
       <p className="text-center text-sm text-[#5a6a85] mt-6">
         Didn&apos;t receive the code?{" "}
         <button
-          id="verify-resend"
+          id="reset-otp-resend"
           type="button"
           disabled={isResending || resendCooldown > 0}
           onClick={handleResend}
@@ -168,12 +170,11 @@ function VerifyContent() {
   );
 }
 
-export default function VerifyPage() {
+export default function VerifyResetOTPPage() {
   return (
     <div className="flex-1 flex items-center justify-center min-h-screen relative overflow-hidden py-24 px-4 section-navy-tint">
       <div className="absolute inset-0 grid-bg pointer-events-none" />
       <div className="w-full max-w-md relative z-10">
-        {/* Suspense required because useSearchParams suspends during prerendering */}
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-40">
@@ -181,7 +182,7 @@ export default function VerifyPage() {
             </div>
           }
         >
-          <VerifyContent />
+          <VerifyResetOTPContent />
         </Suspense>
       </div>
     </div>

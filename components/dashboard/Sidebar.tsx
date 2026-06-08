@@ -121,14 +121,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       {/* Visit main site */}
       <div className="px-3 pt-3 border-t border-[#e2eaff] shrink-0">
-        <Link
+        {/* <Link
           href="/"
           id="sidebar-visit-main"
           className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] transition-colors"
         >
           <ExternalLink className="w-[17px] h-[17px] shrink-0 text-[#9ba8c0]" />
           Visit Main Site
-        </Link>
+        </Link> */}
       </div>
 
       {/* User section */}

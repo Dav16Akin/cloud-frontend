@@ -16,7 +16,7 @@ const fetchWithRefresh = async (url: string, options: RequestInit) => {
 
     if (refreshRes.ok) {
       const { accessToken } = await refreshRes.json();
-      
+
       // save new token to Zustand
       useAuthStore.getState().setToken(accessToken);
 
@@ -56,7 +56,9 @@ const handleResponse = async (res: Response) => {
       Array.isArray(data?.error) && data.error.length > 0
         ? data.error.join(" · ")
         : null;
-    throw new Error(details || data?.message || `Request failed (${res.status})`);
+    throw new Error(
+      details || data?.message || `Request failed (${res.status})`,
+    );
   }
   return data;
 };
@@ -134,7 +136,7 @@ export const updateProfile = (
     country?: string;
     city?: string;
     postcode?: string;
-  }
+  },
 ) =>
   fetchWithRefresh(`${BASE_URL}/users/profile`, {
     method: "PATCH",
@@ -144,7 +146,7 @@ export const updateProfile = (
 
 export const changePassword = (
   token: string,
-  data: { oldPassword: string; newPassword: string }
+  data: { oldPassword: string; newPassword: string },
 ) =>
   fetchWithRefresh(`${BASE_URL}/users/change-password`, {
     method: "PATCH",
@@ -180,3 +182,339 @@ export const resetPassword = (data: {
     headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
+
+// ── Plans ─────────────────────────────────────────────────────────────────────
+
+export type Plan = {
+  id: string;
+  name: string;
+  price: number;
+  billingCycle: string;
+  storage: string;
+  bandwidth: string;
+  websites: number;
+  emails: number;
+  features: string[];
+  isPopular: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getPlans = (): Promise<{
+  success: boolean;
+  data: Plan[];
+  message: string;
+  error: null | string;
+}> =>
+  fetch(`${BASE_URL}/plans`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Hosting ───────────────────────────────────────────────────────────────────
+
+// Status matches Prisma enum: ACTIVE | SUSPENDED | TERMINATED
+export type HostingStatus = "ACTIVE" | "SUSPENDED" | "TERMINATED" | "PENDING";
+
+export type HostingAccount = {
+  id: string;
+  domain: string;
+  status: HostingStatus;
+  // Returned by getHostings with include: { plan: true }
+  plan?: { id: string; name: string; price: number; billingCycle: string };
+  planId: string;
+  expiresAt: string; // Prisma field name
+  cpanelUsername?: string;
+  serverIp?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type HostingStats = {
+  domain: string;
+  plan: string;
+  ip: string;
+  diskUsed: string;
+  diskLimit: string;
+  inodesUsed: number;
+  inodesLimit: string;
+  maxEmails: string;
+  maxFTP: string;
+  maxDatabases: string;
+  maxSubdomains: string;
+  maxAddonDomains: string;
+  maxEmailPerHour: string;
+  maxEmailQuotaMB: string;
+  status: HostingStatus;
+  suspendReason: string;
+  startDate: string;
+};
+
+export type HostingEmail = {
+  email: string;
+  domain: string;
+  diskused: string;
+  diskquota: string;
+  login: string;
+};
+
+export type HostingForwarder = {
+  dest: string;
+  html_dest: string;
+  forward: string;
+  html_forward: string;
+  uri_dest: string;
+  uri_forward: string;
+};
+
+export type HostingDatabase = {
+  database: string;
+  diskusage?: string;
+  users?: string[];
+};
+
+export type HostingDatabaseUser = {
+  user: string;
+};
+
+
+export type ProvisionHostingPayload = {
+  domain: string;
+  planId: string;
+};
+
+export type ProvisionHostingResult = {
+  id: string;
+  domain: string;
+  cpanelUsername: string;
+  cpanelPassword: string;
+  cpanelUrl: string;
+  status: string;
+  expiresAt: string;
+};
+
+export const getHosting = (
+  token: string,
+): Promise<{ success: boolean; data: HostingAccount[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const getHostingById = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingAccount; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const provisionHosting = (
+  token: string,
+  data: ProvisionHostingPayload,
+): Promise<{
+  success: boolean;
+  data: ProvisionHostingResult;
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/hosting`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteHosting = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const suspendHosting = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/suspend`, {
+    method: "POST",
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const unsuspendHosting = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/unsuspend`, {
+    method: "POST",
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const getHostingStats = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingStats; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/stats`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+// ── Hosting Emails ─────────────────────────────────────────────────────────────
+
+export const getHostingEmails = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingEmail[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const createHostingEmail = (
+  token: string,
+  id: string,
+  data: { email: string; password: string },
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteHostingEmail = (
+  token: string,
+  id: string,
+  email: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/hosting/${id}/emails/${encodeURIComponent(email)}`,
+    {
+      method: "DELETE",
+      headers: getHeaders(token),
+    },
+  ).then(handleResponse);
+
+export const changeHostingEmailPassword = (
+  token: string,
+  id: string,
+  email: string,
+  password: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/hosting/${id}/emails/${encodeURIComponent(email)}/password`,
+    {
+      method: "PATCH",
+      headers: getHeaders(token),
+      body: JSON.stringify({ password }),
+    },
+  ).then(handleResponse);
+
+// ── Hosting Email Forwarders ───────────────────────────────────────────────────
+
+export const getHostingForwarders = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingForwarder[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails/forwarders`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const createHostingForwarder = (
+  token: string,
+  id: string,
+  data: { source: string; destination: string },
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails/forwarders`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteHostingForwarder = (
+  token: string,
+  id: string,
+  address: string,   // source email on the domain  e.g. no-reply@demobusiness.com
+  forwarder: string, // destination email            e.g. akindav16@gmail.com
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/hosting/${id}/emails/forwarders?address=${encodeURIComponent(address)}&forwarder=${encodeURIComponent(forwarder)}`,
+    {
+      method: "DELETE",
+      headers: getHeaders(token),
+    },
+  ).then(handleResponse);
+
+// ── Hosting Databases ──────────────────────────────────────────────────────────
+
+export const getHostingDatabases = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingDatabase[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const createHostingDatabase = (
+  token: string,
+  id: string,
+  data: { database: string },
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteHostingDatabase = (
+  token: string,
+  id: string,
+  database: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/hosting/${id}/databases/${encodeURIComponent(database)}`,
+    {
+      method: "DELETE",
+      headers: getHeaders(token),
+    },
+  ).then(handleResponse);
+
+export const getHostingDatabaseUsers = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: HostingDatabaseUser[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+export const createHostingDatabaseUser = (
+  token: string,
+  id: string,
+  data: { user: string; password?: string },
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteHostingDatabaseUser = (
+  token: string,
+  id: string,
+  user: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/hosting/${id}/databases/users/${encodeURIComponent(user)}`,
+    {
+      method: "DELETE",
+      headers: getHeaders(token),
+    },
+  ).then(handleResponse);
+
+export const assignHostingDatabaseUser = (
+  token: string,
+  id: string,
+  data: { database: string; user: string; privileges?: string[] },
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users/assign`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+

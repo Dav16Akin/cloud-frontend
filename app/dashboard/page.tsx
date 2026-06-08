@@ -10,16 +10,62 @@ import {
   MessageSquarePlus,
   ArrowRight,
   TrendingUp,
-  TrendingDown,
   Minus,
   ChevronRight,
+  CheckCircle2,
+  PauseCircle,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
+import { useGetHosting } from "@/hooks/useHosting";
+import type { HostingAccount, HostingStatus } from "@/lib/api";
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className: string }) {
   return <div className={`bg-[#e8edf8] animate-pulse ${className}`} />;
+}
+
+// ── Status dot ────────────────────────────────────────────────────────────────
+
+function StatusDot({ status }: { status: HostingStatus }) {
+  const s = (status ?? "").toUpperCase() as HostingStatus;
+  return (
+    <span
+      className={`inline-block w-2 h-2 rounded-full shrink-0 ${
+        s === "ACTIVE"
+          ? "bg-emerald-500"
+          : s === "SUSPENDED"
+          ? "bg-red-500"
+          : s === "TERMINATED"
+          ? "bg-gray-400"
+          : "bg-amber-400"
+      }`}
+    />
+  );
+}
+
+// ── Status label ──────────────────────────────────────────────────────────────
+
+function StatusLabel({ status }: { status: HostingStatus }) {
+  const s = (status ?? "").toUpperCase() as HostingStatus;
+  const cfg =
+    s === "ACTIVE"
+      ? { icon: CheckCircle2, label: "Active", cls: "text-emerald-600" }
+      : s === "SUSPENDED"
+      ? { icon: PauseCircle, label: "Suspended", cls: "text-red-500" }
+      : s === "TERMINATED"
+      ? { icon: XCircle, label: "Terminated", cls: "text-gray-400" }
+      : { icon: Clock, label: "Pending", cls: "text-amber-500" };
+
+  const Icon = cfg.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${cfg.cls}`}>
+      <Icon className="w-3 h-3" />
+      {cfg.label}
+    </span>
+  );
 }
 
 // ── Clickable Stat Card ───────────────────────────────────────────────────────
@@ -56,17 +102,17 @@ function StatCard({ icon: Icon, label, value, iconColor, iconBg, href, change, l
         <>
           <p className="text-3xl font-extrabold text-[#031033] leading-none">{value}</p>
           {change && (
-            <div className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 w-fit ${
-              change.positive === true
-                ? "bg-emerald-50 text-emerald-600"
-                : change.positive === false
-                ? "bg-red-50 text-red-500"
-                : "bg-[#f2f5fc] text-[#9ba8c0]"
-            }`}>
+            <div
+              className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 w-fit ${
+                change.positive === true
+                  ? "bg-emerald-50 text-emerald-600"
+                  : change.positive === false
+                  ? "bg-red-50 text-red-500"
+                  : "bg-[#f2f5fc] text-[#9ba8c0]"
+              }`}
+            >
               {change.positive === true ? (
                 <TrendingUp className="w-3 h-3" />
-              ) : change.positive === false ? (
-                <TrendingDown className="w-3 h-3" />
               ) : (
                 <Minus className="w-3 h-3" />
               )}
@@ -75,7 +121,6 @@ function StatCard({ icon: Icon, label, value, iconColor, iconBg, href, change, l
           )}
         </>
       )}
-      {/* Arrow indicator on hover */}
       <div className="flex items-center gap-1 text-[10px] font-semibold text-[#9ba8c0] group-hover:text-[#e8900a] transition-colors mt-auto">
         View details
         <ChevronRight className="w-3 h-3" />
@@ -101,10 +146,7 @@ function EmptyState({ icon: Icon, message, cta, href, ctaIcon: CtaIcon }: EmptyS
         <Icon className="w-5 h-5 text-[#9ba8c0]" />
       </div>
       <p className="text-sm text-[#5a6a85] max-w-xs mb-4">{message}</p>
-      <Link
-        href={href}
-        className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5"
-      >
+      <Link href={href} className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5">
         <CtaIcon className="w-4 h-4" />
         {cta}
       </Link>
@@ -144,23 +186,98 @@ function SectionCard({
   );
 }
 
-// ── Overview Page ──────────────────────────────────────────────────────────────
+// ── Hosting Section ──────────────────────────────────────────────────────────
+
+function HostingSectionContent({
+  accounts,
+  loading,
+}: {
+  accounts: HostingAccount[] | undefined;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="flex flex-col divide-y divide-[#e2eaff]">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-5 py-3 animate-pulse">
+            <div className="w-2 h-2 rounded-full bg-[#e8edf8] shrink-0" />
+            <div className="flex-1">
+              <div className="h-3.5 w-32 bg-[#e8edf8] rounded mb-1" />
+              <div className="h-3 w-20 bg-[#e8edf8] rounded" />
+            </div>
+            <div className="h-4 w-12 bg-[#e8edf8] rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!accounts || accounts.length === 0) {
+    return (
+      <EmptyState
+        icon={Server}
+        message="You currently do not have any active hosting services."
+        cta="Purchase Hosting"
+        href="/dashboard/hosting/provision"
+        ctaIcon={ShoppingCart}
+      />
+    );
+  }
+
+  // show up to 3 most recent
+  const shown = accounts.slice(0, 3);
+
+  return (
+    <div className="flex flex-col divide-y divide-[#e2eaff]">
+      {shown.map((account) => (
+        <Link
+          key={account.id}
+          href={`/dashboard/hosting/${account.id}`}
+          className="flex items-center gap-3 px-5 py-3 hover:bg-[#f6f9ff] transition-colors group"
+        >
+          <StatusDot status={account.status} />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#031033] truncate">
+              {account.domain}
+            </p>
+            <p className="text-xs text-[#9ba8c0]">
+              {account.plan?.name ?? "—"} Plan
+            </p>
+          </div>
+          <StatusLabel status={account.status} />
+          <ChevronRight className="w-3.5 h-3.5 text-[#9ba8c0] group-hover:text-[#e8900a] transition-colors shrink-0" />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+// ── Overview Page ─────────────────────────────────────────────────────────────
 
 export default function DashboardOverview() {
   const { data: me, isLoading } = useGetMe();
+  const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
 
   const firstName = me?.data?.firstName ?? "";
+
+  const activeHosting =
+    hostingAccounts?.filter(
+      (a) => (a.status as string).toUpperCase() === "ACTIVE"
+    ).length ?? 0;
 
   const STAT_CARDS: StatCardProps[] = [
     {
       icon: Server,
       label: "Active Hosting Plans",
-      value: 0,
+      value: loadingHosting ? "—" : activeHosting,
       iconBg: "bg-blue-50",
       iconColor: "text-blue-500",
       href: "/dashboard/hosting",
-      change: { value: "No active plans", positive: null },
-      loading: isLoading,
+      change:
+        activeHosting > 0
+          ? { value: `${activeHosting} running`, positive: true }
+          : { value: "No active plans", positive: null },
+      loading: isLoading || loadingHosting,
     },
     {
       icon: Globe,
@@ -196,8 +313,7 @@ export default function DashboardOverview() {
 
   return (
     <div className="flex flex-col gap-7 max-w-6xl mx-auto">
-
-      {/* ── Welcome header ─────────────────────────────────────────────── */}
+      {/* Welcome header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           {isLoading ? (
@@ -225,22 +341,19 @@ export default function DashboardOverview() {
         </Link>
       </div>
 
-      {/* ── Stat cards — all clickable ──────────────────────────────────── */}
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {STAT_CARDS.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}
       </div>
 
-      {/* ── Section panels ──────────────────────────────────────────────── */}
+      {/* Section panels */}
       <div className="grid md:grid-cols-3 gap-4">
-        <SectionCard title="Hosting" subtitle="Your active plans" href="/dashboard/hosting">
-          <EmptyState
-            icon={Server}
-            message="You currently do not have any active hosting services."
-            cta="Purchase Hosting"
-            href="/dashboard/hosting"
-            ctaIcon={ShoppingCart}
+        <SectionCard title="Hosting" subtitle="Your hosting accounts" href="/dashboard/hosting">
+          <HostingSectionContent
+            accounts={hostingAccounts}
+            loading={loadingHosting}
           />
         </SectionCard>
 
@@ -265,7 +378,7 @@ export default function DashboardOverview() {
         </SectionCard>
       </div>
 
-      {/* ── Help banner ─────────────────────────────────────────────────── */}
+      {/* Help banner */}
       <div className="bg-[#031033] border-l-4 border-[#e8900a] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <p className="text-white font-semibold text-base">Need help getting started?</p>

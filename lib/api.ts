@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // lib/api.ts
 const fetchWithRefresh = async (url: string, options: RequestInit) => {
@@ -518,3 +518,57 @@ export const assignHostingDatabaseUser = (
     body: JSON.stringify(data),
   }).then(handleResponse);
 
+// ── Orders ────────────────────────────────────────────────────────────────────
+
+export type OrderStatus = "PENDING" | "PAID" | "FAILED";
+
+export type Order = {
+  id: string;
+  planId: string;
+  amount: number;
+  status: OrderStatus;
+  paystackRef: string;
+  plan: Plan;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type InitializePaymentResult = {
+  paymentUrl: string;
+  reference: string;
+};
+
+export type VerifyPaymentResult = {
+  status: OrderStatus;
+  plan: Plan;
+  amount: number;
+  reference: string;
+};
+
+/** POST /orders/initialize — creates a Paystack checkout session */
+export const initializePayment = (
+  token: string,
+  data: { planId: string },
+): Promise<{ success: boolean; data: InitializePaymentResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders/initialize`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** GET /orders/verify/:reference — verifies a Paystack payment */
+export const verifyPayment = (
+  token: string,
+  reference: string,
+): Promise<{ success: boolean; data: VerifyPaymentResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders/verify/${encodeURIComponent(reference)}`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);
+
+/** GET /orders — list all orders for the current user */
+export const getOrders = (
+  token: string,
+): Promise<{ success: boolean; data: Order[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders`, {
+    headers: getHeaders(token),
+  }).then(handleResponse);

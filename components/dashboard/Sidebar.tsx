@@ -13,6 +13,7 @@ import {
   LogOut,
   X,
   ExternalLink,
+  ShoppingCart,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
@@ -36,6 +37,7 @@ const NAV_GROUPS = [
   {
     label: "BILLING & SUPPORT",
     links: [
+      { label: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
       { label: "Invoices", href: "/dashboard/invoices", icon: Receipt },
       { label: "Support Tickets", href: "/dashboard/tickets", icon: LifeBuoy },
     ],

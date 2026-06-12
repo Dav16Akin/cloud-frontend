@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "cloud-backend-chi.vercel.app/api";
 
 // lib/api.ts
 const fetchWithRefresh = async (url: string, options: RequestInit) => {

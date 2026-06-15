@@ -1,36 +1,38 @@
 import { useAuthStore } from "@/store/authStore";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api"
 
 // lib/api.ts
 const fetchWithRefresh = async (url: string, options: RequestInit) => {
   let res = await fetch(url, options);
 
-  // if token expired
+  // Access token expired — attempt a silent refresh
   if (res.status === 401) {
-    // try to get a new access token
     const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
       method: "POST",
-      credentials: "include", // sends the refresh token cookie
+      credentials: "include", // sends the httpOnly refresh-token cookie
     });
 
     if (refreshRes.ok) {
-      const { accessToken } = await refreshRes.json();
+      const body = await refreshRes.json();
+      // Support both { accessToken } and { data: { accessToken } } shapes
+      const newToken: string =
+        body?.accessToken ?? body?.data?.accessToken ?? body?.token ?? body?.data?.token;
 
-      // save new token to Zustand
-      useAuthStore.getState().setToken(accessToken);
+      // Persist the new access token
+      useAuthStore.getState().setToken(newToken);
 
-      // retry original request with new token
-      const retryOptions = {
+      // Retry the original request with the fresh token
+      const retryOptions: RequestInit = {
         ...options,
         headers: {
           ...options.headers,
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${newToken}`,
         },
       };
       res = await fetch(url, retryOptions);
     } else {
-      // refresh token also expired → force logout
+      // Refresh token is also expired — force a clean logout
       useAuthStore.getState().logout();
       window.location.href = "/login";
     }
@@ -46,12 +48,11 @@ const getHeaders = (token?: string) => ({
 
 // Parses the response and throws an Error with the backend message on non-2xx.
 // Handles both simple { message } and Zod-style { message, error: string[] } shapes.
+// NOTE: Do NOT log out on 401 here — fetchWithRefresh already handles the
+// token-refresh retry before this function is called.
 const handleResponse = async (res: Response) => {
   const data = await res.json();
   if (!res.ok) {
-    if (res.status === 401) {
-      useAuthStore.getState().logout();
-    }
     const details =
       Array.isArray(data?.error) && data.error.length > 0
         ? data.error.join(" · ")
@@ -571,4 +572,25 @@ export const getOrders = (
 ): Promise<{ success: boolean; data: Order[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/orders`, {
     headers: getHeaders(token),
+  }).then(handleResponse);
+
+// ── Domains ───────────────────────────────────────────────────────────────────
+
+export type DomainResult = {
+  domain: string;
+  available: boolean;
+  isPremium: boolean;
+  price: {
+    price: number | null;
+    currency: string | null;
+  };
+};
+
+/** POST /domains/search — check availability of a domain name across multiple TLDs */
+export const searchDomains = (
+  term: string,
+): Promise<{ success: boolean; data: DomainResult[]; message: string }> =>
+  fetch(`${BASE_URL}/domains/search?term=${encodeURIComponent(term)}`, {
+    method: "POST",
+    headers: getHeaders(),
   }).then(handleResponse);

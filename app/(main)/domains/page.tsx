@@ -10,42 +10,69 @@ import {
   Globe,
   Shield,
   Star,
+  ShoppingCart,
+  Sparkles,
+  Filter,
 } from "lucide-react";
+import { searchDomains, DomainResult } from "@/lib/api";
 
-const extensions = [
-  {
-    ext: ".com",
-    desc: "Perfect for global businesses and startups.",
-    popular: true,
-  },
-  {
-    ext: ".com.ng",
-    desc: "Ideal for Nigerian businesses and brands.",
-    popular: true,
-  },
-  { ext: ".ng", desc: "Short, modern, and locally trusted.", popular: false },
-  {
-    ext: ".africa",
-    desc: "Built for African brands and businesses.",
-    popular: false,
-  },
-  { ext: ".net", desc: "Great for tech-focused projects.", popular: false },
-  { ext: ".org", desc: "For organisations and non-profits.", popular: false },
-];
+const extensionInfo: Record<string, { desc: string; popular: boolean }> = {
+  "com": { desc: "Perfect for global businesses and startups.", popular: true },
+  "com.ng": { desc: "Ideal for Nigerian businesses and brands.", popular: true },
+  "ng": { desc: "Short, modern, and locally trusted.", popular: false },
+  "africa": { desc: "Built for African brands and businesses.", popular: false },
+  "net": { desc: "Great for tech-focused projects.", popular: false },
+  "org": { desc: "For organisations and non-profits.", popular: false },
+  "io": { desc: "Popular with tech startups and SaaS.", popular: false },
+  "co": { desc: "A sleek alternative to .com.", popular: false },
+  "app": { desc: "Built for modern web applications.", popular: false },
+  "dev": { desc: "Made for developers and dev tools.", popular: false },
+};
 
-type SearchState = "idle" | "searching" | "available" | "unavailable";
+type SearchState = "idle" | "searching" | "done" | "error";
+type FilterTab = "all" | "available" | "taken";
 
 export default function DomainsPage() {
   const [query, setQuery] = useState("");
   const [state, setState] = useState<SearchState>("idle");
+  const [results, setResults] = useState<DomainResult[]>([]);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [filter, setFilter] = useState<FilterTab>("all");
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
     setState("searching");
-    setTimeout(() => {
-      setState(Math.random() > 0.4 ? "available" : "unavailable");
-    }, 1200);
+    setResults([]);
+    setFilter("all");
+    try {
+      const res = await searchDomains(query.trim());
+      setResults(res.data || []);
+      setState("done");
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
+      setState("error");
+    }
+  };
+
+  const available = results.filter((r) => r.available);
+  const taken = results.filter((r) => !r.available);
+
+  const displayed =
+    filter === "available" ? available : filter === "taken" ? taken : results;
+
+  const formatPrice = (r: DomainResult) => {
+    if (r.price.price == null) return "—";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: r.price.currency ?? "USD",
+      minimumFractionDigits: 2,
+    }).format(r.price.price);
+  };
+
+  const getTLD = (domain: string) => {
+    const idx = domain.indexOf(".");
+    return idx !== -1 ? domain.slice(idx + 1) : domain;
   };
 
   return (
@@ -54,7 +81,6 @@ export default function DomainsPage() {
       <section className="relative pt-32 pb-24 overflow-hidden section-navy-tint">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 bg-[#fff8ee] border border-[#f5d38a] rounded-full px-4 py-1.5">Domain Registration</span> */}
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5 leading-tight">
             Find the <span className="gradient-text">Perfect Domain Name</span>
           </h1>
@@ -75,7 +101,10 @@ export default function DomainsPage() {
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
-                  setState("idle");
+                  if (state !== "idle") {
+                    setState("idle");
+                    setResults([]);
+                  }
                 }}
                 placeholder="Search your domain name..."
                 className="flex-1 bg-transparent px-4 py-4 text-[#031033] placeholder-[#9ba8c0] text-base outline-none"
@@ -83,102 +112,207 @@ export default function DomainsPage() {
               <button
                 id="domain-search-btn"
                 type="submit"
-                className="btn-primary m-2 py-3 px-6 rounded-xl text-sm shrink-0"
+                disabled={state === "searching"}
+                className="btn-primary m-2 py-3 px-6 rounded-xl text-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Search Domain
+                {state === "searching" ? (
+                  <>
+                    <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin inline-block" />
+                    Searching...
+                  </>
+                ) : (
+                  "Search Domain"
+                )}
               </button>
             </div>
           </form>
 
-          {/* Results */}
+          {/* Searching state */}
           {state === "searching" && (
             <div className="mt-6 bg-white rounded-xl p-5 border-none shadow-apple flex items-center gap-3">
               <div className="w-5 h-5 rounded-full border-2 border-[#fd9f09] border-t-transparent animate-spin" />
               <span className="text-[#5a6a85] text-sm">
                 Checking availability for{" "}
-                <span className="text-[#031033] font-semibold">{query}</span>...
+                <span className="text-[#031033] font-semibold">{query}</span>{" "}
+                across all extensions...
               </span>
             </div>
           )}
-          {state === "available" && (
-            <div className="mt-6 bg-white rounded-xl p-5 border-none shadow-apple flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
-                <div className="text-left">
-                  <p className="text-green-600 font-semibold text-sm">
-                    Great news! This domain is available.
-                  </p>
-                  <p className="text-[#031033] font-bold">
-                    {query.includes(".") ? query : `${query}.com`}
-                  </p>
-                </div>
-              </div>
-              <button
-                id="domain-register-now"
-                className="btn-primary py-2.5 px-5 rounded-lg text-sm shrink-0"
-              >
-                Register Now
-              </button>
+
+          {/* Error state */}
+          {state === "error" && (
+            <div className="mt-6 bg-white rounded-xl p-5 border border-red-100 shadow-apple flex items-center gap-3">
+              <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+              <span className="text-red-500 text-sm">{errorMsg}</span>
             </div>
           )}
-          {state === "unavailable" && (
-            <div className="mt-6 bg-white rounded-xl p-5 border-none shadow-apple">
-              <div className="flex items-center gap-3 mb-3">
-                <XCircle className="w-5 h-5 text-red-500 shrink-0" />
-                <p className="text-red-500 font-semibold text-sm">
-                  This domain is already registered.
-                </p>
+
+          {/* Results */}
+          {state === "done" && results.length > 0 && (
+            <div className="mt-6 bg-white rounded-2xl border border-[#dce4f7] shadow-apple overflow-hidden text-left">
+              {/* Filter tabs */}
+              <div className="flex items-center gap-1 px-4 pt-4 pb-0 border-b border-[#f0f4fc]">
+                <div className="flex gap-1 flex-1">
+                  {(
+                    [
+                      { key: "all", label: `All (${results.length})` },
+                      { key: "available", label: `Available (${available.length})` },
+                      { key: "taken", label: `Taken (${taken.length})` },
+                    ] as { key: FilterTab; label: string }[]
+                  ).map((tab) => (
+                    <button
+                      key={tab.key}
+                      id={`domain-filter-${tab.key}`}
+                      onClick={() => setFilter(tab.key)}
+                      className={`px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-all border-b-2 -mb-px ${
+                        filter === tab.key
+                          ? "border-[#fd9f09] text-[#fd9f09]"
+                          : "border-transparent text-[#5a6a85] hover:text-[#031033]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <Filter className="w-4 h-4 text-[#9ba8c0] mb-2" />
               </div>
-              <p className="text-[#5a6a85] text-xs mb-2">
-                Try these alternatives:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[".com.ng", ".ng", ".africa", ".net"].map((ext) => (
-                  <span
-                    key={ext}
-                    className="trust-badge cursor-pointer hover:border-[#fd9f09] transition-colors"
-                  >
-                    {query.split(".")[0]}
-                    {ext}
-                  </span>
-                ))}
+
+              {/* Domain result rows */}
+              <div className="divide-y divide-[#f0f4fc]">
+                {displayed.map((result) => {
+                  const tld = getTLD(result.domain);
+                  const info = extensionInfo[tld];
+                  return (
+                    <div
+                      key={result.domain}
+                      id={`domain-result-${result.domain.replace(".", "-")}`}
+                      className={`flex items-center justify-between px-5 py-4 gap-4 transition-colors ${
+                        result.available
+                          ? "hover:bg-green-50/40"
+                          : "hover:bg-gray-50/60"
+                      }`}
+                    >
+                      {/* Left: status icon + domain name */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        {result.available ? (
+                          <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-[#c5cedf] shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className={`font-bold text-base truncate ${
+                                result.available
+                                  ? "text-[#031033]"
+                                  : "text-[#9ba8c0]"
+                              }`}
+                            >
+                              {result.domain}
+                            </span>
+                            {info?.popular && (
+                              <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 rounded font-semibold shrink-0">
+                                Popular
+                              </span>
+                            )}
+                            {result.isPremium && (
+                              <span className="text-[10px] bg-[#f3f0ff] text-[#7c3aed] border border-[#d8b4fe] px-2 py-0.5 rounded font-semibold shrink-0 flex items-center gap-1">
+                                <Sparkles className="w-2.5 h-2.5" />
+                                Premium
+                              </span>
+                            )}
+                          </div>
+                          {info?.desc && (
+                            <p className="text-[11px] text-[#9ba8c0] mt-0.5 hidden sm:block">
+                              {info.desc}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: price + action */}
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="text-right">
+                          {result.price.price != null ? (
+                            <>
+                              <p
+                                className={`font-bold text-sm ${
+                                  result.available
+                                    ? "text-[#031033]"
+                                    : "text-[#9ba8c0]"
+                                }`}
+                              >
+                                {formatPrice(result)}
+                              </p>
+                              <p className="text-[10px] text-[#9ba8c0]">
+                                /year
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-xs text-[#9ba8c0]">—</p>
+                          )}
+                        </div>
+                        {result.available ? (
+                          <button
+                            id={`domain-add-${result.domain.replace(".", "-")}`}
+                            className="btn-primary py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 shrink-0"
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            Add
+                          </button>
+                        ) : (
+                          <span className="text-xs text-[#9ba8c0] font-medium px-4 py-2 bg-[#f6f8fc] rounded-lg">
+                            Taken
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+
+              {displayed.length === 0 && (
+                <div className="py-10 text-center text-[#9ba8c0] text-sm">
+                  No domains match this filter.
+                </div>
+              )}
             </div>
           )}
         </div>
       </section>
 
-      {/* Extensions */}
+      {/* Extensions showcase */}
       <section className="section-pad section-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-3">Extensions</span> */}
             <h2 className="text-3xl font-extrabold text-[#031033] mb-3">
               Popular <span className="gradient-text">Extensions</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {extensions.map((ext) => (
-              <div
-                key={ext.ext}
-                className="feature-card p-6 flex items-start gap-4 group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0 font-bold text-[#031033] text-sm group-hover:scale-110 transition-transform">
-                  {ext.ext}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-[#031033] font-semibold">{ext.ext}</h3>
-                    {ext.popular && (
-                      <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 font-semibold">
-                        Popular
-                      </span>
-                    )}
+            {Object.entries(extensionInfo)
+              .slice(0, 6)
+              .map(([ext, info]) => (
+                <div
+                  key={ext}
+                  className="feature-card p-6 flex items-start gap-4 group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0 font-bold text-[#031033] text-xs group-hover:scale-110 transition-transform">
+                    .{ext}
                   </div>
-                  <p className="text-[#5a6a85] text-sm">{ext.desc}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-[#031033] font-semibold">.{ext}</h3>
+                      {info.popular && (
+                        <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 font-semibold rounded">
+                          Popular
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[#5a6a85] text-sm">{info.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </section>
@@ -189,7 +323,6 @@ export default function DomainsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4">Why It Matters</span> */}
               <h2 className="text-3xl font-extrabold text-[#031033] mb-5">
                 Why Your <span className="gradient-text">Domain Matters</span>
               </h2>
@@ -201,7 +334,7 @@ export default function DomainsPage() {
                 Your domain is the foundation of your digital identity.
               </p>
               <Link
-                href="#hero"
+                href="#domain-search-form"
                 id="domain-why-search"
                 className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 rounded-xl text-base"
               >
@@ -234,10 +367,16 @@ export default function DomainsPage() {
                   className="feature-card p-4 flex items-start gap-4"
                 >
                   <div
-                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"}`}
+                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${
+                      color === "orange" ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"
+                    }`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${color === "orange" ? "text-[#e8900a]" : "text-[#031033]"}`}
+                      className={`w-5 h-5 ${
+                        color === "orange"
+                          ? "text-[#e8900a]"
+                          : "text-[#031033]"
+                      }`}
                       strokeWidth={1.8}
                     />
                   </div>
@@ -262,7 +401,7 @@ export default function DomainsPage() {
         <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none" />
         <div className="max-w-2xl mx-auto px-4 text-center relative z-10">
           <div className="flex justify-center mb-6">
-            <Image 
+            <Image
               src="/images/nupat-cloud-logo-blackbg-removebg-preview.png"
               alt="Nupat Cloud Logo"
               width={140}
@@ -275,7 +414,7 @@ export default function DomainsPage() {
             <span style={{ color: "#fd9f09" }}>Before Someone Else Does</span>
           </h2>
           <Link
-            href="#"
+            href="#domain-search-form"
             id="domain-final-search"
             className="inline-flex items-center gap-2 py-4 px-10 rounded-xl text-base font-semibold bg-white text-[#031033] hover:bg-gray-100 transition-all shadow-xl mt-4"
           >

@@ -5,6 +5,9 @@ import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import { refresh } from "@/lib/api";
+
+type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
 export default function DashboardLayout({
   children,
@@ -12,23 +15,51 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const token = useAuthStore((s) => s.token);
+  const setToken = useAuthStore((s) => s.setToken);
+  const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+  const [authStatus, setAuthStatus] = useState<AuthStatus>("loading");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // isMounted guarantees we're on the client and Zustand has read localStorage
   useEffect(() => {
-    setIsMounted(true);
+    // If there's already a token in the store we're good immediately.
+    if (token) {
+      setAuthStatus("authenticated");
+      return;
+    }
+
+    // No token — try a silent refresh before giving up.
+    // The refresh endpoint uses the httpOnly cookie, so no token needed.
+    refresh()
+      .then((res) => {
+        const newToken: string =
+          res?.accessToken ?? res?.data?.accessToken ?? res?.token ?? res?.data?.token;
+        if (newToken) {
+          setToken(newToken);
+          setAuthStatus("authenticated");
+        } else {
+          logout();
+          setAuthStatus("unauthenticated");
+        }
+      })
+      .catch(() => {
+        // Refresh token expired or missing — redirect to login
+        logout();
+        setAuthStatus("unauthenticated");
+      });
+    // Only run once on mount; token changes are handled by the authStatus watch below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // If the token is cleared mid-session (e.g. both tokens expired), redirect.
   useEffect(() => {
-    if (isMounted && !token) {
+    if (authStatus === "unauthenticated") {
       router.replace("/login");
     }
-  }, [isMounted, token, router]);
+  }, [authStatus, router]);
 
-  // Show spinner until client JS has run
-  if (!isMounted) {
+  // Show spinner while we're determining auth state
+  if (authStatus === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f6f9ff]">
         <Loader2 className="w-6 h-6 animate-spin text-[#e8900a]" />
@@ -36,8 +67,8 @@ export default function DashboardLayout({
     );
   }
 
-  // Mounted but no token — redirect is in flight
-  if (!token) return null;
+  // Redirect in flight
+  if (authStatus === "unauthenticated") return null;
 
   return (
     <div className="flex h-screen bg-[#f6f9ff] overflow-hidden">

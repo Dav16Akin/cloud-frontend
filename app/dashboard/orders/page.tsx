@@ -97,7 +97,7 @@ function OrderRow({ order }: { order: Order }) {
       {/* Provision link (only for paid orders) */}
       {order.status === "PAID" && order.plan && (
         <Link
-          href={`/dashboard/hosting/provision?planId=${order.planId}&planName=${encodeURIComponent(order.plan.name)}`}
+          href={`/dashboard/hosting/provision?planId=${order.planId}&planName=${encodeURIComponent(order.plan.name)}&reference=${encodeURIComponent(order.paystackRef)}`}
           id={`order-provision-${order.id}`}
           className="text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2 flex items-center gap-1 shrink-0 whitespace-nowrap"
         >

@@ -15,6 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const token = useAuthStore((s) => s.token);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
   const setToken = useAuthStore((s) => s.setToken);
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
@@ -22,14 +23,18 @@ export default function DashboardLayout({
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // If there's already a token in the store we're good immediately.
+    // Wait until Zustand has finished reading from localStorage.
+    // This prevents a false logout on hard reloads (e.g. after a Paystack redirect)
+    // where the store briefly shows token = null before hydration completes.
+    if (!hasHydrated) return;
+
     if (token) {
+      // Token is present and hydration is complete — user is authenticated.
       setAuthStatus("authenticated");
       return;
     }
 
-    // No token — try a silent refresh before giving up.
-    // The refresh endpoint uses the httpOnly cookie, so no token needed.
+    // No token after hydration — try a silent refresh using the httpOnly cookie.
     refresh()
       .then((res) => {
         const newToken: string =
@@ -47,9 +52,10 @@ export default function DashboardLayout({
         logout();
         setAuthStatus("unauthenticated");
       });
-    // Only run once on mount; token changes are handled by the authStatus watch below.
+    // Re-run whenever hydration completes; token changes mid-session are handled
+    // by fetchWithRefresh in api.ts which updates the store directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasHydrated]);
 
   // If the token is cleared mid-session (e.g. both tokens expired), redirect.
   useEffect(() => {

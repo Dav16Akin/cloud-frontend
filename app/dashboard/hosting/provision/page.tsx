@@ -237,6 +237,8 @@ export default function ProvisionHostingPage() {
 
   const planIdParam = searchParams.get("planId") ?? "";
   const planNameParam = searchParams.get("planName") ?? "";
+  // `reference` is present only when arriving from a fresh Paystack callback
+  const referenceParam = searchParams.get("reference") ?? "";
 
   const { data: plans, isLoading: loadingPlans } = usePlans();
   const { data: orders, isLoading: loadingOrders } = useGetOrders();
@@ -257,13 +259,17 @@ export default function ProvisionHostingPage() {
 
   const selectedPlan = plans?.find((p) => p.id === selectedPlanId);
 
-  // Check if there's a paid, un-provisioned order for the selected plan
-  const paidOrder = selectedPlanId
-    ? orders?.find((o) => o.planId === selectedPlanId && o.status === "PAID")
+  // Only unlock the domain form for a *fresh* payment — identified by the
+  // Paystack reference in the URL. Without it we always show the payment gate
+  // so users can buy the same plan again for a new domain.
+  const paidOrder = referenceParam
+    ? orders?.find(
+        (o) => o.paystackRef === referenceParam && o.status === "PAID",
+      )
     : null;
 
   const hasPaidOrder = !!paidOrder;
-  const checkingOrders = loadingOrders;
+  const checkingOrders = !!referenceParam && loadingOrders;
 
   const validateDomain = (value: string) => {
     const trimmed = value.trim().toLowerCase();

@@ -3,38 +3,86 @@ import { useAuthStore } from "@/store/authStore";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api"
 
 // lib/api.ts
-const fetchWithRefresh = async (url: string, options: RequestInit) => {
+
+// Prevents multiple simultaneous token refresh calls.
+// All in-flight 401 requests are queued and replayed once refresh resolves.
+let isRefreshing = false;
+type QueueItem = { resolve: (token: string) => void; reject: (err: unknown) => void };
+const failedQueue: QueueItem[] = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue.length = 0;
+}
+
+const fetchWithRefresh = async (url: string, options: RequestInit): Promise<Response> => {
   let res = await fetch(url, options);
 
   // Access token expired — attempt a silent refresh
   if (res.status === 401) {
-    const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-      method: "POST",
-      credentials: "include", // sends the httpOnly refresh-token cookie
-    });
+    // If a refresh is already in flight, queue this request until it resolves.
+    if (isRefreshing) {
+      return new Promise<Response>((resolve, reject) => {
+        failedQueue.push({
+          resolve: (newToken) => {
+            const retryOptions: RequestInit = {
+              ...options,
+              headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
+            };
+            resolve(fetch(url, retryOptions));
+          },
+          reject,
+        });
+      });
+    }
 
-    if (refreshRes.ok) {
-      const body = await refreshRes.json();
-      // Support both { accessToken } and { data: { accessToken } } shapes
-      const newToken: string =
-        body?.accessToken ?? body?.data?.accessToken ?? body?.token ?? body?.data?.token;
+    isRefreshing = true;
 
-      // Persist the new access token
-      useAuthStore.getState().setToken(newToken);
+    try {
+      const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include", // sends the httpOnly refresh-token cookie
+      });
 
-      // Retry the original request with the fresh token
-      const retryOptions: RequestInit = {
-        ...options,
-        headers: {
-          ...options.headers,
-          Authorization: `Bearer ${newToken}`,
-        },
-      };
-      res = await fetch(url, retryOptions);
-    } else {
-      // Refresh token is also expired — force a clean logout
+      if (refreshRes.ok) {
+        const body = await refreshRes.json();
+        // Support both { accessToken } and { data: { accessToken } } shapes
+        const newToken: string =
+          body?.accessToken ?? body?.data?.accessToken ?? body?.token ?? body?.data?.token;
+
+        // Persist the new access token in the store
+        useAuthStore.getState().setToken(newToken);
+
+        // Unblock all queued requests with the new token
+        processQueue(null, newToken);
+
+        // Retry the original request with the fresh token
+        res = await fetch(url, {
+          ...options,
+          headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
+        });
+      } else {
+        processQueue(new Error("Session expired"), null);
+        // Refresh token is also expired — force a clean logout
+        useAuthStore.getState().logout();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
+    } catch (err) {
+      processQueue(err, null);
       useAuthStore.getState().logout();
-      window.location.href = "/login";
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    } finally {
+      isRefreshing = false;
     }
   }
 
@@ -593,4 +641,29 @@ export const searchDomains = (
   fetch(`${BASE_URL}/domains/search?term=${encodeURIComponent(term)}`, {
     method: "POST",
     headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Billing (WHMCS) ───────────────────────────────────────────────────────────
+
+export type WhmcsInvoice = {
+  id: string;
+  date: string;
+  duedate: string;
+  total: string;
+  status: "Paid" | "Unpaid" | "Cancelled" | "Refunded" | "Collections" | "Draft";
+};
+
+export type BillingOverview = {
+  invoices: WhmcsInvoice[];
+  totalInvoices: number;
+  creditBalance: string | number;
+  currency: string;
+};
+
+/** GET /billing/overview — fetches WHMCS invoices + credit balance for the current user */
+export const getBillingOverview = (
+  token: string,
+): Promise<{ success: boolean; data: BillingOverview; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/billing/overview`, {
+    headers: getHeaders(token),
   }).then(handleResponse);

@@ -55,7 +55,7 @@ export default function OrderVerifyPage() {
     () => {
       if (isPaid && planId) {
         router.replace(
-          `/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}`,
+          `/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}&reference=${encodeURIComponent(reference)}`,
         );
       }
     },
@@ -228,7 +228,7 @@ export default function OrderVerifyPage() {
         </p>
 
         <Link
-          href={`/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}`}
+          href={`/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}&reference=${encodeURIComponent(reference)}`}
           id="verify-setup-now"
           className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
         >

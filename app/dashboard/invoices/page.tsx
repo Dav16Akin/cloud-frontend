@@ -41,7 +41,7 @@ type InvoiceStatus = WhmcsInvoice["status"];
 function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
   const cfg: Record<
     InvoiceStatus,
-    { icon: React.ElementType; label: string; cls: string }
+    { icon: React.ComponentType<{ className?: string }>; label: string; cls: string }
   > = {
     Paid: {
       icon: CheckCircle2,
@@ -157,7 +157,7 @@ function StatCard({
 }: {
   label: string;
   value: string | number;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
 }) {
   return (

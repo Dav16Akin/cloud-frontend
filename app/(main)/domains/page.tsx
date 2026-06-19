@@ -136,15 +136,18 @@ export default function DomainsPage() {
                 id="domain-search-btn"
                 type="submit"
                 disabled={state === "searching"}
-                className="btn-primary m-2 py-3 px-6 rounded-xl text-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-primary m-2 py-3 px-3 sm:px-6 rounded-xl text-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {state === "searching" ? (
                   <>
                     <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin inline-block" />
-                    Searching...
+                    <span className="hidden sm:inline">Searching...</span>
                   </>
                 ) : (
-                  "Search Domain"
+                  <>
+                    <Search className="w-4 h-4 sm:hidden" />
+                    <span className="hidden sm:inline">Search Domain</span>
+                  </>
                 )}
               </button>
             </div>
@@ -245,12 +248,21 @@ export default function DomainsPage() {
                               </span>
                             )}
                           </div>
+                          {/* Price under domain name — mobile only */}
+                          {result.price.price != null && (
+                            <p className={`sm:hidden text-xs font-semibold mt-0.5 ${
+                              result.available ? "text-[#031033]" : "text-[#9ba8c0]"
+                            }`}>
+                              {formatPrice(result)}{" "}
+                              <span className="font-normal text-[#9ba8c0]">/year</span>
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       {/* Right: price + action */}
                       <div className="flex items-center gap-3 shrink-0">
-                        <div className="text-right">
+                        <div className="text-right hidden sm:block">
                           {result.price.price != null ? (
                             <>
                               <p

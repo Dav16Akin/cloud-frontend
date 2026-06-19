@@ -13,8 +13,11 @@ import {
   ShoppingCart,
   Sparkles,
   Filter,
+  Trash2,
 } from "lucide-react";
 import { searchDomains, DomainResult } from "@/lib/api";
+import { useCartStore } from "@/store/cartStore";
+import { toast } from "sonner";
 
 const extensionInfo: Record<string, { desc: string; popular: boolean }> = {
   "com": { desc: "Perfect for global businesses and startups.", popular: true },
@@ -39,6 +42,8 @@ export default function DomainsPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
 
+  const { addItem, removeItem, hasItem, itemCount } = useCartStore();
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -53,6 +58,24 @@ export default function DomainsPage() {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
       setState("error");
     }
+  };
+
+  const handleAddToCart = (result: DomainResult) => {
+    if (result.price.price == null) return;
+    addItem({
+      domain: result.domain,
+      price: result.price.price,
+      currency: result.price.currency ?? "USD",
+      isPremium: result.isPremium,
+    });
+    toast.success(`${result.domain} added to cart!`, {
+      action: { label: "View Cart", onClick: () => window.location.href = "/cart" },
+    });
+  };
+
+  const handleRemoveFromCart = (domain: string) => {
+    removeItem(domain);
+    toast.info(`${domain} removed from cart.`);
   };
 
   const available = results.filter((r) => r.available);
@@ -222,11 +245,6 @@ export default function DomainsPage() {
                               </span>
                             )}
                           </div>
-                          {info?.desc && (
-                            <p className="text-[11px] text-[#9ba8c0] mt-0.5 hidden sm:block">
-                              {info.desc}
-                            </p>
-                          )}
                         </div>
                       </div>
 
@@ -253,15 +271,28 @@ export default function DomainsPage() {
                           )}
                         </div>
                         {result.available ? (
-                          <button
-                            id={`domain-add-${result.domain.replace(".", "-")}`}
-                            className="btn-primary py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 shrink-0"
-                          >
-                            <ShoppingCart className="w-3.5 h-3.5" />
-                            Add
-                          </button>
+                          hasItem(result.domain) ? (
+                            <button
+                              id={`domain-remove-${result.domain.replace(".", "-")}`}
+                              onClick={() => handleRemoveFromCart(result.domain)}
+                              className="py-2 px-4 text-xs flex items-center gap-1.5 shrink-0 font-semibold border border-red-200 text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Remove
+                            </button>
+                          ) : (
+                            <button
+                              id={`domain-add-${result.domain.replace(".", "-")}`}
+                              onClick={() => handleAddToCart(result)}
+                              disabled={result.price.price == null}
+                              className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <ShoppingCart className="w-3.5 h-3.5" />
+                              Add
+                            </button>
+                          )
                         ) : (
-                          <span className="text-xs text-[#9ba8c0] font-medium px-4 py-2 bg-[#f6f8fc] rounded-lg">
+                          <span className="text-xs text-[#9ba8c0] font-medium px-4 py-2 bg-[#f6f8fc]">
                             Taken
                           </span>
                         )}

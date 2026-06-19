@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Bell, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu } from "lucide-react";
+import { Search, Bell, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
+import { useCartStore } from "@/store/cartStore";
 
 type DashboardNavbarProps = {
   onMobileMenuOpen?: () => void;
@@ -20,6 +21,13 @@ export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarPro
   const lastName = me?.data?.lastName ?? "";
   const email = me?.data?.email ?? "";
   const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "U";
+
+  const { itemCount, toggleDrawer } = useCartStore();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    setCartCount(itemCount());
+  }, [itemCount]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -65,13 +73,28 @@ export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarPro
           Main Site
         </Link>
 
+        {/* Cart Button */}
+        <button
+          id="dashboard-nav-cart"
+          onClick={toggleDrawer}
+          className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+          aria-label="Shopping cart"
+        >
+          <ShoppingCart className="w-[18px] h-[18px]" />
+          {cartCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#e8900a] text-white text-[8px] font-extrabold flex items-center justify-center rounded-full">
+              {cartCount > 9 ? "9+" : cartCount}
+            </span>
+          )}
+        </button>
+
         {/* Bell */}
         <button
           id="dashboard-nav-notifications"
           className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
           aria-label="Notifications"
         >
-          <Bell className="w-4.5 h-4.5 w-[18px] h-[18px]" />
+          <Bell className="w-[18px] h-[18px]" />
           {/* Notification dot */}
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#e8900a]" />
         </button>

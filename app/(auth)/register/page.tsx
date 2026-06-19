@@ -12,7 +12,9 @@ type FormState = {
   phoneNumber: string;
   companyName: string;
   address: string;
+  houseNumber: string;
   city: string;
+  state: string;
   country: string;
   postcode: string;
   password: string;
@@ -35,7 +37,9 @@ export default function RegisterPage() {
     phoneNumber: "",
     companyName: "",
     address: "",
+    houseNumber: "",
     city: "",
+    state: "",
     country: "",
     postcode: "",
     password: "",
@@ -152,7 +156,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="register-address" className={labelClass}>Address</label>
+                <label htmlFor="register-address" className={labelClass}>Street Address</label>
                 <input
                   id="register-address"
                   type="text"
@@ -165,8 +169,19 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ── Row 4: City + Country + Postcode ─────────────────────────── */}
+            {/* ── Row 4: House Number + City + State ───────────────────────── */}
             <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="register-house-number" className={labelClass}>House / Unit No.</label>
+                <input
+                  id="register-house-number"
+                  type="text"
+                  placeholder="Apt 4B"
+                  value={form.houseNumber}
+                  onChange={(e) => set("houseNumber", e.target.value)}
+                  className={inputClass}
+                />
+              </div>
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-city" className={labelClass}>City</label>
                 <input
@@ -179,6 +194,21 @@ export default function RegisterPage() {
                   className={inputClass}
                 />
               </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="register-state" className={labelClass}>State / Province</label>
+                <input
+                  id="register-state"
+                  type="text"
+                  placeholder="Lagos State"
+                  value={form.state}
+                  onChange={(e) => set("state", e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            {/* ── Row 5: Country + Postcode ─────────────────────────────────── */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-country" className={labelClass}>Country</label>
                 <input

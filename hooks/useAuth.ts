@@ -15,7 +15,7 @@ import { useAuthStore } from "@/store/authStore";
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 
-export const useLogin = () => {
+export const useLogin = (redirectTo = "/dashboard") => {
   const setToken = useAuthStore((s) => s.setToken);
   const router = useRouter();
 
@@ -28,7 +28,7 @@ export const useLogin = () => {
         setToken(token);
       }
       toast.success("Welcome back!");
-      router.push("/dashboard"); // Always redirect on a successful (2xx) login
+      router.push(redirectTo); // Respect redirect param (e.g. /cart/checkout)
     },
     onError: (err: Error) => {
       toast.error(err.message);

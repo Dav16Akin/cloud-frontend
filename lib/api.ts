@@ -1,13 +1,17 @@
 import { useAuthStore } from "@/store/authStore";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api"
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
 
 // lib/api.ts
 
 // Prevents multiple simultaneous token refresh calls.
 // All in-flight 401 requests are queued and replayed once refresh resolves.
 let isRefreshing = false;
-type QueueItem = { resolve: (token: string) => void; reject: (err: unknown) => void };
+type QueueItem = {
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+};
 const failedQueue: QueueItem[] = [];
 
 function processQueue(error: unknown, token: string | null) {
@@ -21,7 +25,10 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue.length = 0;
 }
 
-const fetchWithRefresh = async (url: string, options: RequestInit): Promise<Response> => {
+const fetchWithRefresh = async (
+  url: string,
+  options: RequestInit,
+): Promise<Response> => {
   let res = await fetch(url, options);
 
   // Access token expired — attempt a silent refresh
@@ -33,7 +40,10 @@ const fetchWithRefresh = async (url: string, options: RequestInit): Promise<Resp
           resolve: (newToken) => {
             const retryOptions: RequestInit = {
               ...options,
-              headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
+              headers: {
+                ...options.headers,
+                Authorization: `Bearer ${newToken}`,
+              },
             };
             resolve(fetch(url, retryOptions));
           },
@@ -54,7 +64,10 @@ const fetchWithRefresh = async (url: string, options: RequestInit): Promise<Resp
         const body = await refreshRes.json();
         // Support both { accessToken } and { data: { accessToken } } shapes
         const newToken: string =
-          body?.accessToken ?? body?.data?.accessToken ?? body?.token ?? body?.data?.token;
+          body?.accessToken ??
+          body?.data?.accessToken ??
+          body?.token ??
+          body?.data?.token;
 
         // Persist the new access token in the store
         useAuthStore.getState().setToken(newToken);
@@ -89,10 +102,13 @@ const fetchWithRefresh = async (url: string, options: RequestInit): Promise<Resp
   return res;
 };
 
-const getHeaders = (token?: string) => ({
-  "Content-Type": "application/json",
-  ...(token && { Authorization: `Bearer ${token}` }),
-});
+const getHeaders = () => {
+  const token = useAuthStore.getState().token;
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
 
 // Parses the response and throws an Error with the backend message on non-2xx.
 // Handles both simple { message } and Zod-style { message, error: string[] } shapes.
@@ -122,13 +138,16 @@ export const registerUser = (data: {
   phoneNumber: string;
   companyName: string;
   address: string;
+  houseNumber?: string;
   country: string;
   city: string;
+  state?: string;
   postcode: string;
 }) =>
   fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -136,6 +155,7 @@ export const loginUser = (data: { email: string; password: string }) =>
   fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -157,6 +177,7 @@ export const verifyOTP = (data: { email: string; code: string }) =>
   fetch(`${BASE_URL}/auth/verify`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -169,9 +190,9 @@ export const resendOTP = (data: { email: string }) =>
 
 // ── Protected (auto-refresh token) ───────────────────────────────────────────
 
-export const getMe = (token: string) =>
+export const getMe = () =>
   fetchWithRefresh(`${BASE_URL}/auth/me`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const updateProfile = (
@@ -182,14 +203,16 @@ export const updateProfile = (
     phoneNumber?: string;
     companyName?: string;
     address?: string;
+    houseNumber?: string;
     country?: string;
     city?: string;
+    state?: string;
     postcode?: string;
   },
 ) =>
   fetchWithRefresh(`${BASE_URL}/users/profile`, {
     method: "PATCH",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -199,7 +222,7 @@ export const changePassword = (
 ) =>
   fetchWithRefresh(`${BASE_URL}/users/change-password`, {
     method: "PATCH",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -326,7 +349,6 @@ export type HostingDatabaseUser = {
   user: string;
 };
 
-
 export type ProvisionHostingPayload = {
   domain: string;
   planId: string;
@@ -346,7 +368,7 @@ export const getHosting = (
   token: string,
 ): Promise<{ success: boolean; data: HostingAccount[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const getHostingById = (
@@ -354,7 +376,7 @@ export const getHostingById = (
   id: string,
 ): Promise<{ success: boolean; data: HostingAccount; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const provisionHosting = (
@@ -367,7 +389,7 @@ export const provisionHosting = (
 }> =>
   fetchWithRefresh(`${BASE_URL}/hosting`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -377,7 +399,7 @@ export const deleteHosting = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}`, {
     method: "DELETE",
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const suspendHosting = (
@@ -386,7 +408,7 @@ export const suspendHosting = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/suspend`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const unsuspendHosting = (
@@ -395,7 +417,7 @@ export const unsuspendHosting = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/unsuspend`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const getHostingStats = (
@@ -403,7 +425,7 @@ export const getHostingStats = (
   id: string,
 ): Promise<{ success: boolean; data: HostingStats; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/stats`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 // ── Hosting Emails ─────────────────────────────────────────────────────────────
@@ -413,7 +435,7 @@ export const getHostingEmails = (
   id: string,
 ): Promise<{ success: boolean; data: HostingEmail[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const createHostingEmail = (
@@ -423,7 +445,7 @@ export const createHostingEmail = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -436,7 +458,7 @@ export const deleteHostingEmail = (
     `${BASE_URL}/hosting/${id}/emails/${encodeURIComponent(email)}`,
     {
       method: "DELETE",
-      headers: getHeaders(token),
+      headers: getHeaders(),
     },
   ).then(handleResponse);
 
@@ -450,7 +472,7 @@ export const changeHostingEmailPassword = (
     `${BASE_URL}/hosting/${id}/emails/${encodeURIComponent(email)}/password`,
     {
       method: "PATCH",
-      headers: getHeaders(token),
+      headers: getHeaders(),
       body: JSON.stringify({ password }),
     },
   ).then(handleResponse);
@@ -462,7 +484,7 @@ export const getHostingForwarders = (
   id: string,
 ): Promise<{ success: boolean; data: HostingForwarder[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails/forwarders`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const createHostingForwarder = (
@@ -472,21 +494,21 @@ export const createHostingForwarder = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/emails/forwarders`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
 export const deleteHostingForwarder = (
   token: string,
   id: string,
-  address: string,   // source email on the domain  e.g. no-reply@demobusiness.com
+  address: string, // source email on the domain  e.g. no-reply@demobusiness.com
   forwarder: string, // destination email            e.g. akindav16@gmail.com
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(
     `${BASE_URL}/hosting/${id}/emails/forwarders?address=${encodeURIComponent(address)}&forwarder=${encodeURIComponent(forwarder)}`,
     {
       method: "DELETE",
-      headers: getHeaders(token),
+      headers: getHeaders(),
     },
   ).then(handleResponse);
 
@@ -497,7 +519,7 @@ export const getHostingDatabases = (
   id: string,
 ): Promise<{ success: boolean; data: HostingDatabase[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const createHostingDatabase = (
@@ -507,7 +529,7 @@ export const createHostingDatabase = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -520,16 +542,20 @@ export const deleteHostingDatabase = (
     `${BASE_URL}/hosting/${id}/databases/${encodeURIComponent(database)}`,
     {
       method: "DELETE",
-      headers: getHeaders(token),
+      headers: getHeaders(),
     },
   ).then(handleResponse);
 
 export const getHostingDatabaseUsers = (
   token: string,
   id: string,
-): Promise<{ success: boolean; data: HostingDatabaseUser[]; message: string }> =>
+): Promise<{
+  success: boolean;
+  data: HostingDatabaseUser[];
+  message: string;
+}> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 export const createHostingDatabaseUser = (
@@ -539,7 +565,7 @@ export const createHostingDatabaseUser = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -552,7 +578,7 @@ export const deleteHostingDatabaseUser = (
     `${BASE_URL}/hosting/${id}/databases/users/${encodeURIComponent(user)}`,
     {
       method: "DELETE",
-      headers: getHeaders(token),
+      headers: getHeaders(),
     },
   ).then(handleResponse);
 
@@ -563,7 +589,7 @@ export const assignHostingDatabaseUser = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users/assign`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -598,10 +624,14 @@ export type VerifyPaymentResult = {
 export const initializePayment = (
   token: string,
   data: { planId: string },
-): Promise<{ success: boolean; data: InitializePaymentResult; message: string }> =>
+): Promise<{
+  success: boolean;
+  data: InitializePaymentResult;
+  message: string;
+}> =>
   fetchWithRefresh(`${BASE_URL}/orders/initialize`, {
     method: "POST",
-    headers: getHeaders(token),
+    headers: getHeaders(),
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -610,16 +640,19 @@ export const verifyPayment = (
   token: string,
   reference: string,
 ): Promise<{ success: boolean; data: VerifyPaymentResult; message: string }> =>
-  fetchWithRefresh(`${BASE_URL}/orders/verify/${encodeURIComponent(reference)}`, {
-    headers: getHeaders(token),
-  }).then(handleResponse);
+  fetchWithRefresh(
+    `${BASE_URL}/orders/verify/${encodeURIComponent(reference)}`,
+    {
+      headers: getHeaders(),
+    },
+  ).then(handleResponse);
 
 /** GET /orders — list all orders for the current user */
 export const getOrders = (
   token: string,
 ): Promise<{ success: boolean; data: Order[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/orders`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
   }).then(handleResponse);
 
 // ── Domains ───────────────────────────────────────────────────────────────────
@@ -643,6 +676,68 @@ export const searchDomains = (
     headers: getHeaders(),
   }).then(handleResponse);
 
+export type RegisteredDomain = {
+  id: string;
+  domain: string;
+  status: "ACTIVE" | "EXPIRED" | "PENDING";
+  expiryDate: string;
+  registrationDate: string;
+  autoRenew: boolean;
+};
+
+/** GET /domains — list all registered domains for the current user */
+export const getRegisteredDomains = (
+  token: string,
+): Promise<{ success: boolean; data: RegisteredDomain[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Domain Orders ─────────────────────────────────────────────────────────────
+
+export type DomainOrderItem = {
+  domain: string;
+  years: number;
+  addSsl: boolean;
+};
+
+export type DomainOrderResult = {
+  paymentUrl: string;
+  reference: string;
+  orderId: string;
+};
+
+export type VerifyDomainOrderResult = {
+  status: "PENDING" | "PAID" | "FAILED";
+  domains: string[];
+  amount: number;
+  reference: string;
+};
+
+/**
+ * POST /orders/domain/initialize — creates a domain purchase order and returns a Paystack payment URL.
+ * NOTE: This endpoint is a stub — wire up the real backend route when available.
+ */
+export const initializeDomainOrder = (
+  data: { items: DomainOrderItem[] },
+): Promise<{ success: boolean; data: DomainOrderResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders/domain/initialize`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/**
+ * GET /orders/domain/verify/:reference — verifies a domain payment by Paystack reference.
+ */
+export const verifyDomainOrder = (
+  reference: string,
+): Promise<{ success: boolean; data: VerifyDomainOrderResult; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/orders/domain/verify/${encodeURIComponent(reference)}`,
+    { headers: getHeaders() },
+  ).then(handleResponse);
+
 // ── Billing (WHMCS) ───────────────────────────────────────────────────────────
 
 export type WhmcsInvoice = {
@@ -650,7 +745,13 @@ export type WhmcsInvoice = {
   date: string;
   duedate: string;
   total: string;
-  status: "Paid" | "Unpaid" | "Cancelled" | "Refunded" | "Collections" | "Draft";
+  status:
+    | "Paid"
+    | "Unpaid"
+    | "Cancelled"
+    | "Refunded"
+    | "Collections"
+    | "Draft";
 };
 
 export type BillingOverview = {
@@ -665,5 +766,83 @@ export const getBillingOverview = (
   token: string,
 ): Promise<{ success: boolean; data: BillingOverview; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/billing/overview`, {
-    headers: getHeaders(token),
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Hosting DNS Records ───────────────────────────────────────────────────────
+
+export type DNSRecordType =
+  | "A"
+  | "AAAA"
+  | "CNAME"
+  | "MX"
+  | "TXT"
+  | "NS"
+  | "PTR"
+  | "SRV"
+  | "CAA";
+
+export type DNSRecord = {
+  /** WHM zone line number — used as the record identifier for edit/delete */
+  line: number;
+  name: string;
+  type: DNSRecordType | string;
+  /** Unified address field (covers address / cname / exchange / txtdata) */
+  address: string;
+  ttl: number;
+  priority: number | null;
+};
+
+export type CreateDNSRecordPayload = {
+  name: string;
+  type: DNSRecordType;
+  address: string;
+  ttl: number;
+  priority?: number;
+};
+
+export type UpdateDNSRecordPayload = CreateDNSRecordPayload & {
+  /** WHM line number of the record to edit */
+  line: number;
+};
+
+/** GET /hosting/:id/dns — list all DNS records for a hosting account */
+export const getDNSRecords = (
+  id: string,
+): Promise<{ success: boolean; data: DNSRecord[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/dns`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/** POST /hosting/:id/dns — add a new DNS record */
+export const createDNSRecord = (
+  id: string,
+  data: CreateDNSRecordPayload,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/dns`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** PATCH /hosting/:id/dns/:recordId — update an existing DNS record */
+export const updateDNSRecord = (
+  id: string,
+  line: number,
+  data: UpdateDNSRecordPayload,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/dns/${line}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** DELETE /hosting/:id/dns/:recordId — delete a DNS record by line number */
+export const deleteDNSRecord = (
+  id: string,
+  line: number,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/dns/${line}`, {
+    method: "DELETE",
+    headers: getHeaders(),
   }).then(handleResponse);

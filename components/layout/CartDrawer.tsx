@@ -1,0 +1,220 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import Link from "next/link";
+import {
+  X,
+  ShoppingCart,
+  Trash2,
+  Globe,
+  Shield,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import { useCartStore, SSL_PRICE } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
+
+function formatCurrency(amount: number, currency = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
+
+export default function CartDrawer() {
+  const { items, removeItem, grandTotal, isDrawerOpen, closeDrawer, itemCount } =
+    useCartStore();
+  const token = useAuthStore((s) => s.token);
+  const router = useRouter();
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Close on ESC
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeDrawer();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [closeDrawer]);
+
+  // Prevent body scroll when open
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isDrawerOpen]);
+
+  const handleCheckout = () => {
+    closeDrawer();
+    if (!token) {
+      router.push("/login?redirect=/cart/checkout");
+    } else {
+      router.push("/cart/checkout");
+    }
+  };
+
+  if (!isDrawerOpen) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
+
+      {/* Drawer */}
+      <div
+        id="cart-drawer"
+        role="dialog"
+        aria-label="Shopping cart"
+        className="fixed top-0 right-0 h-full z-50 w-full max-w-md bg-white border-l border-[#e2eaff] shadow-2xl flex flex-col"
+        style={{ animation: "slideInRight 0.25s ease" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff] shrink-0">
+          <div className="flex items-center gap-3">
+            <ShoppingCart className="w-5 h-5 text-[#031033]" />
+            <div>
+              <h2 className="font-bold text-[#031033] text-sm">Shopping Cart</h2>
+              <p className="text-xs text-[#9ba8c0]">
+                {itemCount()} item{itemCount() !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+          <button
+            id="cart-drawer-close"
+            onClick={closeDrawer}
+            className="w-8 h-8 flex items-center justify-center text-[#9ba8c0] hover:text-[#031033] hover:bg-[#e2eaff] transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Items list */}
+        <div className="flex-1 overflow-y-auto py-3">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
+              <div className="w-14 h-14 bg-[#f2f5fc] flex items-center justify-center">
+                <ShoppingCart className="w-6 h-6 text-[#c5cedf]" />
+              </div>
+              <div>
+                <p className="text-[#031033] font-semibold text-sm">Your cart is empty</p>
+                <p className="text-[#9ba8c0] text-xs mt-1">
+                  Search for a domain and click Add to get started.
+                </p>
+              </div>
+              <button
+                onClick={() => { closeDrawer(); router.push("/domains"); }}
+                className="btn-primary py-2.5 px-6 text-sm"
+              >
+                Search Domains
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-[#f0f4fc]">
+              {items.map((item) => {
+                const rowTotal = item.price * item.years + (item.addSsl ? SSL_PRICE * item.years : 0);
+                return (
+                  <div
+                    key={item.domain}
+                    id={`drawer-item-${item.domain.replace(/\./g, "-")}`}
+                    className="px-5 py-4 hover:bg-[#fafbff] transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0 mt-0.5">
+                        <Globe className="w-4 h-4 text-[#031033]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-bold text-[#031033] text-sm truncate max-w-[180px]">
+                            {item.domain}
+                          </p>
+                          {item.isPremium && (
+                            <span className="text-[10px] text-purple-600 flex items-center gap-0.5 shrink-0">
+                              <Sparkles className="w-2.5 h-2.5" /> Premium
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-[#9ba8c0] mt-0.5">
+                          {item.years} yr{item.years !== 1 ? "s" : ""} · {formatCurrency(item.price, item.currency)}/yr
+                        </p>
+                        {item.addSsl && (
+                          <p className="text-xs text-[#e8900a] flex items-center gap-1 mt-0.5">
+                            <Shield className="w-2.5 h-2.5" />
+                            SSL included
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <p className="font-bold text-[#031033] text-sm">
+                          {formatCurrency(rowTotal, item.currency)}
+                        </p>
+                        <button
+                          id={`drawer-remove-${item.domain.replace(/\./g, "-")}`}
+                          onClick={() => removeItem(item.domain)}
+                          className="text-[#c5cedf] hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {items.length > 0 && (
+          <div className="border-t border-[#e2eaff] px-6 py-5 space-y-3 shrink-0 bg-white">
+            {/* Total */}
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#5a6a85]">Subtotal</span>
+              <span className="font-extrabold text-lg text-[#031033]">
+                {formatCurrency(grandTotal())}
+              </span>
+            </div>
+
+            {/* Buttons */}
+            <button
+              id="cart-drawer-checkout"
+              onClick={handleCheckout}
+              className="btn-primary w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              {!token ? "Sign In & Checkout" : "Checkout"}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <Link
+              href="/cart"
+              onClick={closeDrawer}
+              id="cart-drawer-view-full"
+              className="btn-outline w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              View Full Cart
+            </Link>
+
+            <p className="text-center text-[10px] text-[#9ba8c0]">
+              Secure checkout via Paystack
+            </p>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to   { transform: translateX(0);    opacity: 1; }
+        }
+      `}</style>
+    </>
+  );
+}

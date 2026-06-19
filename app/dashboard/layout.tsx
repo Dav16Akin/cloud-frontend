@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import CartDrawer from "@/components/layout/CartDrawer";
 import { refresh } from "@/lib/api";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -77,35 +78,38 @@ export default function DashboardLayout({
   if (authStatus === "unauthenticated") return null;
 
   return (
-    <div className="flex h-screen bg-[#f6f9ff] overflow-hidden">
+    <>
+      <div className="flex h-screen bg-[#f6f9ff] overflow-hidden">
 
-      {/* ── Desktop sidebar ─────────────────────────────────────────── */}
-      <div className="hidden md:flex h-full">
-        <Sidebar />
-      </div>
-
-      {/* ── Mobile sidebar overlay ───────────────────────────────────── */}
-      {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-40 md:hidden flex">
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-          <div className="relative z-50 flex h-full">
-            <Sidebar onClose={() => setMobileSidebarOpen(false)} />
-          </div>
+        {/* ── Desktop sidebar ─────────────────────────────────────────── */}
+        <div className="hidden md:flex h-full">
+          <Sidebar />
         </div>
-      )}
 
-      {/* ── Main content ─────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top navbar — visible on all screen sizes */}
-        <DashboardNavbar onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
+        {/* ── Mobile sidebar overlay ───────────────────────────────────── */}
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-40 md:hidden flex">
+            <div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+            <div className="relative z-50 flex h-full">
+              <Sidebar onClose={() => setMobileSidebarOpen(false)} />
+            </div>
+          </div>
+        )}
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          {children}
-        </main>
+        {/* ── Main content ─────────────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top navbar — visible on all screen sizes */}
+          <DashboardNavbar onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
+
+          <main className="flex-1 overflow-y-auto p-6 md:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+      <CartDrawer />
+    </>
   );
 }

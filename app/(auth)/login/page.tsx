@@ -4,13 +4,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/dashboard";
 
-  const { mutate: login, isPending } = useLogin();
+  const { mutate: login, isPending } = useLogin(redirect);
 
 
   const handleSubmit = (e: React.FormEvent) => {

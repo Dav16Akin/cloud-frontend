@@ -22,7 +22,13 @@ import {
   createHostingDatabaseUser,
   deleteHostingDatabaseUser,
   assignHostingDatabaseUser,
+  getDNSRecords,
+  createDNSRecord,
+  updateDNSRecord,
+  deleteDNSRecord,
   type ProvisionHostingPayload,
+  type CreateDNSRecordPayload,
+  type UpdateDNSRecordPayload,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
@@ -365,3 +371,62 @@ export const useAssignHostingDatabaseUser = (id: string) => {
   });
 };
 
+// ── DNS Records ───────────────────────────────────────────────────────────────
+
+export const useGetDNSRecords = (id: string) => {
+  const token = useAuthStore((s) => s.token);
+
+  return useQuery({
+    queryKey: ["hosting-dns", id],
+    queryFn: () => getDNSRecords(id),
+    enabled: !!token && !!id,
+    staleTime: 30 * 1000, // DNS changes propagate; keep cache fresh
+    select: (res) => res.data,
+  });
+};
+
+export const useCreateDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateDNSRecordPayload) => createDNSRecord(id, data),
+    onSuccess: () => {
+      toast.success("DNS record created.");
+      queryClient.invalidateQueries({ queryKey: ["hosting-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+export const useUpdateDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ line, ...data }: UpdateDNSRecordPayload) =>
+      updateDNSRecord(id, line, { line, ...data }),
+    onSuccess: () => {
+      toast.success("DNS record updated.");
+      queryClient.invalidateQueries({ queryKey: ["hosting-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+export const useDeleteDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (line: number) => deleteDNSRecord(id, line),
+    onSuccess: () => {
+      toast.success("DNS record deleted.");
+      queryClient.invalidateQueries({ queryKey: ["hosting-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};

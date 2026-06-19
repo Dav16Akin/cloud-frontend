@@ -8,7 +8,7 @@ export const useGetMe = () => {
 
   return useQuery({
     queryKey: ["me"],
-    queryFn: () => getMe(token!),
+    queryFn: () => getMe(),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -25,8 +25,10 @@ export const useUpdateProfile = () => {
       phoneNumber?: string;
       companyName?: string;
       address?: string;
+      houseNumber?: string;
       country?: string;
       city?: string;
+      state?: string;
       postcode?: string;
     }) => updateProfile(token!, data),
     onSuccess: () => {

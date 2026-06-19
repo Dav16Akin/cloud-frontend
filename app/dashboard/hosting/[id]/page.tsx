@@ -29,6 +29,8 @@ import {
   Copy,
   ChevronRight,
   Network,
+  Pencil,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -51,8 +53,20 @@ import {
   useCreateHostingDatabaseUser,
   useDeleteHostingDatabaseUser,
   useAssignHostingDatabaseUser,
+  useGetDNSRecords,
+  useCreateDNSRecord,
+  useUpdateDNSRecord,
+  useDeleteDNSRecord,
 } from "@/hooks/useHosting";
-import type { HostingStatus, HostingEmail, HostingForwarder, HostingDatabase, HostingDatabaseUser } from "@/lib/api";
+import type {
+  HostingStatus,
+  HostingEmail,
+  HostingForwarder,
+  HostingDatabase,
+  HostingDatabaseUser,
+  DNSRecord,
+  DNSRecordType,
+} from "@/lib/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -99,7 +113,7 @@ function StatusBadge({ status }: { status: HostingStatus }) {
 
 // ── Tab pill ─────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "emails" | "forwarders" | "databases";
+type Tab = "overview" | "emails" | "forwarders" | "databases" | "dns";
 
 function TabPill({
   tab,
@@ -1152,6 +1166,419 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
   );
 }
 
+// ── DNS Tab ───────────────────────────────────────────────────────────────────
+
+const DNS_RECORD_TYPES: DNSRecordType[] = [
+  "A", "AAAA", "CNAME", "MX", "TXT", "NS", "PTR", "SRV", "CAA",
+];
+
+const TYPE_COLORS: Record<string, string> = {
+  A:     "bg-blue-50   text-blue-600   border-blue-200",
+  AAAA:  "bg-indigo-50 text-indigo-600 border-indigo-200",
+  CNAME: "bg-purple-50 text-purple-600 border-purple-200",
+  MX:    "bg-[#fff8ee] text-[#e8900a]  border-amber-200",
+  TXT:   "bg-emerald-50 text-emerald-600 border-emerald-200",
+  NS:    "bg-teal-50   text-teal-600   border-teal-200",
+  PTR:   "bg-pink-50   text-pink-600   border-pink-200",
+  SRV:   "bg-cyan-50   text-cyan-600   border-cyan-200",
+  CAA:   "bg-red-50    text-red-500    border-red-200",
+};
+
+const BLANK_FORM = {
+  name: "",
+  type: "A" as DNSRecordType,
+  address: "",
+  ttl: 14400,
+  priority: "",
+};
+
+function DNSTab({ hostingId }: { hostingId: string }) {
+  const { data: records, isLoading, isError } = useGetDNSRecords(hostingId);
+  const { mutate: createRecord, isPending: creating } = useCreateDNSRecord(hostingId);
+  const { mutate: updateRecord, isPending: updating } = useUpdateDNSRecord(hostingId);
+  const { mutate: deleteRecord, isPending: deleting } = useDeleteDNSRecord(hostingId);
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState(BLANK_FORM);
+
+  // edit state
+  const [editTarget, setEditTarget] = useState<DNSRecord | null>(null);
+  const [editForm, setEditForm] = useState(BLANK_FORM);
+
+  // delete confirm
+  const [deleteTarget, setDeleteTarget] = useState<DNSRecord | null>(null);
+
+  const patch = (key: keyof typeof BLANK_FORM, val: string) =>
+    setForm((f) => ({ ...f, [key]: val }));
+  const patchEdit = (key: keyof typeof BLANK_FORM, val: string) =>
+    setEditForm((f) => ({ ...f, [key]: val }));
+
+  const openEdit = (r: DNSRecord) => {
+    setEditTarget(r);
+    setEditForm({
+      name: r.name,
+      type: r.type as DNSRecordType,
+      address: r.address ?? "",
+      ttl: r.ttl,
+      priority: r.priority != null ? String(r.priority) : "",
+    });
+    setShowCreate(false);
+  };
+
+  const handleCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.address.trim()) return;
+    createRecord(
+      {
+        name: form.name.trim(),
+        type: form.type,
+        address: form.address.trim(),
+        ttl: Number(form.ttl) || 14400,
+        ...(form.priority ? { priority: Number(form.priority) } : {}),
+      },
+      {
+        onSuccess: () => {
+          setShowCreate(false);
+          setForm(BLANK_FORM);
+        },
+      }
+    );
+  };
+
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget || !editForm.name.trim() || !editForm.address.trim()) return;
+    updateRecord(
+      {
+        line: editTarget.line,
+        name: editForm.name.trim(),
+        type: editForm.type,
+        address: editForm.address.trim(),
+        ttl: Number(editForm.ttl) || 14400,
+        ...(editForm.priority ? { priority: Number(editForm.priority) } : {}),
+      },
+      { onSuccess: () => setEditTarget(null) }
+    );
+  };
+
+  const needsPriority = (type: string) => type === "MX" || type === "SRV";
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Header card with add button */}
+      <div className="bg-white border border-[#e2eaff]">
+        <div className="px-5 py-3.5 border-b border-[#e2eaff] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#9ba8c0]" />
+            <h3 className="text-sm font-semibold text-[#031033]">DNS Records</h3>
+          </div>
+          <button
+            id="hosting-dns-add"
+            onClick={() => { setShowCreate((p) => !p); setEditTarget(null); }}
+            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Record
+          </button>
+        </div>
+
+        {/* ── Create Form ── */}
+        {showCreate && (
+          <form
+            onSubmit={handleCreate}
+            className="px-5 py-4 border-b border-[#e2eaff] bg-[#f6f9ff] flex flex-col gap-3"
+          >
+            <p className="text-xs font-semibold text-[#031033]">New DNS Record</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {/* Type */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Type</label>
+                <select
+                  id="dns-create-type"
+                  value={form.type}
+                  onChange={(e) => patch("type", e.target.value)}
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                >
+                  {DNS_RECORD_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Name */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Name / Host</label>
+                <input
+                  id="dns-create-name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => patch("name", e.target.value)}
+                  placeholder="@ or subdomain"
+                  required
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              {/* Address */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                  {form.type === "MX" ? "Mail Server" : form.type === "CNAME" ? "Alias / Target" : "Value / Address"}
+                </label>
+                <input
+                  id="dns-create-address"
+                  type="text"
+                  value={form.address}
+                  onChange={(e) => patch("address", e.target.value)}
+                  placeholder={form.type === "TXT" ? "v=spf1 ..." : form.type === "CNAME" ? "target.domain.com." : "1.2.3.4"}
+                  required
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              {/* TTL */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">TTL (seconds)</label>
+                <input
+                  id="dns-create-ttl"
+                  type="number"
+                  min={300}
+                  value={form.ttl}
+                  onChange={(e) => patch("ttl", e.target.value)}
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              {/* Priority (MX / SRV only) */}
+              {needsPriority(form.type) && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Priority</label>
+                  <input
+                    id="dns-create-priority"
+                    type="number"
+                    min={0}
+                    value={form.priority}
+                    onChange={(e) => patch("priority", e.target.value)}
+                    placeholder="10"
+                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => { setShowCreate(false); setForm(BLANK_FORM); }}
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={creating}
+                className="btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
+              >
+                {creating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Add Record
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ── Edit Form ── */}
+        {editTarget && (
+          <form
+            onSubmit={handleUpdate}
+            className="px-5 py-4 border-b border-[#e2eaff] bg-[#fff8ee] flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-[#031033]">
+                Edit Record — <span className="text-[#e8900a] font-mono">{editTarget.name}</span>
+              </p>
+              <button type="button" onClick={() => setEditTarget(null)} className="text-[#9ba8c0] hover:text-[#031033]">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Type</label>
+                <select
+                  id="dns-edit-type"
+                  value={editForm.type}
+                  onChange={(e) => patchEdit("type", e.target.value)}
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                >
+                  {DNS_RECORD_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Name / Host</label>
+                <input
+                  id="dns-edit-name"
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => patchEdit("name", e.target.value)}
+                  required
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Value / Address</label>
+                <input
+                  id="dns-edit-address"
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => patchEdit("address", e.target.value)}
+                  required
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">TTL (seconds)</label>
+                <input
+                  id="dns-edit-ttl"
+                  type="number"
+                  min={300}
+                  value={editForm.ttl}
+                  onChange={(e) => patchEdit("ttl", e.target.value)}
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                />
+              </div>
+              {needsPriority(editForm.type) && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Priority</label>
+                  <input
+                    id="dns-edit-priority"
+                    type="number"
+                    min={0}
+                    value={editForm.priority}
+                    onChange={(e) => patchEdit("priority", e.target.value)}
+                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updating}
+                className="btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
+              >
+                {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Save Changes
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ── Records list ── */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+          </div>
+        )}
+        {isError && (
+          <div className="flex items-center gap-2 px-5 py-4">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <p className="text-sm text-red-500">Could not load DNS records.</p>
+          </div>
+        )}
+        {!isLoading && !isError && (!records || records.length === 0) && (
+          <div className="flex flex-col items-center justify-center py-10 text-center px-4">
+            <ShieldCheck className="w-8 h-8 text-[#9ba8c0] mb-2" />
+            <p className="text-sm text-[#5a6a85]">No DNS records found.</p>
+            <p className="text-xs text-[#9ba8c0] mt-1">Click &quot;Add Record&quot; to create your first DNS entry.</p>
+          </div>
+        )}
+        {records && records.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-b border-[#e2eaff] bg-[#f6f9ff]">
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Type</th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Name</th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Value</th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">TTL</th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Priority</th>
+                  <th className="px-5 py-2.5" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e2eaff]">
+                {records.map((r: DNSRecord, index) => {
+                  const typeCls = TYPE_COLORS[r.type] ?? "bg-gray-100 text-gray-600 border-gray-200";
+                  return (
+                    <tr key={index} className="hover:bg-[#f6f9ff] transition-colors group">
+                      <td className="px-5 py-2.5">
+                        <span className={`inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 border ${typeCls}`}>
+                          {r.type}
+                        </span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <code className="text-xs text-[#031033] font-mono break-all">{r.name}</code>
+                      </td>
+                      <td className="px-5 py-2.5 max-w-[220px]">
+                        <span className="text-xs text-[#5a6a85] truncate block" title={r.address}>{r.address}</span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <span className="text-xs text-[#9ba8c0]">{r.ttl}s</span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <span className="text-xs text-[#9ba8c0]">{r.priority ?? "—"}</span>
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
+                          <button
+                            id={`hosting-dns-edit-${r.line}`}
+                            onClick={() => openEdit(r)}
+                            className="text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] p-1.5 transition-colors"
+                            aria-label={`Edit DNS record line ${r.line}`}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            id={`hosting-dns-delete-${r.line}`}
+                            onClick={() => setDeleteTarget(r)}
+                            disabled={deleting}
+                            className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 transition-colors"
+                            aria-label={`Delete DNS record line ${r.line}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── Delete confirm ── */}
+      {deleteTarget && (
+        <ConfirmModal
+          title="Delete DNS Record"
+          message={`Delete the ${deleteTarget.type} record for "${deleteTarget.name}"? DNS changes may take time to propagate.`}
+          confirmLabel="Delete Record"
+          danger
+          loading={deleting}
+          onConfirm={() =>
+            deleteRecord(deleteTarget.line, {
+              onSuccess: () => setDeleteTarget(null),
+            })
+          }
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ── Main Manage Page ──────────────────────────────────────────────────────────
 
 export default function ManageHostingPage() {
@@ -1395,6 +1822,13 @@ export default function ManageHostingPage() {
             icon={Database}
             onClick={() => setActiveTab("databases")}
           />
+          <TabPill
+            tab="dns"
+            active={activeTab}
+            label="DNS"
+            icon={ShieldCheck}
+            onClick={() => setActiveTab("dns")}
+          />
         </div>
 
         {/* Tab content */}
@@ -1402,6 +1836,7 @@ export default function ManageHostingPage() {
         {activeTab === "emails" && <EmailsTab hostingId={id} />}
         {activeTab === "forwarders" && <ForwardersTab hostingId={id} />}
         {activeTab === "databases" && <DatabasesTab hostingId={id} />}
+        {activeTab === "dns" && <DNSTab hostingId={id} />}
       </div>
     </>
   );

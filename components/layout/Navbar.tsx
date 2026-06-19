@@ -3,10 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, ChevronDown, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
+import CartDrawer from "@/components/layout/CartDrawer";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -26,6 +28,8 @@ export default function Navbar() {
   const token = useAuthStore((s) => s.token);
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const { data: me } = useGetMe();
+  const { itemCount, toggleDrawer } = useCartStore();
+  const cartCount = itemCount();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -50,6 +54,7 @@ export default function Navbar() {
   const initials  = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "U";
 
   return (
+    <>
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
@@ -91,6 +96,21 @@ export default function Navbar() {
 
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Cart icon with badge */}
+            <button
+              id="nav-cart-btn"
+              onClick={toggleDrawer}
+              className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+              aria-label="Shopping cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#e8900a] text-white text-[9px] font-bold flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </button>
+
             {token ? (
               /* Logged-in: profile dropdown */
               <div className="relative" ref={profileRef}>
@@ -161,14 +181,30 @@ export default function Navbar() {
           </div>
 
           {/* Mobile toggle */}
-          <button
-            id="navbar-mobile-toggle"
-            className="md:hidden p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex md:hidden items-center gap-2">
+            {/* Mobile cart icon */}
+            <button
+              id="nav-cart-btn-mobile"
+              onClick={toggleDrawer}
+              className="relative p-2 text-[#5a6a85] hover:text-[#031033] transition-colors"
+              aria-label="Shopping cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#e8900a] text-white text-[9px] font-bold flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </button>
+            <button
+              id="navbar-mobile-toggle"
+              className="p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -240,5 +276,6 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+    <CartDrawer />
+  </>);
 }

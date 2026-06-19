@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -17,7 +17,7 @@ import { verifyDomainOrder } from "@/lib/api";
 
 type VerifyState = "loading" | "success" | "failed" | "error";
 
-export default function CartSuccessPage() {
+function CartSuccessContent() {
   const searchParams = useSearchParams();
   const reference =
     searchParams.get("reference") ??
@@ -265,5 +265,17 @@ export default function CartSuccessPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function CartSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center section-navy-tint">
+        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
+      </div>
+    }>
+      <CartSuccessContent />
+    </Suspense>
   );
 }

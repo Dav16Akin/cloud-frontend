@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -231,7 +231,7 @@ function PaymentGate({
 
 // ── Provision Form ────────────────────────────────────────────────────────────
 
-export default function ProvisionHostingPage() {
+function ProvisionHostingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -592,5 +592,18 @@ export default function ProvisionHostingPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function ProvisionHostingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
+        <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+        <p className="text-sm text-[#5a6a85]">Loading setup details...</p>
+      </div>
+    }>
+      <ProvisionHostingContent />
+    </Suspense>
   );
 }

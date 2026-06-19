@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +14,6 @@ export default function LoginPage() {
   const redirect = searchParams.get("redirect") ?? "/dashboard";
 
   const { mutate: login, isPending } = useLogin(redirect);
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,5 +153,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center section-navy-tint">
+        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

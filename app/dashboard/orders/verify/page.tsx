@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -29,9 +29,9 @@ function useCountdown(seconds: number, onDone: () => void) {
   return count;
 }
 
-// ── Main verify page ──────────────────────────────────────────────────────────
+// ── Main verify page content ──────────────────────────────────────────────────
 
-export default function OrderVerifyPage() {
+function OrderVerifyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -244,5 +244,18 @@ export default function OrderVerifyPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function OrderVerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
+        <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+        <p className="text-sm text-[#5a6a85]">Loading verification details...</p>
+      </div>
+    }>
+      <OrderVerifyContent />
+    </Suspense>
   );
 }

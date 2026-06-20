@@ -1,316 +1,213 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Globe,
   Server,
+  Shield,
   ArrowLeft,
-  AlertCircle,
+  ArrowRight,
   CheckCircle2,
   Loader2,
-  X,
-  Lock,
-  ExternalLink,
+  Trash2,
   CreditCard,
-  ShieldCheck,
-  ArrowRight,
+  ShoppingCart,
+  Plus,
+  Lock,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePlans } from "@/hooks/usePlans";
-import { useProvisionHosting } from "@/hooks/useHosting";
-import { useGetOrders, useInitializePayment } from "@/hooks/useOrders";
-import type { ProvisionHostingResult } from "@/lib/api";
+import { useInitializeCartPayment } from "@/hooks/useOrders";
+import {
+  useCartStore,
+  cartItemLabel,
+  getCartItemKey,
+  type CartItem,
+} from "@/store/cartStore";
 
-// ── Credentials Success Modal ─────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function SuccessModal({
-  data,
-  onClose,
+function formatNGN(n: number) {
+  return "₦" + n.toLocaleString("en-NG");
+}
+
+// ── Item type icon ─────────────────────────────────────────────────────────────
+
+function ItemTypeIcon({ item }: { item: CartItem }) {
+  if (item.type === "HOSTING")
+    return (
+      <div className="w-9 h-9 bg-[#fff8ee] border border-[#f5d99e] flex items-center justify-center shrink-0">
+        <Server className="w-4 h-4 text-[#e8900a]" />
+      </div>
+    );
+  if (item.type === "DOMAIN")
+    return (
+      <div className="w-9 h-9 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
+        <Globe className="w-4 h-4 text-[#031033]" />
+      </div>
+    );
+  return (
+    <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+      <Shield className="w-4 h-4 text-emerald-500" />
+    </div>
+  );
+}
+
+// ── Cart Item Row ─────────────────────────────────────────────────────────────
+
+function CartItemRow({
+  item,
+  onRemove,
 }: {
-  data: ProvisionHostingResult;
-  onClose: () => void;
+  item: CartItem;
+  onRemove: (key: string) => void;
 }) {
-  const copyAll = () => {
-    const text = [
-      `Domain: ${data.domain}`,
-      `cPanel URL: ${data.cpanelUrl}`,
-      `Username: ${data.cpanelUsername}`,
-      `Password: ${data.cpanelPassword}`,
-    ].join("\n");
-    navigator.clipboard
-      .writeText(text)
-      .then(() => toast.success("Credentials copied to clipboard!"));
-  };
+  const key = getCartItemKey(item);
+  const typeLabel =
+    item.type === "HOSTING"
+      ? "Hosting Plan"
+      : item.type === "DOMAIN"
+      ? "Domain Registration"
+      : "SSL Certificate";
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="success-modal-title"
-    >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div className="relative bg-white border border-[#e2eaff] w-full max-w-md shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2eaff]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-50 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div>
-              <h2
-                id="success-modal-title"
-                className="text-sm font-semibold text-[#031033]"
-              >
-                Hosting Provisioned!
-              </h2>
-              <p className="text-xs text-[#9ba8c0]">{data.domain}</p>
-            </div>
-          </div>
-          <button
-            id="success-modal-close"
-            onClick={onClose}
-            className="p-1.5 text-[#9ba8c0] hover:bg-[#f2f5fc] hover:text-[#031033] transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-5 flex flex-col gap-4">
-          {/* Warning banner */}
-          <div className="bg-amber-50 border border-amber-200 p-3 flex gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700 leading-relaxed">
-              <strong>Save these credentials now.</strong> The password will
-              not be shown again after you close this window. Store them in a
-              secure location.
-            </p>
-          </div>
-
-          {/* Credential fields */}
-          {[
-            { label: "cPanel URL", value: data.cpanelUrl, isLink: true },
-            { label: "Username", value: data.cpanelUsername, isLink: false },
-            { label: "Password", value: data.cpanelPassword, isLink: false },
-          ].map(({ label, value, isLink }) => (
-            <div key={label}>
-              <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wide mb-1.5">
-                {label}
-              </p>
-              <div className="flex items-center gap-2 bg-[#f6f9ff] border border-[#e2eaff] px-3 py-2">
-                <code className="flex-1 text-sm text-[#031033] font-mono break-all select-all">
-                  {value}
-                </code>
-                {isLink && (
-                  <a
-                    href={value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#e8900a] hover:text-[#c97a08] shrink-0"
-                    aria-label="Open cPanel URL"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-                {!isLink && (
-                  <Lock className="w-3.5 h-3.5 text-[#9ba8c0] shrink-0" />
-                )}
-              </div>
-            </div>
-          ))}
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-1">
-            <button
-              id="success-copy-all"
-              onClick={copyAll}
-              className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2"
-            >
-              Copy All Credentials
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2.5 text-sm font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
-            >
-              Done
-            </button>
-          </div>
-        </div>
+    <div className="flex items-center gap-3 py-3 border-b border-[#f0f4fc] last:border-b-0">
+      <ItemTypeIcon item={item} />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-[#031033] truncate">
+          {cartItemLabel(item)}
+        </p>
+        <p className="text-xs text-[#9ba8c0]">{typeLabel}</p>
+      </div>
+      <div className="flex items-center gap-3 shrink-0">
+        <p className="text-sm font-bold text-[#031033]">
+          {formatNGN(item.price)}
+        </p>
+        <button
+          onClick={() => onRemove(key)}
+          className="text-[#c5cedf] hover:text-red-500 transition-colors"
+          aria-label={`Remove ${cartItemLabel(item)}`}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
 }
 
-// ── Payment Gate Banner ───────────────────────────────────────────────────────
+// ── Plan Selector Card ────────────────────────────────────────────────────────
 
-function PaymentGate({
-  planId,
-  planName,
-  price,
-  billingCycle,
-  isPaying,
-  onPay,
-}: {
-  planId: string;
-  planName: string;
-  price: number;
-  billingCycle: string;
-  isPaying: boolean;
-  onPay: () => void;
-}) {
-  return (
-    <div className="bg-white border border-[#e2eaff] p-6 flex flex-col gap-5">
-      {/* Gate notice */}
-      <div className="flex items-start gap-3 bg-[#fff8ee] border border-amber-200 p-4">
-        <ShieldCheck className="w-5 h-5 text-[#e8900a] shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-[#031033]">
-            Payment required to provision hosting
-          </p>
-          <p className="text-xs text-[#5a6a85] mt-1 leading-relaxed">
-            You need to complete payment for the{" "}
-            <strong>{planName} Hosting</strong> plan before your domain can be
-            provisioned on our servers.
-          </p>
-        </div>
-      </div>
+function AddPlanSection() {
+  const { data: plans, isLoading } = usePlans();
+  const { addHostingItem, hasItem } = useCartStore();
 
-      {/* Order summary */}
-      <div className="bg-[#f6f9ff] border border-[#e2eaff] divide-y divide-[#e2eaff]">
-        {[
-          { label: "Plan", value: `${planName} Hosting` },
-          {
-            label: "Amount",
-            value: `₦${price.toLocaleString("en-NG")} / ${billingCycle === "yearly" ? "year" : billingCycle}`,
-          },
-          { label: "Payment", value: "Secured via Paystack" },
-        ].map(({ label, value }) => (
-          <div
-            key={label}
-            className="flex items-center justify-between px-4 py-2.5"
-          >
-            <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
-              {label}
-            </span>
-            <span className="text-sm font-semibold text-[#031033]">{value}</span>
-          </div>
+  if (isLoading)
+    return (
+      <div className="flex flex-col gap-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-14 bg-[#e8edf8] animate-pulse rounded" />
         ))}
       </div>
+    );
 
-      {/* Pay button */}
-      <button
-        id="provision-pay-now"
-        onClick={onPay}
-        disabled={isPaying}
-        className="btn-primary text-sm py-3 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {isPaying ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Redirecting to Paystack…
-          </>
-        ) : (
-          <>
-            <CreditCard className="w-4 h-4" />
-            Pay ₦{price.toLocaleString("en-NG")} &amp; Continue
-            <ArrowRight className="w-4 h-4" />
-          </>
-        )}
-      </button>
-
-      <p className="text-[11px] text-center text-[#9ba8c0]">
-        You'll be redirected to Paystack's secure checkout. After payment, you'll
-        return here to configure your domain.
-      </p>
+  return (
+    <div className="flex flex-col gap-2">
+      {plans?.map((plan) => {
+        const key = `hosting:${plan.id}`;
+        const inCart = hasItem(key);
+        return (
+          <div
+            key={plan.id}
+            className={`flex items-center gap-3 p-4 border transition-all ${
+              inCart
+                ? "border-[#e8900a] bg-[#fff8ee]"
+                : "border-[#e2eaff] hover:border-[#e8900a]/50"
+            }`}
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#031033] flex items-center gap-2">
+                {plan.name} Hosting
+                {plan.isPopular && (
+                  <span className="text-[10px] bg-[#e8900a] text-white px-1.5 py-0.5 font-bold">
+                    Popular
+                  </span>
+                )}
+              </p>
+              <p className="text-xs text-[#9ba8c0] mt-0.5">
+                {plan.storage} · {plan.bandwidth} · {plan.billingCycle}
+              </p>
+            </div>
+            <p className="text-sm font-extrabold text-[#031033] shrink-0">
+              {formatNGN(plan.price)}
+              <span className="text-[11px] font-normal text-[#9ba8c0]">
+                /{plan.billingCycle === "yearly" ? "yr" : plan.billingCycle}
+              </span>
+            </p>
+            {inCart ? (
+              <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 font-semibold shrink-0 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Added
+              </span>
+            ) : (
+              <button
+                id={`add-plan-${plan.id}`}
+                onClick={() =>
+                  addHostingItem({
+                    type: "HOSTING",
+                    planId: plan.id,
+                    planName: plan.name,
+                    price: plan.price,
+                  })
+                }
+                className="shrink-0 text-xs font-semibold btn-primary py-1.5 px-3 flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                Add
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// ── Provision Form ────────────────────────────────────────────────────────────
+// ── Main Checkout Content ─────────────────────────────────────────────────────
 
-function ProvisionHostingContent() {
-  const searchParams = useSearchParams();
+function CheckoutContent() {
   const router = useRouter();
+  const { items, removeItem, grandTotal, clearCart } = useCartStore();
+  const { mutate: initPayment, isPending } = useInitializeCartPayment();
 
-  const planIdParam = searchParams.get("planId") ?? "";
-  const planNameParam = searchParams.get("planName") ?? "";
-  // `reference` is present only when arriving from a fresh Paystack callback
-  const referenceParam = searchParams.get("reference") ?? "";
+  const [showAddPlan, setShowAddPlan] = useState(false);
 
-  const { data: plans, isLoading: loadingPlans } = usePlans();
-  const { data: orders, isLoading: loadingOrders } = useGetOrders();
-  const { mutate: provision, isPending } = useProvisionHosting();
-  const { mutate: initPay, isPending: isPaying } = useInitializePayment();
+  const hasHosting = items.some((i) => i.type === "HOSTING");
+  const hasDomain = items.some((i) => i.type === "DOMAIN");
 
-  const [selectedPlanId, setSelectedPlanId] = useState(planIdParam);
-  const [domain, setDomain] = useState("");
-  const [domainError, setDomainError] = useState("");
-  const [credentials, setCredentials] = useState<ProvisionHostingResult | null>(
-    null,
-  );
-
-  // Sync plan if URL changes
-  useEffect(() => {
-    if (planIdParam) setSelectedPlanId(planIdParam);
-  }, [planIdParam]);
-
-  const selectedPlan = plans?.find((p) => p.id === selectedPlanId);
-
-  // Only unlock the domain form for a *fresh* payment — identified by the
-  // Paystack reference in the URL. Without it we always show the payment gate
-  // so users can buy the same plan again for a new domain.
-  const paidOrder = referenceParam
-    ? orders?.find(
-        (o) => o.paystackRef === referenceParam && o.status === "PAID",
-      )
-    : null;
-
-  const hasPaidOrder = !!paidOrder;
-  const checkingOrders = !!referenceParam && loadingOrders;
-
-  const validateDomain = (value: string) => {
-    const trimmed = value.trim().toLowerCase();
-    const domainRegex =
-      /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
-    if (!trimmed) return "Domain is required.";
-    if (!domainRegex.test(trimmed))
-      return "Enter a valid domain (e.g. mysite.com).";
-    return "";
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const err = validateDomain(domain);
-    if (err) {
-      setDomainError(err);
-      return;
-    }
-    if (!selectedPlanId) {
-      toast.error("Please select a hosting plan.");
+  const handleCheckout = () => {
+    if (items.length === 0) {
+      toast.error("Your cart is empty.");
       return;
     }
 
-    provision(
-      { domain: domain.trim().toLowerCase(), planId: selectedPlanId },
-      {
-        onSuccess: (res) => {
-          setCredentials(res.data);
-        },
-      },
-    );
-  };
+    // Build backend-compatible items array from the store
+    const backendItems = items.map((item) => {
+      if (item.type === "HOSTING") return { type: "HOSTING" as const, planId: item.planId };
+      if (item.type === "DOMAIN")
+        return {
+          type: "DOMAIN" as const,
+          domainName: item.domainName,
+          extension: item.extension,
+        };
+      return { type: "SSL" as const, domainName: item.domainName };
+    });
 
-  const handlePayNow = () => {
-    if (!selectedPlanId) {
-      toast.error("Please select a plan first.");
-      return;
-    }
-    initPay(selectedPlanId, {
+    initPayment(backendItems, {
       onSuccess: (res) => {
-        // Redirect to Paystack checkout
+        clearCart();
         window.location.href = res.data.paymentUrl;
       },
     });
@@ -318,276 +215,202 @@ function ProvisionHostingContent() {
 
   return (
     <>
-      {credentials && (
-        <SuccessModal
-          data={credentials}
-          onClose={() => {
-            setCredentials(null);
-            router.push("/dashboard/hosting");
-          }}
-        />
-      )}
-
       <div className="flex flex-col gap-7 max-w-2xl mx-auto">
         {/* Header */}
         <div>
           <Link
             href="/dashboard/hosting"
-            id="provision-back"
+            id="checkout-back"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5a6a85] hover:text-[#031033] mb-4 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Hosting
           </Link>
           <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
-            Provision Hosting
+            Checkout
           </h1>
           <p className="text-[#5a6a85] mt-1 text-sm">
-            {hasPaidOrder
-              ? "Your payment is confirmed. Enter your domain to complete setup."
-              : "Select a plan and complete payment to provision your hosting account."}
+            Review your order and complete payment to provision your services.
           </p>
         </div>
 
-        {/* Plan Selector */}
-        <div className="bg-white border border-[#e2eaff] p-6 flex flex-col gap-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Server className="w-4 h-4 text-[#9ba8c0]" />
-            <h2 className="text-sm font-semibold text-[#031033]">
-              Select Plan
-            </h2>
+        {/* Cart items */}
+        <div className="bg-white border border-[#e2eaff]">
+          <div className="px-5 py-4 border-b border-[#e2eaff] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 text-[#9ba8c0]" />
+              <h2 className="text-sm font-semibold text-[#031033]">
+                Your Order
+              </h2>
+              {items.length > 0 && (
+                <span className="text-[11px] font-bold bg-[#f2f5fc] text-[#5a6a85] border border-[#e2eaff] px-1.5 py-0.5">
+                  {items.length}
+                </span>
+              )}
+            </div>
+            <button
+              id="checkout-add-plan"
+              onClick={() => setShowAddPlan((v) => !v)}
+              className="text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2 flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" />
+              Add Plan
+            </button>
           </div>
 
-          {loadingPlans ? (
-            <div className="flex flex-col gap-2">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-14 bg-[#e8edf8] animate-pulse rounded"
+          {/* Add Plan panel */}
+          {showAddPlan && (
+            <div className="border-b border-[#e2eaff] p-5 bg-[#f6f9ff]">
+              <p className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide mb-3">
+                Select a Hosting Plan
+              </p>
+              <AddPlanSection />
+              <button
+                onClick={() => setShowAddPlan(false)}
+                className="mt-3 text-xs text-[#9ba8c0] hover:text-[#5a6a85] transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {items.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center gap-4">
+              <div className="w-12 h-12 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 text-[#9ba8c0]" />
+              </div>
+              <p className="text-sm text-[#5a6a85] max-w-xs">
+                Your cart is empty. Add a hosting plan or search for a domain to
+                get started.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddPlan(true)}
+                  className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5"
+                >
+                  <Server className="w-4 h-4" />
+                  Add Hosting
+                </button>
+                <Link
+                  href="/dashboard/domains"
+                  className="text-sm py-2 px-4 font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors flex items-center gap-1.5"
+                >
+                  <Globe className="w-4 h-4" />
+                  Add Domain
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Items */}
+          {items.length > 0 && (
+            <div className="px-5 py-2">
+              {items.map((item) => (
+                <CartItemRow
+                  key={getCartItemKey(item)}
+                  item={item}
+                  onRemove={removeItem}
                 />
               ))}
             </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {plans?.map((plan) => {
-                const isSelected = plan.id === selectedPlanId;
-                return (
-                  <label
-                    key={plan.id}
-                    htmlFor={`plan-${plan.id}`}
-                    className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-[#e8900a] bg-[#fff8ee]"
-                        : "border-[#e2eaff] hover:border-[#e8900a]/50 hover:bg-[#fffdf8]"
-                    }`}
-                  >
-                    <input
-                      id={`plan-${plan.id}`}
-                      type="radio"
-                      name="planId"
-                      value={plan.id}
-                      checked={isSelected}
-                      onChange={() => setSelectedPlanId(plan.id)}
-                      className="accent-[#e8900a] w-4 h-4 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#031033] flex items-center gap-2">
-                        {plan.name} Hosting
-                        {plan.isPopular && (
-                          <span className="text-[10px] bg-[#e8900a] text-white px-1.5 py-0.5 font-bold">
-                            Popular
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-[#9ba8c0] mt-0.5">
-                        {plan.storage} · {plan.bandwidth} ·{" "}
-                        {plan.billingCycle}
-                      </p>
-                    </div>
-                    <p className="text-sm font-extrabold text-[#031033] shrink-0">
-                      ₦{plan.price.toLocaleString("en-NG")}
-                      <span className="text-[11px] font-normal text-[#9ba8c0]">
-                        /{plan.billingCycle === "yearly" ? "yr" : plan.billingCycle}
-                      </span>
-                    </p>
-                  </label>
-                );
-              })}
-            </div>
-          )}
-
-          {!selectedPlanId && !loadingPlans && (
-            <p className="text-xs text-[#9ba8c0]">
-              No plan selected. Choose one above, or{" "}
-              <Link
-                href="/pricing"
-                className="text-[#e8900a] hover:underline underline-offset-2"
-              >
-                compare plans
-              </Link>
-              .
-            </p>
           )}
         </div>
 
-        {/* ── Payment gate OR domain form ─────────────────────────────────── */}
+        {/* Domain note for hosting-only carts */}
+        {hasHosting && !hasDomain && items.length > 0 && (
+          <div className="flex items-start gap-3 bg-[#f6f9ff] border border-[#e2eaff] p-4">
+            <Globe className="w-4 h-4 text-[#9ba8c0] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-[#5a6a85]">
+                <span className="font-semibold text-[#031033]">
+                  No domain in cart.
+                </span>{" "}
+                Your hosting account will use a temporary subdomain
+                (e.g.&nbsp;<code className="text-xs">yourname.nupatcloud.com</code>).
+                You can{" "}
+                <Link
+                  href="/dashboard/domains"
+                  className="text-[#e8900a] hover:underline underline-offset-2"
+                >
+                  add a domain
+                </Link>{" "}
+                to use it as your primary domain.
+              </p>
+            </div>
+          </div>
+        )}
 
-        {selectedPlan && (
-          <>
-            {/* Checking orders loader */}
-            {checkingOrders && (
-              <div className="flex items-center gap-3 p-4 bg-white border border-[#e2eaff]">
-                <Loader2 className="w-4 h-4 animate-spin text-[#e8900a] shrink-0" />
-                <p className="text-sm text-[#5a6a85]">
-                  Checking your order status…
-                </p>
-              </div>
-            )}
-
-            {/* Payment gate — no paid order yet */}
-            {!checkingOrders && !hasPaidOrder && (
-              <PaymentGate
-                planId={selectedPlan.id}
-                planName={selectedPlan.name}
-                price={selectedPlan.price}
-                billingCycle={selectedPlan.billingCycle}
-                isPaying={isPaying}
-                onPay={handlePayNow}
-              />
-            )}
-
-            {/* Paid order confirmed — show domain form */}
-            {!checkingOrders && hasPaidOrder && (
-              <>
-                {/* Paid badge */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <p className="text-sm text-emerald-700 font-medium">
-                    Payment confirmed for{" "}
-                    <strong>{selectedPlan.name} Hosting</strong>. Enter your
-                    domain below to complete setup.
-                  </p>
+        {/* Payment summary + checkout */}
+        {items.length > 0 && (
+          <div className="bg-white border border-[#e2eaff] p-6 flex flex-col gap-5">
+            {/* Order breakdown */}
+            <div className="bg-[#f6f9ff] border border-[#e2eaff] divide-y divide-[#e2eaff]">
+              {items.map((item) => (
+                <div
+                  key={getCartItemKey(item)}
+                  className="flex items-center justify-between px-4 py-2.5"
+                >
+                  <span className="text-xs text-[#5a6a85]">
+                    {cartItemLabel(item)}
+                  </span>
+                  <span className="text-sm font-semibold text-[#031033]">
+                    {formatNGN(item.price)}
+                  </span>
                 </div>
+              ))}
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm font-bold text-[#031033]">Total</span>
+                <span className="text-lg font-extrabold text-[#031033]">
+                  {formatNGN(grandTotal())}
+                </span>
+              </div>
+            </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                  {/* Domain Input */}
-                  <div className="bg-white border border-[#e2eaff] p-6 flex flex-col gap-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Globe className="w-4 h-4 text-[#9ba8c0]" />
-                      <h2 className="text-sm font-semibold text-[#031033]">
-                        Domain Name
-                      </h2>
-                    </div>
+            {/* Info */}
+            <div className="flex items-start gap-2 text-xs text-[#5a6a85]">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#9ba8c0]" />
+              <p>
+                Your services will be provisioned automatically after payment.
+                No further setup steps required.
+              </p>
+            </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label
-                        htmlFor="provision-domain"
-                        className="text-xs font-semibold text-[#5a6a85]"
-                      >
-                        Your domain (you must own this domain)
-                      </label>
-                      <div
-                        className={`flex items-center border transition-colors ${
-                          domainError
-                            ? "border-red-400 bg-red-50"
-                            : "border-[#e2eaff] bg-[#f6f9ff] focus-within:border-[#e8900a]"
-                        }`}
-                      >
-                        <span className="px-3 text-[#9ba8c0] text-sm select-none shrink-0">
-                          https://
-                        </span>
-                        <input
-                          id="provision-domain"
-                          type="text"
-                          value={domain}
-                          onChange={(e) => {
-                            setDomain(e.target.value);
-                            if (domainError) setDomainError("");
-                          }}
-                          onBlur={() => {
-                            const err = validateDomain(domain);
-                            setDomainError(err);
-                          }}
-                          placeholder="mywebsite.com"
-                          className="flex-1 py-2.5 pr-3 bg-transparent text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none"
-                          autoComplete="off"
-                          spellCheck={false}
-                        />
-                      </div>
-                      {domainError && (
-                        <p className="text-xs text-red-500 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3 shrink-0" />
-                          {domainError}
-                        </p>
-                      )}
-                      <p className="text-[11px] text-[#9ba8c0]">
-                        Make sure you have access to this domain's DNS settings
-                        to point it to our nameservers.
-                      </p>
-                    </div>
-                  </div>
+            {/* Pay button */}
+            <button
+              id="checkout-pay-now"
+              onClick={handleCheckout}
+              disabled={isPending || items.length === 0}
+              className="btn-primary text-sm py-3.5 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Redirecting to Paystack…
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Pay {formatNGN(grandTotal())} &amp; Checkout
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
 
-                  {/* Summary + Submit */}
-                  <div className="bg-[#031033] p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <p className="text-white font-semibold text-sm">
-                        {selectedPlan.name} Hosting
-                        {domain && (
-                          <span className="text-[#9ba8c0] font-normal">
-                            {" "}— {domain.trim() || "…"}
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-[#9ba8c0] text-xs mt-0.5">
-                        ₦{selectedPlan.price.toLocaleString("en-NG")} /{" "}
-                        {selectedPlan.billingCycle === "yearly"
-                          ? "year"
-                          : selectedPlan.billingCycle}
-                      </p>
-                    </div>
-                    <button
-                      id="provision-submit"
-                      type="submit"
-                      disabled={isPending || !selectedPlanId}
-                      className="btn-primary text-sm py-2.5 px-6 flex items-center gap-2 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
-                    >
-                      {isPending ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Provisioning…
-                        </>
-                      ) : (
-                        <>
-                          <Server className="w-4 h-4" />
-                          Provision Hosting
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-          </>
+            <p className="text-[11px] text-center text-[#9ba8c0] flex items-center justify-center gap-1">
+              <Lock className="w-3 h-3" />
+              Secured via Paystack
+            </p>
+          </div>
         )}
 
-        {!selectedPlan && !loadingPlans && (
-          <button
-            id="provision-submit-disabled"
-            type="button"
-            disabled
-            className="btn-primary text-sm py-3 px-6 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-          >
-            <Server className="w-4 h-4" />
-            Select a Plan to Continue
-          </button>
-        )}
-
-        {/* Info note */}
+        {/* Help */}
         <div className="flex gap-2 text-xs text-[#5a6a85]">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
           <p>
-            Your hosting account will be provisioned instantly after payment.
-            cPanel credentials and nameservers will be provided upon completion.
+            Services are provisioned automatically after payment. If you
+            purchased a domain in the same order, it will be registered and
+            linked to your hosting account.
           </p>
         </div>
       </div>
@@ -595,15 +418,17 @@ function ProvisionHostingContent() {
   );
 }
 
-export default function ProvisionHostingPage() {
+export default function CheckoutPage() {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
-        <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
-        <p className="text-sm text-[#5a6a85]">Loading setup details...</p>
-      </div>
-    }>
-      <ProvisionHostingContent />
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
+          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+          <p className="text-sm text-[#5a6a85]">Loading checkout…</p>
+        </div>
+      }
+    >
+      <CheckoutContent />
     </Suspense>
   );
 }

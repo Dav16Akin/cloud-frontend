@@ -1,10 +1,11 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getOrders,
-  initializePayment,
+  initializeCartPayment,
   verifyPayment,
   type Order,
+  type BackendCartItem,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
@@ -22,40 +23,12 @@ export const useGetOrders = () => {
   });
 };
 
-// ── Check whether the user has a paid, un-provisioned order for a given plan ──
+// ── Initialize cart payment (redirects to Paystack) ───────────────────────────
 
-export const useHasPaidOrder = (planId: string | null) => {
-  const token = useAuthStore((s) => s.token);
-
-  return useQuery({
-    queryKey: ["orders"],
-    queryFn: () => getOrders(token!),
-    enabled: !!token,
-    staleTime: 60 * 1000,
-    select: (res): Order | null => {
-      if (!planId) return null;
-      return (
-        res.data.find(
-          (o) =>
-            o.planId === planId &&
-            o.status === "PAID" &&
-            // hostingAccount will be null when not yet provisioned;
-            // but since backend excludes that field from GET /orders we
-            // rely on checking the list — if the backend confirms PAID we allow proceed
-            true,
-        ) ?? null
-      );
-    },
-  });
-};
-
-// ── Initialize payment (redirects to Paystack) ────────────────────────────────
-
-export const useInitializePayment = () => {
-  const token = useAuthStore((s) => s.token);
-
+export const useInitializeCartPayment = () => {
   return useMutation({
-    mutationFn: (planId: string) => initializePayment(token!, { planId }),
+    mutationFn: (items: BackendCartItem[]) =>
+      initializeCartPayment({ items }),
     onError: (err: Error) => {
       toast.error(err.message);
     },
@@ -74,4 +47,11 @@ export const useVerifyPayment = (reference: string | null) => {
     retry: 2,
     select: (res) => res.data,
   });
+};
+
+// ── Invalidate orders list (call after a payment is confirmed) ────────────────
+
+export const useInvalidateOrders = () => {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ["orders"] });
 };

@@ -15,9 +15,9 @@ import {
   User,
   Sparkles,
 } from "lucide-react";
-import { useCartStore, SSL_PRICE } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
-import { initializeDomainOrder } from "@/lib/api";
+import { initializeCartPayment } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "@/lib/api";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
-  const { items, subtotal, sslTotal, grandTotal, clearCart } = useCartStore();
+  const { items, grandTotal, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
@@ -67,18 +67,18 @@ export default function CheckoutPage() {
     setError("");
 
     try {
-      const res = await initializeDomainOrder({
-        items: items.map((i) => ({
-          domain: i.domain,
-          years: i.years,
-          addSsl: i.addSsl,
-        })),
+      // Map cart items to backend CartItem format
+      const backendItems = items.map((item) => {
+        if (item.type === "HOSTING") return { type: "HOSTING" as const, planId: item.planId };
+        if (item.type === "DOMAIN")
+          return { type: "DOMAIN" as const, domainName: item.domainName, extension: item.extension };
+        return { type: "SSL" as const, domainName: item.domainName };
       });
 
+      const res = await initializeCartPayment({ items: backendItems });
+
       if (res?.data?.paymentUrl) {
-        // Save reference before redirect so success page can verify
-        sessionStorage.setItem("domain_order_ref", res.data.reference);
-        sessionStorage.setItem("domain_order_items", JSON.stringify(items.map((i) => i.domain)));
+        sessionStorage.setItem("cart_order_ref", res.data.reference);
         clearCart();
         window.location.href = res.data.paymentUrl;
       } else {
@@ -210,42 +210,31 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 <div className="divide-y divide-[#f0f4fc]">
-                  {items.map((item) => (
-                    <div key={item.domain} className="px-6 py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-                            <Globe className="w-4 h-4 text-[#031033]" />
+                  {items.map((item) => {
+                    const label =
+                      item.type === "HOSTING"
+                        ? `${item.planName} Hosting`
+                        : item.type === "DOMAIN"
+                        ? `${item.domainName}.${item.extension}`
+                        : `SSL — ${item.domainName}`;
+                    return (
+                      <div key={label} className="px-6 py-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
+                              <Globe className="w-4 h-4 text-[#031033]" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-[#031033] text-sm truncate">{label}</p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-[#031033] text-sm truncate">{item.domain}</p>
-                            <p className="text-xs text-[#9ba8c0]">
-                              {item.years} year{item.years !== 1 ? "s" : ""} registration
-                              {item.isPremium && (
-                                <span className="ml-2 text-purple-500 inline-flex items-center gap-0.5">
-                                  <Sparkles className="w-2.5 h-2.5" /> Premium
-                                </span>
-                              )}
-                            </p>
-                          </div>
+                          <p className="font-semibold text-[#031033] text-sm shrink-0">
+                            ₦{item.price.toLocaleString("en-NG")}
+                          </p>
                         </div>
-                        <p className="font-semibold text-[#031033] text-sm shrink-0">
-                          {formatCurrency(item.price * item.years, item.currency)}
-                        </p>
                       </div>
-                      {item.addSsl && (
-                        <div className="mt-2 flex items-center justify-between pl-11">
-                          <span className="text-xs text-[#e8900a] flex items-center gap-1">
-                            <Shield className="w-3 h-3" />
-                            SSL Certificate ({item.years} yr{item.years !== 1 ? "s" : ""})
-                          </span>
-                          <span className="text-xs font-medium text-[#031033]">
-                            {formatCurrency(SSL_PRICE * item.years, item.currency)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -302,21 +291,13 @@ export default function CheckoutPage() {
                 </div>
                 <div className="px-6 py-5 space-y-2.5">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#5a6a85]">Domains ({items.length})</span>
-                    <span className="text-[#031033] font-medium">{formatCurrency(subtotal())}</span>
+                    <span className="text-[#5a6a85]">Items ({items.length})</span>
+                    <span className="text-[#031033] font-medium">₦{grandTotal().toLocaleString("en-NG")}</span>
                   </div>
-                  {sslTotal() > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[#5a6a85] flex items-center gap-1">
-                        <Shield className="w-3 h-3" /> SSL Add-ons
-                      </span>
-                      <span className="text-[#031033] font-medium">{formatCurrency(sslTotal())}</span>
-                    </div>
-                  )}
                   <div className="border-t border-[#e2eaff] pt-3 flex justify-between items-center">
                     <span className="font-bold text-[#031033]">Total</span>
                     <span className="font-extrabold text-2xl text-[#031033]">
-                      {formatCurrency(grandTotal())}
+                      ₦{grandTotal().toLocaleString("en-NG")}
                     </span>
                   </div>
                 </div>
@@ -336,7 +317,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <Lock className="w-4 h-4" />
-                        Pay {formatCurrency(grandTotal())}
+                        Pay ₦{grandTotal().toLocaleString("en-NG")}
                       </>
                     )}
                   </button>

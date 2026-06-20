@@ -42,7 +42,7 @@ export default function DomainsPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
 
-  const { addItem, removeItem, hasItem, itemCount } = useCartStore();
+  const { addDomainItem, removeItem, hasItem, itemCount } = useCartStore();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +62,14 @@ export default function DomainsPage() {
 
   const handleAddToCart = (result: DomainResult) => {
     if (result.price.price == null) return;
-    addItem({
-      domain: result.domain,
+    const dotIdx = result.domain.indexOf(".");
+    const domainName = dotIdx !== -1 ? result.domain.slice(0, dotIdx) : result.domain;
+    const extension = dotIdx !== -1 ? result.domain.slice(dotIdx + 1) : "";
+
+    addDomainItem({
+      type: "DOMAIN",
+      domainName,
+      extension,
       price: result.price.price,
       currency: result.price.currency ?? "USD",
       isPremium: result.isPremium,
@@ -74,7 +80,7 @@ export default function DomainsPage() {
   };
 
   const handleRemoveFromCart = (domain: string) => {
-    removeItem(domain);
+    removeItem(`domain:${domain}`);
     toast.info(`${domain} removed from cart.`);
   };
 
@@ -283,7 +289,7 @@ export default function DomainsPage() {
                           )}
                         </div>
                         {result.available ? (
-                          hasItem(result.domain) ? (
+                          hasItem(`domain:${result.domain}`) ? (
                             <button
                               id={`domain-remove-${result.domain.replace(".", "-")}`}
                               onClick={() => handleRemoveFromCart(result.domain)}

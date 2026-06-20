@@ -13,7 +13,8 @@ import {
   LayoutDashboard,
   Search,
 } from "lucide-react";
-import { verifyDomainOrder } from "@/lib/api";
+import { verifyPayment } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
 
 type VerifyState = "loading" | "success" | "failed" | "error";
 
@@ -29,7 +30,7 @@ function CartSuccessContent() {
 
   const [verifyState, setVerifyState] = useState<VerifyState>("loading");
   const [orderData, setOrderData] = useState<{
-    domains: string[];
+    items: Array<{ type: string; domainName?: string; plan?: { name?: string }; price: number; id: string }>;
     amount: number;
     reference: string;
   } | null>(null);
@@ -42,73 +43,45 @@ function CartSuccessContent() {
       return;
     }
 
-    const saveLocalDomains = (domains: string[]) => {
-      if (typeof window === "undefined" || !domains.length) return;
-      try {
-        const stored = localStorage.getItem("nupat-registered-domains");
-        const list: string[] = stored ? JSON.parse(stored) : [];
-        domains.forEach((d) => {
-          if (!list.includes(d)) list.push(d);
-        });
-        localStorage.setItem("nupat-registered-domains", JSON.stringify(list));
-      } catch (err) {
-        console.error("Failed to save registered domains to localStorage:", err);
-      }
-    };
+    const token = useAuthStore.getState().token;
 
     const verify = async () => {
       try {
-        const res = await verifyDomainOrder(reference);
+        const res = await verifyPayment(token!, reference);
         if (res?.data?.status === "PAID") {
-          const domains = res.data.domains ?? [];
           setOrderData({
-            domains,
+            items: res.data.items ?? [],
             amount: res.data.amount ?? 0,
             reference: res.data.reference ?? reference,
           });
-          saveLocalDomains(domains);
           setVerifyState("success");
+          sessionStorage.removeItem("cart_order_ref");
           sessionStorage.removeItem("domain_order_ref");
-          sessionStorage.removeItem("domain_order_items");
         } else if (res?.data?.status === "FAILED") {
           setVerifyState("failed");
         } else {
-          // Still pending (e.g. bank transfer) — treat as success with a note
-          const domains = res.data.domains ?? [];
           setOrderData({
-            domains,
+            items: res.data.items ?? [],
             amount: res.data.amount ?? 0,
             reference: res.data.reference ?? reference,
           });
-          saveLocalDomains(domains);
           setVerifyState("success");
+          sessionStorage.removeItem("cart_order_ref");
           sessionStorage.removeItem("domain_order_ref");
-          sessionStorage.removeItem("domain_order_items");
         }
       } catch {
-        // If the API endpoint isn't live yet, show optimistic success
+        // Optimistic success if API not yet reachable
         setVerifyState("success");
-        let domains: string[] = [];
-        try {
-          const storedItems = sessionStorage.getItem("domain_order_items");
-          if (storedItems) {
-            domains = JSON.parse(storedItems);
-          }
-        } catch {}
-
-        setOrderData({
-          domains,
-          amount: 0,
-          reference,
-        });
-        saveLocalDomains(domains);
+        setOrderData({ items: [], amount: 0, reference });
+        sessionStorage.removeItem("cart_order_ref");
         sessionStorage.removeItem("domain_order_ref");
-        sessionStorage.removeItem("domain_order_items");
       }
     };
 
     verify();
   }, [reference]);
+
+  const domainCount = orderData?.items?.filter((item) => item.type === "DOMAIN").length ?? 0;
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
@@ -139,7 +112,11 @@ function CartSuccessContent() {
                   Order <span className="gradient-text">Confirmed!</span>
                 </h1>
                 <p className="text-[#5a6a85] text-base">
-                  Your domain{(orderData?.domains?.length ?? 0) > 1 ? "s are" : " is"} being registered. You&apos;ll receive a confirmation email shortly.
+                  {domainCount > 0 ? (
+                    `Your domain${domainCount > 1 ? "s are" : " is"} being registered. You'll receive a confirmation email shortly.`
+                  ) : (
+                    "Your order has been confirmed. You'll receive a confirmation email shortly."
+                  )}
                 </p>
               </div>
 
@@ -154,21 +131,29 @@ function CartSuccessContent() {
               )}
 
               {/* Registered domains */}
-              {(orderData?.domains?.length ?? 0) > 0 && (
+              {(orderData?.items?.length ?? 0) > 0 && (
                 <div className="bg-white border border-[#e2eaff] text-left">
                   <div className="px-5 py-3 border-b border-[#f0f4fc]">
                     <p className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
-                      Registered Domains
+                      Order Items
                     </p>
                   </div>
                   <div className="divide-y divide-[#f0f4fc]">
-                    {orderData!.domains.map((d) => (
-                      <div key={d} className="flex items-center gap-3 px-5 py-3">
-                        <Globe className="w-4 h-4 text-[#e8900a] shrink-0" />
-                        <span className="text-[#031033] font-semibold text-sm">{d}</span>
-                        <CheckCircle className="w-3.5 h-3.5 text-green-500 ml-auto shrink-0" />
-                      </div>
-                    ))}
+                    {orderData!.items.map((item) => {
+                      const label =
+                        item.type === "HOSTING"
+                          ? `${item.plan?.name ?? "Hosting"} Plan`
+                          : item.type === "DOMAIN"
+                          ? item.domainName
+                          : `SSL — ${item.domainName}`;
+                      return (
+                        <div key={item.id} className="flex items-center gap-3 px-5 py-3">
+                          <Globe className="w-4 h-4 text-[#e8900a] shrink-0" />
+                          <span className="text-[#031033] font-semibold text-sm">{label}</span>
+                          <CheckCircle className="w-3.5 h-3.5 text-green-500 ml-auto shrink-0" />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

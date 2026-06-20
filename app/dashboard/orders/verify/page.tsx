@@ -10,8 +10,12 @@ import {
   ArrowRight,
   ShoppingCart,
   AlertCircle,
+  Server,
+  Globe,
+  Shield,
 } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/useOrders";
+import type { OrderItem } from "@/lib/api";
 
 // Countdown from N seconds then auto-navigate
 function useCountdown(seconds: number, onDone: () => void) {
@@ -29,6 +33,38 @@ function useCountdown(seconds: number, onDone: () => void) {
   return count;
 }
 
+function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
+  if (type === "HOSTING")
+    return (
+      <div className="w-8 h-8 bg-[#fff8ee] border border-[#f5d99e] flex items-center justify-center shrink-0">
+        <Server className="w-3.5 h-3.5 text-[#e8900a]" />
+      </div>
+    );
+  if (type === "DOMAIN")
+    return (
+      <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
+        <Globe className="w-3.5 h-3.5 text-[#031033]" />
+      </div>
+    );
+  return (
+    <div className="w-8 h-8 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+      <Shield className="w-3.5 h-3.5 text-emerald-500" />
+    </div>
+  );
+}
+
+function ItemLabel({ item }: { item: OrderItem }) {
+  if (item.type === "HOSTING") return <>{item.plan?.name ?? "Hosting"} Plan</>;
+  if (item.type === "DOMAIN") return <>{item.domainName}</>;
+  return <>SSL — {item.domainName}</>;
+}
+
+function ItemSubtitle({ item }: { item: OrderItem }) {
+  if (item.type === "HOSTING") return <>Web Hosting Plan</>;
+  if (item.type === "DOMAIN") return <>Domain Registration</>;
+  return <>SSL Certificate</>;
+}
+
 // ── Main verify page content ──────────────────────────────────────────────────
 
 function OrderVerifyContent() {
@@ -41,7 +77,6 @@ function OrderVerifyContent() {
   );
 
   const isPaid = data?.status === "PAID";
-  const planId = data?.plan?.id ?? "";
 
   const [shouldCountdown, setShouldCountdown] = useState(false);
 
@@ -53,10 +88,8 @@ function OrderVerifyContent() {
   const countdown = useCountdown(
     shouldCountdown ? 5 : 999,
     () => {
-      if (isPaid && planId) {
-        router.replace(
-          `/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}&reference=${encodeURIComponent(reference)}`,
-        );
+      if (isPaid) {
+        router.replace("/dashboard/orders");
       }
     },
   );
@@ -74,14 +107,14 @@ function OrderVerifyContent() {
         </h1>
         <p className="text-sm text-[#5a6a85] max-w-xs">
           This page requires a payment reference from Paystack. Please start
-          from the hosting plans page.
+          from the checkout page.
         </p>
         <Link
-          href="/dashboard/hosting"
+          href="/dashboard/hosting/provision"
           className="btn-primary text-sm py-2.5 px-6 flex items-center gap-2"
         >
           <ShoppingCart className="w-4 h-4" />
-          View Plans
+          Go to Checkout
         </Link>
       </div>
     );
@@ -143,7 +176,7 @@ function OrderVerifyContent() {
 
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
           <Link
-            href="/dashboard/hosting"
+            href="/dashboard/hosting/provision"
             className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -181,66 +214,74 @@ function OrderVerifyContent() {
           Payment Confirmed!
         </h1>
         <p className="text-[#5a6a85] mt-2 text-sm leading-relaxed">
-          Your payment for the{" "}
-          <span className="font-semibold text-[#031033]">
-            {data.plan.name} Hosting
-          </span>{" "}
-          plan has been confirmed. You can now provision your hosting account.
+          Your payment has been confirmed and your services are being
+          provisioned automatically. No further action needed.
         </p>
       </div>
 
-      {/* Order summary */}
-      <div className="w-full bg-[#f6f9ff] border border-[#e2eaff] divide-y divide-[#e2eaff] text-left">
-        {[
-          { label: "Plan", value: `${data.plan.name} Hosting` },
-          {
-            label: "Amount",
-            value: `₦${data.amount.toLocaleString("en-NG")}`,
-          },
-          { label: "Reference", value: data.reference },
-          { label: "Status", value: "PAID" },
-        ].map(({ label, value }) => (
-          <div key={label} className="flex items-center justify-between px-4 py-2.5">
-            <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
-              {label}
-            </span>
-            <span
-              className={`text-sm font-semibold ${
-                label === "Status"
-                  ? "text-emerald-600"
-                  : label === "Reference"
-                  ? "font-mono text-xs text-[#5a6a85]"
-                  : "text-[#031033]"
-              }`}
-            >
-              {value}
-            </span>
+      {/* Items summary */}
+      <div className="w-full bg-[#f6f9ff] border border-[#e2eaff] text-left">
+        {data.items.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-3 px-4 py-3 border-b border-[#e2eaff] last:border-b-0"
+          >
+            <ItemTypeIcon type={item.type} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#031033]">
+                <ItemLabel item={item} />
+              </p>
+              <p className="text-xs text-[#9ba8c0]">
+                <ItemSubtitle item={item} />
+              </p>
+            </div>
+            <p className="text-sm font-bold text-[#031033] shrink-0">
+              ₦{item.price.toLocaleString("en-NG")}
+            </p>
           </div>
         ))}
+        {/* Total row */}
+        <div className="flex items-center justify-between px-4 py-3 bg-white">
+          <span className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide">
+            Total
+          </span>
+          <span className="text-base font-extrabold text-[#031033]">
+            ₦{data.amount.toLocaleString("en-NG")}
+          </span>
+        </div>
+        {/* Reference */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e2eaff]">
+          <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
+            Reference
+          </span>
+          <span className="text-xs font-mono text-[#5a6a85]">
+            {data.reference}
+          </span>
+        </div>
       </div>
 
       {/* Auto-redirect countdown */}
       <div className="flex flex-col items-center gap-3 w-full">
         <p className="text-xs text-[#9ba8c0]">
-          Redirecting to setup in{" "}
+          Redirecting to your orders in{" "}
           <span className="font-bold text-[#e8900a]">{displayCountdown}s</span>
           …
         </p>
 
         <Link
-          href={`/dashboard/hosting/provision?planId=${planId}&planName=${encodeURIComponent(data.plan.name)}&reference=${encodeURIComponent(reference)}`}
-          id="verify-setup-now"
+          href="/dashboard/orders"
+          id="verify-view-orders"
           className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
         >
-          Set Up Hosting Now
+          View My Orders
           <ArrowRight className="w-4 h-4" />
         </Link>
 
         <Link
-          href="/dashboard/orders"
+          href="/dashboard/hosting"
           className="text-xs font-semibold text-[#9ba8c0] hover:text-[#5a6a85] transition-colors"
         >
-          View all orders
+          Go to Hosting Dashboard
         </Link>
       </div>
     </div>

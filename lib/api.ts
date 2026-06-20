@@ -300,6 +300,7 @@ export type HostingAccount = {
   serverIp?: string;
   createdAt: string;
   updatedAt: string;
+  orderItemId?: string | null;
 };
 
 export type HostingStats = {
@@ -597,36 +598,56 @@ export const assignHostingDatabaseUser = (
 
 export type OrderStatus = "PENDING" | "PAID" | "FAILED";
 
+/** A single line-item inside an order (HOSTING, DOMAIN, or SSL) */
+export type OrderItem = {
+  id: string;
+  type: "HOSTING" | "DOMAIN" | "SSL";
+  price: number;
+  domainName?: string;
+  plan?: Plan; // present for HOSTING items
+  planId?: string;
+  hostingAccountId?: string | null;
+};
+
+/** Backend cart item shapes sent to POST /orders/initialize */
+export type BackendCartItem =
+  | { type: "HOSTING"; planId: string }
+  | { type: "DOMAIN"; domainName: string; extension: string }
+  | { type: "SSL"; domainName: string };
+
 export type Order = {
   id: string;
-  planId: string;
+  userId: string;
   amount: number;
   status: OrderStatus;
   paystackRef: string;
-  plan: Plan;
+  items: OrderItem[];
   createdAt: string;
   updatedAt: string;
 };
 
-export type InitializePaymentResult = {
+export type InitializeCartPaymentResult = {
   paymentUrl: string;
   reference: string;
+  total: number;
 };
 
 export type VerifyPaymentResult = {
   status: OrderStatus;
-  plan: Plan;
+  items: OrderItem[];
   amount: number;
   reference: string;
 };
 
-/** POST /orders/initialize — creates a Paystack checkout session */
-export const initializePayment = (
-  token: string,
-  data: { planId: string },
+/**
+ * POST /orders/initialize — creates a Paystack checkout session for a
+ * cart of HOSTING, DOMAIN, and/or SSL items.
+ */
+export const initializeCartPayment = (
+  data: { items: BackendCartItem[] },
 ): Promise<{
   success: boolean;
-  data: InitializePaymentResult;
+  data: InitializeCartPaymentResult;
   message: string;
 }> =>
   fetchWithRefresh(`${BASE_URL}/orders/initialize`, {
@@ -693,50 +714,16 @@ export const getRegisteredDomains = (
     headers: getHeaders(),
   }).then(handleResponse);
 
-// ── Domain Orders ─────────────────────────────────────────────────────────────
-
-export type DomainOrderItem = {
-  domain: string;
-  years: number;
-  addSsl: boolean;
-};
-
-export type DomainOrderResult = {
-  paymentUrl: string;
-  reference: string;
-  orderId: string;
-};
-
-export type VerifyDomainOrderResult = {
-  status: "PENDING" | "PAID" | "FAILED";
-  domains: string[];
-  amount: number;
-  reference: string;
-};
-
-/**
- * POST /orders/domain/initialize — creates a domain purchase order and returns a Paystack payment URL.
- * NOTE: This endpoint is a stub — wire up the real backend route when available.
- */
-export const initializeDomainOrder = (
-  data: { items: DomainOrderItem[] },
-): Promise<{ success: boolean; data: DomainOrderResult; message: string }> =>
-  fetchWithRefresh(`${BASE_URL}/orders/domain/initialize`, {
-    method: "POST",
+/** GET /domains/:id — get a single domain details by ID */
+export const getDomainById = (
+  token: string,
+  id: string,
+): Promise<{ success: boolean; data: RegisteredDomain; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}`, {
     headers: getHeaders(),
-    body: JSON.stringify(data),
   }).then(handleResponse);
 
-/**
- * GET /orders/domain/verify/:reference — verifies a domain payment by Paystack reference.
- */
-export const verifyDomainOrder = (
-  reference: string,
-): Promise<{ success: boolean; data: VerifyDomainOrderResult; message: string }> =>
-  fetchWithRefresh(
-    `${BASE_URL}/orders/domain/verify/${encodeURIComponent(reference)}`,
-    { headers: getHeaders() },
-  ).then(handleResponse);
+// (Domain Orders are now handled by the unified cart — see initializeCartPayment)
 
 // ── Billing (WHMCS) ───────────────────────────────────────────────────────────
 

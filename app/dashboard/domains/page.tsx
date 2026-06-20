@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Globe,
   Search,
@@ -15,10 +16,12 @@ import {
   Sparkles,
   Loader2,
   Lock,
+  Server,
 } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
+import { useGetHosting } from "@/hooks/useHosting";
 import { toast } from "sonner";
 
 type SearchState = "idle" | "searching" | "done" | "error";
@@ -32,7 +35,8 @@ export default function DomainsDashboardPage() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const { data: registeredDomains, isLoading: loadingDomains, refetch } = useGetRegisteredDomains();
-  const { addItem, removeItem, hasItem, openDrawer } = useCartStore();
+  const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
+  const { addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,20 +58,31 @@ export default function DomainsDashboardPage() {
 
   const handleAddToCart = (result: DomainResult) => {
     if (result.price.price == null) return;
-    addItem({
-      domain: result.domain,
+    // Split domain into name + extension (e.g. "example" + "com.ng")
+    const dotIdx = result.domain.indexOf(".");
+    const domainName = dotIdx !== -1 ? result.domain.slice(0, dotIdx) : result.domain;
+    const extension = dotIdx !== -1 ? result.domain.slice(dotIdx + 1) : "";
+    addDomainItem({
+      type: "DOMAIN",
+      domainName,
+      extension,
       price: result.price.price,
       currency: result.price.currency ?? "USD",
       isPremium: result.isPremium,
     });
     toast.success(`${result.domain} added to cart!`);
-    openDrawer(); // Automatically open the side drawer inside the dashboard
+    openDrawer();
   };
 
-  const handleRemoveFromCart = (domain: string) => {
-    removeItem(domain);
-    toast.info(`${domain} removed from cart.`);
+  const handleRemoveFromCart = (result: DomainResult) => {
+    const dotIdx = result.domain.indexOf(".");
+    const domainName = dotIdx !== -1 ? result.domain.slice(0, dotIdx) : result.domain;
+    const extension = dotIdx !== -1 ? result.domain.slice(dotIdx + 1) : "";
+    removeItem(`domain:${domainName}.${extension}`);
+    toast.info(`${result.domain} removed from cart.`);
   };
+
+  const isInCart = (domain: string) => hasItem(`domain:${domain.slice(0, domain.indexOf("."))}.${domain.slice(domain.indexOf(".") + 1)}`);
 
   const formatPrice = (priceVal: number | null, currency = "USD") => {
     if (priceVal == null) return "—";
@@ -122,7 +137,7 @@ export default function DomainsDashboardPage() {
               : "border-transparent text-[#5a6a85] hover:text-[#031033]"
           }`}
         >
-          My Domains ({loadingDomains ? "..." : registeredDomains?.length ?? 0})
+          My Domains ({loadingDomains || loadingHosting ? "..." : (registeredDomains?.length ?? 0) + (hostingAccounts?.length ?? 0)})
         </button>
         <button
           onClick={() => setActiveTab("register")}
@@ -138,97 +153,205 @@ export default function DomainsDashboardPage() {
 
       {/* Tab Contents */}
       {activeTab === "my-domains" ? (
-        <div className="bg-white border border-[#e2eaff] min-h-[300px]">
-          {loadingDomains ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="w-8 h-8 text-[#e8900a] animate-spin" />
-              <p className="text-sm text-[#5a6a85]">Loading registered domains...</p>
-            </div>
-          ) : !registeredDomains || registeredDomains.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <div className="w-14 h-14 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6 text-[#9ba8c0]" />
+        <div className="flex flex-col gap-8">
+          {/* 1. Registered Domains Section */}
+          <div className="bg-white border border-[#e2eaff]">
+            <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-[#e8900a]" />
+                <h2 className="text-sm font-semibold text-[#031033]">Registered Domains (through Us)</h2>
+                {registeredDomains && (
+                  <span className="text-[10px] font-bold bg-[#f2f5fc] text-[#5a6a85] px-1.5 py-0.5 border border-[#e2eaff]">
+                    {registeredDomains.length}
+                  </span>
+                )}
               </div>
-              <h3 className="font-bold text-[#031033] text-base">No domains registered yet</h3>
-              <p className="text-sm text-[#5a6a85] max-w-sm mt-1 mb-6">
-                You don&apos;t have any domain names registered to this account. Find your perfect domain now.
-              </p>
-              <button
-                onClick={() => setActiveTab("register")}
-                className="btn-primary py-2.5 px-6 text-sm flex items-center gap-1.5"
-              >
-                <Search className="w-4 h-4" />
-                Find a Domain
-              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#f6f9ff] border-b border-[#e2eaff]">
-                    <th className="px-6 py-4 text-xs font-semibold text-[#9ba8c0] uppercase tracking-wider">
-                      Domain Name
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-[#9ba8c0] uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-[#9ba8c0] uppercase tracking-wider">
-                      Registration Date
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-[#9ba8c0] uppercase tracking-wider">
-                      Expiry Date
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-[#9ba8c0] uppercase tracking-wider">
-                      Auto Renew
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#f0f4fc]">
-                  {registeredDomains.map((domain) => (
-                    <tr key={domain.domain} className="hover:bg-[#fafbff] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Globe className="w-4 h-4 text-[#e8900a]" />
-                          <span className="font-bold text-[#031033] text-sm">{domain.domain}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 border ${
-                            domain.status === "ACTIVE"
-                              ? "bg-emerald-50 border-emerald-100 text-emerald-600"
-                              : domain.status === "PENDING"
-                              ? "bg-amber-50 border-amber-100 text-amber-600"
-                              : "bg-red-50 border-red-100 text-red-500"
-                          }`}
-                        >
-                          {domain.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-[#5a6a85] text-xs">
-                        {formatDate(domain.registrationDate)}
-                      </td>
-                      <td className="px-6 py-4 text-[#5a6a85] text-xs">
-                        {formatDate(domain.expiryDate)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={domain.autoRenew}
-                            readOnly
-                            className="sr-only peer"
-                          />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                          <span className="ml-2 text-xs text-[#5a6a85]">Enabled</span>
-                        </label>
-                      </td>
+
+            {loadingDomains ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <Loader2 className="w-6 h-6 text-[#e8900a] animate-spin" />
+                <p className="text-xs text-[#5a6a85]">Loading registered domains...</p>
+              </div>
+            ) : !registeredDomains || registeredDomains.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <p className="text-xs text-[#5a6a85] max-w-xs mb-3">
+                  You do not have any registered domains yet.
+                </p>
+                <button
+                  onClick={() => setActiveTab("register")}
+                  className="btn-primary text-xs py-1.5 px-4 flex items-center gap-1"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  Search Domain
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#f6f9ff] border-b border-[#e2eaff]">
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Domain Name
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Registration Date
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Expiry Date
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Auto Renew
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#f0f4fc]">
+                    {registeredDomains.map((domain) => (
+                      <tr key={domain.id} className="hover:bg-[#fafbff] transition-colors">
+                        <td className="px-6 py-3.5">
+                          <span className="font-bold text-[#031033] text-sm">{domain.domain}</span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span
+                            className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 border ${
+                              domain.status === "ACTIVE"
+                                ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                                : domain.status === "PENDING"
+                                ? "bg-amber-50 border-amber-100 text-amber-600"
+                                : "bg-red-50 border-red-100 text-red-500"
+                            }`}
+                          >
+                            {domain.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs">
+                          {formatDate(domain.registrationDate)}
+                        </td>
+                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs">
+                          {formatDate(domain.expiryDate)}
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={domain.autoRenew}
+                              readOnly
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                          </label>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Hosted Domains Section */}
+          <div className="bg-white border border-[#e2eaff]">
+            <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Server className="w-4 h-4 text-[#e8900a]" />
+                <h2 className="text-sm font-semibold text-[#031033]">Hosted Domains (via Hosting Accounts)</h2>
+                {hostingAccounts && (
+                  <span className="text-[10px] font-bold bg-[#f2f5fc] text-[#5a6a85] px-1.5 py-0.5 border border-[#e2eaff]">
+                    {hostingAccounts.length}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
+
+            {loadingHosting ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <Loader2 className="w-6 h-6 text-[#e8900a] animate-spin" />
+                <p className="text-xs text-[#5a6a85]">Loading hosted domains...</p>
+              </div>
+            ) : !hostingAccounts || hostingAccounts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <p className="text-xs text-[#5a6a85] max-w-xs mb-3">
+                  You do not have any hosted domains yet.
+                </p>
+                <Link
+                  href="/dashboard/hosting"
+                  className="btn-primary text-xs py-1.5 px-4 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Order Hosting Plan
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#f6f9ff] border-b border-[#e2eaff]">
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Domain Name
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Hosting Plan
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        cPanel Username
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Server IP
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f0f4fc]">
+                    {hostingAccounts.map((account) => (
+                      <tr key={account.id} className="hover:bg-[#fafbff] transition-colors">
+                        <td className="px-6 py-3.5">
+                          <span className="font-bold text-[#031033] text-sm">{account.domain}</span>
+                        </td>
+                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs font-semibold">
+                          {account.plan?.name ?? "Hosting"} Plan
+                        </td>
+                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs font-mono">
+                          {account.cpanelUsername ?? "—"}
+                        </td>
+                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs font-mono">
+                          {account.serverIp ?? "—"}
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span
+                            className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 border ${
+                              account.status === "ACTIVE"
+                                ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                                : account.status === "SUSPENDED"
+                                ? "bg-red-50 border-red-100 text-red-500"
+                                : "bg-amber-50 border-amber-100 text-amber-600"
+                            }`}
+                          >
+                            {account.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <Link
+                            href={`/dashboard/hosting/${account.id}`}
+                            className="text-xs text-[#e8900a] hover:underline underline-offset-2 font-semibold"
+                          >
+                            Manage Hosting
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         /* Register Domain Search */
@@ -356,9 +479,9 @@ export default function DomainsDashboardPage() {
                       </div>
 
                       {result.available ? (
-                        hasItem(result.domain) ? (
+                        isInCart(result.domain) ? (
                           <button
-                            onClick={() => handleRemoveFromCart(result.domain)}
+                            onClick={() => handleRemoveFromCart(result)}
                             className="py-2 px-4 text-xs flex items-center gap-1 font-semibold border border-red-200 text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

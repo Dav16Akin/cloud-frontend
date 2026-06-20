@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getRegisteredDomains, getHosting, type RegisteredDomain } from "@/lib/api";
+import { getRegisteredDomains, getDomainById, getHosting, type RegisteredDomain } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
 export const useGetRegisteredDomains = () => {
@@ -17,37 +17,23 @@ export const useGetRegisteredDomains = () => {
       try {
         const res = await getRegisteredDomains(token);
         if (res?.success && Array.isArray(res.data)) {
-          res.data.forEach((d) => {
-            if (d.domain && !seen.has(d.domain)) {
-              seen.add(d.domain);
-              domains.push(d);
-            }
-          });
-        }
-      } catch (err) {
-        console.warn("Failed to fetch registered domains from API, falling back to local storage and hosting accounts:", err);
-      }
-
-      // 2. Fetch from user's hosting accounts to extract domains
-      try {
-        const hostingRes = await getHosting(token);
-        if (hostingRes?.success && Array.isArray(hostingRes.data)) {
-          hostingRes.data.forEach((acct, index) => {
-            if (acct.domain && !seen.has(acct.domain)) {
-              seen.add(acct.domain);
+          res.data.forEach((d: any) => {
+            const domainName = d.name ?? d.domain;
+            if (domainName && !seen.has(domainName)) {
+              seen.add(domainName);
               domains.push({
-                id: `hosting-${acct.id || index}`,
-                domain: acct.domain,
-                status: (acct.status === "ACTIVE" ? "ACTIVE" : "PENDING") as "ACTIVE" | "PENDING",
-                registrationDate: acct.createdAt || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                expiryDate: new Date(Date.now() + 335 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                autoRenew: true,
+                id: d.id,
+                domain: domainName,
+                status: d.status,
+                registrationDate: d.registeredAt ?? d.registrationDate,
+                expiryDate: d.expiresAt ?? d.expiryDate,
+                autoRenew: d.autoRenew ?? true,
               });
             }
           });
         }
       } catch (err) {
-        console.warn("Failed to fetch hosting accounts for fallback:", err);
+        console.warn("Failed to fetch registered domains from API, falling back to local storage:", err);
       }
 
       // 3. Load from localStorage (for newly purchased domains in the current browser session)
@@ -77,5 +63,17 @@ export const useGetRegisteredDomains = () => {
     },
     enabled: !!token,
     staleTime: 60 * 1000,
+  });
+};
+
+export const useGetDomainById = (id: string | null) => {
+  const token = useAuthStore((s) => s.token);
+
+  return useQuery({
+    queryKey: ["registered-domain", id],
+    queryFn: () => getDomainById(token!, id!),
+    enabled: !!token && !!id,
+    staleTime: 60 * 1000,
+    select: (res) => res.data,
   });
 };

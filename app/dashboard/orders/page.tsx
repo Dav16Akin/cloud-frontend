@@ -10,9 +10,12 @@ import {
   ArrowRight,
   AlertCircle,
   RefreshCw,
+  Server,
+  Globe,
+  Shield,
 } from "lucide-react";
 import { useGetOrders } from "@/hooks/useOrders";
-import type { Order, OrderStatus } from "@/lib/api";
+import type { Order, OrderItem, OrderStatus } from "@/lib/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -26,6 +29,26 @@ function formatDate(iso: string) {
 
 function formatPrice(n: number) {
   return "₦" + n.toLocaleString("en-NG");
+}
+
+/** Returns a human-readable summary for an order's items array */
+function orderSummary(items: OrderItem[]): string {
+  if (!items || items.length === 0) return "—";
+  return items
+    .map((i) => {
+      if (i.type === "HOSTING") return `${i.plan?.name ?? "Hosting"} Plan`;
+      if (i.type === "DOMAIN")  return i.domainName ?? "Domain";
+      return `SSL (${i.domainName ?? ""})`;
+    })
+    .join(", ");
+}
+
+function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
+  if (type === "HOSTING")
+    return <Server className="w-3.5 h-3.5 text-[#e8900a]" />;
+  if (type === "DOMAIN")
+    return <Globe className="w-3.5 h-3.5 text-[#031033]" />;
+  return <Shield className="w-3.5 h-3.5 text-emerald-500" />;
 }
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
@@ -64,18 +87,26 @@ function OrderStatusBadge({ status }: { status: OrderStatus }) {
 // ── Order Row ─────────────────────────────────────────────────────────────────
 
 function OrderRow({ order }: { order: Order }) {
+  const summary = orderSummary(order.items);
+  const itemTypes = [...new Set(order.items.map((i) => i.type))];
+
   return (
     <div className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#f6f9ff] transition-colors border-b border-[#e2eaff] last:border-b-0">
-      {/* Plan icon */}
+      {/* Icon cluster */}
       <div className="w-8 h-8 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center shrink-0">
         <Receipt className="w-3.5 h-3.5 text-[#9ba8c0]" />
       </div>
 
-      {/* Plan name + ref */}
+      {/* Summary + ref */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#031033] truncate">
-          {order.plan?.name ?? "—"} Hosting
-        </p>
+        <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+          {itemTypes.map((t) => (
+            <ItemTypeIcon key={t} type={t} />
+          ))}
+          <p className="text-sm font-semibold text-[#031033] truncate">
+            {summary}
+          </p>
+        </div>
         <p className="text-xs text-[#9ba8c0] font-mono truncate">
           {order.paystackRef}
         </p>
@@ -93,18 +124,6 @@ function OrderRow({ order }: { order: Order }) {
       <p className="text-xs text-[#9ba8c0] shrink-0 hidden md:block">
         {formatDate(order.createdAt)}
       </p>
-
-      {/* Provision link (only for paid orders) */}
-      {order.status === "PAID" && order.plan && (
-        <Link
-          href={`/dashboard/hosting/provision?planId=${order.planId}&planName=${encodeURIComponent(order.plan.name)}&reference=${encodeURIComponent(order.paystackRef)}`}
-          id={`order-provision-${order.id}`}
-          className="text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2 flex items-center gap-1 shrink-0 whitespace-nowrap"
-        >
-          Setup
-          <ArrowRight className="w-3 h-3" />
-        </Link>
-      )}
     </div>
   );
 }
@@ -143,11 +162,12 @@ export default function OrdersPage() {
             Orders
           </h1>
           <p className="text-[#5a6a85] mt-1 text-sm">
-            View your payment history and set up any paid plans.
+            View your payment history. Services are provisioned automatically
+            after payment.
           </p>
         </div>
         <Link
-          href="/dashboard/hosting"
+          href="/dashboard/hosting/provision"
           id="orders-new-order"
           className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center gap-2 whitespace-nowrap shrink-0"
         >
@@ -212,7 +232,7 @@ export default function OrdersPage() {
           <div className="hidden sm:flex items-center gap-4 px-5 py-2 bg-[#f6f9ff] border-b border-[#e2eaff]">
             <div className="w-8 shrink-0" />
             <p className="flex-1 text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-              Plan
+              Items
             </p>
             <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider w-20 hidden sm:block">
               Amount
@@ -223,7 +243,6 @@ export default function OrdersPage() {
             <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider w-24 hidden md:block">
               Date
             </p>
-            <div className="w-14" />
           </div>
         )}
 
@@ -247,16 +266,16 @@ export default function OrdersPage() {
               <Receipt className="w-5 h-5 text-[#9ba8c0]" />
             </div>
             <p className="text-sm text-[#5a6a85] max-w-xs mb-4">
-              You have not placed any orders yet. Purchase a hosting plan to get
-              started.
+              You have not placed any orders yet. Purchase a hosting plan or
+              domain to get started.
             </p>
             <Link
-              href="/dashboard/hosting"
+              href="/dashboard/hosting/provision"
               id="orders-empty-cta"
               className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5"
             >
               <ShoppingCart className="w-4 h-4" />
-              Browse Plans
+              Start Shopping
             </Link>
           </div>
         )}

@@ -1,31 +1,66 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
 import {
   X,
   ShoppingCart,
   Trash2,
   Globe,
   Shield,
+  Server,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
-import { useCartStore, SSL_PRICE } from "@/store/cartStore";
+import {
+  useCartStore,
+  cartItemLabel,
+  getCartItemKey,
+  type CartItem,
+} from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 
-function formatCurrency(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount);
+function formatNGN(amount: number) {
+  return "₦" + amount.toLocaleString("en-NG");
+}
+
+function ItemIcon({ item }: { item: CartItem }) {
+  if (item.type === "HOSTING")
+    return (
+      <div className="w-9 h-9 bg-[#fffbf2] border border-[#f5d99e] flex items-center justify-center shrink-0">
+        <Server className="w-4 h-4 text-[#e8900a]" />
+      </div>
+    );
+  if (item.type === "DOMAIN")
+    return (
+      <div className="w-9 h-9 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
+        <Globe className="w-4 h-4 text-[#031033]" />
+      </div>
+    );
+  // SSL
+  return (
+    <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+      <Shield className="w-4 h-4 text-emerald-500" />
+    </div>
+  );
+}
+
+function ItemSubtitle({ item }: { item: CartItem }) {
+  if (item.type === "HOSTING")
+    return <p className="text-xs text-[#9ba8c0] mt-0.5">Web Hosting Plan</p>;
+  if (item.type === "DOMAIN")
+    return <p className="text-xs text-[#9ba8c0] mt-0.5">Domain Registration</p>;
+  return <p className="text-xs text-emerald-600 mt-0.5">SSL Certificate</p>;
 }
 
 export default function CartDrawer() {
-  const { items, removeItem, grandTotal, isDrawerOpen, closeDrawer, itemCount } =
-    useCartStore();
+  const {
+    items,
+    removeItem,
+    grandTotal,
+    isDrawerOpen,
+    closeDrawer,
+    itemCount,
+  } = useCartStore();
   const token = useAuthStore((s) => s.token);
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -46,15 +81,17 @@ export default function CartDrawer() {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isDrawerOpen]);
 
   const handleCheckout = () => {
     closeDrawer();
     if (!token) {
-      router.push("/login?redirect=/cart/checkout");
+      router.push("/login?redirect=/dashboard/hosting/provision");
     } else {
-      router.push("/cart/checkout");
+      router.push("/dashboard/hosting/provision");
     }
   };
 
@@ -83,7 +120,9 @@ export default function CartDrawer() {
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-5 h-5 text-[#031033]" />
             <div>
-              <h2 className="font-bold text-[#031033] text-sm">Shopping Cart</h2>
+              <h2 className="font-bold text-[#031033] text-sm">
+                Shopping Cart
+              </h2>
               <p className="text-xs text-[#9ba8c0]">
                 {itemCount()} item{itemCount() !== 1 ? "s" : ""}
               </p>
@@ -106,61 +145,50 @@ export default function CartDrawer() {
                 <ShoppingCart className="w-6 h-6 text-[#c5cedf]" />
               </div>
               <div>
-                <p className="text-[#031033] font-semibold text-sm">Your cart is empty</p>
+                <p className="text-[#031033] font-semibold text-sm">
+                  Your cart is empty
+                </p>
                 <p className="text-[#9ba8c0] text-xs mt-1">
-                  Search for a domain and click Add to get started.
+                  Add a hosting plan or domain to get started.
                 </p>
               </div>
               <button
-                onClick={() => { closeDrawer(); router.push("/domains"); }}
+                onClick={() => {
+                  closeDrawer();
+                  router.push("/dashboard/hosting");
+                }}
                 className="btn-primary py-2.5 px-6 text-sm"
               >
-                Search Domains
+                Browse Plans
               </button>
             </div>
           ) : (
             <div className="divide-y divide-[#f0f4fc]">
               {items.map((item) => {
-                const rowTotal = item.price * item.years + (item.addSsl ? SSL_PRICE * item.years : 0);
+                const key = getCartItemKey(item);
                 return (
                   <div
-                    key={item.domain}
-                    id={`drawer-item-${item.domain.replace(/\./g, "-")}`}
+                    key={key}
+                    id={`drawer-item-${key.replace(/[.:]/g, "-")}`}
                     className="px-5 py-4 hover:bg-[#fafbff] transition-colors"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0 mt-0.5">
-                        <Globe className="w-4 h-4 text-[#031033]" />
-                      </div>
+                      <ItemIcon item={item} />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="font-bold text-[#031033] text-sm truncate max-w-[180px]">
-                            {item.domain}
-                          </p>
-                          {item.isPremium && (
-                            <span className="text-[10px] text-purple-600 flex items-center gap-0.5 shrink-0">
-                              <Sparkles className="w-2.5 h-2.5" /> Premium
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-[#9ba8c0] mt-0.5">
-                          {item.years} yr{item.years !== 1 ? "s" : ""} · {formatCurrency(item.price, item.currency)}/yr
+                        <p className="font-bold text-[#031033] text-sm truncate">
+                          {cartItemLabel(item)}
                         </p>
-                        {item.addSsl && (
-                          <p className="text-xs text-[#e8900a] flex items-center gap-1 mt-0.5">
-                            <Shield className="w-2.5 h-2.5" />
-                            SSL included
-                          </p>
-                        )}
+                        <ItemSubtitle item={item} />
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         <p className="font-bold text-[#031033] text-sm">
-                          {formatCurrency(rowTotal, item.currency)}
+                          {formatNGN(item.price)}
                         </p>
                         <button
-                          id={`drawer-remove-${item.domain.replace(/\./g, "-")}`}
-                          onClick={() => removeItem(item.domain)}
+                          id={`drawer-remove-${key.replace(/[.:]/g, "-")}`}
+                          onClick={() => removeItem(key)}
                           className="text-[#c5cedf] hover:text-red-500 transition-colors"
+                          aria-label={`Remove ${cartItemLabel(item)}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -178,29 +206,21 @@ export default function CartDrawer() {
           <div className="border-t border-[#e2eaff] px-6 py-5 space-y-3 shrink-0 bg-white">
             {/* Total */}
             <div className="flex justify-between items-center">
-              <span className="text-sm text-[#5a6a85]">Subtotal</span>
+              <span className="text-sm text-[#5a6a85]">Total</span>
               <span className="font-extrabold text-lg text-[#031033]">
-                {formatCurrency(grandTotal())}
+                {formatNGN(grandTotal())}
               </span>
             </div>
 
-            {/* Buttons */}
+            {/* Checkout */}
             <button
               id="cart-drawer-checkout"
               onClick={handleCheckout}
               className="btn-primary w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2"
             >
-              {!token ? "Sign In & Checkout" : "Checkout"}
+              {!token ? "Sign In & Checkout" : "Proceed to Checkout"}
               <ArrowRight className="w-4 h-4" />
             </button>
-            <Link
-              href="/cart"
-              onClick={closeDrawer}
-              id="cart-drawer-view-full"
-              className="btn-outline w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
-            >
-              View Full Cart
-            </Link>
 
             <p className="text-center text-[10px] text-[#9ba8c0]">
               Secure checkout via Paystack

@@ -1,40 +1,66 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type CartItem = {
-  domain: string;
-  price: number;
-  currency: string;
-  isPremium: boolean;
-  addSsl: boolean;
-  years: number; // 1-5
+// ── Discriminated union matching the backend CartItem type ────────────────────
+
+export type CartHostingItem = {
+  type: "HOSTING";
+  planId: string;
+  planName: string;
+  price: number; // NGN retail price
 };
 
-const SSL_PRICE_USD = 9.99;
+export type CartDomainItem = {
+  type: "DOMAIN";
+  domainName: string; // e.g. "example"
+  extension: string;  // e.g. "com.ng"
+  price: number;      // NGN retail price (from backend search)
+  currency: string;   // wholesale source currency (informational)
+  isPremium: boolean;
+};
+
+export type CartSslItem = {
+  type: "SSL";
+  domainName: string; // full domain: "example.com.ng"
+  price: number;      // NGN retail price
+};
+
+export type CartItem = CartHostingItem | CartDomainItem | CartSslItem;
+
+// Unique key for each item in the cart
+function itemKey(item: CartItem): string {
+  if (item.type === "HOSTING") return `hosting:${item.planId}`;
+  if (item.type === "DOMAIN")  return `domain:${item.domainName}.${item.extension}`;
+  if (item.type === "SSL")     return `ssl:${item.domainName}`;
+  return "";
+}
 
 type CartStore = {
   items: CartItem[];
   isDrawerOpen: boolean;
 
   // Actions
-  addItem: (item: Omit<CartItem, "addSsl" | "years">) => void;
-  removeItem: (domain: string) => void;
-  toggleSsl: (domain: string) => void;
-  setYears: (domain: string, years: number) => void;
+  addHostingItem: (item: CartHostingItem) => void;
+  addDomainItem: (item: CartDomainItem) => void;
+  addSslItem: (item: CartSslItem) => void;
+  /** Remove any item by its unique key (planId for HOSTING, full domain for DOMAIN/SSL) */
+  removeItem: (key: string) => void;
   clearCart: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
   toggleDrawer: () => void;
 
   // Selectors
-  hasItem: (domain: string) => boolean;
+  hasItem: (key: string) => boolean;
   itemCount: () => number;
-  subtotal: () => number;
-  sslTotal: () => number;
   grandTotal: () => number;
+  /** Returns the payload shape the backend expects for POST /orders/initialize */
+  toBackendItems: () => Array<
+    | { type: "HOSTING"; planId: string }
+    | { type: "DOMAIN"; domainName: string; extension: string }
+    | { type: "SSL"; domainName: string }
+  >;
 };
-
-export const SSL_PRICE = SSL_PRICE_USD;
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -42,36 +68,28 @@ export const useCartStore = create<CartStore>()(
       items: [],
       isDrawerOpen: false,
 
-      addItem: (item) =>
+      addHostingItem: (item) =>
         set((state) => {
-          // Don't add duplicates
-          if (state.items.find((i) => i.domain === item.domain)) return state;
-          return {
-            items: [
-              ...state.items,
-              { ...item, addSsl: false, years: 1 },
-            ],
-            isDrawerOpen: true,
-          };
+          // Only one of each plan in the cart
+          if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
+          return { items: [...state.items, item], isDrawerOpen: true };
         }),
 
-      removeItem: (domain) =>
-        set((state) => ({
-          items: state.items.filter((i) => i.domain !== domain),
-        })),
+      addDomainItem: (item) =>
+        set((state) => {
+          if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
+          return { items: [...state.items, item], isDrawerOpen: true };
+        }),
 
-      toggleSsl: (domain) =>
-        set((state) => ({
-          items: state.items.map((i) =>
-            i.domain === domain ? { ...i, addSsl: !i.addSsl } : i
-          ),
-        })),
+      addSslItem: (item) =>
+        set((state) => {
+          if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
+          return { items: [...state.items, item], isDrawerOpen: true };
+        }),
 
-      setYears: (domain, years) =>
+      removeItem: (key) =>
         set((state) => ({
-          items: state.items.map((i) =>
-            i.domain === domain ? { ...i, years: Math.max(1, Math.min(5, years)) } : i
-          ),
+          items: state.items.filter((i) => itemKey(i) !== key),
         })),
 
       clearCart: () => set({ items: [] }),
@@ -80,25 +98,42 @@ export const useCartStore = create<CartStore>()(
       closeDrawer: () => set({ isDrawerOpen: false }),
       toggleDrawer: () => set((s) => ({ isDrawerOpen: !s.isDrawerOpen })),
 
-      hasItem: (domain) => get().items.some((i) => i.domain === domain),
+      hasItem: (key) => get().items.some((i) => itemKey(i) === key),
 
       itemCount: () => get().items.length,
 
-      subtotal: () =>
-        get().items.reduce((sum, i) => sum + i.price * i.years, 0),
+      grandTotal: () => get().items.reduce((sum, i) => sum + i.price, 0),
 
-      sslTotal: () =>
-        get().items.reduce(
-          (sum, i) => sum + (i.addSsl ? SSL_PRICE_USD * i.years : 0),
-          0
-        ),
-
-      grandTotal: () => get().subtotal() + get().sslTotal(),
+      toBackendItems: () =>
+        get().items.map((item) => {
+          if (item.type === "HOSTING")
+            return { type: "HOSTING" as const, planId: item.planId };
+          if (item.type === "DOMAIN")
+            return {
+              type: "DOMAIN" as const,
+              domainName: item.domainName,
+              extension: item.extension,
+            };
+          // SSL
+          return { type: "SSL" as const, domainName: item.domainName };
+        }),
     }),
     {
       name: "nupat-cart",
-      // Only persist items, not UI state (drawer open/closed)
       partialize: (state) => ({ items: state.items }),
-    }
-  )
+    },
+  ),
 );
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Returns the display label for a cart item */
+export function cartItemLabel(item: CartItem): string {
+  if (item.type === "HOSTING") return `${item.planName} Hosting`;
+  if (item.type === "DOMAIN")  return `${item.domainName}.${item.extension}`;
+  if (item.type === "SSL")     return `SSL — ${item.domainName}`;
+  return "";
+}
+
+/** Unique key helper — exported so other modules can build keys */
+export { itemKey as getCartItemKey };

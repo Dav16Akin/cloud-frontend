@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useGetHosting } from "@/hooks/useHosting";
-import type { HostingAccount, HostingStatus } from "@/lib/api";
+import { useGetRegisteredDomains } from "@/hooks/useDomains";
+import type { HostingAccount, HostingStatus, RegisteredDomain } from "@/lib/api";
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -252,11 +253,94 @@ function HostingSectionContent({
   );
 }
 
+// ── Domains Section ──────────────────────────────────────────────────────────
+
+function DomainsSectionContent({
+  domains,
+  loading,
+}: {
+  domains: RegisteredDomain[] | undefined;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="flex flex-col divide-y divide-[#e2eaff]">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-5 py-3 animate-pulse">
+            <div className="w-2 h-2 rounded-full bg-[#e8edf8] shrink-0" />
+            <div className="flex-1">
+              <div className="h-3.5 w-32 bg-[#e8edf8] rounded mb-1" />
+              <div className="h-3 w-20 bg-[#e8edf8] rounded" />
+            </div>
+            <div className="h-4 w-12 bg-[#e8edf8] rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!domains || domains.length === 0) {
+    return (
+      <EmptyState
+        icon={Globe}
+        message="You do not have any registered domains yet."
+        cta="Search Domain"
+        href="/dashboard/domains"
+        ctaIcon={Search}
+      />
+    );
+  }
+
+  // show up to 3 most recent
+  const shown = domains.slice(0, 3);
+
+  return (
+    <div className="flex flex-col divide-y divide-[#e2eaff]">
+      {shown.map((domain) => (
+        <Link
+          key={domain.id}
+          href="/dashboard/domains"
+          className="flex items-center gap-3 px-5 py-3 hover:bg-[#f6f9ff] transition-colors group"
+        >
+          <span
+            className={`w-2 h-2 rounded-full shrink-0 ${
+              domain.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-400"
+            }`}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#031033] truncate">
+              {domain.domain}
+            </p>
+            <p className="text-xs text-[#9ba8c0]">
+              Expires {new Date(domain.expiryDate).toLocaleDateString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+          <span
+            className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 border ${
+              domain.status === "ACTIVE"
+                ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                : "bg-amber-50 border-amber-100 text-amber-500"
+            }`}
+          >
+            {domain.status}
+          </span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#9ba8c0] group-hover:text-[#e8900a] transition-colors shrink-0" />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 // ── Overview Page ─────────────────────────────────────────────────────────────
 
 export default function DashboardOverview() {
   const { data: me, isLoading } = useGetMe();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
+  const { data: registeredDomains, isLoading: loadingDomains } = useGetRegisteredDomains();
 
   const firstName = me?.data?.firstName ?? "";
 
@@ -282,12 +366,15 @@ export default function DashboardOverview() {
     {
       icon: Globe,
       label: "Registered Domains",
-      value: 0,
+      value: loadingDomains ? "—" : registeredDomains?.length ?? 0,
       iconBg: "bg-purple-50",
       iconColor: "text-purple-500",
       href: "/dashboard/domains",
-      change: { value: "No domains yet", positive: null },
-      loading: isLoading,
+      change:
+        registeredDomains && registeredDomains.length > 0
+          ? { value: `${registeredDomains.length} active`, positive: true }
+          : { value: "No domains yet", positive: null },
+      loading: isLoading || loadingDomains,
     },
     {
       icon: LifeBuoy,
@@ -358,12 +445,9 @@ export default function DashboardOverview() {
         </SectionCard>
 
         <SectionCard title="Domains" subtitle="Registered domains" href="/dashboard/domains">
-          <EmptyState
-            icon={Globe}
-            message="You do not have any registered domains yet."
-            cta="Search Domain"
-            href="/dashboard/domains"
-            ctaIcon={Search}
+          <DomainsSectionContent
+            domains={registeredDomains}
+            loading={loadingDomains}
           />
         </SectionCard>
 

@@ -58,7 +58,7 @@ export default function BottomCart() {
             <ShoppingCart className="w-4 h-4 text-white" />
           </div>
           <p className="text-white text-sm font-semibold">
-            {count} domain{count !== 1 ? "s" : ""} in cart
+            {count} item{count !== 1 ? "s" : ""} in cart
           </p>
         </div>
         <div className="flex items-center gap-4">

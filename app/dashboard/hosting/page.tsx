@@ -28,8 +28,13 @@ import { usePlans } from "@/hooks/usePlans";
 import {
   useGetHosting,
   useGetHostingStats,
+  useProvisionHosting,
 } from "@/hooks/useHosting";
-import type { Plan, HostingAccount, HostingStatus } from "@/lib/api";
+import type { Plan, HostingAccount, HostingStatus, OrderItem } from "@/lib/api";
+import { useCartStore } from "@/store/cartStore";
+import { useGetOrders } from "@/hooks/useOrders";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -213,6 +218,155 @@ function StatsModal({
   );
 }
 
+// ── Provision Modal ──────────────────────────────────────────────────────────
+function ProvisionModal({
+  item,
+  onClose,
+  onSuccess,
+}: {
+  item: OrderItem;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [domain, setDomain] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const { mutate: provision, isPending } = useProvisionHosting();
+  const queryClient = useQueryClient();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!domain.trim()) {
+      setErrorMsg("Domain name is required.");
+      return;
+    }
+    // simple domain regex validation
+    if (!/^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(domain.trim())) {
+      setErrorMsg("Please enter a valid domain name (e.g. example.com).");
+      return;
+    }
+    setErrorMsg("");
+
+    provision(
+      {
+        planId: item.planId!,
+        domain: domain.trim(),
+      },
+      {
+        onSuccess: () => {
+          toast.success(`Hosting account for ${domain} provisioned successfully!`);
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
+          onSuccess();
+        },
+        onError: (err) => {
+          setErrorMsg(err.message || "Failed to provision hosting account.");
+        },
+      }
+    );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="provision-modal-title"
+    >
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-white border border-[#e2eaff] w-full max-w-md shadow-2xl animate-fade-up">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2eaff]">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-amber-50 flex items-center justify-center">
+              <Server className="w-4 h-4 text-[#e8900a]" />
+            </div>
+            <div>
+              <h2
+                id="provision-modal-title"
+                className="text-sm font-semibold text-[#031033]"
+              >
+                Set Up Hosting Account
+              </h2>
+              <p className="text-xs text-[#9ba8c0]">{item.plan?.name ?? "Hosting"} Plan</p>
+            </div>
+          </div>
+          <button
+            id="provision-modal-close"
+            onClick={onClose}
+            className="p-1.5 text-[#9ba8c0] hover:bg-[#f2f5fc] hover:text-[#031033] transition-colors"
+            aria-label="Close provision modal"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+          <p className="text-xs text-[#5a6a85] leading-relaxed">
+            Enter the primary domain name you want to link with this hosting account. This will be configured on our servers.
+          </p>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="domain-input" className="text-[11px] font-bold text-[#031033] uppercase tracking-wide">
+              Primary Domain Name
+            </label>
+            <div className="flex items-center bg-white rounded border border-[#dce4f7] focus-within:border-[#fd9f09] transition-all overflow-hidden">
+              <div className="pl-3 shrink-0">
+                <Globe className="w-4 h-4 text-[#9ba8c0]" />
+              </div>
+              <input
+                id="domain-input"
+                type="text"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                placeholder="yourdomain.com"
+                className="flex-1 bg-transparent px-3 py-2.5 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none"
+                disabled={isPending}
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="flex items-start gap-2 text-xs text-red-500 bg-red-50/50 p-2.5 border border-red-100">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2.5 mt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isPending}
+              className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5 disabled:opacity-60"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Setting up...
+                </>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  Activate Hosting
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Hosting Account List Row ──────────────────────────────────────────────────
 
 function HostingAccountRow({
@@ -335,7 +489,11 @@ function PlanCardSkeleton() {
 // ── Plan Card ─────────────────────────────────────────────────────────────────
 
 function HostingPlanCard({ plan }: { plan: Plan }) {
+  const { addHostingItem, hasItem, openDrawer } = useCartStore();
   const slug = plan.name.toLowerCase();
+  const key = `hosting:${plan.id}`;
+  const inCart = hasItem(key);
+
   const websiteLabel =
     plan.websites >= 999
       ? "Unlimited Websites"
@@ -352,6 +510,16 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
     emailLabel,
     ...plan.features,
   ];
+
+  const handleAddToCart = () => {
+    addHostingItem({
+      type: "HOSTING",
+      planId: plan.id,
+      planName: plan.name,
+      price: plan.price,
+    });
+    openDrawer();
+  };
 
   return (
     <div
@@ -452,18 +620,33 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
       </ul>
 
       <div className="p-6 pt-0">
-        <Link
-          href={`/dashboard/hosting/provision?planId=${plan.id}&planName=${encodeURIComponent(plan.name)}`}
-          id={`hosting-order-${slug}`}
-          className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold transition-all ${
-            plan.isPopular
-              ? "bg-[#e8900a] text-white hover:bg-[#c97a08]"
-              : "btn-primary"
-          }`}
-        >
-          <ShoppingCart className="w-4 h-4" />
-          Order {plan.name}
-        </Link>
+        {inCart ? (
+          <Link
+            href="/dashboard/hosting/provision"
+            id={`hosting-checkout-${slug}`}
+            className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold transition-all ${
+              plan.isPopular
+                ? "bg-white/20 text-white hover:bg-white/30"
+                : "bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100"
+            }`}
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            Added — Go to Checkout
+          </Link>
+        ) : (
+          <button
+            id={`hosting-order-${slug}`}
+            onClick={handleAddToCart}
+            className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold transition-all ${
+              plan.isPopular
+                ? "bg-[#e8900a] text-white hover:bg-[#c97a08]"
+                : "btn-primary"
+            }`}
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Order {plan.name}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -479,16 +662,29 @@ export default function HostingDashboardPage() {
   } = useGetHosting();
   const { data: plans, isLoading: loadingPlans, isError: plansError } =
     usePlans();
+  const { data: orders } = useGetOrders();
 
   const [statsTarget, setStatsTarget] = useState<{
     id: string;
     domain: string;
   } | null>(null);
 
+  const [provisionTarget, setProvisionTarget] = useState<OrderItem | null>(null);
+
   const hasAccounts = accounts && accounts.length > 0;
   const activeCount = accounts?.filter(
     (a) => (a.status as string).toUpperCase() === "ACTIVE"
   ).length ?? 0;
+
+  // Paid but unprovisioned hosting items (type HOSTING and whose ID is not associated with any hosting account's orderItemId)
+  const unprovisionedHostingItems = orders
+    ?.filter((order) => order.status === "PAID")
+    .flatMap((order) => order.items || [])
+    .filter((item) => {
+      if (item.type !== "HOSTING") return false;
+      const isProvisioned = accounts?.some((acc) => acc.orderItemId === item.id);
+      return !isProvisioned;
+    }) ?? [];
 
   return (
     <>
@@ -498,6 +694,15 @@ export default function HostingDashboardPage() {
           hostingId={statsTarget.id}
           domain={statsTarget.domain}
           onClose={() => setStatsTarget(null)}
+        />
+      )}
+
+      {/* Provision Modal */}
+      {provisionTarget && (
+        <ProvisionModal
+          item={provisionTarget}
+          onClose={() => setProvisionTarget(null)}
+          onSuccess={() => setProvisionTarget(null)}
         />
       )}
 
@@ -521,6 +726,49 @@ export default function HostingDashboardPage() {
             Add Hosting
           </Link>
         </div>
+
+        {/* Paid but unprovisioned services banner */}
+        {unprovisionedHostingItems.length > 0 && (
+          <div className="bg-[#fff8ee] border border-[#f5dca3] p-5 shadow-sm animate-fade-up">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-[#e8900a]/10 border border-[#f5dca3]/50 flex items-center justify-center shrink-0">
+                <Server className="w-5 h-5 text-[#e8900a]" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#031033]">
+                  Paid Hosting Ready for Setup
+                </h3>
+                <p className="text-xs text-[#5a6a85] mt-1">
+                  You have {unprovisionedHostingItems.length} hosting account{unprovisionedHostingItems.length > 1 ? "s" : ""} paid for but not yet provisioned. Enter a domain name to activate cPanel for them.
+                </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  {unprovisionedHostingItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white border border-[#e2eaff] p-3 flex items-center justify-between gap-4"
+                    >
+                      <div>
+                        <p className="text-xs font-semibold text-[#031033]">
+                          {item.plan?.name ?? "Hosting"} Plan
+                        </p>
+                        <p className="text-[10px] text-[#9ba8c0]">
+                          Order Item ID: {item.id}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setProvisionTarget(item)}
+                        className="py-1.5 px-3 bg-[#e8900a] text-white hover:bg-[#c97a08] text-xs font-semibold flex items-center gap-1 transition-all"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Set Up Now
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Active Hosting Accounts (list) ─────────────────────────────── */}
         <div className="bg-white border border-[#e2eaff]">

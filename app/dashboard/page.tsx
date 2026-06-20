@@ -89,7 +89,7 @@ function StatCard({ icon: Icon, label, value, iconColor, iconBg, href, change, l
       className="bg-white border border-[#e2eaff] p-5 flex flex-col gap-3 group hover:border-[#e8900a] hover:shadow-md transition-all cursor-pointer"
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">{label}</span>
+        <span className="text-xs font-semibold text-[#484d57] uppercase tracking-wide">{label}</span>
         <div className={`w-8 h-8 flex items-center justify-center ${iconBg}`}>
           <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
@@ -355,7 +355,7 @@ export default function DashboardOverview() {
       label: "Active Hosting Plans",
       value: loadingHosting ? "—" : activeHosting,
       iconBg: "bg-blue-50",
-      iconColor: "text-blue-500",
+      iconColor: "text-[031033]",
       href: "/dashboard/hosting",
       change:
         activeHosting > 0
@@ -367,8 +367,8 @@ export default function DashboardOverview() {
       icon: Globe,
       label: "Registered Domains",
       value: loadingDomains ? "—" : registeredDomains?.length ?? 0,
-      iconBg: "bg-purple-50",
-      iconColor: "text-purple-500",
+        iconBg: "bg-blue-50",
+      iconColor: "text-[031033]",
       href: "/dashboard/domains",
       change:
         registeredDomains && registeredDomains.length > 0
@@ -380,8 +380,8 @@ export default function DashboardOverview() {
       icon: LifeBuoy,
       label: "Open Tickets",
       value: 0,
-      iconBg: "bg-[#fff8ee]",
-      iconColor: "text-[#e8900a]",
+     iconBg: "bg-blue-50",
+      iconColor: "text-[031033]",
       href: "/dashboard/tickets",
       change: { value: "All clear", positive: true },
       loading: isLoading,
@@ -390,8 +390,8 @@ export default function DashboardOverview() {
       icon: Receipt,
       label: "Unpaid Invoices",
       value: 0,
-      iconBg: "bg-red-50",
-      iconColor: "text-red-400",
+        iconBg: "bg-blue-50",
+      iconColor: "text-[031033]",
       href: "/dashboard/invoices",
       change: { value: "No overdue items", positive: true },
       loading: isLoading,

@@ -14,8 +14,31 @@ import {
   MapPin,
   Globe,
   Mail,
+  Hash,
 } from "lucide-react";
+import { z } from "zod";
 import { useGetMe, useUpdateProfile, useChangePassword } from "@/hooks/useUser";
+
+// ── Zod schemas ───────────────────────────────────────────────────────────────
+
+const profileSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phoneNumber: z.string().min(7, "Phone number is too short").optional().or(z.literal("")),
+  companyName: z.string().optional(),
+  address: z.string().optional(),
+  houseNumber: z
+    .string()
+    .optional()
+    .refine((v) => !v || /^\d+$/.test(v), "House / unit number must be digits only"),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  postcode: z.string().optional(),
+});
+
+type ProfileForm = z.infer<typeof profileSchema>;
+type ProfileErrors = Partial<Record<keyof ProfileForm, string>>;
 
 // ── Shared field component ─────────────────────────────────────────────────────
 
@@ -25,25 +48,34 @@ function Field({
   type = "text",
   value,
   onChange,
+  onBlur,
   placeholder,
   disabled,
   icon: Icon,
   readOnly,
+  error,
+  hint,
+  inputMode,
 }: {
   id: string;
   label: string;
   type?: string;
   value: string;
   onChange?: (v: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   disabled?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
   readOnly?: boolean;
+  error?: string;
+  hint?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wide">
         {label}
+        {hint && <span className="ml-1 text-[#9ba8c0] normal-case font-normal">{hint}</span>}
       </label>
       <div className="relative">
         {Icon && (
@@ -54,20 +86,26 @@ function Field({
         <input
           id={id}
           type={type}
+          inputMode={inputMode}
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           disabled={disabled}
           readOnly={readOnly}
-          className={`w-full bg-[#f2f5fc] border border-[#dce4f7] ${
-            Icon ? "pl-10" : "pl-4"
-          } pr-4 py-2.5 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none transition-colors ${
-            readOnly
-              ? "opacity-60 cursor-not-allowed"
-              : "focus:border-[#031033] focus:bg-white"
+          className={`w-full bg-[#f2f5fc] border ${
+            error ? "border-red-400 focus:border-red-500" : "border-[#dce4f7] focus:border-[#031033]"
+          } ${Icon ? "pl-10" : "pl-4"} pr-4 py-2.5 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none transition-colors ${
+            readOnly ? "opacity-60 cursor-not-allowed" : "focus:bg-white"
           }`}
         />
       </div>
+      {error && (
+        <p className="flex items-center gap-1 text-xs text-red-500 mt-0.5">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -120,16 +158,21 @@ function ProfileSection() {
 
   const user = me?.data ?? me?.user ?? me;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ProfileForm>({
     firstName: "",
     lastName: "",
     phoneNumber: "",
     companyName: "",
     address: "",
-    country: "",
+    houseNumber: "",
     city: "",
+    state: "",
+    country: "",
     postcode: "",
   });
+
+  const [errors, setErrors] = useState<ProfileErrors>({});
+  const [submitted, setSubmitted] = useState(false);
 
   // Populate form once user data arrives
   useEffect(() => {
@@ -140,26 +183,58 @@ function ProfileSection() {
       phoneNumber: user.phoneNumber ?? "",
       companyName: user.companyName ?? "",
       address: user.address ?? "",
-      country: user.country ?? "",
+      houseNumber: user.houseNumber ?? "",
       city: user.city ?? "",
+      state: user.state ?? "",
+      country: user.country ?? "",
       postcode: user.postcode ?? "",
     });
   }, [me]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const set = (key: keyof typeof form) => (v: string) =>
-    setForm((f) => ({ ...f, [key]: v }));
+  const set = (key: keyof ProfileForm) => (v: string) => {
+    // House number: only allow digits
+    const value = key === "houseNumber" ? v.replace(/\D/g, "") : v;
+    setForm((f) => ({ ...f, [key]: value }));
+    if (submitted && errors[key]) {
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    }
+  };
+
+  const validateField = (key: keyof ProfileForm) => {
+    const result = profileSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErr = result.error.flatten().fieldErrors[key]?.[0];
+      setErrors((prev) => ({ ...prev, [key]: fieldErr }));
+    } else {
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    update(form);
+    setSubmitted(true);
+
+    const result = profileSchema.safeParse(form);
+    if (!result.success) {
+      const flat = result.error.flatten().fieldErrors;
+      const errs: ProfileErrors = {};
+      (Object.keys(flat) as (keyof ProfileForm)[]).forEach((k) => {
+        errs[k] = flat[k]?.[0];
+      });
+      setErrors(errs);
+      return;
+    }
+
+    // Send houseNumber as string (already digits-only string)
+    update(result.data);
   };
 
   return (
-    <Section icon={User} title="Personal Information" subtitle="Update your name, contact and company details">
-      <form id="settings-profile-form" onSubmit={handleSubmit}>
+    <Section icon={User} title="Personal Information" subtitle="Update your name, contact, address and company details">
+      <form id="settings-profile-form" onSubmit={handleSubmit} noValidate>
         {isLoading ? (
           <div className="grid sm:grid-cols-2 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <SkeletonField key={i} />
             ))}
           </div>
@@ -179,15 +254,104 @@ function ProfileSection() {
               </span>
             </div>
 
+            {/* ── Personal details ── */}
+            <p className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-widest mb-3">Personal</p>
+            <div className="grid sm:grid-cols-2 gap-4 mb-5">
+              <Field
+                id="settings-first-name"
+                label="First Name"
+                value={form.firstName}
+                onChange={set("firstName")}
+                onBlur={() => validateField("firstName")}
+                placeholder="John"
+                icon={User}
+                error={errors.firstName}
+              />
+              <Field
+                id="settings-last-name"
+                label="Last Name"
+                value={form.lastName}
+                onChange={set("lastName")}
+                onBlur={() => validateField("lastName")}
+                placeholder="Doe"
+                icon={User}
+                error={errors.lastName}
+              />
+              <Field
+                id="settings-phone"
+                label="Phone Number"
+                value={form.phoneNumber ?? ""}
+                onChange={set("phoneNumber")}
+                onBlur={() => validateField("phoneNumber")}
+                placeholder="+234 800 000 0000"
+                icon={Phone}
+                error={errors.phoneNumber}
+              />
+              <Field
+                id="settings-company"
+                label="Company Name"
+                value={form.companyName ?? ""}
+                onChange={set("companyName")}
+                placeholder="Acme Ltd"
+                icon={Building2}
+              />
+            </div>
+
+            {/* ── Address details ── */}
+            <p className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-widest mb-3">Address</p>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field id="settings-first-name" label="First Name" value={form.firstName} onChange={set("firstName")} placeholder="John" icon={User} />
-              <Field id="settings-last-name" label="Last Name" value={form.lastName} onChange={set("lastName")} placeholder="Doe" icon={User} />
-              <Field id="settings-phone" label="Phone Number" value={form.phoneNumber} onChange={set("phoneNumber")} placeholder="+234 800 000 0000" icon={Phone} />
-              <Field id="settings-company" label="Company Name" value={form.companyName} onChange={set("companyName")} placeholder="Acme Ltd" icon={Building2} />
-              <Field id="settings-address" label="Address" value={form.address} onChange={set("address")} placeholder="123 Main St" icon={MapPin} />
-              <Field id="settings-country" label="Country" value={form.country} onChange={set("country")} placeholder="Nigeria" icon={Globe} />
-              <Field id="settings-city" label="City" value={form.city} onChange={set("city")} placeholder="Lagos" icon={MapPin} />
-              <Field id="settings-postcode" label="Postcode" value={form.postcode} onChange={set("postcode")} placeholder="100001" icon={MapPin} />
+              <Field
+                id="settings-address"
+                label="Street Address"
+                value={form.address ?? ""}
+                onChange={set("address")}
+                placeholder="123 Main St"
+                icon={MapPin}
+              />
+              <Field
+                id="settings-house-number"
+                label="House / Unit No."
+                hint="(numbers only)"
+                value={form.houseNumber ?? ""}
+                onChange={set("houseNumber")}
+                onBlur={() => validateField("houseNumber")}
+                placeholder="12"
+                icon={Hash}
+                inputMode="numeric"
+                error={errors.houseNumber}
+              />
+              <Field
+                id="settings-city"
+                label="City"
+                value={form.city ?? ""}
+                onChange={set("city")}
+                placeholder="Lagos"
+                icon={MapPin}
+              />
+              <Field
+                id="settings-state"
+                label="State / Province"
+                value={form.state ?? ""}
+                onChange={set("state")}
+                placeholder="Lagos State"
+                icon={MapPin}
+              />
+              <Field
+                id="settings-country"
+                label="Country"
+                value={form.country ?? ""}
+                onChange={set("country")}
+                placeholder="Nigeria"
+                icon={Globe}
+              />
+              <Field
+                id="settings-postcode"
+                label="Postcode"
+                value={form.postcode ?? ""}
+                onChange={set("postcode")}
+                placeholder="100001"
+                icon={MapPin}
+              />
             </div>
           </>
         )}
@@ -217,7 +381,7 @@ function ProfileSection() {
   );
 }
 
-// ── Password field — stable top-level component (never defined inside another) ─
+// ── Password field — stable top-level component ───────────────────────────────
 type PwFieldProps = {
   id: string;
   label: string;

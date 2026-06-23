@@ -1,5 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRegisteredDomains, getDomainById, getHosting, type RegisteredDomain } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  getRegisteredDomains,
+  getDomainById,
+  getDomainDNSRecords,
+  createDomainDNSRecord,
+  updateDomainDNSRecord,
+  deleteDomainDNSRecord,
+  type RegisteredDomain,
+  type CreateDNSRecordPayload,
+  type UpdateDNSRecordPayload,
+} from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
 export const useGetRegisteredDomains = () => {
@@ -77,3 +88,64 @@ export const useGetDomainById = (id: string | null) => {
     select: (res) => res.data,
   });
 };
+
+// ── Domain DNS Records ────────────────────────────────────────────────────────
+
+export const useGetDomainDNSRecords = (id: string) => {
+  const token = useAuthStore((s) => s.token);
+
+  return useQuery({
+    queryKey: ["domain-dns", id],
+    queryFn: () => getDomainDNSRecords(id),
+    enabled: !!token && !!id,
+    staleTime: 30 * 1000,
+    select: (res) => res.data,
+  });
+};
+
+export const useCreateDomainDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateDNSRecordPayload) => createDomainDNSRecord(id, data),
+    onSuccess: () => {
+      toast.success("DNS record created.");
+      queryClient.invalidateQueries({ queryKey: ["domain-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+export const useUpdateDomainDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ line, ...data }: UpdateDNSRecordPayload) =>
+      updateDomainDNSRecord(id, line, { line, ...data }),
+    onSuccess: () => {
+      toast.success("DNS record updated.");
+      queryClient.invalidateQueries({ queryKey: ["domain-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+export const useDeleteDomainDNSRecord = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (line: number) => deleteDomainDNSRecord(id, line),
+    onSuccess: () => {
+      toast.success("DNS record deleted.");
+      queryClient.invalidateQueries({ queryKey: ["domain-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+

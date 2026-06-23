@@ -841,3 +841,46 @@ export const deleteDNSRecord = (
     method: "DELETE",
     headers: getHeaders(),
   }).then(handleResponse);
+
+// ── Domain DNS Records ────────────────────────────────────────────────────────
+
+/** GET /domains/:id/dns — list all DNS records for a purchased domain */
+export const getDomainDNSRecords = (
+  id: string,
+): Promise<{ success: boolean; data: DNSRecord[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${id}/dns`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/** POST /domains/:id/dns — add a new DNS record to a purchased domain */
+export const createDomainDNSRecord = (
+  id: string,
+  data: CreateDNSRecordPayload,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${id}/dns`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** PATCH /domains/:id/dns/:recordId — update an existing DNS record on a purchased domain */
+export const updateDomainDNSRecord = (
+  id: string,
+  line: number,
+  data: UpdateDNSRecordPayload,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${id}/dns/${line}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** DELETE /domains/:id/dns/:recordId — delete a DNS record from a purchased domain */
+export const deleteDomainDNSRecord = (
+  id: string,
+  line: number,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${id}/dns/${line}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  }).then(handleResponse);

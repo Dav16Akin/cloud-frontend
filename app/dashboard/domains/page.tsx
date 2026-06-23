@@ -17,6 +17,7 @@ import {
   Loader2,
   Lock,
   Server,
+  Network,
 } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
@@ -206,6 +207,9 @@ export default function DomainsDashboardPage() {
                       <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
                         Auto Renew
                       </th>
+                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#f0f4fc]">
@@ -243,6 +247,15 @@ export default function DomainsDashboardPage() {
                             />
                             <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
                           </label>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <Link
+                            href={`/dashboard/domains/${domain.id}`}
+                            className="inline-flex items-center gap-1 text-xs text-[#e8900a] hover:underline underline-offset-2 font-semibold"
+                          >
+                            <Network className="w-3 h-3" />
+                            Manage DNS
+                          </Link>
                         </td>
                       </tr>
                     ))}

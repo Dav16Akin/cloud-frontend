@@ -26,6 +26,7 @@ import {
   createDNSRecord,
   updateDNSRecord,
   deleteDNSRecord,
+  getCpanelLoginLink,
   type ProvisionHostingPayload,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -367,6 +368,22 @@ export const useAssignHostingDatabaseUser = (id: string) => {
     },
     onError: (err: Error) => {
       toast.error(err.message);
+    },
+  });
+};
+
+// ── cPanel Session Login Link ────────────────────────────────────────────────
+
+/**
+ * Returns a mutation that, when called with a hosting `id`, fetches a
+ * one-time cPanel session login URL and returns it via `onSuccess`.
+ * Using a mutation (not a query) so the request only fires on user intent.
+ */
+export const useGetCpanelLoginLink = () => {
+  return useMutation({
+    mutationFn: (id: string) => getCpanelLoginLink(id),
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to generate cPanel login link.");
     },
   });
 };

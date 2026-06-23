@@ -57,6 +57,7 @@ import {
   useCreateDNSRecord,
   useUpdateDNSRecord,
   useDeleteDNSRecord,
+  useGetCpanelLoginLink,
 } from "@/hooks/useHosting";
 import type {
   HostingStatus,
@@ -1593,6 +1594,29 @@ export default function ManageHostingPage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [showTerminateModal, setShowTerminateModal] = useState(false);
+  const { mutate: fetchCpanelLink, isPending: fetchingCpanel } = useGetCpanelLoginLink();
+
+  const handleOpenCpanel = () => {
+    // Open a blank tab immediately while still inside the synchronous click
+    // handler — this is required so browsers don't treat window.open as a
+    // popup and block it. We then navigate the tab to the session URL once
+    // the API responds.
+    const newTab = window.open("", "_blank");
+    fetchCpanelLink(id, {
+      onSuccess: (res) => {
+        const url = res?.data?.loginUrl;
+        if (url && newTab) {
+          newTab.location.href = url;
+        } else {
+          // No URL returned — close the blank tab so it doesn't linger.
+          newTab?.close();
+        }
+      },
+      onError: () => {
+        newTab?.close();
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -1625,9 +1649,6 @@ export default function ManageHostingPage() {
   const isTerminated = status === "TERMINATED";
   const expiring = account.expiresAt ? isExpiringSoon(account.expiresAt) : false;
   const planName = account.plan?.name ?? "—";
-  const cpanelUrl = account.serverIp
-    ? account.serverIp.replace("2087", "2083")
-    : null;
 
   return (
     <>
@@ -1714,18 +1735,20 @@ export default function ManageHostingPage() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2 shrink-0">
-              {cpanelUrl && (
-                <a
-                  href={cpanelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id="manage-cpanel-link"
-                  className="flex items-center gap-1.5 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] px-3 py-2 transition-colors"
-                >
+              {/* Open cPanel — uses a session link generated server-side */}
+              <button
+                id="manage-cpanel-link"
+                onClick={handleOpenCpanel}
+                disabled={fetchingCpanel || isTerminated}
+                className="flex items-center gap-1.5 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] px-3 py-2 transition-colors disabled:opacity-60"
+              >
+                {fetchingCpanel ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Open cPanel
-                </a>
-              )}
+                )}
+                {fetchingCpanel ? "Opening..." : "Open cPanel"}
+              </button>
 
               {isActive && !isTerminated && (
                 <button

@@ -60,33 +60,33 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center min-h-screen relative overflow-hidden py-24 px-4 section-navy-tint">
+    <div className="flex-1 flex items-center justify-center min-h-screen relative overflow-hidden py-16 sm:py-24 px-4 section-navy-tint">
       <div className="absolute inset-0 grid-bg pointer-events-none" />
 
       <div className="w-full max-w-2xl relative z-10">
-        <div className="bg-white rounded-2xl p-8 border-none shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+        <div className="bg-white p-5 sm:p-8 border-none shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
 
           {/* Header */}
-          <div className="flex flex-col items-center gap-2 mb-8">
+          <div className="flex flex-col items-center gap-2 mb-7 sm:mb-8">
             <Image
               src="/images/nupat-cloud-logo-whitebg.png"
               alt="Nupat Cloud Logo"
-              width={140}
-              height={40}
+              width={120}
+              height={36}
               className="object-contain h-auto w-auto"
             />
-            <h1 className="text-2xl font-extrabold text-[#031033] mt-1">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#031033] mt-1 text-center">
               Create Your Account
             </h1>
-            <p className="text-[#5a6a85] text-sm">
+            <p className="text-[#5a6a85] text-xs sm:text-sm text-center">
               Access reliable hosting, domain management, and cloud infrastructure.
             </p>
           </div>
 
-          <form id="register-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form id="register-form" onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
 
             {/* ── Row 1: Name ─────────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-first-name" className={labelClass}>First Name</label>
                 <input
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             </div>
 
             {/* ── Row 2: Email + Phone ─────────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-email" className={labelClass}>Email Address</label>
                 <input
@@ -142,7 +142,7 @@ export default function RegisterPage() {
             </div>
 
             {/* ── Row 3: Company + Address ──────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-company" className={labelClass}>Company Name</label>
                 <input
@@ -170,7 +170,7 @@ export default function RegisterPage() {
             </div>
 
             {/* ── Row 4: House Number + City + State ───────────────────────── */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-house-number" className={labelClass}>House / Unit No.</label>
                 <input
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   className={inputClass}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
                 <label htmlFor="register-state" className={labelClass}>State / Province</label>
                 <input
                   id="register-state"
@@ -208,7 +208,7 @@ export default function RegisterPage() {
             </div>
 
             {/* ── Row 5: Country + Postcode ─────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="register-country" className={labelClass}>Country</label>
                 <input
@@ -235,8 +235,8 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ── Row 5: Password + Confirm ─────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* ── Row 6: Password + Confirm ─────────────────────────────────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   id: "register-password",
@@ -296,7 +296,7 @@ export default function RegisterPage() {
               >
                 {agreed && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </button>
-              <span className="text-sm text-[#5a6a85]">
+              <span className="text-sm text-[#5a6a85] leading-snug">
                 I agree to the{" "}
                 <Link href="/terms" className="text-[#fd9f09] hover:underline underline-offset-4">
                   Terms of Service
@@ -318,7 +318,7 @@ export default function RegisterPage() {
                 !agreed ||
                 (!!form.confirmPassword && form.password !== form.confirmPassword)
               }
-              className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-primary w-full py-3.5 text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
             >
               {isPending ? (
                 <>

@@ -429,6 +429,14 @@ export const getHostingStats = (
     headers: getHeaders(),
   }).then(handleResponse);
 
+/** GET /hosting/:id/cpanel-login — generates a one-time session login URL for cPanel */
+export const getCpanelLoginLink = (
+  id: string,
+): Promise<{ success: boolean; data: { loginUrl: string }; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/cpanel-login`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
 // ── Hosting Emails ─────────────────────────────────────────────────────────────
 
 export const getHostingEmails = (

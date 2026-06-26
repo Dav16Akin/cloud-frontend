@@ -15,8 +15,9 @@ const registerSchema = z
     email: z.string().min(1, "Email is required").email("Enter a valid email address"),
     phoneNumber: z
       .string()
-      .min(7, "Phone number is too short")
-      .regex(/^\+?[\d\s\-().]+$/, "Enter a valid phone number"),
+      .min(11, "Phone number must be exactly 11 digits")
+      .max(11, "Phone number must be exactly 11 digits")
+      .regex(/^0\d{10}$/, "Enter a valid 11-digit phone number starting with 0 (e.g. 08140397106)"),
     companyName: z.string().min(1, "Company name is required"),
     address: z.string().min(3, "Street address is required"),
     houseNumber: z
@@ -206,9 +207,13 @@ export default function RegisterPage() {
                 <input
                   id="register-phone"
                   type="tel"
-                  placeholder="+234 800 000 0000"
+                  placeholder="08140397106"
                   value={form.phoneNumber}
-                  onChange={(e) => set("phoneNumber", e.target.value)}
+                  onChange={(e) => {
+                    // Only allow numeric digits
+                    const val = e.target.value.replace(/\D/g, "");
+                    set("phoneNumber", val);
+                  }}
                   onBlur={() => validateField("phoneNumber")}
                   className={inputClass(errors.phoneNumber)}
                 />
@@ -249,10 +254,7 @@ export default function RegisterPage() {
             {/* ── Row 4: House Number + City + State ───────────────────── */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="register-house-number" className={labelClass}>
-                  House / Unit No.
-                  <span className="ml-1 text-xs text-[#9ba8c0] font-normal">(numbers only)</span>
-                </label>
+                <label htmlFor="register-house-number" className={labelClass}>House / Unit No.</label>
                 <input
                   id="register-house-number"
                   type="text"

@@ -261,6 +261,8 @@ export type Plan = {
   id: string;
   name: string;
   price: number;
+  monthlyPrice: number;
+  quarterlyPrice: number;
   billingCycle: string;
   storage: string;
   bandwidth: string;
@@ -619,7 +621,7 @@ export type OrderItem = {
 
 /** Backend cart item shapes sent to POST /orders/initialize */
 export type BackendCartItem =
-  | { type: "HOSTING"; planId: string }
+  | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
   | { type: "DOMAIN"; domainName: string; extension: string }
   | { type: "SSL"; domainName: string };
 

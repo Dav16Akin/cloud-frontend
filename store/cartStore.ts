@@ -8,6 +8,7 @@ export type CartHostingItem = {
   planId: string;
   planName: string;
   price: number; // NGN retail price
+  billingCycle: "monthly" | "quarterly" | "yearly";
 };
 
 export type CartDomainItem = {
@@ -29,7 +30,7 @@ export type CartItem = CartHostingItem | CartDomainItem | CartSslItem;
 
 // Unique key for each item in the cart
 function itemKey(item: CartItem): string {
-  if (item.type === "HOSTING") return `hosting:${item.planId}`;
+  if (item.type === "HOSTING") return `hosting:${item.planId}:${item.billingCycle}`;
   if (item.type === "DOMAIN")  return `domain:${item.domainName}.${item.extension}`;
   if (item.type === "SSL")     return `ssl:${item.domainName}`;
   return "";
@@ -107,7 +108,7 @@ export const useCartStore = create<CartStore>()(
       toBackendItems: () =>
         get().items.map((item) => {
           if (item.type === "HOSTING")
-            return { type: "HOSTING" as const, planId: item.planId };
+            return { type: "HOSTING" as const, planId: item.planId, billingCycle: item.billingCycle };
           if (item.type === "DOMAIN")
             return {
               type: "DOMAIN" as const,

@@ -488,11 +488,24 @@ function PlanCardSkeleton() {
 
 // ── Plan Card ─────────────────────────────────────────────────────────────────
 
-function HostingPlanCard({ plan }: { plan: Plan }) {
+function HostingPlanCard({
+  plan,
+  selectedCycle,
+}: {
+  plan: Plan;
+  selectedCycle: "monthly" | "quarterly" | "yearly";
+}) {
   const { addHostingItem, hasItem, openDrawer } = useCartStore();
   const slug = plan.name.toLowerCase();
-  const key = `hosting:${plan.id}`;
+  const key = `hosting:${plan.id}:${selectedCycle}`;
   const inCart = hasItem(key);
+
+  const priceMap = {
+    monthly: plan.monthlyPrice,
+    quarterly: plan.quarterlyPrice,
+    yearly: plan.price,
+  };
+  const price = priceMap[selectedCycle];
 
   const websiteLabel =
     plan.websites >= 999
@@ -516,7 +529,8 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
       type: "HOSTING",
       planId: plan.id,
       planName: plan.name,
-      price: plan.price,
+      price: price,
+      billingCycle: selectedCycle,
     });
     openDrawer();
   };
@@ -526,8 +540,8 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
       id={`hosting-plan-${slug}`}
       className={`relative flex flex-col border transition-all duration-200 hover:shadow-lg ${
         plan.isPopular
-          ? "bg-[#031033] border-[#031033] shadow-xl shadow-[#031033]/20"
-          : "bg-white border-[#e2eaff] hover:border-[#e8900a]"
+          ? "bg-[#031033] border-[#031033] shadow-xl shadow-[#031033]/20 text-white"
+          : "bg-white border-[#e2eaff] hover:border-[#e8900a] text-[#031033]"
       }`}
     >
       {plan.isPopular && (
@@ -558,9 +572,11 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
                 plan.isPopular ? "text-gray-300" : "text-[#9ba8c0]"
               }`}
             >
-              {plan.billingCycle === "yearly"
+              {selectedCycle === "yearly"
                 ? "Billed annually"
-                : `Billed ${plan.billingCycle}`}
+                : selectedCycle === "quarterly"
+                ? "Billed quarterly"
+                : "Billed monthly"}
             </p>
           </div>
           <div
@@ -570,7 +586,7 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
                 : "border-[#e2eaff] text-[#9ba8c0]"
             }`}
           >
-            {plan.billingCycle}
+            {selectedCycle}
           </div>
         </div>
         <div className="flex items-baseline gap-1">
@@ -579,14 +595,14 @@ function HostingPlanCard({ plan }: { plan: Plan }) {
               plan.isPopular ? "text-white" : "text-[#031033]"
             }`}
           >
-            {formatPrice(plan.price)}
+            {formatPrice(price)}
           </span>
           <span
             className={`text-sm ${
               plan.isPopular ? "text-gray-300" : "text-[#9ba8c0]"
             }`}
           >
-            /{plan.billingCycle === "yearly" ? "yr" : plan.billingCycle}
+            /{selectedCycle === "yearly" ? "yr" : selectedCycle === "quarterly" ? "qtr" : "mo"}
           </span>
         </div>
       </div>
@@ -670,6 +686,7 @@ export default function HostingDashboardPage() {
   } | null>(null);
 
   const [provisionTarget, setProvisionTarget] = useState<OrderItem | null>(null);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
 
   const hasAccounts = accounts && accounts.length > 0;
   const activeCount = accounts?.filter(
@@ -865,13 +882,35 @@ export default function HostingDashboardPage() {
 
         {/* ── Available Plans ─────────────────────────────────────────────── */}
         <div>
-          <h2 className="text-base font-semibold text-[#031033] mb-1">
-            Available Plans
-          </h2>
-          <p className="text-xs text-[#9ba8c0] mb-5">
-            All plans include free SSL, daily backups, and 99.9% uptime
-            guarantee.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h2 className="text-base font-semibold text-[#031033] mb-1">
+                Available Plans
+              </h2>
+              <p className="text-xs text-[#9ba8c0]">
+                All plans include free SSL, daily backups, and 99.9% uptime
+                guarantee.
+              </p>
+            </div>
+            
+            {/* Billing Cycle Selector Tabs */}
+            <div className="inline-flex items-center bg-[#f2f5fc] border border-[#e2eaff] p-1 rounded-xl shrink-0 self-start sm:self-auto">
+              {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    billingCycle === cycle
+                      ? "bg-[#031033] text-white shadow-sm"
+                      : "text-[#5a6a85] hover:text-[#031033]"
+                  }`}
+                >
+                  {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {plansError && (
             <p className="text-sm text-red-500 mb-4">
@@ -883,7 +922,7 @@ export default function HostingDashboardPage() {
             {loadingPlans
               ? [...Array(3)].map((_, i) => <PlanCardSkeleton key={i} />)
               : plans?.map((plan) => (
-                  <HostingPlanCard key={plan.id} plan={plan} />
+                  <HostingPlanCard key={plan.id} plan={plan} selectedCycle={billingCycle} />
                 ))}
           </div>
         </div>

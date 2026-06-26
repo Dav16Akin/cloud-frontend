@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Check, Star, ArrowRight } from "lucide-react";
 import { usePlans } from "@/hooks/usePlans";
 import type { Plan } from "@/lib/api";
+import { useCartStore } from "@/store/cartStore";
 
 function formatPrice(price: number) {
   return "₦" + price.toLocaleString("en-NG");
@@ -37,8 +39,24 @@ function PlanCardSkeleton() {
   );
 }
 
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({
+  plan,
+  selectedCycle,
+}: {
+  plan: Plan;
+  selectedCycle: "monthly" | "quarterly" | "yearly";
+}) {
+  const { addHostingItem, hasItem, openDrawer } = useCartStore();
   const slug = plan.name.toLowerCase();
+  
+  const priceMap = {
+    monthly: plan.monthlyPrice,
+    quarterly: plan.quarterlyPrice,
+    yearly: plan.price,
+  };
+  const price = priceMap[selectedCycle];
+  const inCart = hasItem(`hosting:${plan.id}:${selectedCycle}`);
+
   const websiteLabel =
     plan.websites >= 999 ? "Unlimited Websites" : `${plan.websites} Website${plan.websites > 1 ? "s" : ""}`;
   const emailLabel =
@@ -50,6 +68,17 @@ function PlanCard({ plan }: { plan: Plan }) {
     emailLabel,
     ...plan.features.slice(0, 4),
   ];
+
+  const handleAddToCart = () => {
+    addHostingItem({
+      type: "HOSTING",
+      planId: plan.id,
+      planName: plan.name,
+      price: price,
+      billingCycle: selectedCycle,
+    });
+    openDrawer();
+  };
 
   return (
     <div
@@ -81,10 +110,10 @@ function PlanCard({ plan }: { plan: Plan }) {
       <div className={`mb-7 pb-7 border-b ${plan.isPopular ? "border-white/20" : "border-[#dce4f7]"}`}>
         <div className="flex items-baseline gap-1">
           <span className={`text-4xl font-extrabold ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
-            {formatPrice(plan.price)}
+            {formatPrice(price)}
           </span>
           <span className={`text-sm ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
-            /{plan.billingCycle === "yearly" ? "year" : plan.billingCycle}
+            /{selectedCycle === "yearly" ? "year" : selectedCycle === "quarterly" ? "quarter" : "month"}
           </span>
         </div>
       </div>
@@ -107,22 +136,34 @@ function PlanCard({ plan }: { plan: Plan }) {
         ))}
       </ul>
 
-      <Link
-        href={`/register?plan=${slug}`}
-        id={`plan-${slug}-cta`}
-        className={`flex items-center justify-center gap-2 py-3.5 font-semibold text-sm transition-all ${
-          plan.isPopular ? "bg-[#e8900a] text-white hover:bg-[#c97a08]" : "btn-primary"
-        }`}
-      >
-        {planCtas[plan.name] ?? "Get Started"}
-        <ArrowRight className="w-4 h-4" />
-      </Link>
+      {inCart ? (
+        <Link
+          href="/cart"
+          id={`plan-${slug}-cta`}
+          className="flex items-center justify-center gap-2 py-3.5 font-semibold text-sm transition-all bg-emerald-500 text-white hover:bg-emerald-600 shadow-md"
+        >
+          In Cart — Checkout
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      ) : (
+        <button
+          onClick={handleAddToCart}
+          id={`plan-${slug}-cta`}
+          className={`flex items-center justify-center gap-2 py-3.5 font-semibold text-sm transition-all ${
+            plan.isPopular ? "bg-[#e8900a] text-white hover:bg-[#c97a08]" : "btn-primary"
+          }`}
+        >
+          {planCtas[plan.name] ?? "Get Started"}
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
 
 export default function PricingPreviewSection() {
   const { data: plans, isLoading } = usePlans();
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
 
   return (
     <section id="pricing-preview" className="section-pad section-light relative overflow-hidden">
@@ -130,21 +171,43 @@ export default function PricingPreviewSection() {
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full bg-[#031033]/5 blur-[80px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#e8900a] mb-3">Hosting Plans</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] mb-4">
             Plans for Every{" "}
             <span className="text-[#e8900a]">Stage of Growth</span>
           </h2>
-          <p className="text-[#5a6a85] text-lg max-w-2xl mx-auto">
+          <p className="text-[#5a6a85] text-lg max-w-2xl mx-auto mb-8">
             Flexible hosting plans for startups, growing businesses, agencies, and developers.
           </p>
+
+          {/* Billing Cycle Selector Tabs */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center bg-[#f2f5fc] border border-[#dce4f7] p-1 rounded-xl">
+              {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${
+                    billingCycle === cycle
+                      ? "bg-[#031033] text-white shadow-sm"
+                      : "text-[#5a6a85] hover:text-[#031033]"
+                  }`}
+                >
+                  {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {isLoading
             ? [...Array(3)].map((_, i) => <PlanCardSkeleton key={i} />)
-            : plans?.map((plan) => <PlanCard key={plan.id} plan={plan} />)}
+            : plans?.map((plan) => (
+                <PlanCard key={plan.id} plan={plan} selectedCycle={billingCycle} />
+              ))}
         </div>
 
         <div className="text-center mt-10">

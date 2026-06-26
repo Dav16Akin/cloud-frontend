@@ -160,7 +160,7 @@ export default function DomainsDashboardPage() {
             <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-[#e8900a]" />
-                <h2 className="text-sm font-semibold text-[#031033]">Registered Domains (through Us)</h2>
+                <h2 className="text-sm font-semibold text-[#031033]">Registered Domains</h2>
                 {registeredDomains && (
                   <span className="text-[10px] font-bold bg-[#f2f5fc] text-[#5a6a85] px-1.5 py-0.5 border border-[#e2eaff]">
                     {registeredDomains.length}

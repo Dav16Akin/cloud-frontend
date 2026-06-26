@@ -40,7 +40,10 @@ function ItemTypeIcon({ item }: { item: CartItem }) {
 }
 
 function itemTypeLabel(item: CartItem) {
-  if (item.type === "HOSTING") return "Hosting Plan";
+  if (item.type === "HOSTING") {
+    const cycle = item.billingCycle ? item.billingCycle.charAt(0).toUpperCase() + item.billingCycle.slice(1) : "Yearly";
+    return `Hosting Plan (${cycle})`;
+  }
   if (item.type === "DOMAIN") return "Domain Registration";
   return "SSL Certificate";
 }

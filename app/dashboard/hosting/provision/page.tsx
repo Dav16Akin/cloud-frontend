@@ -68,7 +68,7 @@ function CartItemRow({
   const key = getCartItemKey(item);
   const typeLabel =
     item.type === "HOSTING"
-      ? "Hosting Plan"
+      ? `Hosting Plan (${item.billingCycle ? item.billingCycle.charAt(0).toUpperCase() + item.billingCycle.slice(1) : "Yearly"})`
       : item.type === "DOMAIN"
       ? "Domain Registration"
       : "SSL Certificate";
@@ -103,6 +103,7 @@ function CartItemRow({
 function AddPlanSection() {
   const { data: plans, isLoading } = usePlans();
   const { addHostingItem, hasItem } = useCartStore();
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
 
   if (isLoading)
     return (
@@ -114,63 +115,95 @@ function AddPlanSection() {
     );
 
   return (
-    <div className="flex flex-col gap-2">
-      {plans?.map((plan) => {
-        const key = `hosting:${plan.id}`;
-        const inCart = hasItem(key);
-        return (
-          <div
-            key={plan.id}
-            className={`flex items-center gap-3 p-4 border transition-all ${
-              inCart
-                ? "border-[#e8900a] bg-[#fff8ee]"
-                : "border-[#e2eaff] hover:border-[#e8900a]/50"
-            }`}
-          >
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#031033] flex items-center gap-2">
-                {plan.name} Hosting
-                {plan.isPopular && (
-                  <span className="text-[10px] bg-[#e8900a] text-white px-1.5 py-0.5 font-bold">
-                    Popular
-                  </span>
-                )}
-              </p>
-              <p className="text-xs text-[#9ba8c0] mt-0.5">
-                {plan.storage} · {plan.bandwidth} · {plan.billingCycle}
-              </p>
+    <div className="flex flex-col gap-3">
+      {/* Billing Cycle Selector Tabs */}
+      <div className="flex justify-start">
+        <div className="inline-flex items-center bg-white border border-[#e2eaff] p-0.5 rounded-lg">
+          {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+            <button
+              key={cycle}
+              type="button"
+              onClick={() => setBillingCycle(cycle)}
+              className={`px-3 py-1 text-[11px] font-semibold rounded transition-all ${
+                billingCycle === cycle
+                  ? "bg-[#031033] text-white shadow-sm"
+                  : "text-[#5a6a85] hover:text-[#031033]"
+              }`}
+            >
+              {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {plans?.map((plan) => {
+          const key = `hosting:${plan.id}:${billingCycle}`;
+          const inCart = hasItem(key);
+          const priceMap = {
+            monthly: plan.monthlyPrice,
+            quarterly: plan.quarterlyPrice,
+            yearly: plan.price,
+          };
+          const price = priceMap[billingCycle];
+
+          return (
+            <div
+              key={plan.id}
+              className={`flex items-center gap-3 p-4 border transition-all ${
+                inCart
+                  ? "border-[#e8900a] bg-[#fff8ee]"
+                  : "border-[#e2eaff] hover:border-[#e8900a]/50 bg-white"
+              }`}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#031033] flex items-center gap-2">
+                  {plan.name} Hosting
+                  {plan.isPopular && (
+                    <span className="text-[10px] bg-[#e8900a] text-white px-1.5 py-0.5 font-bold">
+                      Popular
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-[#9ba8c0] mt-0.5">
+                  {plan.storage} · {plan.bandwidth} · {billingCycle}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-extrabold text-[#031033]">
+                  {formatNGN(price)}
+                </p>
+                <span className="text-[10px] font-normal text-[#9ba8c0]">
+                  /{billingCycle === "yearly" ? "yr" : billingCycle === "quarterly" ? "qtr" : "mo"}
+                </span>
+              </div>
+              {inCart ? (
+                <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 font-semibold shrink-0 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Added
+                </span>
+              ) : (
+                <button
+                  id={`add-plan-${plan.id}`}
+                  onClick={() =>
+                    addHostingItem({
+                      type: "HOSTING",
+                      planId: plan.id,
+                      planName: plan.name,
+                      price: price,
+                      billingCycle: billingCycle,
+                    })
+                  }
+                  className="shrink-0 text-xs font-semibold btn-primary py-1.5 px-3 flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  Add
+                </button>
+              )}
             </div>
-            <p className="text-sm font-extrabold text-[#031033] shrink-0">
-              {formatNGN(plan.price)}
-              <span className="text-[11px] font-normal text-[#9ba8c0]">
-                /{plan.billingCycle === "yearly" ? "yr" : plan.billingCycle}
-              </span>
-            </p>
-            {inCart ? (
-              <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 font-semibold shrink-0 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                Added
-              </span>
-            ) : (
-              <button
-                id={`add-plan-${plan.id}`}
-                onClick={() =>
-                  addHostingItem({
-                    type: "HOSTING",
-                    planId: plan.id,
-                    planName: plan.name,
-                    price: plan.price,
-                  })
-                }
-                className="shrink-0 text-xs font-semibold btn-primary py-1.5 px-3 flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" />
-                Add
-              </button>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -195,7 +228,7 @@ function CheckoutContent() {
 
     // Build backend-compatible items array from the store
     const backendItems = items.map((item) => {
-      if (item.type === "HOSTING") return { type: "HOSTING" as const, planId: item.planId };
+      if (item.type === "HOSTING") return { type: "HOSTING" as const, planId: item.planId, billingCycle: item.billingCycle };
       if (item.type === "DOMAIN")
         return {
           type: "DOMAIN" as const,

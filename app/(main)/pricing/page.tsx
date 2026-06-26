@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Check, Star, ArrowRight, HelpCircle } from "lucide-react";
 import { usePlans } from "@/hooks/usePlans";
 import type { Plan } from "@/lib/api";
+import { useCartStore } from "@/store/cartStore";
 
 // Metadata is moved to a separate layout or generateMetadata pattern since this is now client.
 // SEO is preserved via the parent layout's metadata.
@@ -55,8 +57,24 @@ function PlanCardSkeleton() {
   );
 }
 
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({
+  plan,
+  selectedCycle,
+}: {
+  plan: Plan;
+  selectedCycle: "monthly" | "quarterly" | "yearly";
+}) {
+  const { addHostingItem, hasItem, openDrawer } = useCartStore();
   const slug = plan.name.toLowerCase();
+  
+  const priceMap = {
+    monthly: plan.monthlyPrice,
+    quarterly: plan.quarterlyPrice,
+    yearly: plan.price,
+  };
+  const price = priceMap[selectedCycle];
+  const inCart = hasItem(`hosting:${plan.id}:${selectedCycle}`);
+
   const websiteLabel =
     plan.websites >= 999 ? "Unlimited Websites" : `${plan.websites} Website${plan.websites > 1 ? "s" : ""}`;
   const emailLabel =
@@ -70,17 +88,28 @@ function PlanCard({ plan }: { plan: Plan }) {
     ...plan.features,
   ];
 
+  const handleAddToCart = () => {
+    addHostingItem({
+      type: "HOSTING",
+      planId: plan.id,
+      planName: plan.name,
+      price: price,
+      billingCycle: selectedCycle,
+    });
+    openDrawer();
+  };
+
   return (
     <div
       id={`pricing-plan-${slug}`}
       className={`relative flex flex-col rounded-2xl p-8 transition-all duration-300 ${
         plan.isPopular
-          ? "bg-[#031033] shadow-2xl shadow-[#031033]/30 md:scale-[1.04] md:-mt-2"
-          : "feature-card"
+          ? "bg-[#031033] shadow-2xl shadow-[#031033]/30 md:scale-[1.04] md:-mt-2 text-white"
+          : "feature-card text-[#031033]"
       }`}
     >
       {plan.isPopular && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
           <span className="inline-flex items-center gap-1.5 bg-[#e8900a] text-white text-xs font-bold px-4 py-1.5 shadow-sm shadow-[#e8900a]/20">
             <Star className="w-3 h-3 fill-white" />Most Popular
           </span>
@@ -97,10 +126,10 @@ function PlanCard({ plan }: { plan: Plan }) {
       <div className={`mb-7 pb-7 border-b ${plan.isPopular ? "border-white/20" : "border-[#dce4f7]"}`}>
         <div className="flex items-baseline gap-1">
           <span className={`text-4xl font-extrabold ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
-            {formatPrice(plan.price)}
+            {formatPrice(price)}
           </span>
           <span className={`text-sm ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
-            /{plan.billingCycle === "yearly" ? "year" : plan.billingCycle}
+            /{selectedCycle === "yearly" ? "year" : selectedCycle === "quarterly" ? "quarter" : "month"}
           </span>
         </div>
       </div>
@@ -114,21 +143,34 @@ function PlanCard({ plan }: { plan: Plan }) {
           </li>
         ))}
       </ul>
-      <Link
-        href={`/register?plan=${slug}`}
-        id={`pricing-cta-${slug}`}
-        className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all ${
-          plan.isPopular ? "bg-white text-[#031033] hover:bg-gray-100 shadow-md" : "btn-primary"
-        }`}
-      >
-        {planCta(plan.name)}<ArrowRight className="w-4 h-4" />
-      </Link>
+
+      {inCart ? (
+        <Link
+          href="/cart"
+          id={`pricing-cta-${slug}`}
+          className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all bg-emerald-500 text-white hover:bg-emerald-600 shadow-md"
+        >
+          In Cart — Checkout
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      ) : (
+        <button
+          onClick={handleAddToCart}
+          id={`pricing-cta-${slug}`}
+          className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all ${
+            plan.isPopular ? "bg-[#e8900a] text-white hover:bg-[#c97a08] shadow-md" : "btn-primary"
+          }`}
+        >
+          {planCta(plan.name)}<ArrowRight className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
 
 export default function PricingPage() {
   const { data: plans, isLoading, isError } = usePlans();
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
 
   return (
     <div className="flex flex-col bg-white">
@@ -153,10 +195,33 @@ export default function PricingPage() {
               Could not load plans. Please try refreshing the page.
             </p>
           )}
+
+          {/* Billing Cycle Selector Tabs */}
+          <div className="flex justify-center mb-12">
+            <div className="inline-flex items-center bg-[#f2f5fc] border border-[#dce4f7] p-1 rounded-xl">
+              {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                    billingCycle === cycle
+                      ? "bg-[#031033] text-white shadow-sm"
+                      : "text-[#5a6a85] hover:text-[#031033]"
+                  }`}
+                >
+                  {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             {isLoading
               ? [...Array(3)].map((_, i) => <PlanCardSkeleton key={i} />)
-              : plans?.map((plan) => <PlanCard key={plan.id} plan={plan} />)}
+              : plans?.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} selectedCycle={billingCycle} />
+                ))}
           </div>
         </div>
       </section>

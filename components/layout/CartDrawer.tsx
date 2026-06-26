@@ -45,8 +45,10 @@ function ItemIcon({ item }: { item: CartItem }) {
 }
 
 function ItemSubtitle({ item }: { item: CartItem }) {
-  if (item.type === "HOSTING")
-    return <p className="text-xs text-[#9ba8c0] mt-0.5">Web Hosting Plan</p>;
+  if (item.type === "HOSTING") {
+    const cycle = item.billingCycle ? item.billingCycle.charAt(0).toUpperCase() + item.billingCycle.slice(1) : "Yearly";
+    return <p className="text-xs text-[#9ba8c0] mt-0.5">Web Hosting Plan ({cycle})</p>;
+  }
   if (item.type === "DOMAIN")
     return <p className="text-xs text-[#9ba8c0] mt-0.5">Domain Registration</p>;
   return <p className="text-xs text-emerald-600 mt-0.5">SSL Certificate</p>;

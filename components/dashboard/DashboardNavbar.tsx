@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Bell, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu } from "lucide-react";
+import { Search, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
 import { useCartStore } from "@/store/cartStore";
@@ -88,16 +88,6 @@ export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarPro
           )}
         </button>
 
-        {/* Bell */}
-        <button
-          id="dashboard-nav-notifications"
-          className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
-          aria-label="Notifications"
-        >
-          <Bell className="w-[18px] h-[18px]" />
-          {/* Notification dot */}
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#e8900a]" />
-        </button>
 
         {/* Divider */}
         <div className="w-px h-5 bg-[#e2eaff]" />

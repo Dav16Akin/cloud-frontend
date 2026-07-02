@@ -631,6 +631,8 @@ export type Order = {
   amount: number;
   status: OrderStatus;
   paystackRef: string;
+  /** WHMCS invoice ID — present once the order has been synced to WHMCS */
+  whmcsInvoiceId?: string | null;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;
@@ -686,6 +688,30 @@ export const getOrders = (
     headers: getHeaders(),
   }).then(handleResponse);
 
+/**
+ * GET /orders/:orderId/invoice/download
+ * Streams a PDF blob — uses the Bearer token because this endpoint
+ * is auth-protected and the app is JWT-based (not cookie-based).
+ */
+export const downloadInvoice = async (orderId: string): Promise<Blob> => {
+  const res = await fetchWithRefresh(
+    `${BASE_URL}/orders/${encodeURIComponent(orderId)}/invoice/download`,
+    { headers: getHeaders() },
+  );
+  if (!res.ok) {
+    // Try to parse a JSON error message; fall back to a generic one.
+    let msg = `Failed to download invoice (${res.status})`;
+    try {
+      const body = await res.clone().json();
+      if (body?.message) msg = body.message;
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(msg);
+  }
+  return res.blob();
+};
+
 // ── Domains ───────────────────────────────────────────────────────────────────
 
 export type DomainResult = {
@@ -714,6 +740,8 @@ export type RegisteredDomain = {
   expiryDate: string;
   registrationDate: string;
   autoRenew: boolean;
+  /** Current nameservers — defaults to ["ns1.nupatcloud.com","ns2.nupatcloud.com"] */
+  nameservers?: string[];
 };
 
 /** GET /domains — list all registered domains for the current user */
@@ -731,6 +759,17 @@ export const getDomainById = (
 ): Promise<{ success: boolean; data: RegisteredDomain; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}`, {
     headers: getHeaders(),
+  }).then(handleResponse);
+
+/** PUT /domains/:domainId/nameservers — update nameservers (2–4 entries) */
+export const updateNameservers = (
+  domainId: string,
+  nameservers: string[],
+): Promise<{ success: boolean; data: { id: string; name: string; nameservers: string[]; updatedAt: string }; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(domainId)}/nameservers`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({ nameservers }),
   }).then(handleResponse);
 
 // (Domain Orders are now handled by the unified cart — see initializeCartPayment)

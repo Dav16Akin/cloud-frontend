@@ -311,9 +311,7 @@ export default function DomainsDashboardPage() {
                       <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
                         cPanel Username
                       </th>
-                      <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                        Server IP
-                      </th>
+
                       <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
                         Status
                       </th>
@@ -333,9 +331,6 @@ export default function DomainsDashboardPage() {
                         </td>
                         <td className="px-6 py-3.5 text-[#5a6a85] text-xs font-mono">
                           {account.cpanelUsername ?? "—"}
-                        </td>
-                        <td className="px-6 py-3.5 text-[#5a6a85] text-xs font-mono">
-                          {account.serverIp ?? "—"}
                         </td>
                         <td className="px-6 py-3.5">
                           <span

@@ -7,6 +7,7 @@ import {
   createDomainDNSRecord,
   updateDomainDNSRecord,
   deleteDomainDNSRecord,
+  updateNameservers,
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -85,7 +86,20 @@ export const useGetDomainById = (id: string | null) => {
     queryFn: () => getDomainById(token!, id!),
     enabled: !!token && !!id,
     staleTime: 60 * 1000,
-    select: (res) => res.data,
+    select: (res): RegisteredDomain => {
+      const d = res.data as any;
+      return {
+        id: d.id,
+        domain: d.name ?? d.domain,
+        status: d.status,
+        // Backend may return registeredAt/expiresAt — normalise to our type
+        registrationDate: d.registeredAt ?? d.registrationDate ?? "",
+        expiryDate: d.expiresAt ?? d.expiryDate ?? "",
+        autoRenew: d.autoRenew ?? true,
+        // Pass through nameservers array if present
+        nameservers: Array.isArray(d.nameservers) ? d.nameservers : undefined,
+      };
+    },
   });
 };
 
@@ -142,6 +156,23 @@ export const useDeleteDomainDNSRecord = (id: string) => {
     onSuccess: () => {
       toast.success("DNS record deleted.");
       queryClient.invalidateQueries({ queryKey: ["domain-dns", id] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
+
+// ── Update Nameservers ──────────────────────────────────────────────────────
+
+export const useUpdateNameservers = (domainId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (nameservers: string[]) => updateNameservers(domainId, nameservers),
+    onSuccess: () => {
+      toast.success("Nameservers updated successfully.");
+      queryClient.invalidateQueries({ queryKey: ["registered-domain", domainId] });
     },
     onError: (err: Error) => {
       toast.error(err.message);

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getOrders,
+  downloadInvoice,
   initializeCartPayment,
   verifyPayment,
   type Order,
@@ -54,4 +55,26 @@ export const useVerifyPayment = (reference: string | null) => {
 export const useInvalidateOrders = () => {
   const qc = useQueryClient();
   return () => qc.invalidateQueries({ queryKey: ["orders"] });
+};
+
+// ── Download invoice PDF ──────────────────────────────────────────────────────
+
+export const useDownloadInvoice = () => {
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const blob = await downloadInvoice(orderId);
+      // Trigger a browser download without navigating away
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to download invoice");
+    },
+  });
 };

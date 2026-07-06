@@ -289,8 +289,7 @@ export default function InvoicesPage() {
           <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-3">
             <AlertCircle className="w-8 h-8 text-red-300" />
             <p className="text-sm text-red-500">
-              Could not load billing data. Make sure your account is linked to
-              WHMCS.
+              Could not load billing data
             </p>
             <button
               onClick={() => refetch()}
@@ -328,20 +327,6 @@ export default function InvoicesPage() {
           </div>
         )}
       </div>
-
-      {/* WHMCS sync note */}
-      {!isLoading && !isError && (
-        <div className="bg-[#f2f5fc] border border-[#e2eaff] p-4 flex items-start gap-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-          <p className="text-xs text-[#5a6a85]">
-            <span className="font-semibold text-[#031033]">
-              WHMCS Connected.
-            </span>{" "}
-            Invoices are synced in real time. Payments made via Paystack are
-            automatically recorded here.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

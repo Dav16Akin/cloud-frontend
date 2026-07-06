@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Server,
@@ -342,6 +343,32 @@ export default function DashboardOverview() {
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
   const { data: registeredDomains, isLoading: loadingDomains } = useGetRegisteredDomains();
 
+  const [lastLogin, setLastLogin] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let stored = localStorage.getItem("nupat_cloud_last_login");
+      if (!stored) {
+        const now = new Date().toISOString();
+        localStorage.setItem("nupat_cloud_last_login", now);
+        stored = now;
+      }
+      try {
+        const formatted = new Date(stored).toLocaleString("en-NG", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        setLastLogin(formatted);
+      } catch {
+        setLastLogin(stored);
+      }
+    }
+  }, []);
+
   const firstName = me?.data?.firstName ?? "";
 
   const activeHosting =
@@ -413,9 +440,15 @@ export default function DashboardOverview() {
               <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
                 Welcome back, {firstName} 👋
               </h1>
-              <p className="text-[#5a6a85] mt-1 text-sm">
-                Here's a summary of your Nupat Cloud account.
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mt-1.5 text-sm text-[#5a6a85]">
+                {lastLogin && (
+                  <>
+                    <span className="text-xs font-semibold text-[#031033]">
+                      Recent Login: {lastLogin}
+                    </span>
+                  </>
+                )}
+              </div>
             </>
           )}
         </div>

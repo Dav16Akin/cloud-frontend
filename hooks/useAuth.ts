@@ -26,6 +26,9 @@ export const useLogin = (redirectTo = "/dashboard") => {
       const token = res?.token ?? res?.data?.token ?? res?.accessToken;
       if (token) {
         setToken(token);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("nupat_cloud_last_login", new Date().toISOString());
+        }
       }
       toast.success("Welcome back!");
       router.push(redirectTo); // Respect redirect param (e.g. /cart/checkout)

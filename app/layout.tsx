@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "./providers";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -50,6 +51,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>{children}</Providers>
+        <WhatsAppButton />
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative w-full overflow-hidden bg-[#e8900a] pt-24 pb-16 min-h-[90vh] flex flex-col justify-center"
+      className="relative w-full overflow-hidden bg-[#e8900a] pt-24 pb-16 min-h-screen flex flex-col justify-center"
     >
       {/* Subtle white grid background */}
       <div
@@ -38,20 +38,10 @@ export default function HeroSection() {
       </div>
 
       {/* Content wrapper */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 flex flex-col justify-between flex-1">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 flex flex-col justify-between flex-1">
         
         {/* Main hero body */}
         <div className="max-w-3xl text-center mx-auto mt-8 mb-16 flex flex-col items-center">
-          {/* Label */}
-          <div
-            className="inline-flex items-center gap-2 border border-white/20 bg-white/10 px-3 py-1.5 mb-8 animate-fade-up"
-            style={{ animationDelay: "0ms" }}
-          >
-            <span className="w-1.5 h-1.5 bg-[#031033] block" />
-            <span className="text-xs font-semibold text-white tracking-wide uppercase">
-              Cloud Infrastructure for Africa
-            </span>
-          </div>
 
           {/* Headline */}
           <h1

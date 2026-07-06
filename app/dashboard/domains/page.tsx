@@ -238,14 +238,14 @@ export default function DomainsDashboardPage() {
                           {formatDate(domain.expiryDate)}
                         </td>
                         <td className="px-6 py-3.5">
-                          <label className="relative inline-flex items-center cursor-pointer">
+                          <label className="relative inline-flex items-center cursor-not-allowed">
                             <input
                               type="checkbox"
-                              checked={domain.autoRenew}
+                              checked={false}
                               readOnly
                               className="sr-only peer"
                             />
-                            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            <div className="w-10 h-6 bg-gray-200 rounded-full relative transition-colors after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:shadow-sm after:transition-all"></div>
                           </label>
                         </td>
                         <td className="px-6 py-3.5">

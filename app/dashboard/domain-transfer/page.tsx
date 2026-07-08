@@ -144,14 +144,25 @@ export default function DomainTransferPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column: Transfer Form */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Informational Banner */}
+          <div className="bg-[#fffbf2] border border-[#f5d99e] p-5 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-[#e8900a] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-[#031033]">Domain Transfer Cost &amp; Benefits</p>
+              <p className="text-xs text-[#5a6a85] mt-1 leading-relaxed">
+                Transferring your domain starts from <span className="font-bold text-[#031033]">₦26,000</span> (depending on the domain extension), which includes 1 year of renewal. Your domain expiry will be extended by 1 year from today.
+              </p>
+            </div>
+          </div>
+
           <div className="bg-white border border-[#e2eaff] p-6 shadow-sm relative overflow-hidden">
             <h2 className="text-base font-bold text-[#031033] mb-4">
               Initiate Domain Transfer (In)
             </h2>
-            <form onSubmit={handleCheck} className="space-y-4">
+            <form onSubmit={handleCheck} className="space-y-4" autoComplete="off">
               <div className="flex flex-col gap-1.5">
                 <label
-                  htmlFor="domainName"
+                  htmlFor="transfer-domain-input"
                   className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide"
                 >
                   Domain Name
@@ -159,7 +170,9 @@ export default function DomainTransferPage() {
                 <div className="flex items-center border border-[#dce4f7] focus-within:border-[#e8900a] transition-all bg-white px-3">
                   <Globe className="w-4 h-4 text-[#9ba8c0] shrink-0" />
                   <input
-                    id="domainName"
+                    id="transfer-domain-input"
+                    name="transfer-domain-input"
+                    autoComplete="off"
                     type="text"
                     required
                     placeholder="mycompany.com"
@@ -175,14 +188,16 @@ export default function DomainTransferPage() {
 
               <div className="flex flex-col gap-1.5">
                 <label
-                  htmlFor="authCode"
+                  htmlFor="transfer-auth-code-input"
                   className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide"
                 >
                   Authorization Code (EPP Code)
                 </label>
                 <div className="flex items-center border border-[#dce4f7] focus-within:border-[#e8900a] transition-all bg-white px-3">
                   <input
-                    id="authCode"
+                    id="transfer-auth-code-input"
+                    name="transfer-auth-code-input"
+                    autoComplete="new-password"
                     type={showAuthCode ? "text" : "password"}
                     required
                     placeholder="Enter EPP transfer code"

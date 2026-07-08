@@ -623,6 +623,7 @@ export type OrderItem = {
 export type BackendCartItem =
   | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
   | { type: "DOMAIN"; domainName: string; extension: string }
+  | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
   | { type: "SSL"; domainName: string };
 
 export type Order = {
@@ -923,5 +924,71 @@ export const deleteDomainDNSRecord = (
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/domains/${id}/dns/${line}`, {
     method: "DELETE",
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Domain Transfers ──────────────────────────────────────────────────────────
+
+export type TransferEligibilityResult = {
+  domainName: string;
+  transferable: boolean;
+  price: number;
+};
+
+export type DomainTransfer = {
+  id: string;
+  domainName: string;
+  direction: "IN" | "OUT";
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED";
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** POST /domains/transfer-in/check — check if domain is eligible for transfer and get price */
+export const checkTransferEligibility = (data: {
+  domainName: string;
+  authCode: string;
+}): Promise<{
+  success: boolean;
+  data: TransferEligibilityResult;
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/domains/transfer-in/check`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** GET /domains/transfers — list user's transfers */
+export const getTransfers = (): Promise<{
+  success: boolean;
+  data: DomainTransfer[];
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/domains/transfers`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/** GET /domains/transfers/:id/status — request status update and return updated transfer info */
+export const getTransferStatus = (
+  id: string,
+): Promise<{
+  success: boolean;
+  data: DomainTransfer;
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/domains/transfers/${encodeURIComponent(id)}/status`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/** GET /domains/:id/auth-code — request auth code for transfer out */
+export const getDomainAuthCode = (
+  id: string,
+): Promise<{
+  success: boolean;
+  data: { authCode: string };
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}/auth-code`, {
     headers: getHeaders(),
   }).then(handleResponse);

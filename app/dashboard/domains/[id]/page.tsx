@@ -17,10 +17,13 @@ import {
   Trash2,
   X,
   RefreshCw,
-  Signal,
+  ArrowRightLeft,
   ChevronDown,
   Copy,
   Check,
+  Eye,
+  EyeOff,
+  Signal,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -30,6 +33,7 @@ import {
   useUpdateDomainDNSRecord,
   useDeleteDomainDNSRecord,
   useUpdateNameservers,
+  useGetDomainAuthCode,
 } from "@/hooks/useDomains";
 import type { DNSRecord, DNSRecordType } from "@/lib/api";
 
@@ -154,6 +158,23 @@ export default function ManageDomainPage() {
   const { mutate: updateRecord, isPending: updating } = useUpdateDomainDNSRecord(id);
   const { mutate: deleteRecord, isPending: deleting } = useDeleteDomainDNSRecord(id);
   const { mutate: saveNameservers, isPending: savingNS } = useUpdateNameservers(id);
+
+  // ── Transfer out state ──
+  const { mutate: getAuthCode, isPending: fetchingAuthCode } = useGetDomainAuthCode(id);
+  const [authCode, setAuthCode] = useState<string | null>(null);
+  const [showAuthCode, setShowAuthCode] = useState(false);
+  const [copiedAuthCode, setCopiedAuthCode] = useState(false);
+
+  const handleRequestAuthCode = () => {
+    getAuthCode(undefined, {
+      onSuccess: (res) => {
+        if (res?.data?.authCode) {
+          setAuthCode(res.data.authCode);
+          setShowAuthCode(false);
+        }
+      },
+    });
+  };
 
   // ── Nameservers state ──
   const DEFAULT_NS = ["ns1.nupatcloud.com", "ns2.nupatcloud.com"];
@@ -800,6 +821,86 @@ export default function ManageDomainPage() {
           </div>
         )}
       </div>
+
+      {/* ── Transfer Out (Auth Code) Card ── */}
+      {!loadingDomain && !errorDomain && domain && domain.status === "ACTIVE" && (
+        <div className="bg-white border border-[#e2eaff]">
+          {/* Header */}
+          <div className="px-5 py-3.5 border-b border-[#e2eaff] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4 text-[#9ba8c0]" />
+              <h2 className="text-sm font-semibold text-[#031033]">Transfer Domain Out</h2>
+            </div>
+          </div>
+
+          <div className="px-6 py-5 flex flex-col gap-4">
+            <p className="text-xs text-[#5a6a85] leading-relaxed">
+              If you want to transfer your domain name to another registrar, you will need an authorization code (also known as EPP code or transfer key).
+            </p>
+
+            {authCode ? (
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wide">
+                  Authorization Code
+                </label>
+                <div className="flex items-center gap-2 max-w-md">
+                  <div className="relative flex-1 flex items-center border border-[#dce4f7] bg-[#f6f9ff] px-3 py-2">
+                    <input
+                      type={showAuthCode ? "text" : "password"}
+                      value={authCode}
+                      readOnly
+                      className="w-full bg-transparent border-none text-sm font-mono text-[#031033] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAuthCode(!showAuthCode)}
+                      className="text-[#9ba8c0] hover:text-[#031033] p-1.5 transition-colors"
+                      title={showAuthCode ? "Hide authorization code" : "Show authorization code"}
+                    >
+                      {showAuthCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(authCode);
+                      setCopiedAuthCode(true);
+                      toast.success("Authorization code copied to clipboard.");
+                      setTimeout(() => setCopiedAuthCode(false), 1500);
+                    }}
+                    className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] border border-[#e8900a]/30 bg-[#fff8f0] hover:bg-[#e8900a] hover:text-white px-3 py-2.5 transition-colors shrink-0"
+                  >
+                    {copiedAuthCode ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        Copy Code
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-[10px] text-[#9ba8c0] mt-1">
+                  Keep this code confidential. Anyone with access to it can transfer your domain name.
+                </p>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleRequestAuthCode}
+                disabled={fetchingAuthCode}
+                className="self-start btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
+              >
+                {fetchingAuthCode && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Request Authorization (EPP) Code
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Propagation notice ── */}
       <p className="text-xs text-[#9ba8c0] text-center pb-2">

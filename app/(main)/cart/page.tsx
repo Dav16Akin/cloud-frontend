@@ -10,6 +10,7 @@ import {
   Server,
   Package,
   AlertCircle,
+  ArrowRightLeft,
 } from "lucide-react";
 import { useCartStore, cartItemLabel, getCartItemKey, type CartItem } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
@@ -32,6 +33,12 @@ function ItemTypeIcon({ item }: { item: CartItem }) {
         <Globe className="w-4 h-4 text-[#031033]" />
       </div>
     );
+  if (item.type === "DOMAIN_TRANSFER")
+    return (
+      <div className="w-9 h-9 bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+        <ArrowRightLeft className="w-4 h-4 text-amber-600" />
+      </div>
+    );
   return (
     <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
       <Shield className="w-4 h-4 text-emerald-500" />
@@ -45,6 +52,7 @@ function itemTypeLabel(item: CartItem) {
     return `Hosting Plan (${cycle})`;
   }
   if (item.type === "DOMAIN") return "Domain Registration";
+  if (item.type === "DOMAIN_TRANSFER") return "Domain Transfer";
   return "SSL Certificate";
 }
 

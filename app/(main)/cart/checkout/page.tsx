@@ -14,6 +14,7 @@ import {
   CreditCard,
   User,
   Sparkles,
+  ArrowRightLeft,
 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
@@ -72,6 +73,13 @@ export default function CheckoutPage() {
         if (item.type === "HOSTING") return { type: "HOSTING" as const, planId: item.planId };
         if (item.type === "DOMAIN")
           return { type: "DOMAIN" as const, domainName: item.domainName, extension: item.extension };
+        if (item.type === "DOMAIN_TRANSFER")
+          return {
+            type: "DOMAIN_TRANSFER" as const,
+            domainName: item.domainName,
+            extension: item.extension,
+            authCode: item.authCode,
+          };
         return { type: "SSL" as const, domainName: item.domainName };
       });
 
@@ -216,13 +224,16 @@ export default function CheckoutPage() {
                         ? `${item.planName} Hosting`
                         : item.type === "DOMAIN"
                         ? `${item.domainName}.${item.extension}`
+                        : item.type === "DOMAIN_TRANSFER"
+                        ? `${item.domainName}.${item.extension} (Transfer)`
                         : `SSL — ${item.domainName}`;
+                    const Icon = item.type === "DOMAIN_TRANSFER" ? ArrowRightLeft : Globe;
                     return (
                       <div key={label} className="px-6 py-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-                              <Globe className="w-4 h-4 text-[#031033]" />
+                              <Icon className="w-4 h-4 text-[#031033]" />
                             </div>
                             <div className="min-w-0">
                               <p className="font-bold text-[#031033] text-sm truncate">{label}</p>

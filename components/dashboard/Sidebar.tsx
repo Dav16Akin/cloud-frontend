@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   Server,
   Globe,
-  Mail,
+  ArrowRightLeft,
   Receipt,
   LifeBuoy,
   Settings,
@@ -31,7 +31,7 @@ const NAV_GROUPS = [
     links: [
       { label: "Hosting", href: "/dashboard/hosting", icon: Server },
       { label: "Domains", href: "/dashboard/domains", icon: Globe },
-      { label: "Emails", href: "/dashboard/emails", icon: Mail },
+      { label: "Domain Transfer", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },
     ],
   },
   {

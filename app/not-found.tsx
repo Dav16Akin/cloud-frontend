@@ -73,7 +73,7 @@ export default function NotFound() {
               { label: "Dashboard", href: "/dashboard" },
               { label: "Hosting", href: "/dashboard/hosting" },
               { label: "Domains", href: "/dashboard/domains" },
-              { label: "Emails", href: "/dashboard/emails" },
+              { label: "Domain Transfer", href: "/dashboard/domain-transfer" },
               { label: "Support", href: "/dashboard/tickets" },
               { label: "Settings", href: "/dashboard/settings" },
             ].map(({ label, href }) => (

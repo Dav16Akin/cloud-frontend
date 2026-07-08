@@ -8,6 +8,10 @@ import {
   updateDomainDNSRecord,
   deleteDomainDNSRecord,
   updateNameservers,
+  checkTransferEligibility,
+  getTransfers,
+  getTransferStatus,
+  getDomainAuthCode,
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -176,6 +180,57 @@ export const useUpdateNameservers = (domainId: string) => {
     },
     onError: (err: Error) => {
       toast.error(err.message);
+    },
+  });
+};
+
+// ── Domain Transfer Hooks ───────────────────────────────────────────────────
+
+export const useCheckTransferEligibility = () => {
+  return useMutation({
+    mutationFn: (data: { domainName: string; authCode: string }) => checkTransferEligibility(data),
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to check domain transfer eligibility.");
+    },
+  });
+};
+
+export const useGetTransfers = () => {
+  const token = useAuthStore((s) => s.token);
+
+  return useQuery({
+    queryKey: ["domain-transfers"],
+    queryFn: () => getTransfers(),
+    enabled: !!token,
+    staleTime: 30 * 1000,
+    select: (res) => res.data || [],
+  });
+};
+
+export const useGetTransferStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => getTransferStatus(id),
+    onSuccess: () => {
+      toast.success("Transfer status updated.");
+      queryClient.invalidateQueries({ queryKey: ["domain-transfers"] });
+      queryClient.invalidateQueries({ queryKey: ["registered-domains"] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to check transfer status.");
+    },
+  });
+};
+
+export const useGetDomainAuthCode = (domainId: string) => {
+  return useMutation({
+    mutationFn: () => getDomainAuthCode(domainId),
+    onSuccess: () => {
+      toast.success("Authorization code retrieved successfully.");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to retrieve authorization code.");
     },
   });
 };

@@ -438,7 +438,7 @@ export default function DashboardOverview() {
           ) : (
             <>
               <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
-                Welcome back, {firstName} 👋
+                Welcome back, {firstName}
               </h1>
               <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mt-1.5 text-sm text-[#5a6a85]">
                 {lastLogin && (

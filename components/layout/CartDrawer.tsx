@@ -9,6 +9,7 @@ import {
   Shield,
   Server,
   ArrowRight,
+  ArrowRightLeft,
 } from "lucide-react";
 import {
   useCartStore,
@@ -36,6 +37,12 @@ function ItemIcon({ item }: { item: CartItem }) {
         <Globe className="w-4 h-4 text-[#031033]" />
       </div>
     );
+  if (item.type === "DOMAIN_TRANSFER")
+    return (
+      <div className="w-9 h-9 bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+        <ArrowRightLeft className="w-4 h-4 text-amber-600" />
+      </div>
+    );
   // SSL
   return (
     <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
@@ -51,6 +58,8 @@ function ItemSubtitle({ item }: { item: CartItem }) {
   }
   if (item.type === "DOMAIN")
     return <p className="text-xs text-[#9ba8c0] mt-0.5">Domain Registration</p>;
+  if (item.type === "DOMAIN_TRANSFER")
+    return <p className="text-xs text-amber-600 mt-0.5">Domain Transfer</p>;
   return <p className="text-xs text-emerald-600 mt-0.5">SSL Certificate</p>;
 }
 

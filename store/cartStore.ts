@@ -26,12 +26,21 @@ export type CartSslItem = {
   price: number;      // NGN retail price
 };
 
-export type CartItem = CartHostingItem | CartDomainItem | CartSslItem;
+export type CartDomainTransferItem = {
+  type: "DOMAIN_TRANSFER";
+  domainName: string; // e.g. "example"
+  extension: string;  // e.g. "com.ng"
+  price: number;      // NGN retail price
+  authCode: string;   // the EPP/auth code
+};
+
+export type CartItem = CartHostingItem | CartDomainItem | CartSslItem | CartDomainTransferItem;
 
 // Unique key for each item in the cart
 function itemKey(item: CartItem): string {
   if (item.type === "HOSTING") return `hosting:${item.planId}:${item.billingCycle}`;
   if (item.type === "DOMAIN")  return `domain:${item.domainName}.${item.extension}`;
+  if (item.type === "DOMAIN_TRANSFER") return `domain-transfer:${item.domainName}.${item.extension}`;
   if (item.type === "SSL")     return `ssl:${item.domainName}`;
   return "";
 }
@@ -43,6 +52,7 @@ type CartStore = {
   // Actions
   addHostingItem: (item: CartHostingItem) => void;
   addDomainItem: (item: CartDomainItem) => void;
+  addDomainTransferItem: (item: CartDomainTransferItem) => void;
   addSslItem: (item: CartSslItem) => void;
   /** Remove any item by its unique key (planId for HOSTING, full domain for DOMAIN/SSL) */
   removeItem: (key: string) => void;
@@ -55,10 +65,10 @@ type CartStore = {
   hasItem: (key: string) => boolean;
   itemCount: () => number;
   grandTotal: () => number;
-  /** Returns the payload shape the backend expects for POST /orders/initialize */
   toBackendItems: () => Array<
     | { type: "HOSTING"; planId: string }
     | { type: "DOMAIN"; domainName: string; extension: string }
+    | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
     | { type: "SSL"; domainName: string }
   >;
 };
@@ -77,6 +87,12 @@ export const useCartStore = create<CartStore>()(
         }),
 
       addDomainItem: (item) =>
+        set((state) => {
+          if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
+          return { items: [...state.items, item], isDrawerOpen: true };
+        }),
+
+      addDomainTransferItem: (item) =>
         set((state) => {
           if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
           return { items: [...state.items, item], isDrawerOpen: true };
@@ -115,6 +131,13 @@ export const useCartStore = create<CartStore>()(
               domainName: item.domainName,
               extension: item.extension,
             };
+          if (item.type === "DOMAIN_TRANSFER")
+            return {
+              type: "DOMAIN_TRANSFER" as const,
+              domainName: item.domainName,
+              extension: item.extension,
+              authCode: item.authCode,
+            };
           // SSL
           return { type: "SSL" as const, domainName: item.domainName };
         }),
@@ -132,6 +155,7 @@ export const useCartStore = create<CartStore>()(
 export function cartItemLabel(item: CartItem): string {
   if (item.type === "HOSTING") return `${item.planName} Hosting`;
   if (item.type === "DOMAIN")  return `${item.domainName}.${item.extension}`;
+  if (item.type === "DOMAIN_TRANSFER") return `${item.domainName}.${item.extension} (Transfer)`;
   if (item.type === "SSL")     return `SSL — ${item.domainName}`;
   return "";
 }

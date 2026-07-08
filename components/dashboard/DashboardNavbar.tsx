@@ -8,9 +8,10 @@ import { useCartStore } from "@/store/cartStore";
 
 type DashboardNavbarProps = {
   onMobileMenuOpen?: () => void;
+  onSearchOpen?: () => void;
 };
 
-export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarProps) {
+export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: DashboardNavbarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -24,10 +25,18 @@ export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarPro
 
   const { itemCount, toggleDrawer } = useCartStore();
   const [cartCount, setCartCount] = useState(0);
+  const [platformShortcut, setPlatformShortcut] = useState("⌘ K");
 
   useEffect(() => {
     setCartCount(itemCount());
   }, [itemCount]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isMac = navigator.userAgent.toLowerCase().includes("mac");
+      setPlatformShortcut(isMac ? "⌘ K" : "Ctrl K");
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -53,11 +62,15 @@ export default function DashboardNavbar({ onMobileMenuOpen }: DashboardNavbarPro
       </button>
 
       {/* Search bar */}
-      <div className="flex-1 max-w-md hidden md:flex items-center gap-2 bg-[#f6f9ff] border border-[#e2eaff] px-3 py-1.5 text-sm text-[#9ba8c0]">
+      <div
+        id="dashboard-search-trigger"
+        onClick={onSearchOpen}
+        className="flex-1 max-w-md hidden md:flex items-center gap-2 bg-[#f6f9ff] border border-[#e2eaff] hover:border-[#e8900a]/40 cursor-pointer px-3 py-1.5 text-sm text-[#9ba8c0] transition-colors"
+      >
         <Search className="w-4 h-4 shrink-0" />
         <span className="select-none">Search…</span>
         <kbd className="ml-auto hidden sm:inline-flex items-center gap-0.5 bg-white border border-[#e2eaff] px-1.5 py-0.5 text-[10px] font-mono text-[#9ba8c0]">
-          ⌘ K
+          {platformShortcut}
         </kbd>
       </div>
 

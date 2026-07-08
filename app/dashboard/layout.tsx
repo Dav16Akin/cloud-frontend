@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import CartDrawer from "@/components/layout/CartDrawer";
+import SearchModal from "@/components/dashboard/SearchModal";
 import { refresh } from "@/lib/api";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -22,6 +23,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [authStatus, setAuthStatus] = useState<AuthStatus>("loading");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     // Wait until Zustand has finished reading from localStorage.
@@ -65,6 +67,18 @@ export default function DashboardLayout({
     }
   }, [authStatus, router]);
 
+  // Global keydown listener for Cmd+K / Ctrl+K search toggle
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSearchOpen((open) => !open);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Show spinner while we're determining auth state
   if (authStatus === "loading") {
     return (
@@ -102,7 +116,10 @@ export default function DashboardLayout({
         {/* ── Main content ─────────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top navbar — visible on all screen sizes */}
-          <DashboardNavbar onMobileMenuOpen={() => setMobileSidebarOpen(true)} />
+          <DashboardNavbar
+            onMobileMenuOpen={() => setMobileSidebarOpen(true)}
+            onSearchOpen={() => setIsSearchOpen(true)}
+          />
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8">
             {children}
@@ -110,6 +127,7 @@ export default function DashboardLayout({
         </div>
       </div>
       <CartDrawer />
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 }

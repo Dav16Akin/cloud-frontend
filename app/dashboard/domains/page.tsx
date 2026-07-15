@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Globe,
   Search,
@@ -26,10 +27,14 @@ import { useGetHosting } from "@/hooks/useHosting";
 import { toast } from "sonner";
 
 type SearchState = "idle" | "searching" | "done" | "error";
-type Tab = "my-domains" | "register";
+type Tab = "registered" | "hosted" | "register";
 
-export default function DomainsDashboardPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("my-domains");
+function DomainsDashboardPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabQuery = searchParams.get("tab");
+
+  const [activeTab, setActiveTab] = useState<Tab>("registered");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [searchResults, setSearchResults] = useState<DomainResult[]>([]);
@@ -38,6 +43,19 @@ export default function DomainsDashboardPage() {
   const { data: registeredDomains, isLoading: loadingDomains, refetch } = useGetRegisteredDomains();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
   const { addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
+
+  useEffect(() => {
+    if (tabQuery === "hosted" || tabQuery === "register" || tabQuery === "registered") {
+      setActiveTab(tabQuery as Tab);
+    } else {
+      setActiveTab("registered");
+    }
+  }, [tabQuery]);
+
+  const handleTabChange = (newTab: Tab) => {
+    setActiveTab(newTab);
+    router.push(`/dashboard/domains?tab=${newTab}`);
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,9 +135,9 @@ export default function DomainsDashboardPage() {
             Register new domain names or manage your existing domain portfolio.
           </p>
         </div>
-        {activeTab === "my-domains" && (
+        {activeTab !== "register" && (
           <button
-            onClick={() => setActiveTab("register")}
+            onClick={() => handleTabChange("register")}
             className="btn-primary flex items-center gap-1.5 self-start sm:self-auto text-sm py-2 px-4"
           >
             <Plus className="w-4 h-4" />
@@ -131,17 +149,27 @@ export default function DomainsDashboardPage() {
       {/* Tabs */}
       <div className="flex border-b border-[#e2eaff]">
         <button
-          onClick={() => setActiveTab("my-domains")}
+          onClick={() => handleTabChange("registered")}
           className={`px-5 py-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
-            activeTab === "my-domains"
+            activeTab === "registered"
               ? "border-[#e8900a] text-[#e8900a]"
               : "border-transparent text-[#5a6a85] hover:text-[#031033]"
           }`}
         >
-          My Domains ({loadingDomains || loadingHosting ? "..." : (registeredDomains?.length ?? 0) + (hostingAccounts?.length ?? 0)})
+          Registered Domains ({loadingDomains ? "..." : registeredDomains?.length ?? 0})
         </button>
         <button
-          onClick={() => setActiveTab("register")}
+          onClick={() => handleTabChange("hosted")}
+          className={`px-5 py-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
+            activeTab === "hosted"
+              ? "border-[#e8900a] text-[#e8900a]"
+              : "border-transparent text-[#5a6a85] hover:text-[#031033]"
+          }`}
+        >
+          Hosted Domains ({loadingHosting ? "..." : hostingAccounts?.length ?? 0})
+        </button>
+        <button
+          onClick={() => handleTabChange("register")}
           className={`px-5 py-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
             activeTab === "register"
               ? "border-[#e8900a] text-[#e8900a]"
@@ -153,7 +181,7 @@ export default function DomainsDashboardPage() {
       </div>
 
       {/* Tab Contents */}
-      {activeTab === "my-domains" ? (
+      {activeTab === "registered" && (
         <div className="flex flex-col gap-8">
           {/* 1. Registered Domains Section */}
           <div className="bg-white border border-[#e2eaff]">
@@ -180,7 +208,7 @@ export default function DomainsDashboardPage() {
                   You do not have any registered domains yet.
                 </p>
                 <button
-                  onClick={() => setActiveTab("register")}
+                  onClick={() => handleTabChange("register")}
                   className="btn-primary text-xs py-1.5 px-4 flex items-center gap-1"
                 >
                   <Search className="w-3.5 h-3.5" />
@@ -264,7 +292,11 @@ export default function DomainsDashboardPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
 
+      {activeTab === "hosted" && (
+        <div className="flex flex-col gap-8">
           {/* 2. Hosted Domains Section */}
           <div className="bg-white border border-[#e2eaff]">
             <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between">
@@ -361,7 +393,9 @@ export default function DomainsDashboardPage() {
             )}
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === "register" && (
         /* Register Domain Search */
         <div className="flex flex-col gap-6">
           <div className="bg-[#031033] border border-[#1a2d5a] p-6 sm:p-8 relative overflow-hidden">
@@ -525,5 +559,17 @@ export default function DomainsDashboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DomainsDashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
+      </div>
+    }>
+      <DomainsDashboardPageContent />
+    </Suspense>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
   Server,
@@ -14,11 +15,24 @@ import {
   X,
   ExternalLink,
   ShoppingCart,
+  ChevronDown,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
 
-const NAV_GROUPS = [
+type LinkItem = {
+  label: string;
+  href: string;
+  icon: any;
+  subLinks?: { label: string; href: string }[];
+};
+
+type NavGroup = {
+  label: string;
+  links: LinkItem[];
+};
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: "GENERAL",
     links: [
@@ -30,8 +44,17 @@ const NAV_GROUPS = [
     label: "SERVICES",
     links: [
       { label: "Hosting", href: "/dashboard/hosting", icon: Server },
-      { label: "Domains", href: "/dashboard/domains", icon: Globe },
-      { label: "Domain Transfer", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },
+      {
+        label: "Domains",
+        href: "/dashboard/domains",
+        icon: Globe,
+        subLinks: [
+          { label: "Register / Search", href: "/dashboard/domains?tab=register" },
+          { label: "Registered Domains", href: "/dashboard/domains?tab=registered" },
+          { label: "Hosted Domains", href: "/dashboard/domains?tab=hosted" },
+          { label: "Domain Transfer", href: "/dashboard/domain-transfer" },
+        ],
+      },
     ],
   },
   {
@@ -43,6 +66,52 @@ const NAV_GROUPS = [
     ],
   },
 ];
+
+function SidebarSubLinks({
+  subLinks,
+  onClose,
+  pathname,
+}: {
+  subLinks: { label: string; href: string }[];
+  onClose?: () => void;
+  pathname: string;
+}) {
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "registered";
+
+  return (
+    <div className="flex flex-col gap-0.5 ml-6 pl-3 border-l border-[#e2eaff] mt-0.5 mb-1.5">
+      {subLinks.map(({ label, href }) => {
+        const isTransfer = href.includes("domain-transfer");
+        let isActive = false;
+
+        if (isTransfer) {
+          isActive = pathname.startsWith("/dashboard/domain-transfer");
+        } else {
+          const tabMatch = href.match(/tab=([^&]+)/);
+          const tabName = tabMatch ? tabMatch[1] : "registered";
+          isActive = pathname === "/dashboard/domains" && activeTab === tabName;
+        }
+
+        return (
+          <Link
+            key={href}
+            href={href}
+            id={`sidebar-sub-${label.toLowerCase().replace(/\s+/g, "-")}`}
+            onClick={onClose}
+            className={`px-3 py-1.5 text-xs font-medium transition-all duration-150 rounded ${
+              isActive
+                ? "bg-[#fff8ee] text-[#e8900a] font-semibold"
+                : "text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033]"
+            }`}
+          >
+            {label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 type SidebarProps = {
   onClose?: () => void;
@@ -57,6 +126,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const lastName = me?.data?.lastName ?? "";
   const email = me?.data?.email ?? "";
   const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "?";
+
+  const isDomainsPath =
+    pathname.startsWith("/dashboard/domains") || pathname.startsWith("/dashboard/domain-transfer");
+  const [domainsExpanded, setDomainsExpanded] = useState(isDomainsPath);
+
+  useEffect(() => {
+    if (isDomainsPath) {
+      setDomainsExpanded(true);
+    }
+  }, [pathname, isDomainsPath]);
 
   return (
     <aside className="flex flex-col h-full bg-white border-r border-[#e2eaff] w-64 shrink-0">
@@ -91,7 +170,83 @@ export default function Sidebar({ onClose }: SidebarProps) {
               {group.label}
             </p>
             <div className="flex flex-col gap-0.5">
-              {group.links.map(({ label, href, icon: Icon }) => {
+              {group.links.map((link) => {
+                const { label, href, icon: Icon, subLinks } = link;
+
+                const isParentActive =
+                  href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(href) ||
+                      (subLinks &&
+                        subLinks.some((sub) =>
+                          pathname.startsWith(sub.href.split("?")[0])
+                        ));
+
+                if (subLinks) {
+                  return (
+                    <div key={href} className="flex flex-col">
+                      <div
+                        className={`flex items-center w-full transition-all duration-150 border-l-2 rounded-r ${
+                          isParentActive
+                            ? "border-[#e8900a] bg-[#fff8ee]"
+                            : "border-transparent hover:bg-[#f2f5fc]"
+                        }`}
+                      >
+                        <Link
+                          href={href}
+                          id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
+                          onClick={onClose}
+                          className={`flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium ${
+                            isParentActive ? "text-[#031033]" : "text-[#5a6a85] hover:text-[#031033]"
+                          }`}
+                        >
+                          <Icon
+                            className={`w-[17px] h-[17px] shrink-0 ${
+                              isParentActive ? "text-[#e8900a]" : "text-[#9ba8c0]"
+                            }`}
+                          />
+                          <span className="flex-1">{label}</span>
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setDomainsExpanded(!domainsExpanded);
+                          }}
+                          className={`p-2 transition-colors shrink-0 rounded-r ${
+                            isParentActive
+                              ? "text-[#e8900a] hover:bg-[#ffeacf]/50"
+                              : "text-[#9ba8c0] hover:text-[#031033] hover:bg-gray-200/50"
+                          }`}
+                          aria-label="Toggle sub-menu"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              domainsExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      {domainsExpanded && (
+                        <Suspense
+                          fallback={
+                            <div className="ml-6 pl-3 text-xs text-[#9ba8c0] animate-pulse py-1.5">
+                              Loading...
+                            </div>
+                          }
+                        >
+                          <SidebarSubLinks
+                            subLinks={subLinks}
+                            onClose={onClose}
+                            pathname={pathname}
+                          />
+                        </Suspense>
+                      )}
+                    </div>
+                  );
+                }
+
                 const isActive =
                   href === "/dashboard"
                     ? pathname === "/dashboard"
@@ -110,7 +265,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
                     }`}
                   >
                     <Icon
-                      className={`w-[17px] h-[17px] shrink-0 ${isActive ? "text-[#e8900a]" : "text-[#9ba8c0]"}`}
+                      className={`w-[17px] h-[17px] shrink-0 ${
+                        isActive ? "text-[#e8900a]" : "text-[#9ba8c0]"
+                      }`}
                     />
                     {label}
                   </Link>

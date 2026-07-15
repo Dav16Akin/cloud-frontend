@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRightLeft,
   Loader2,
@@ -26,14 +27,22 @@ import {
 } from "@/hooks/useDomains";
 import { useCartStore } from "@/store/cartStore";
 
-export default function DomainTransferPage() {
-  const [domainName, setDomainName] = useState("");
+function DomainTransferPageContent() {
+  const searchParams = useSearchParams();
+  const queryDomain = searchParams.get("domain") ?? "";
+  const [domainName, setDomainName] = useState(queryDomain);
   const [authCode, setAuthCode] = useState("");
   const [showAuthCode, setShowAuthCode] = useState(false);
   const [eligibilityResult, setEligibilityResult] = useState<{
     domainName: string;
     price: number;
   } | null>(null);
+
+  useEffect(() => {
+    if (queryDomain) {
+      setDomainName(queryDomain);
+    }
+  }, [queryDomain]);
 
   const checkEligibilityMutation = useCheckTransferEligibility();
   const refreshStatusMutation = useGetTransferStatus();
@@ -447,5 +456,17 @@ export default function DomainTransferPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function DomainTransferPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
+      </div>
+    }>
+      <DomainTransferPageContent />
+    </Suspense>
   );
 }

@@ -14,6 +14,7 @@ import {
   Sparkles,
   Filter,
   Trash2,
+  ArrowRightLeft,
 } from "lucide-react";
 import { searchDomains, DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
@@ -142,7 +143,7 @@ export default function DomainsPage() {
                 id="domain-search-btn"
                 type="submit"
                 disabled={state === "searching"}
-                className="btn-primary m-2 py-3 px-3 sm:px-6 rounded-xl text-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-primary m-2 mr-1 py-3 px-3 sm:px-6 rounded-xl text-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {state === "searching" ? (
                   <>
@@ -156,6 +157,14 @@ export default function DomainsPage() {
                   </>
                 )}
               </button>
+              <Link
+                href={`/dashboard/domain-transfer${query.trim() ? `?domain=${encodeURIComponent(query.trim())}` : ""}`}
+                id="domain-transfer-btn"
+                className="btn-outline m-2 ml-1 py-3 px-3 sm:px-6 rounded-xl text-sm shrink-0 flex items-center gap-2"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Transfer Domain</span>
+              </Link>
             </div>
           </form>
 

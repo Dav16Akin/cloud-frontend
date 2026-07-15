@@ -22,15 +22,12 @@ import { toast } from "sonner";
 
 const extensionInfo: Record<string, { desc: string; popular: boolean }> = {
   "com": { desc: "Perfect for global businesses and startups.", popular: true },
-  "com.ng": { desc: "Ideal for Nigerian businesses and brands.", popular: true },
-  "ng": { desc: "Short, modern, and locally trusted.", popular: false },
-  "africa": { desc: "Built for African brands and businesses.", popular: false },
   "net": { desc: "Great for tech-focused projects.", popular: false },
   "org": { desc: "For organisations and non-profits.", popular: false },
   "io": { desc: "Popular with tech startups and SaaS.", popular: false },
   "co": { desc: "A sleek alternative to .com.", popular: false },
-  "app": { desc: "Built for modern web applications.", popular: false },
-  "dev": { desc: "Made for developers and dev tools.", popular: false },
+  "info": { desc: "Perfect for informational websites, blogs, and directories.", popular: false },
+  "me": { desc: "Ideal for personal websites, portfolios, and blogs.", popular: false },
 };
 
 type SearchState = "idle" | "searching" | "done" | "error";
@@ -349,7 +346,6 @@ export default function DomainsPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Object.entries(extensionInfo)
-              .slice(0, 6)
               .map(([ext, info]) => (
                 <div
                   key={ext}

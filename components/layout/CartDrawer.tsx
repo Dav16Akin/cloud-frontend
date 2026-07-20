@@ -66,6 +66,7 @@ function ItemSubtitle({ item }: { item: CartItem }) {
 export default function CartDrawer() {
   const {
     items,
+    addSslItem,
     removeItem,
     grandTotal,
     isDrawerOpen,
@@ -205,6 +206,28 @@ export default function CartDrawer() {
                         </button>
                       </div>
                     </div>
+
+                    {/* SSL cross-sell recommendation */}
+                    {item.type === "DOMAIN" && !items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
+                      <div className="mt-3 pt-3 border-t border-[#f0f4fc] flex items-center justify-between gap-2 bg-[#fcfdfe] p-2 -mx-2 -mb-2 rounded">
+                        <span className="text-[10px] text-[#5a6a85] flex items-center gap-1 font-medium">
+                          <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          Add SSL security (+₦10,000/yr)
+                        </span>
+                        <button
+                          onClick={() => {
+                            addSslItem({
+                              type: "SSL",
+                              domainName: `${item.domainName}.${item.extension}`,
+                              price: 10000,
+                            });
+                          }}
+                          className="text-[10px] font-bold text-[#e8900a] hover:underline shrink-0 px-2 py-1 bg-white border border-[#e2eaff] hover:bg-[#fafbff] rounded"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

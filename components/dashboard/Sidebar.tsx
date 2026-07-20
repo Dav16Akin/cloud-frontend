@@ -16,6 +16,7 @@ import {
   ExternalLink,
   ShoppingCart,
   ChevronDown,
+  Shield,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
@@ -55,6 +56,7 @@ const NAV_GROUPS: NavGroup[] = [
           { label: "Domain Transfer", href: "/dashboard/domain-transfer" },
         ],
       },
+      { label: "SSL Certificates", href: "/dashboard/ssl", icon: Shield },
     ],
   },
   {

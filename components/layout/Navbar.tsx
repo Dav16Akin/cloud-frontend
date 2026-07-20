@@ -211,7 +211,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
+          mobileOpen ? "max-h-128 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="bg-white border-b border-[#dce4f7] px-4 pb-4 pt-2 flex flex-col gap-1">

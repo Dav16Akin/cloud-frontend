@@ -235,7 +235,15 @@ function CheckoutContent() {
           domainName: item.domainName,
           extension: item.extension,
         };
-      return { type: "SSL" as const, domainName: item.domainName };
+      if (item.type === "DOMAIN_TRANSFER")
+        return {
+          type: "DOMAIN_TRANSFER" as const,
+          domainName: item.domainName,
+          extension: item.extension,
+          authCode: item.authCode,
+        };
+      // SSL
+      return { type: "SSL" as const, domainName: item.domainName, productId: item.productId };
     });
 
     initPayment(backendItems, {

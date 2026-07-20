@@ -57,7 +57,7 @@ function itemTypeLabel(item: CartItem) {
 }
 
 export default function CartPage() {
-  const { items, removeItem, clearCart, grandTotal } = useCartStore();
+  const { items, addSslItem, removeItem, clearCart, grandTotal } = useCartStore();
   const token = useAuthStore((s) => s.token);
   const router = useRouter();
 
@@ -181,6 +181,36 @@ export default function CartPage() {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
+
+                    {/* SSL cross-sell recommendation */}
+                    {item.type === "DOMAIN" && !items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
+                      <div className="mt-4 pt-4 border-t border-[#f0f4fc] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#fbfdff] -mx-4 -mb-4 p-4 sm:-mx-5 sm:-mb-5">
+                        <div className="flex items-start gap-2.5">
+                          <Shield className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-bold text-[#031033]">
+                              Secure your domain name
+                            </p>
+                            <p className="text-[11px] text-[#5a6a85] mt-0.5">
+                              Protect visitor data, boost search engine rankings, and build trust with a PositiveSSL Certificate.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            addSslItem({
+                              type: "SSL",
+                              domainName: `${item.domainName}.${item.extension}`,
+                              price: 10000,
+                            });
+                          }}
+                          className="shrink-0 text-xs font-semibold py-1.5 px-3 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1.5"
+                        >
+                          <Shield className="w-3.5 h-3.5" />
+                          Add SSL (+₦10,000/yr)
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

@@ -24,6 +24,7 @@ export type CartSslItem = {
   type: "SSL";
   domainName: string; // full domain: "example.com.ng"
   price: number;      // NGN retail price
+  productId?: number;  // OpenProvider product ID
 };
 
 export type CartDomainTransferItem = {
@@ -69,7 +70,7 @@ type CartStore = {
     | { type: "HOSTING"; planId: string }
     | { type: "DOMAIN"; domainName: string; extension: string }
     | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
-    | { type: "SSL"; domainName: string }
+    | { type: "SSL"; domainName: string; productId?: number }
   >;
 };
 
@@ -105,9 +106,16 @@ export const useCartStore = create<CartStore>()(
         }),
 
       removeItem: (key) =>
-        set((state) => ({
-          items: state.items.filter((i) => itemKey(i) !== key),
-        })),
+        set((state) => {
+          let filtered = state.items.filter((i) => itemKey(i) !== key);
+          if (key.startsWith("domain:")) {
+            const domainName = key.substring("domain:".length);
+            filtered = filtered.filter(
+              (i) => !(i.type === "SSL" && i.domainName === domainName)
+            );
+          }
+          return { items: filtered };
+        }),
 
       clearCart: () => set({ items: [] }),
 
@@ -139,7 +147,11 @@ export const useCartStore = create<CartStore>()(
               authCode: item.authCode,
             };
           // SSL
-          return { type: "SSL" as const, domainName: item.domainName };
+          return {
+            type: "SSL" as const,
+            domainName: item.domainName,
+            productId: item.productId,
+          };
         }),
     }),
     {

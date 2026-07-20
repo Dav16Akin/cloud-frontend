@@ -992,3 +992,79 @@ export const getDomainAuthCode = (
   fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}/auth-code`, {
     headers: getHeaders(),
   }).then(handleResponse);
+
+// ── SSL Certificates ──────────────────────────────────────────────────────────
+
+export type SslStatus = "PENDING" | "PROCESSING" | "ACTIVE" | "EXPIRED" | "CANCELLED" | "FAILED";
+
+export type SslCertificate = {
+  id: string;
+  domainName: string;
+  productId: number;
+  productName: string;
+  openproviderId?: number | null;
+  status: SslStatus;
+  validationMethod: string;
+  csr?: string | null;
+  certificate?: string | null;
+  privateKey?: string | null;
+  expiresAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getSSLCertificates = (
+  token: string,
+): Promise<{ success: boolean; data: SslCertificate[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/ssl`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getSSLStatus = (
+  token: string,
+  id: string,
+): Promise<{
+  success: boolean;
+  data: {
+    status: SslStatus;
+    certificate?: string | null;
+    expiresAt?: string | null;
+    domainName?: string;
+    productName?: string;
+    validationMethod?: string;
+    id?: string;
+  };
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/ssl/${encodeURIComponent(id)}/status`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getSSLProducts = (
+  token: string,
+): Promise<{ success: boolean; data: any[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/ssl/products`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/**
+ * GET /ssl/:id/download
+ * Streams a PEM certificate file blob
+ */
+export const downloadSSLCertificateFile = async (id: string): Promise<Blob> => {
+  const res = await fetchWithRefresh(
+    `${BASE_URL}/ssl/${encodeURIComponent(id)}/download`,
+    { headers: getHeaders() },
+  );
+  if (!res.ok) {
+    let msg = `Failed to download SSL certificate (${res.status})`;
+    try {
+      const body = await res.clone().json();
+      if (body?.message) msg = body.message;
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(msg);
+  }
+  return res.blob();
+};

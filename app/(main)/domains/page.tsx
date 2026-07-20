@@ -40,7 +40,7 @@ export default function DomainsPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
 
-  const { addDomainItem, removeItem, hasItem, itemCount } = useCartStore();
+  const { addDomainItem, addSslItem, removeItem, hasItem, itemCount } = useCartStore();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -268,6 +268,36 @@ export default function DomainsPage() {
                               {formatPrice(result)}{" "}
                               <span className="font-normal text-[#9ba8c0]">/year</span>
                             </p>
+                          )}
+                          
+                          {/* SSL cross-sell option */}
+                          {result.available && hasItem(`domain:${result.domain}`) && (
+                            <div className="mt-2 flex items-center">
+                              <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={hasItem(`ssl:${result.domain}`)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      addSslItem({
+                                        type: "SSL",
+                                        domainName: result.domain,
+                                        price: 10000,
+                                      });
+                                      toast.success(`SSL Certificate for ${result.domain} added to cart!`);
+                                    } else {
+                                      removeItem(`ssl:${result.domain}`);
+                                      toast.info(`SSL Certificate for ${result.domain} removed.`);
+                                    }
+                                  }}
+                                  className="w-3.5 h-3.5 text-[#e8900a] border-[#dce4f7] rounded focus:ring-[#e8900a] accent-[#e8900a]"
+                                />
+                                <span className="text-[11px] text-[#5a6a85] font-medium flex items-center gap-1 hover:text-[#031033] transition-colors">
+                                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                                  Secure domain with SSL (+₦10,000/yr)
+                                </span>
+                              </label>
+                            </div>
                           )}
                         </div>
                       </div>

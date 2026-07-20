@@ -10,6 +10,7 @@ import {
   XCircle,
   Plus,
   ArrowRight,
+  Shield,
   ShieldCheck,
   RefreshCw,
   Trash2,
@@ -42,7 +43,7 @@ function DomainsDashboardPageContent() {
 
   const { data: registeredDomains, isLoading: loadingDomains, refetch } = useGetRegisteredDomains();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
-  const { addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
+  const { addDomainItem, addSslItem, removeItem, hasItem, openDrawer } = useCartStore();
 
   useEffect(() => {
     if (tabQuery === "hosted" || tabQuery === "register" || tabQuery === "registered") {
@@ -498,6 +499,36 @@ function DomainsDashboardPageContent() {
                             </span>
                           )}
                         </div>
+
+                        {/* SSL cross-sell option */}
+                        {result.available && isInCart(result.domain) && (
+                          <div className="mt-2 flex items-center">
+                            <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={hasItem(`ssl:${result.domain}`)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    addSslItem({
+                                      type: "SSL",
+                                      domainName: result.domain,
+                                      price: 10000,
+                                    });
+                                    toast.success(`SSL Certificate for ${result.domain} added to cart!`);
+                                  } else {
+                                    removeItem(`ssl:${result.domain}`);
+                                    toast.info(`SSL Certificate for ${result.domain} removed.`);
+                                  }
+                                }}
+                                className="w-3.5 h-3.5 text-[#e8900a] border-[#dce4f7] rounded focus:ring-[#e8900a] accent-[#e8900a]"
+                              />
+                              <span className="text-[11px] text-[#5a6a85] font-medium flex items-center gap-1 hover:text-[#031033] transition-colors">
+                                <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                                Secure domain with SSL (+₦10,000/yr)
+                              </span>
+                            </label>
+                          </div>
+                        )}
                       </div>
                     </div>
 

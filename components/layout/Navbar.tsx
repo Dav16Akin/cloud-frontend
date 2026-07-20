@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, ChevronDown, ShoppingCart } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, ChevronDown, ShoppingCart, Globe, ArrowRightLeft, Shield } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
@@ -13,7 +13,30 @@ import CartDrawer from "@/components/layout/CartDrawer";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Hosting", href: "/hosting" },
-  { label: "Domains", href: "/domains" },
+  {
+    label: "Domains",
+    href: "/domains",
+    subLinks: [
+      {
+        label: "Register Domain",
+        href: "/domains",
+        desc: "Search and register your ideal domain name.",
+        icon: Globe,
+      },
+      {
+        label: "Transfer Domain",
+        href: "/dashboard/domain-transfer",
+        desc: "Move your domain to Nupat Cloud easily.",
+        icon: ArrowRightLeft,
+      },
+      {
+        label: "SSL Certificates",
+        href: "/dashboard/ssl",
+        desc: "Protect visitor data with 256-bit encryption.",
+        icon: Shield,
+      },
+    ],
+  },
   { label: "Pricing", href: "/pricing" },
   { label: "Contact", href: "/contact" },
 ];
@@ -77,21 +100,73 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                id={`nav-${link.label.toLowerCase()}`}
-                className={`px-4 py-5 text-sm font-medium transition-colors border-b-2 ${
-                  pathname === link.href
-                    ? "text-[#e8900a] border-[#e8900a]"
-                    : "text-[#5a6a85] border-transparent hover:text-[#031033]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center h-full">
+            {navLinks.map((link) => {
+              if (link.subLinks) {
+                const isActive = pathname.startsWith(link.href) || link.subLinks.some((sub) => pathname === sub.href);
+                return (
+                  <div
+                    key={link.href}
+                    className="relative group h-full flex items-center"
+                  >
+                    <button
+                      id={`nav-${link.label.toLowerCase()}`}
+                      className={`px-4 py-5 text-sm font-medium transition-colors border-b-2 flex items-center gap-1 cursor-pointer h-full ${
+                        isActive
+                          ? "text-[#e8900a] border-[#e8900a]"
+                          : "text-[#5a6a85] border-transparent hover:text-[#031033]"
+                      }`}
+                    >
+                      {link.label}
+                      <ChevronDown className="w-3.5 h-3.5 text-[#9ba8c0] group-hover:text-[#031033] group-hover:rotate-180 transition-transform duration-200" />
+                    </button>
+
+                    {/* Dropdown menu */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-80 bg-white border border-[#e2eaff] shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="flex flex-col gap-1">
+                        {link.subLinks.map((sub) => {
+                          const Icon = sub.icon;
+                          return (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              className="flex items-start gap-3 p-3 hover:bg-[#f2f5fc]/60 transition-colors rounded"
+                            >
+                              <div className="w-9 h-9 rounded bg-[#f2f5fc] flex items-center justify-center shrink-0 border border-[#dce4f7] text-[#031033]">
+                                <Icon className="w-4 h-4 text-[#e8900a]" />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-xs font-bold text-[#031033]">
+                                  {sub.label}
+                                </p>
+                                <p className="text-[10px] text-[#5a6a85] mt-0.5 leading-relaxed">
+                                  {sub.desc}
+                                </p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  id={`nav-${link.label.toLowerCase()}`}
+                  className={`px-4 py-5 text-sm font-medium transition-colors border-b-2 h-full flex items-center ${
+                    pathname === link.href
+                      ? "text-[#e8900a] border-[#e8900a]"
+                      : "text-[#5a6a85] border-transparent hover:text-[#031033]"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Desktop actions */}
@@ -215,19 +290,50 @@ export default function Navbar() {
         }`}
       >
         <div className="bg-white border-b border-[#dce4f7] px-4 pb-4 pt-2 flex flex-col gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
-                pathname === link.href
-                  ? "text-[#e8900a] border-[#e8900a] bg-[#fff8ee]"
-                  : "text-[#5a6a85] border-transparent hover:text-[#031033] hover:bg-[#f2f5fc]"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            if (link.subLinks) {
+              return (
+                <div key={link.href} className="flex flex-col">
+                  <span className="px-4 py-2.5 text-xs font-bold text-[#9ba8c0] uppercase tracking-wider select-none mt-1">
+                    {link.label}
+                  </span>
+                  <div className="flex flex-col pl-3 border-l border-[#dce4f7] ml-4 gap-0.5 mb-2">
+                    {link.subLinks.map((sub) => {
+                      const Icon = sub.icon;
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          className={`px-4 py-2 text-sm font-semibold transition-colors flex items-center gap-2 rounded ${
+                            pathname === sub.href
+                              ? "text-[#e8900a] bg-[#fff8ee]"
+                              : "text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc]"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 text-[#e8900a]" />
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
+                  pathname === link.href
+                    ? "text-[#e8900a] border-[#e8900a] bg-[#fff8ee]"
+                    : "text-[#5a6a85] border-transparent hover:text-[#031033] hover:bg-[#f2f5fc]"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-[#dce4f7]">
             {token ? (
               <>

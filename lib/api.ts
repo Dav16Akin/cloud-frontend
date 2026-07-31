@@ -712,28 +712,16 @@ export const getOrders = (
   }).then(handleResponse);
 
 /**
- * GET /orders/:orderId/invoice/download
- * Streams a PDF blob — uses the Bearer token because this endpoint
- * is auth-protected and the app is JWT-based (not cookie-based).
+ * GET /orders/:orderId/invoice
+ * Returns a JSON response with a WHMCS invoice URL for paid orders.
  */
-export const downloadInvoice = async (orderId: string): Promise<Blob> => {
-  const res = await fetchWithRefresh(
-    `${BASE_URL}/orders/${encodeURIComponent(orderId)}/invoice/download`,
+export const getInvoiceLink = (
+  orderId: string,
+): Promise<{ success: boolean; data: { url: string }; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/orders/${encodeURIComponent(orderId)}/invoice`,
     { headers: getHeaders() },
-  );
-  if (!res.ok) {
-    // Try to parse a JSON error message; fall back to a generic one.
-    let msg = `Failed to download invoice (${res.status})`;
-    try {
-      const body = await res.clone().json();
-      if (body?.message) msg = body.message;
-    } catch {
-      // ignore parse errors
-    }
-    throw new Error(msg);
-  }
-  return res.blob();
-};
+  ).then(handleResponse);
 
 // ── Domains ───────────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getOrders,
-  downloadInvoice,
+  getInvoiceLink,
   initializeCartPayment,
   verifyPayment,
   type Order,
@@ -57,24 +57,18 @@ export const useInvalidateOrders = () => {
   return () => qc.invalidateQueries({ queryKey: ["orders"] });
 };
 
-// ── Download invoice PDF ──────────────────────────────────────────────────────
+// ── View invoice on WHMCS ─────────────────────────────────────────────────────
 
-export const useDownloadInvoice = () => {
+export const useGetInvoiceLink = () => {
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const blob = await downloadInvoice(orderId);
-      // Trigger a browser download without navigating away
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice-${orderId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const res = await getInvoiceLink(orderId);
+      // Open the WHMCS invoice in a new tab
+      window.open(res.data.url, "_blank", "noopener,noreferrer");
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to download invoice");
+      toast.error(err.message || "Failed to get invoice link");
     },
   });
 };
+

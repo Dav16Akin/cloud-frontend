@@ -367,6 +367,28 @@ export type ProvisionHostingResult = {
   expiresAt: string;
 };
 
+export type PurchaseHostingPayload = {
+  planId: string;
+  domain: string;
+  billingCycle: "monthly" | "quarterly" | "yearly";
+};
+
+export type PurchaseHostingResult = {
+  paymentUrl: string;
+  reference: string;
+  total: number;
+  domain: string;
+};
+
+export const purchaseHosting = (
+  data: PurchaseHostingPayload,
+): Promise<{ success: boolean; data: PurchaseHostingResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/purchase`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
 export const getHosting = (
   token: string,
 ): Promise<{ success: boolean; data: HostingAccount[]; message: string }> =>

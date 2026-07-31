@@ -58,7 +58,7 @@ export default function WhyNupatSection() {
                   <p className="text-[#5a6a85] text-sm leading-relaxed">{feat.description}</p>
                 </div>
                 {/* Animated underline */}
-                <div className={`h-[2px] w-0 group-hover:w-full transition-all duration-500 ${isOrange ? "bg-[#e8900a]" : "bg-[#031033]"}`} />
+                <div className={`h-0.5 w-0 group-hover:w-full transition-all duration-500 ${isOrange ? "bg-[#e8900a]" : "bg-[#031033]"}`} />
               </div>
             );
           })}

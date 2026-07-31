@@ -274,7 +274,7 @@ function DomainsDashboardPageContent() {
                               readOnly
                               className="sr-only peer"
                             />
-                            <div className="w-10 h-6 bg-gray-200 rounded-full relative transition-colors after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:shadow-sm after:transition-all"></div>
+                            <div className="w-10 h-6 bg-gray-200 rounded-full relative transition-colors after:content-[''] after:absolute after:top-0.75 after:left-0.75 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:shadow-sm after:transition-all"></div>
                           </label>
                         </td>
                         <td className="px-6 py-3.5">

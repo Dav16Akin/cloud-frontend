@@ -8,16 +8,15 @@ import {
   XCircle,
   Loader2,
   ArrowRight,
-  ShoppingCart,
   AlertCircle,
   Server,
   Globe,
   Shield,
+  Clock,
 } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/useOrders";
 import type { OrderItem } from "@/lib/api";
 
-// Countdown from N seconds then auto-navigate
 function useCountdown(seconds: number, onDone: () => void) {
   const [count, setCount] = useState(seconds);
 
@@ -59,43 +58,29 @@ function ItemLabel({ item }: { item: OrderItem }) {
   return <>SSL — {item.domainName}</>;
 }
 
-function ItemSubtitle({ item }: { item: OrderItem }) {
-  if (item.type === "HOSTING") return <>Web Hosting Plan</>;
-  if (item.type === "DOMAIN") return <>Domain Registration</>;
-  return <>SSL Certificate</>;
-}
-
-// ── Main verify page content ──────────────────────────────────────────────────
-
-function OrderVerifyContent() {
+function HostingVerifyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const reference = searchParams.get("reference") ?? "";
   const { data, isLoading, isError, error } = useVerifyPayment(
-    reference || null,
+    reference || null
   );
 
   const isPaid = data?.status === "PAID";
-
   const [shouldCountdown, setShouldCountdown] = useState(false);
 
-  // Start the countdown only once we know payment is confirmed
   useEffect(() => {
     if (isPaid) setShouldCountdown(true);
   }, [isPaid]);
 
-  const countdown = useCountdown(
-    shouldCountdown ? 5 : 999,
-    () => {
-      if (isPaid) {
-        router.replace("/dashboard/orders");
-      }
-    },
-  );
+  const countdown = useCountdown(shouldCountdown ? 5 : 999, () => {
+    if (isPaid) {
+      router.replace("/dashboard/hosting");
+    }
+  });
 
-  // ── No reference in URL ───────────────────────────────────────────────────
-
+  // ── No reference ─────────────────────────────────────────────────────────────
   if (!reference) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-4">
@@ -106,36 +91,32 @@ function OrderVerifyContent() {
           No payment reference found
         </h1>
         <p className="text-sm text-[#5a6a85] max-w-xs">
-          This page requires a payment reference from Paystack. Please start
-          from the checkout page.
+          This page requires a payment reference from Paystack. Please return to the hosting page.
         </p>
         <Link
           href="/dashboard/hosting"
           className="btn-primary text-sm py-2.5 px-6 flex items-center gap-2"
         >
-          <ShoppingCart className="w-4 h-4" />
+          <Server className="w-4 h-4" />
           Go to Hosting
         </Link>
       </div>
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
-
+  // ── Loading ──────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
-        <div className="relative">
-          <div className="w-16 h-16 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center">
-            <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
-          </div>
+        <div className="w-16 h-16 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center">
+          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
         </div>
         <div>
           <h1 className="text-xl font-extrabold text-[#031033]">
-            Verifying your payment…
+            Verifying your hosting payment…
           </h1>
           <p className="text-sm text-[#5a6a85] mt-1.5 max-w-xs">
-            Please wait while we confirm your payment with Paystack.
+            Please wait while we confirm your payment with Paystack and initialize account provisioning.
           </p>
         </div>
         <p className="text-xs font-mono text-[#9ba8c0] bg-[#f6f9ff] border border-[#e2eaff] px-3 py-1.5">
@@ -145,8 +126,7 @@ function OrderVerifyContent() {
     );
   }
 
-  // ── Error / Failed ────────────────────────────────────────────────────────
-
+  // ── Error / Failed ───────────────────────────────────────────────────────────
   if (isError || !data || data.status !== "PAID") {
     const message =
       isError && error instanceof Error
@@ -179,8 +159,8 @@ function OrderVerifyContent() {
             href="/dashboard/hosting"
             className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2"
           >
-            <ShoppingCart className="w-4 h-4" />
-            Try Again
+            <Server className="w-4 h-4" />
+            Back to Hosting
           </Link>
           <Link
             href="/dashboard/orders"
@@ -193,13 +173,11 @@ function OrderVerifyContent() {
     );
   }
 
-  // ── Success ───────────────────────────────────────────────────────────────
-
+  // ── Success ──────────────────────────────────────────────────────────────────
   const displayCountdown = shouldCountdown ? Math.max(0, countdown) : 5;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-6 max-w-md mx-auto">
-      {/* Animated success icon */}
       <div className="relative">
         <div className="w-20 h-20 bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
           <CheckCircle2 className="w-9 h-9 text-emerald-500" />
@@ -211,17 +189,16 @@ function OrderVerifyContent() {
 
       <div>
         <h1 className="text-2xl font-extrabold text-[#031033]">
-          Payment Confirmed!
+          Hosting Account Purchased!
         </h1>
         <p className="text-[#5a6a85] mt-2 text-sm leading-relaxed">
-          Your payment has been confirmed and your services are being
-          provisioned automatically. No further action needed.
+          Your hosting account is being set up! You&apos;ll receive an email with your cPanel details shortly.
         </p>
       </div>
 
-      {/* Items summary */}
+      {/* Summary box */}
       <div className="w-full bg-[#f6f9ff] border border-[#e2eaff] text-left">
-        {data.items.map((item) => (
+        {data.items?.map((item) => (
           <div
             key={item.id}
             className="flex items-center gap-3 px-4 py-3 border-b border-[#e2eaff] last:border-b-0"
@@ -232,7 +209,7 @@ function OrderVerifyContent() {
                 <ItemLabel item={item} />
               </p>
               <p className="text-xs text-[#9ba8c0]">
-                <ItemSubtitle item={item} />
+                {item.domainName ? item.domainName : "Web Hosting"}
               </p>
             </div>
             <p className="text-sm font-bold text-[#031033] shrink-0">
@@ -240,16 +217,16 @@ function OrderVerifyContent() {
             </p>
           </div>
         ))}
-        {/* Total row */}
+
         <div className="flex items-center justify-between px-4 py-3 bg-white">
           <span className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide">
-            Total
+            Total Paid
           </span>
           <span className="text-base font-extrabold text-[#031033]">
             ₦{data.amount.toLocaleString("en-NG")}
           </span>
         </div>
-        {/* Reference */}
+
         <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e2eaff]">
           <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
             Reference
@@ -260,43 +237,45 @@ function OrderVerifyContent() {
         </div>
       </div>
 
-      {/* Auto-redirect countdown */}
+      {/* Auto-redirect countdown & CTA */}
       <div className="flex flex-col items-center gap-3 w-full">
         <p className="text-xs text-[#9ba8c0]">
-          Redirecting to your orders in{" "}
+          Redirecting to your hosting dashboard in{" "}
           <span className="font-bold text-[#e8900a]">{displayCountdown}s</span>
           …
         </p>
 
         <Link
-          href="/dashboard/orders"
-          id="verify-view-orders"
+          href="/dashboard/hosting"
+          id="hosting-verify-done-cta"
           className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
         >
-          View My Orders
+          Go to Hosting Dashboard
           <ArrowRight className="w-4 h-4" />
         </Link>
 
         <Link
-          href="/dashboard/hosting"
+          href="/dashboard/orders"
           className="text-xs font-semibold text-[#9ba8c0] hover:text-[#5a6a85] transition-colors"
         >
-          Go to Hosting Dashboard
+          View My Orders
         </Link>
       </div>
     </div>
   );
 }
 
-export default function OrderVerifyPage() {
+export default function HostingVerifyPage() {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
-        <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
-        <p className="text-sm text-[#5a6a85]">Loading verification details...</p>
-      </div>
-    }>
-      <OrderVerifyContent />
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
+          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+          <p className="text-sm text-[#5a6a85]">Loading verification details...</p>
+        </div>
+      }
+    >
+      <HostingVerifyContent />
     </Suspense>
   );
 }

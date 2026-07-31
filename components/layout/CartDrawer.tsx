@@ -101,9 +101,9 @@ export default function CartDrawer() {
   const handleCheckout = () => {
     closeDrawer();
     if (!token) {
-      router.push("/login?redirect=/dashboard/hosting/provision");
+      router.push("/login?redirect=/cart/checkout");
     } else {
-      router.push("/dashboard/hosting/provision");
+      router.push("/cart/checkout");
     }
   };
 

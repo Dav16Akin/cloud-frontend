@@ -10,6 +10,8 @@ import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
 import CartDrawer from "@/components/layout/CartDrawer";
 
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Hosting", href: "/hosting" },
@@ -38,6 +40,7 @@ const navLinks = [
     ],
   },
   { label: "Pricing", href: "/pricing" },
+  { label: "Docs", href: DOCS_URL },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -198,7 +201,7 @@ export default function Navbar() {
                   <div className="w-7 h-7 bg-[#e8900a] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                     {initials}
                   </div>
-                  <span className="hidden sm:inline max-w-[100px] truncate">
+                  <span className="hidden sm:inline max-w-25 truncate">
                     {firstName || "Account"}
                   </span>
                   <ChevronDown

@@ -17,11 +17,14 @@ import {
   PauseCircle,
   Clock,
   XCircle,
+  BookOpen,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useGetHosting } from "@/hooks/useHosting";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import type { HostingAccount, HostingStatus, RegisteredDomain } from "@/lib/api";
+
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -220,7 +223,7 @@ function HostingSectionContent({
         icon={Server}
         message="You currently do not have any active hosting services."
         cta="Purchase Hosting"
-        href="/dashboard/hosting/provision"
+        href="/dashboard/hosting"
         ctaIcon={ShoppingCart}
       />
     );
@@ -498,18 +501,29 @@ export default function DashboardOverview() {
       {/* Help banner */}
       <div className="bg-[#031033] border-l-4 border-[#e8900a] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="text-white font-semibold text-base">Need help getting started?</p>
+          <p className="text-white font-semibold text-base">Need help setting up your hosting or domain?</p>
           <p className="text-[#9ba8c0] text-sm mt-0.5">
-            Our support team is ready to assist you — typically responds within 2 hours.
+            Check our step-by-step documentation guides or open a ticket with our support engineers.
           </p>
         </div>
-        <Link
-          href="/dashboard/tickets"
-          className="btn-primary text-sm py-2.5 px-5 flex items-center gap-2 whitespace-nowrap shrink-0"
-        >
-          Open a Ticket
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <a
+            href={DOCS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#e8900a] text-white hover:bg-[#c97a08] transition-colors text-sm font-semibold py-2.5 px-4 flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            Knowledge Base ↗
+          </a>
+          <Link
+            href="/dashboard/tickets"
+            className="border border-[#e2eaff]/30 text-white hover:bg-white/10 transition-colors text-sm font-semibold py-2.5 px-4 flex items-center gap-2"
+          >
+            Open a Ticket
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );

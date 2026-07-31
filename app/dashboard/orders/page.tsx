@@ -198,7 +198,7 @@ export default function OrdersPage() {
           </p>
         </div>
         <Link
-          href="/dashboard/hosting/provision"
+          href="/dashboard/hosting"
           id="orders-new-order"
           className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center gap-2 whitespace-nowrap shrink-0"
         >
@@ -301,7 +301,7 @@ export default function OrdersPage() {
               domain to get started.
             </p>
             <Link
-              href="/dashboard/hosting/provision"
+              href="/dashboard/hosting"
               id="orders-empty-cta"
               className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5"
             >

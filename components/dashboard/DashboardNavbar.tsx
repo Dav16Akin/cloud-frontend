@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu } from "lucide-react";
+import { Search, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLink, Menu, BookOpen } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
 import { useCartStore } from "@/store/cartStore";
+
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
 type DashboardNavbarProps = {
   onMobileMenuOpen?: () => void;
@@ -76,6 +78,18 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
 
       {/* Right actions */}
       <div className="ml-auto flex items-center gap-2">
+        {/* Documentation / Docs — desktop only */}
+        <a
+          href={DOCS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          id="dashboard-nav-docs"
+          className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#e8900a] hover:text-[#c97a08] transition-colors px-2.5 py-1 bg-[#fff8ee] border border-[#f5a520]/30 hover:border-[#e8900a]"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          Documentation ↗
+        </a>
+
         {/* Visit main site — desktop only */}
         <Link
           href="/"
@@ -93,7 +107,7 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
           className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
           aria-label="Shopping cart"
         >
-          <ShoppingCart className="w-[18px] h-[18px]" />
+          <ShoppingCart className="w-4.5 h-4.5" />
           {cartCount > 0 && (
             <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#e8900a] text-white text-[8px] font-extrabold flex items-center justify-center rounded-full">
               {cartCount > 9 ? "9+" : cartCount}
@@ -116,10 +130,10 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
               {initials}
             </div>
             <div className="hidden sm:block text-left min-w-0">
-              <p className="text-xs font-semibold text-[#031033] truncate max-w-[90px]">
+              <p className="text-xs font-semibold text-[#031033] truncate max-w-22.5">
                 {firstName} {lastName}
               </p>
-              <p className="text-[10px] text-[#9ba8c0] truncate max-w-[90px]">{email}</p>
+              <p className="text-[10px] text-[#9ba8c0] truncate max-w-22.5">{email}</p>
             </div>
             <ChevronDown
               className={`w-3.5 h-3.5 text-[#9ba8c0] transition-transform duration-200 shrink-0 ${profileOpen ? "rotate-180" : ""}`}
@@ -153,6 +167,17 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
                 <ExternalLink className="w-4 h-4 text-[#5a6a85]" />
                 Visit Main Site
               </Link>
+              <a
+                href={DOCS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                id="dashboard-nav-goto-docs"
+                onClick={() => setProfileOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+              >
+                <BookOpen className="w-4 h-4 text-[#e8900a]" />
+                Help & Documentation ↗
+              </a>
               <div className="my-1 border-t border-[#e2eaff]" />
               <button
                 id="dashboard-nav-logout"

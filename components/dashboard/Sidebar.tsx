@@ -17,15 +17,19 @@ import {
   ShoppingCart,
   ChevronDown,
   Shield,
+  BookOpen,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
+
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
 type LinkItem = {
   label: string;
   href: string;
   icon: any;
   subLinks?: { label: string; href: string }[];
+  external?: boolean;
 };
 
 type NavGroup = {
@@ -65,6 +69,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
       { label: "Invoices", href: "/dashboard/invoices", icon: Receipt },
       { label: "Support Tickets", href: "/dashboard/tickets", icon: LifeBuoy },
+      { label: "Documentation", href: DOCS_URL, icon: BookOpen, external: true },
     ],
   },
 ];
@@ -253,6 +258,24 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   href === "/dashboard"
                     ? pathname === "/dashboard"
                     : pathname.startsWith(href);
+
+                if (link.external) {
+                  return (
+                    <a
+                      key={href}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
+                      onClick={onClose}
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-150 border-l-2 border-transparent text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] hover:border-[#e2eaff]"
+                    >
+                      <Icon className="w-[17px] h-[17px] shrink-0 text-[#e8900a]" />
+                      <span className="flex-1">{label}</span>
+                      <ExternalLink className="w-3 h-3 text-[#9ba8c0]" />
+                    </a>
+                  );
+                }
 
                 return (
                   <Link

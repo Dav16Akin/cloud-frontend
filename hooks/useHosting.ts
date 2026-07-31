@@ -27,11 +27,25 @@ import {
   updateDNSRecord,
   deleteDNSRecord,
   getCpanelLoginLink,
+  purchaseHosting,
   type ProvisionHostingPayload,
+  type PurchaseHostingPayload,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
+  type HostingForwarder,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+
+// ── Purchase hosting standalone ───────────────────────────────────────────────
+
+export const usePurchaseHosting = () => {
+  return useMutation({
+    mutationFn: (data: PurchaseHostingPayload) => purchaseHosting(data),
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+};
 
 // ── List all hosting accounts ─────────────────────────────────────────────────
 
@@ -223,7 +237,7 @@ export const useGetHostingForwarders = (id: string) => {
     staleTime: 60 * 1000,
     // Response shape: { success, data: { status, data: [...forwarders] } }
     // Our API wrapper gives res.data = the cPanel object, so the array is at res.data.data
-    select: (res) => (res.data as unknown as { data: import("@/lib/api").HostingForwarder[] }).data ?? [],
+    select: (res) => (res.data as unknown as { data: HostingForwarder[] }).data ?? [],
   });
 };
 

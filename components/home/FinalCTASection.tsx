@@ -6,7 +6,7 @@ export default function FinalCTASection() {
   return (
     <section id="final-cta" className="section-pad-lg relative overflow-hidden bg-[#031033]">
       {/* Amber top accent line — solid, no gradient */}
-      <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#e8900a]" />
+      <div className="absolute top-0 left-0 right-0 h-0.75 bg-[#e8900a]" />
       {/* Grid overlay */}
       <div className="absolute inset-0 grid-bg opacity-[0.06] pointer-events-none" />
 

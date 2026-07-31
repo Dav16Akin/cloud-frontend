@@ -285,7 +285,7 @@ function OverviewTab({ hostingId }: { hostingId: string }) {
             className="bg-white border border-[#e2eaff] p-4 flex flex-col gap-2"
           >
             <div className={`w-9 h-9 flex items-center justify-center ${bg}`}>
-              <Icon className={`w-[18px] h-[18px] ${color}`} />
+              <Icon className={`w-4.5 h-4.5 ${color}`} />
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
@@ -1119,7 +1119,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
             <button
               type="submit"
               disabled={assigningUser}
-              className="btn-primary text-sm px-5 py-2 flex items-center gap-2 disabled:opacity-60 whitespace-nowrap w-full sm:w-auto justify-center h-[38px]"
+              className="btn-primary text-sm px-5 py-2 flex items-center gap-2 disabled:opacity-60 whitespace-nowrap w-full sm:w-auto justify-center h-9.5"
             >
               {assigningUser ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -1497,7 +1497,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
         )}
         {records && records.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+            <table className="w-full min-w-160 text-sm">
               <thead>
                 <tr className="border-b border-[#e2eaff] bg-[#f6f9ff]">
                   <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">Type</th>
@@ -1521,7 +1521,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                       <td className="px-5 py-2.5">
                         <code className="text-xs text-[#031033] font-mono break-all">{r.name}</code>
                       </td>
-                      <td className="px-5 py-2.5 max-w-[220px]">
+                      <td className="px-5 py-2.5 max-w-55">
                         <span className="text-xs text-[#5a6a85] truncate block" title={r.address}>{r.address}</span>
                       </td>
                       <td className="px-5 py-2.5">
@@ -1585,7 +1585,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
 export default function ManageHostingPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = (params?.id as string) ?? "";
 
   const { data: account, isLoading, isError } = useGetHostingById(id);
   const { mutate: suspend, isPending: suspending } = useSuspendHosting();

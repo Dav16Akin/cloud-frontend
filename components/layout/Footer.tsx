@@ -44,6 +44,8 @@ function WebGlobeSvgIcon({ className }: { className?: string }) {
   );
 }
 
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+
 const footerLinks = {
   Products: [
     { label: "Web Hosting", href: "/hosting" },
@@ -60,9 +62,9 @@ const footerLinks = {
     { label: "Privacy Policy", href: "/privacy" },
   ],
   Support: [
-    { label: "Help Center", href: "/help" },
+    { label: "Help Center", href: DOCS_URL },
     { label: "Status Page", href: "/status" },
-    { label: "Documentation", href: "/docs" },
+    { label: "Documentation", href: DOCS_URL },
     { label: "Terms of Service", href: "/terms" },
     { label: "Sitemap", href: "/sitemap" },
   ],

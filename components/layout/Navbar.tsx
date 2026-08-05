@@ -223,7 +223,7 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#031033] hover:bg-[#f2f5fc] transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4 text-[#5a6a85]" />
-                      Go to Dashboard
+                      Go to Client Area
                     </Link>
                     <button
                       id="nav-logout"

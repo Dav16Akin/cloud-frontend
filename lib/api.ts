@@ -1078,3 +1078,129 @@ export const downloadSSLCertificateFile = async (id: string): Promise<Blob> => {
   }
   return res.blob();
 };
+
+// ── Support Tickets ───────────────────────────────────────────────────────────
+
+export type SupportDepartment = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type SupportTicketSummary = {
+  id: string;
+  tid: string;
+  deptid: string;
+  deptname: string;
+  userid: string;
+  name: string;
+  email: string;
+  subject: string;
+  status: string;
+  priority: string;
+  lastreply: string;
+  date: string;
+};
+
+export type TicketReply = {
+  id: string;
+  userid: string;
+  name: string;
+  email: string;
+  date: string;
+  message: string;
+  admin: string;
+};
+
+export type SupportTicketDetail = {
+  id: string;
+  ticketNumber: string;
+  departmentId: string;
+  departmentName: string;
+  subject: string;
+  status: string;
+  priority: string;
+  date: string;
+  lastReply: string;
+  replies: TicketReply[];
+};
+
+/** GET /support/departments — list available support departments */
+export const getSupportDepartments = (): Promise<{
+  success: boolean;
+  data: { departments: SupportDepartment[] };
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/support/departments`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+/** GET /support/tickets — list tickets for the current user */
+export const getTickets = (
+  token: string,
+  params?: { status?: string; page?: number; limit?: number },
+): Promise<{
+  success: boolean;
+  data: {
+    tickets: SupportTicketSummary[];
+    totalResults: number;
+    page: number;
+    limit: number;
+  };
+  message: string;
+}> => {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.limit) qs.set("limit", String(params.limit));
+  const query = qs.toString();
+  return fetchWithRefresh(
+    `${BASE_URL}/support/tickets${query ? `?${query}` : ""}`,
+    { headers: getHeaders() },
+  ).then(handleResponse);
+};
+
+/** GET /support/tickets/:ticketId — get a single ticket with replies */
+export const getTicket = (
+  token: string,
+  ticketId: string,
+): Promise<{
+  success: boolean;
+  data: { ticket: SupportTicketDetail };
+  message: string;
+}> =>
+  fetchWithRefresh(
+    `${BASE_URL}/support/tickets/${encodeURIComponent(ticketId)}`,
+    { headers: getHeaders() },
+  ).then(handleResponse);
+
+/** POST /support/tickets — create a new support ticket */
+export const createTicket = (data: {
+  deptId: string;
+  subject: string;
+  message: string;
+}): Promise<{
+  success: boolean;
+  data: { ticketId: string; ticketNumber: string };
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/support/tickets`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+/** POST /support/tickets/:ticketId/reply — add a reply to a ticket */
+export const replyToTicket = (
+  ticketId: string,
+  message: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(
+    `${BASE_URL}/support/tickets/${encodeURIComponent(ticketId)}/reply`,
+    {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ message }),
+    },
+  ).then(handleResponse);
+

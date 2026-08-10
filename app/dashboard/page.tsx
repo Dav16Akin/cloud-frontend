@@ -18,11 +18,15 @@ import {
   Clock,
   XCircle,
   BookOpen,
+  Sun,
+  CloudSun,
+  Moon,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useGetHosting } from "@/hooks/useHosting";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
-import type { HostingAccount, HostingStatus, RegisteredDomain } from "@/lib/api";
+import { useGetTickets } from "@/hooks/useSupport";
+import type { HostingAccount, HostingStatus, RegisteredDomain, SupportTicketSummary } from "@/lib/api";
 
 const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
@@ -112,7 +116,7 @@ function StatCard({ icon: Icon, label, value, iconColor, iconBg, href, change, l
                 change.positive === true
                   ? "bg-emerald-50 text-emerald-600"
                   : change.positive === false
-                  ? "bg-red-50 text-red-500"
+                  ? "bg-amber-50 text-amber-600"
                   : "bg-[#f2f5fc] text-[#9ba8c0]"
               }`}
             >
@@ -339,12 +343,91 @@ function DomainsSectionContent({
   );
 }
 
+// ── Tickets Section ──────────────────────────────────────────────────────────
+
+function TicketsSectionContent({
+  tickets,
+  loading,
+}: {
+  tickets: SupportTicketSummary[] | undefined;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="flex flex-col divide-y divide-[#e2eaff]">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-5 py-3 animate-pulse">
+            <div className="w-8 h-8 bg-[#e8edf8] shrink-0" />
+            <div className="flex-1">
+              <div className="h-3.5 w-32 bg-[#e8edf8] rounded mb-1" />
+              <div className="h-3 w-20 bg-[#e8edf8] rounded" />
+            </div>
+            <div className="h-4 w-12 bg-[#e8edf8] rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!tickets || tickets.length === 0) {
+    return (
+      <EmptyState
+        icon={LifeBuoy}
+        message="You currently have no support tickets."
+        cta="Contact Support"
+        href="/dashboard/tickets"
+        ctaIcon={MessageSquarePlus}
+      />
+    );
+  }
+
+  const shown = tickets.slice(0, 3);
+
+  return (
+    <div className="flex flex-col divide-y divide-[#e2eaff]">
+      {shown.map((ticket) => {
+        const isClosed = ticket.status?.toLowerCase() === "closed";
+        return (
+          <Link
+            key={ticket.id}
+            href={`/dashboard/tickets/${ticket.id}`}
+            className="flex items-center gap-3 px-5 py-3 hover:bg-[#f6f9ff] transition-colors group"
+          >
+            <div className="w-8 h-8 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center shrink-0">
+              <LifeBuoy className="w-3.5 h-3.5 text-[#9ba8c0]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#031033] truncate group-hover:text-[#e8900a] transition-colors">
+                {ticket.subject}
+              </p>
+              <p className="text-xs text-[#9ba8c0] truncate">
+                #{ticket.tid} · {ticket.deptname}
+              </p>
+            </div>
+            <span
+              className={`inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 border whitespace-nowrap uppercase tracking-wider ${
+                isClosed
+                  ? "bg-gray-50 border-gray-200 text-gray-500"
+                  : "bg-blue-50 border-blue-200 text-blue-600"
+              }`}
+            >
+              {ticket.status}
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#9ba8c0] group-hover:text-[#e8900a] transition-colors shrink-0" />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Overview Page ─────────────────────────────────────────────────────────────
 
 export default function DashboardOverview() {
   const { data: me, isLoading } = useGetMe();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
   const { data: registeredDomains, isLoading: loadingDomains } = useGetRegisteredDomains();
+  const { data: ticketsData, isLoading: loadingTickets } = useGetTickets();
 
   const [lastLogin, setLastLogin] = useState<string | null>(null);
 
@@ -379,6 +462,11 @@ export default function DashboardOverview() {
       (a) => (a.status as string).toUpperCase() === "ACTIVE"
     ).length ?? 0;
 
+  const tickets = ticketsData?.tickets ?? [];
+  const openTicketsCount = tickets.filter(
+    (t) => t.status?.toLowerCase() !== "closed"
+  ).length;
+
   const STAT_CARDS: StatCardProps[] = [
     {
       icon: Server,
@@ -397,7 +485,7 @@ export default function DashboardOverview() {
       icon: Globe,
       label: "Registered Domains",
       value: loadingDomains ? "—" : registeredDomains?.length ?? 0,
-        iconBg: "bg-blue-50",
+      iconBg: "bg-blue-50",
       iconColor: "text-[031033]",
       href: "/dashboard/domains",
       change:
@@ -409,18 +497,21 @@ export default function DashboardOverview() {
     {
       icon: LifeBuoy,
       label: "Open Tickets",
-      value: 0,
-     iconBg: "bg-blue-50",
+      value: loadingTickets ? "—" : openTicketsCount,
+      iconBg: "bg-blue-50",
       iconColor: "text-[031033]",
       href: "/dashboard/tickets",
-      change: { value: "All clear", positive: true },
-      loading: isLoading,
+      change:
+        openTicketsCount > 0
+          ? { value: `${openTicketsCount} open`, positive: false }
+          : { value: "All clear", positive: true },
+      loading: isLoading || loadingTickets,
     },
     {
       icon: Receipt,
       label: "Unpaid Invoices",
       value: 0,
-        iconBg: "bg-blue-50",
+      iconBg: "bg-blue-50",
       iconColor: "text-[031033]",
       href: "/dashboard/invoices",
       change: { value: "No overdue items", positive: true },
@@ -440,16 +531,32 @@ export default function DashboardOverview() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
-                Welcome back, {firstName}
-              </h1>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mt-1.5 text-sm text-[#5a6a85]">
+              {(() => {
+                const hour = new Date().getHours();
+                const greeting =
+                  hour < 12
+                    ? "Good morning"
+                    : hour < 17
+                    ? "Good afternoon"
+                    : "Good evening";
+                const Icon = hour < 12 ? Sun : hour < 17 ? CloudSun : Moon;
+
+                return (
+                  <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033] flex items-center gap-2.5">
+                    {greeting}, {firstName || "User"}
+                    <Icon className="w-6 h-6 text-[#e8900a] shrink-0" />
+                  </h1>
+                );
+              })()}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-[#5a6a85]">
+                <p className="text-xs text-[#5a6a85]">
+                  Here is what is happening with your cloud services today.
+                </p>
                 {lastLogin && (
-                  <>
-                    <span className="text-xs font-semibold text-[#031033]">
-                      Recent Login: {lastLogin}
-                    </span>
-                  </>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#031033] bg-[#f2f5fc] border border-[#e2eaff] px-2.5 py-1">
+                    <Clock className="w-3 h-3 text-[#e8900a]" />
+                    Recent Login: {lastLogin}
+                  </span>
                 )}
               </div>
             </>
@@ -488,12 +595,9 @@ export default function DashboardOverview() {
         </SectionCard>
 
         <SectionCard title="Support Tickets" subtitle="Recent tickets" href="/dashboard/tickets">
-          <EmptyState
-            icon={LifeBuoy}
-            message="You currently have no support tickets."
-            cta="Contact Support"
-            href="/dashboard/tickets"
-            ctaIcon={MessageSquarePlus}
+          <TicketsSectionContent
+            tickets={tickets}
+            loading={loadingTickets}
           />
         </SectionCard>
       </div>

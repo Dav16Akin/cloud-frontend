@@ -445,6 +445,54 @@ export const unsuspendHosting = (
     headers: getHeaders(),
   }).then(handleResponse);
 
+export type RenewHostingPayload = {
+  billingCycle?: "monthly" | "quarterly" | "yearly";
+};
+
+export type RenewHostingResult = {
+  paymentUrl: string;
+  reference: string;
+  total: number;
+  hostingId: string;
+  domain: string;
+  billingCycle: string;
+};
+
+export type UpgradeHostingPayload = {
+  planId: string;
+  billingCycle?: "monthly" | "quarterly" | "yearly";
+};
+
+export type UpgradeHostingResult = {
+  paymentUrl: string;
+  reference: string;
+  total: number;
+  hostingId: string;
+  currentPlan: string;
+  targetPlan: string;
+  billingCycle: string;
+};
+
+export const renewHosting = (
+  id: string,
+  data?: RenewHostingPayload,
+): Promise<{ success: boolean; data: RenewHostingResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/renew`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data ?? {}),
+  }).then(handleResponse);
+
+export const upgradeHosting = (
+  id: string,
+  data: UpgradeHostingPayload,
+): Promise<{ success: boolean; data: UpgradeHostingResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/hosting/${id}/upgrade`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
 export const getHostingStats = (
   token: string,
   id: string,

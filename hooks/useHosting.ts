@@ -28,8 +28,12 @@ import {
   deleteDNSRecord,
   getCpanelLoginLink,
   purchaseHosting,
+  renewHosting,
+  upgradeHosting,
   type ProvisionHostingPayload,
   type PurchaseHostingPayload,
+  type RenewHostingPayload,
+  type UpgradeHostingPayload,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
   type HostingForwarder,
@@ -145,6 +149,42 @@ export const useUnsuspendHosting = () => {
     },
     onError: (err: Error) => {
       toast.error(err.message);
+    },
+  });
+};
+
+// ── Renew hosting account ─────────────────────────────────────────────────────
+
+export const useRenewHosting = () => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data?: RenewHostingPayload }) =>
+      renewHosting(id, data),
+    onSuccess: (res) => {
+      if (res.data?.paymentUrl) {
+        toast.success("Redirecting to payment gateway...");
+        window.location.href = res.data.paymentUrl;
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to initialize renewal payment.");
+    },
+  });
+};
+
+// ── Upgrade hosting account plan ──────────────────────────────────────────────
+
+export const useUpgradeHosting = () => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpgradeHostingPayload }) =>
+      upgradeHosting(id, data),
+    onSuccess: (res) => {
+      if (res.data?.paymentUrl) {
+        toast.success("Redirecting to payment gateway...");
+        window.location.href = res.data.paymentUrl;
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to initialize upgrade payment.");
     },
   });
 };

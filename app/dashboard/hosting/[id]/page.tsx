@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -31,13 +31,20 @@ import {
   Network,
   Pencil,
   ShieldCheck,
+  RefreshCw,
+  Zap,
+  Check,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePlans } from "@/hooks/usePlans";
 import {
   useGetHostingById,
   useSuspendHosting,
   useUnsuspendHosting,
   useDeleteHosting,
+  useRenewHosting,
+  useUpgradeHosting,
   useGetHostingStats,
   useGetHostingEmails,
   useCreateHostingEmail,
@@ -67,6 +74,7 @@ import type {
   HostingDatabaseUser,
   DNSRecord,
   DNSRecordType,
+  Plan,
 } from "@/lib/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -1580,6 +1588,299 @@ function DNSTab({ hostingId }: { hostingId: string }) {
   );
 }
 
+// ── Renew Hosting Modal ────────────────────────────────────────────────────────
+
+function RenewHostingModal({
+  hostingId,
+  domain,
+  currentPlan,
+  expiresAt,
+  onClose,
+}: {
+  hostingId: string;
+  domain: string;
+  currentPlan?: { name: string; price: number; monthlyPrice?: number; quarterlyPrice?: number };
+  expiresAt?: string;
+  onClose: () => void;
+}) {
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("yearly");
+  const { mutate: renew, isPending: renewing } = useRenewHosting();
+
+  const getPrice = () => {
+    if (!currentPlan) return null;
+    if (billingCycle === "monthly") return currentPlan.monthlyPrice ?? currentPlan.price;
+    if (billingCycle === "quarterly") return currentPlan.quarterlyPrice ?? currentPlan.price;
+    return currentPlan.price;
+  };
+
+  const price = getPrice();
+
+  const handleRenew = () => {
+    renew({ id: hostingId, data: { billingCycle } });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white border border-[#e2eaff] w-full max-w-md shadow-2xl p-6 flex flex-col gap-5">
+        <div className="flex items-center justify-between border-b border-[#e2eaff] pb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-amber-50 border border-amber-100 flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 text-[#e8900a]" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-[#031033]">Renew Hosting</h3>
+              <p className="text-xs text-[#5a6a85]">{domain}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-[#9ba8c0] hover:text-[#031033]">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="bg-[#f6f9ff] border border-[#e2eaff] p-3.5 flex flex-col gap-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-[#5a6a85]">Plan:</span>
+            <span className="font-semibold text-[#031033]">{currentPlan?.name ?? "Hosting Plan"}</span>
+          </div>
+          {expiresAt && (
+            <div className="flex justify-between text-xs">
+              <span className="text-[#5a6a85]">Current Expiry:</span>
+              <span className="font-semibold text-[#031033]">{formatDate(expiresAt)}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold text-[#031033]">Select Billing Cycle</label>
+          <div className="grid grid-cols-3 gap-2">
+            {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                type="button"
+                onClick={() => setBillingCycle(cycle)}
+                className={`py-2 px-3 text-xs font-semibold border transition-all ${
+                  billingCycle === cycle
+                    ? "bg-[#031033] text-white border-[#031033] shadow-sm"
+                    : "bg-white text-[#5a6a85] border-[#e2eaff] hover:border-[#e8900a]"
+                }`}
+              >
+                {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {price != null && (
+          <div className="flex items-center justify-between border-t border-[#e2eaff] pt-3">
+            <span className="text-xs text-[#5a6a85]">Total Renewal Amount:</span>
+            <span className="text-lg font-extrabold text-[#031033]">₦{price.toLocaleString("en-NG")}</span>
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end pt-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleRenew}
+            disabled={renewing}
+            className="btn-primary text-sm px-5 py-2 flex items-center gap-2 disabled:opacity-60"
+          >
+            {renewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {renewing ? "Initializing..." : "Pay & Renew"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Upgrade Hosting Modal ───────────────────────────────────────────────────────
+
+function UpgradeHostingModal({
+  hostingId,
+  domain,
+  currentPlanId,
+  currentPlanName,
+  onClose,
+}: {
+  hostingId: string;
+  domain: string;
+  currentPlanId?: string;
+  currentPlanName?: string;
+  onClose: () => void;
+}) {
+  const { data: plans, isLoading: loadingPlans } = usePlans();
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("yearly");
+
+  const { mutate: upgrade, isPending: upgrading } = useUpgradeHosting();
+
+  useEffect(() => {
+    if (plans && plans.length > 0 && !selectedPlanId) {
+      const otherPlan = plans.find((p) => p.id !== currentPlanId) ?? plans[0];
+      if (otherPlan) setSelectedPlanId(otherPlan.id);
+    }
+  }, [plans, currentPlanId, selectedPlanId]);
+
+  const targetPlan = plans?.find((p) => p.id === selectedPlanId);
+
+  const getTargetPrice = () => {
+    if (!targetPlan) return null;
+    if (billingCycle === "monthly") return targetPlan.monthlyPrice ?? targetPlan.price;
+    if (billingCycle === "quarterly") return targetPlan.quarterlyPrice ?? targetPlan.price;
+    return targetPlan.price;
+  };
+
+  const targetPrice = getTargetPrice();
+
+  const handleUpgrade = () => {
+    if (!selectedPlanId) {
+      toast.error("Please select a target plan.");
+      return;
+    }
+    if (selectedPlanId === currentPlanId) {
+      toast.error("Select a different plan to upgrade.");
+      return;
+    }
+    upgrade({ id: hostingId, data: { planId: selectedPlanId, billingCycle } });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white border border-[#e2eaff] w-full max-w-lg shadow-2xl p-6 flex flex-col gap-5">
+        <div className="flex items-center justify-between border-b border-[#e2eaff] pb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-50 border border-blue-100 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-[#031033]">Upgrade Hosting Plan</h3>
+              <p className="text-xs text-[#5a6a85]">{domain} • Current: <span className="font-semibold text-[#031033]">{currentPlanName ?? "—"}</span></p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-[#9ba8c0] hover:text-[#031033]">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-[#031033]">Billing Cycle</label>
+          <div className="inline-flex bg-[#f2f5fc] border border-[#e2eaff] p-1 rounded-lg">
+            {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                type="button"
+                onClick={() => setBillingCycle(cycle)}
+                className={`px-3 py-1 text-xs font-semibold rounded transition-all ${
+                  billingCycle === cycle
+                    ? "bg-[#031033] text-white shadow-sm"
+                    : "text-[#5a6a85] hover:text-[#031033]"
+                }`}
+              >
+                {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2.5 max-h-60 overflow-y-auto pr-1">
+          <label className="text-xs font-semibold text-[#031033]">Select Upgrade Plan</label>
+          {loadingPlans && (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            </div>
+          )}
+          {plans?.map((plan) => {
+            const isCurrent = plan.id === currentPlanId;
+            const isSelected = plan.id === selectedPlanId;
+            const pPrice =
+              billingCycle === "monthly"
+                ? plan.monthlyPrice
+                : billingCycle === "quarterly"
+                ? plan.quarterlyPrice
+                : plan.price;
+
+            return (
+              <div
+                key={plan.id}
+                onClick={() => {
+                  if (!isCurrent) setSelectedPlanId(plan.id);
+                }}
+                className={`p-3.5 border transition-all cursor-pointer flex items-center justify-between ${
+                  isCurrent
+                    ? "bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed"
+                    : isSelected
+                    ? "bg-[#fff8ee] border-[#e8900a] shadow-sm"
+                    : "bg-white border-[#e2eaff] hover:border-[#e8900a]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      isSelected
+                        ? "border-[#e8900a] bg-[#e8900a]"
+                        : "border-[#c0cad8] bg-white"
+                    }`}
+                  >
+                    {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-[#031033]">{plan.name}</p>
+                      {isCurrent && (
+                        <span className="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0.2 font-semibold">
+                          Current Plan
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#5a6a85] mt-0.5">
+                      {plan.storage} Storage • {plan.bandwidth} Bandwidth • {plan.websites} Website{plan.websites > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-extrabold text-[#031033]">₦{pPrice?.toLocaleString("en-NG")}</p>
+                  <p className="text-[10px] text-[#9ba8c0]">/{billingCycle === "yearly" ? "yr" : billingCycle === "quarterly" ? "qtr" : "mo"}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {targetPrice != null && (
+          <div className="flex items-center justify-between border-t border-[#e2eaff] pt-3">
+            <span className="text-xs text-[#5a6a85]">Total Upgrade Amount:</span>
+            <span className="text-lg font-extrabold text-[#031033]">₦{targetPrice.toLocaleString("en-NG")}</span>
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end pt-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpgrade}
+            disabled={upgrading || !selectedPlanId || selectedPlanId === currentPlanId}
+            className="btn-primary text-sm px-5 py-2 flex items-center gap-2 disabled:opacity-60"
+          >
+            {upgrading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+            {upgrading ? "Initializing..." : "Upgrade Now"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Manage Page ──────────────────────────────────────────────────────────
 
 export default function ManageHostingPage() {
@@ -1594,6 +1895,8 @@ export default function ManageHostingPage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [showTerminateModal, setShowTerminateModal] = useState(false);
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { mutate: fetchCpanelLink, isPending: fetchingCpanel } = useGetCpanelLoginLink();
 
   const handleOpenCpanel = () => {
@@ -1671,6 +1974,26 @@ export default function ManageHostingPage() {
         />
       )}
 
+      {showRenewModal && (
+        <RenewHostingModal
+          hostingId={id}
+          domain={account.domain}
+          currentPlan={account.plan}
+          expiresAt={account.expiresAt}
+          onClose={() => setShowRenewModal(false)}
+        />
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeHostingModal
+          hostingId={id}
+          domain={account.domain}
+          currentPlanId={account.planId}
+          currentPlanName={account.plan?.name}
+          onClose={() => setShowUpgradeModal(false)}
+        />
+      )}
+
       <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         {/* Back */}
         <Link
@@ -1735,6 +2058,32 @@ export default function ManageHostingPage() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2 shrink-0">
+              {!isTerminated && (
+                <button
+                  id="manage-renew"
+                  onClick={() => setShowRenewModal(true)}
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors border ${
+                    expiring || isSuspended
+                      ? "bg-[#e8900a] text-white border-[#e8900a] hover:bg-[#c97a08]"
+                      : "border-[#e2eaff] text-[#031033] hover:bg-[#f2f5fc]"
+                  }`}
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Renew
+                </button>
+              )}
+
+              {!isTerminated && (
+                <button
+                  id="manage-upgrade"
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="flex items-center gap-1.5 text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-2 transition-colors"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  Upgrade Plan
+                </button>
+              )}
+
               {/* Open cPanel — uses a session link generated server-side */}
               <button
                 id="manage-cpanel-link"

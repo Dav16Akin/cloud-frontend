@@ -289,7 +289,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-128 opacity-100" : "max-h-0 opacity-0"
+          mobileOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="bg-white border-b border-[#dce4f7] px-4 pb-4 pt-2 flex flex-col gap-1">
@@ -354,7 +354,7 @@ export default function Navbar() {
                   className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors"
                 >
                   <LayoutDashboard className="w-4 h-4 text-[#5a6a85]" />
-                  Go to Dashboard
+                  Go to Client Area
                 </Link>
                 <button
                   onClick={() => logout()}

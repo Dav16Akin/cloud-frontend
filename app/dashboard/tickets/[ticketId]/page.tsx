@@ -162,7 +162,15 @@ function ReplyBubble({ reply }: { reply: TicketReply }) {
 
 // ── Reply Form ────────────────────────────────────────────────────────────────
 
-function ReplyForm({ ticketId, isClosed }: { ticketId: string; isClosed: boolean }) {
+function ReplyForm({
+  ticketId,
+  isClosed,
+  onSuccess,
+}: {
+  ticketId: string;
+  isClosed: boolean;
+  onSuccess?: () => void;
+}) {
   const { mutate: sendReply, isPending } = useReplyToTicket();
   const [message, setMessage] = useState("");
 
@@ -173,7 +181,14 @@ function ReplyForm({ ticketId, isClosed }: { ticketId: string; isClosed: boolean
     if (!canSubmit) return;
     sendReply(
       { ticketId, message: message.trim() },
-      { onSuccess: () => setMessage("") },
+      {
+        onSuccess: () => {
+          setMessage("");
+          if (onSuccess) {
+            onSuccess();
+          }
+        },
+      },
     );
   };
 
@@ -407,7 +422,7 @@ export default function TicketDetailPage() {
           </div>
 
           {/* Reply form */}
-          <ReplyForm ticketId={ticket.id} isClosed={isClosed} />
+          <ReplyForm ticketId={ticket.id} isClosed={isClosed} onSuccess={() => refetch()} />
         </>
       )}
     </div>

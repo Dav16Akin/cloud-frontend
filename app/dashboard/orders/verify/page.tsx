@@ -17,22 +17,6 @@ import {
 import { useVerifyPayment } from "@/hooks/useOrders";
 import type { OrderItem } from "@/lib/api";
 
-// Countdown from N seconds then auto-navigate
-function useCountdown(seconds: number, onDone: () => void) {
-  const [count, setCount] = useState(seconds);
-
-  useEffect(() => {
-    if (count <= 0) {
-      onDone();
-      return;
-    }
-    const t = setTimeout(() => setCount((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [count, onDone]);
-
-  return count;
-}
-
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
   if (type === "HOSTING")
     return (
@@ -77,22 +61,24 @@ function OrderVerifyContent() {
   );
 
   const isPaid = data?.status === "PAID";
+  const [countdown, setCountdown] = useState(5);
 
-  const [shouldCountdown, setShouldCountdown] = useState(false);
-
-  // Start the countdown only once we know payment is confirmed
   useEffect(() => {
-    if (isPaid) setShouldCountdown(true);
-  }, [isPaid]);
+    if (!isPaid) return;
 
-  const countdown = useCountdown(
-    shouldCountdown ? 5 : 999,
-    () => {
-      if (isPaid) {
-        router.replace("/dashboard/orders");
-      }
-    },
-  );
+    const timer = setTimeout(() => {
+      router.replace("/dashboard/orders");
+    }, 5000);
+
+    const interval = setInterval(() => {
+      setCountdown((c) => Math.max(0, c - 1));
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, [isPaid, router]);
 
   // ── No reference in URL ───────────────────────────────────────────────────
 
@@ -195,7 +181,7 @@ function OrderVerifyContent() {
 
   // ── Success ───────────────────────────────────────────────────────────────
 
-  const displayCountdown = shouldCountdown ? Math.max(0, countdown) : 5;
+  const displayCountdown = Math.max(0, countdown);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-6 max-w-md mx-auto">

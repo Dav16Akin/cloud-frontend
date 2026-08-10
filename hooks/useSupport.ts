@@ -86,6 +86,12 @@ export const useReplyToTicket = () => {
       qc.invalidateQueries({
         queryKey: ["support-ticket", variables.ticketId],
       });
+      qc.invalidateQueries({
+        queryKey: ["support-ticket"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["support-tickets"],
+      });
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to send reply");

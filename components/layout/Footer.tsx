@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, MapPin } from "lucide-react";
@@ -161,6 +163,26 @@ export default function Footer() {
           <p className="text-[#5a6a85] text-sm">
             © {year} Nupat Cloud. All rights reserved.
           </p>
+          <div className="flex items-center gap-4 text-xs text-[#5a6a85]">
+            <Link href="/privacy" className="hover:text-[#031033] transition-colors">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-[#031033] transition-colors">
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new Event("nupat_open_cookie_consent"));
+                }
+              }}
+              className="hover:text-[#e8900a] transition-colors font-medium underline underline-offset-2"
+            >
+              Cookie Preferences
+            </button>
+          </div>
         </div>
       </div>
     </footer>

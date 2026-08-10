@@ -33,7 +33,7 @@ type SearchItem = {
 };
 
 const STATIC_ROUTES: SearchItem[] = [
-  { id: "nav-overview", category: "Navigation", title: "Overview", subtitle: "Dashboard Home / Overview", href: "/dashboard", icon: LayoutDashboard },
+  { id: "nav-overview", category: "Navigation", title: "Overview", subtitle: "Client Area / Overview", href: "/dashboard", icon: LayoutDashboard },
   { id: "nav-hosting", category: "Navigation", title: "Hosting Services", subtitle: "Manage hosting accounts", href: "/dashboard/hosting", icon: Server },
   { id: "nav-domains", category: "Navigation", title: "Domains Manager", subtitle: "DNS & Nameserver management", href: "/dashboard/domains", icon: Globe },
   { id: "nav-domain-transfer", category: "Navigation", title: "Domain Transfer", subtitle: "Transfer domains in or request EPP out", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },

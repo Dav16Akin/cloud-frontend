@@ -544,7 +544,13 @@ function DomainsDashboardPageContent() {
                             >
                               {formatPrice(result.price.price, result.price.currency ?? "USD")}
                             </p>
-                            <p className="text-[10px] text-[#9ba8c0]">/year</p>
+                            <p className="text-[10px] text-[#9ba8c0]">/ 1st year</p>
+                            {result.renewalPrice?.price != null && (
+                              <p className="text-[11px] font-medium text-[#5a6a85] mt-0.5">
+                                {formatPrice(result.renewalPrice.price, result.renewalPrice.currency ?? "USD")}{" "}
+                                <span className="text-[10px] text-[#9ba8c0]">/ yr renewal</span>
+                              </p>
+                            )}
                           </>
                         ) : (
                           <p className="text-xs text-[#9ba8c0]">—</p>

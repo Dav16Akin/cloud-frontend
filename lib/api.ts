@@ -781,6 +781,10 @@ export type DomainResult = {
     price: number | null;
     currency: string | null;
   };
+  renewalPrice?: {
+    price: number | null;
+    currency: string | null;
+  };
 };
 
 /** POST /domains/search — check availability of a domain name across multiple TLDs */

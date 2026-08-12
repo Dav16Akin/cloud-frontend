@@ -97,6 +97,15 @@ export default function DomainsPage() {
     }).format(r.price.price);
   };
 
+  const formatRenewalPrice = (r: DomainResult) => {
+    if (r.renewalPrice?.price == null) return null;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: r.renewalPrice.currency ?? "USD",
+      minimumFractionDigits: 2,
+    }).format(r.renewalPrice.price);
+  };
+
   const getTLD = (domain: string) => {
     const idx = domain.indexOf(".");
     return idx !== -1 ? domain.slice(idx + 1) : domain;
@@ -262,12 +271,19 @@ export default function DomainsPage() {
                           </div>
                           {/* Price under domain name — mobile only */}
                           {result.price.price != null && (
-                            <p className={`sm:hidden text-xs font-semibold mt-0.5 ${
-                              result.available ? "text-[#031033]" : "text-[#9ba8c0]"
-                            }`}>
-                              {formatPrice(result)}{" "}
-                              <span className="font-normal text-[#9ba8c0]">/year</span>
-                            </p>
+                            <div className="sm:hidden mt-0.5">
+                              <p className={`text-xs font-semibold ${
+                                result.available ? "text-[#031033]" : "text-[#9ba8c0]"
+                              }`}>
+                                {formatPrice(result)}{" "}
+                                <span className="font-normal text-[#9ba8c0]">/ 1st yr</span>
+                              </p>
+                              {formatRenewalPrice(result) && (
+                                <p className="text-[10px] text-[#5a6a85] font-medium">
+                                  {formatRenewalPrice(result)} <span className="text-[#9ba8c0]">/ yr renewal</span>
+                                </p>
+                              )}
+                            </div>
                           )}
                           
                           {/* SSL cross-sell option */}
@@ -317,8 +333,13 @@ export default function DomainsPage() {
                                 {formatPrice(result)}
                               </p>
                               <p className="text-[10px] text-[#9ba8c0]">
-                                /year
+                                / 1st year
                               </p>
+                              {formatRenewalPrice(result) && (
+                                <p className="text-[11px] font-medium text-[#5a6a85] mt-0.5">
+                                  {formatRenewalPrice(result)} <span className="text-[10px] text-[#9ba8c0]">/ yr renewal</span>
+                                </p>
+                              )}
                             </>
                           ) : (
                             <p className="text-xs text-[#9ba8c0]">—</p>

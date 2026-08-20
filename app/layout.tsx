@@ -39,6 +39,9 @@ export const metadata: Metadata = {
     description:
       "Reliable hosting, domains, and digital infrastructure designed for African businesses and developers.",
   },
+  verification: {
+    google: "wOAoZUQOlJPg3mOv34ZsfWIlnyPzgm3N4r9zedi7Ow8",
+  },
 };
 
 export default function RootLayout({

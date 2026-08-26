@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { verifyPayment } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 
 type VerifyState = "loading" | "success" | "failed" | "error";
 
@@ -55,6 +56,7 @@ function CartSuccessContent() {
             reference: res.data.reference ?? reference,
           });
           setVerifyState("success");
+          useCartStore.getState().clearCart();
           sessionStorage.removeItem("cart_order_ref");
           sessionStorage.removeItem("domain_order_ref");
         } else if (res?.data?.status === "FAILED") {
@@ -66,6 +68,7 @@ function CartSuccessContent() {
             reference: res.data.reference ?? reference,
           });
           setVerifyState("success");
+          useCartStore.getState().clearCart();
           sessionStorage.removeItem("cart_order_ref");
           sessionStorage.removeItem("domain_order_ref");
         }
@@ -73,6 +76,7 @@ function CartSuccessContent() {
         // Optimistic success if API not yet reachable
         setVerifyState("success");
         setOrderData({ items: [], amount: 0, reference });
+        useCartStore.getState().clearCart();
         sessionStorage.removeItem("cart_order_ref");
         sessionStorage.removeItem("domain_order_ref");
       }

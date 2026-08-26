@@ -35,7 +35,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
-  const { items, grandTotal, clearCart } = useCartStore();
+  const { items, grandTotal } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,12 +46,12 @@ export default function CheckoutPage() {
     }
   }, [_hasHydrated, token, router]);
 
-  // Redirect to cart if empty
+  // Redirect to cart if empty (and not currently redirecting to payment gateway)
   useEffect(() => {
-    if (_hasHydrated && items.length === 0) {
+    if (_hasHydrated && !isProcessing && items.length === 0) {
       router.replace("/cart");
     }
-  }, [_hasHydrated, items.length, router]);
+  }, [_hasHydrated, isProcessing, items.length, router]);
 
   // Fetch user profile for billing pre-fill
   const { data: meData } = useQuery({
@@ -87,8 +87,8 @@ export default function CheckoutPage() {
 
       if (res?.data?.paymentUrl) {
         sessionStorage.setItem("cart_order_ref", res.data.reference);
-        clearCart();
         window.location.href = res.data.paymentUrl;
+        // Keep isProcessing as true while the browser navigates to Paystack
       } else {
         throw new Error("No payment URL returned from server.");
       }
@@ -96,7 +96,6 @@ export default function CheckoutPage() {
       const message = err instanceof Error ? err.message : "Payment initialisation failed.";
       setError(message);
       toast.error(message);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -323,7 +322,7 @@ export default function CheckoutPage() {
                     {isProcessing ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing...
+                        Redirecting to Paystack...
                       </>
                     ) : (
                       <>

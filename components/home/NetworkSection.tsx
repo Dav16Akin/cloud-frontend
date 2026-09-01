@@ -75,7 +75,7 @@ export default function NetworkSection() {
           </div>
           <div className="p-4 border-r border-[#e2eaff] last:border-0">
             <p className="text-3xl font-extrabold text-[#031033]">34ms</p>
-            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo'burg Latency</p>
+            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo&apos;burg Latency</p>
           </div>
           <div className="p-4 border-r border-[#e2eaff] last:border-0">
             <p className="text-3xl font-extrabold text-[#031033]">10 Gbps</p>

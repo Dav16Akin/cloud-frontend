@@ -1,47 +1,85 @@
+"use client";
+
+import React from "react";
 import Link from "next/link";
-import { ArrowRight, Rocket, Users, Globe } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Rocket, Users, Globe, Sparkles } from "lucide-react";
+import { AnimatedBadge } from "@/components/ui/animated-badge";
+
+const perks = [
+  {
+    icon: Rocket,
+    title: "Accelerated Launch",
+    desc: "Deploy your company website and store in days, not months.",
+  },
+  {
+    icon: Users,
+    title: "Dedicated Local Mentorship",
+    desc: "1-on-1 technical advisory tailored for African growth markets.",
+  },
+  {
+    icon: Globe,
+    title: "Global Cloud Scale",
+    desc: "High-performance infrastructure ready to support millions of queries.",
+  },
+];
 
 export default function StartupProgramSection() {
   return (
-    <section
-      id="startup"
-      className="section-pad section-white relative overflow-hidden"
-    >
-      {/* Blue accent top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#031033]/30 to-transparent" />
-
-      {/* Decorative blobs */}
-      <div className="absolute -left-32 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#f2f5fc] blur-[60px] pointer-events-none" />
-      <div className="absolute -right-32 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#fff8ee] blur-[60px] pointer-events-none" />
-
+    <section id="startup" className="py-24 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="section-navy p-8 lg:p-14 border border-[#1e2d4a] shadow-apple overflow-hidden relative">
-          {/* Top accent line */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-linear-to-r from-transparent via-[#031033]/50 to-transparent" />
+        <div className="rounded-3xl bg-linear-to-br from-[#031033] via-[#061845] to-[#031033] p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-2xl overflow-hidden relative">
+          {/* Radial ambient glow */}
+          <div className="absolute top-0 right-0 w-125 h-125 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Curvelines on dark gradient */}
+          <div className="absolute -top-10 -right-20 pointer-events-none select-none z-0 hidden sm:block">
+            <Image
+              src="/curveline.png"
+              alt=""
+              width={500}
+              height={200}
+              className="w-[450px] lg:w-[600px] h-auto opacity-15 rotate-[-18deg]"
+              aria-hidden
+            />
+          </div>
+          <div className="absolute -bottom-16 -left-20 pointer-events-none select-none z-0">
+            <Image
+              src="/curveline.png"
+              alt=""
+              width={500}
+              height={200}
+              className="w-[400px] lg:w-[520px] h-auto opacity-12 rotate-[25deg]"
+              aria-hidden
+            />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
             {/* Left */}
             <div>
-              {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 rounded-full">
-                Startup Program
-              </span> */}
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 leading-tight">
-                Helping African Businesses{" "}
-                <span className="text-[#e8900a]">Launch Online</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+                <span className="relative inline-block pb-1">
+                  Empowering African Startups to Scale Globally
+                </span>
               </h2>
-              <p className="text-white/80 text-base leading-relaxed mb-4">
-                Through the Nupat Startup Program, selected businesses can
-                access professional websites, hosting infrastructure, and
-                digital tools to establish a strong online presence.
+
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-4">
+                Through the Nupat Startup Program, qualifying high-potential
+                startups access free cloud credits, high-speed hosting
+                infrastructure, and specialized technical guidance.
               </p>
-              <p className="text-white/60 text-sm leading-relaxed mb-8">
-                We believe African businesses deserve world-class digital
-                infrastructure without unnecessary barriers.
+
+              <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                We believe ambitious African founders deserve world-class
+                digital infrastructure without prohibitive entry costs.
               </p>
+
               <Link
                 href="https://nupat.africa/startup-program"
                 id="startup-apply-cta"
-                className="btn-primary inline-flex items-center gap-2 py-3.5 px-8 text-base"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#1787D4] hover:bg-blue-600 text-white font-semibold text-base py-3.5 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-[#1787D4]/25 hover:-translate-y-0.5 cursor-pointer"
               >
                 Apply for Startup Program
                 <ArrowRight className="w-4 h-4" />
@@ -50,43 +88,19 @@ export default function StartupProgramSection() {
 
             {/* Right */}
             <div className="grid grid-cols-1 gap-4">
-              {[
-                {
-                  icon: Rocket,
-                  title: "Fast Launch",
-                  desc: "Get your business online in days, not months.",
-                  color: "blue",
-                },
-                {
-                  icon: Users,
-                  title: "Local Support",
-                  desc: "Support from a team that understands African markets.",
-                  color: "orange",
-                },
-                {
-                  icon: Globe,
-                  title: "Global Reach",
-                  desc: "Infrastructure built to reach customers worldwide.",
-                  color: "blue",
-                },
-              ].map(({ icon: Icon, title, desc, color }) => (
+              {perks.map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="flex items-start gap-4 p-4 bg-white border border-[#e2eaff] hover:shadow-md transition-all"
+                  className="group flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-all duration-300"
                 >
-                  <div
-                    className={`w-10 h-10 shrink-0 flex items-center justify-center ${color === "orange" ? "bg-[#fff8ee]" : "bg-[#f2f5fc]"}`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 ${color === "orange" ? "text-[#e8900a]" : "text-[#031033]"}`}
-                      strokeWidth={1.8}
-                    />
+                  <div className="w-11 h-11 shrink-0 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-[#1787D4] group-hover:scale-105 transition-transform">
+                    <Icon className="w-5 h-5" strokeWidth={2} />
                   </div>
                   <div>
-                    <p className="text-[#031033] font-semibold text-sm mb-1">
+                    <p className="text-white font-bold text-base mb-1">
                       {title}
                     </p>
-                    <p className="text-[#5a6a85] text-xs leading-relaxed">
+                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                       {desc}
                     </p>
                   </div>

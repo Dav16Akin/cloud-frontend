@@ -21,8 +21,10 @@ import {
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
+import { FluidOrb } from "@/components/ui/fluid-orb";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+const DOCS_URL =
+  process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
 type LinkItem = {
   label: string;
@@ -54,8 +56,14 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/dashboard/domains",
         icon: Globe,
         subLinks: [
-          { label: "Register / Search", href: "/dashboard/domains?tab=register" },
-          { label: "Registered Domains", href: "/dashboard/domains?tab=registered" },
+          {
+            label: "Register / Search",
+            href: "/dashboard/domains?tab=register",
+          },
+          {
+            label: "Registered Domains",
+            href: "/dashboard/domains?tab=registered",
+          },
           { label: "Hosted Domains", href: "/dashboard/domains?tab=hosted" },
           { label: "Domain Transfer", href: "/dashboard/domain-transfer" },
         ],
@@ -69,7 +77,12 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
       { label: "Invoices", href: "/dashboard/invoices", icon: Receipt },
       { label: "Support Tickets", href: "/dashboard/tickets", icon: LifeBuoy },
-      { label: "Documentation", href: DOCS_URL, icon: BookOpen, external: true },
+      {
+        label: "Documentation",
+        href: DOCS_URL,
+        icon: BookOpen,
+        external: true,
+      },
     ],
   },
 ];
@@ -132,10 +145,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const firstName = me?.data?.firstName ?? "";
   const lastName = me?.data?.lastName ?? "";
   const email = me?.data?.email ?? "";
-  const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "?";
+  const initials =
+    `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "?";
 
   const isDomainsPath =
-    pathname.startsWith("/dashboard/domains") || pathname.startsWith("/dashboard/domain-transfer");
+    pathname.startsWith("/dashboard/domains") ||
+    pathname.startsWith("/dashboard/domain-transfer");
   const [domainsExpanded, setDomainsExpanded] = useState(isDomainsPath);
 
   useEffect(() => {
@@ -146,7 +161,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   return (
     <aside className="flex flex-col h-full bg-white border-r border-[#e2eaff] w-64 shrink-0">
-
       {/* Logo + mobile close */}
       <div className="flex items-center justify-between px-5 h-14 border-b border-[#e2eaff] shrink-0">
         <Link href="/dashboard" id="sidebar-logo">
@@ -186,7 +200,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                     : pathname.startsWith(href) ||
                       (subLinks &&
                         subLinks.some((sub) =>
-                          pathname.startsWith(sub.href.split("?")[0])
+                          pathname.startsWith(sub.href.split("?")[0]),
                         ));
 
                 if (subLinks) {
@@ -204,12 +218,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
                           onClick={onClose}
                           className={`flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium ${
-                            isParentActive ? "text-[#031033]" : "text-[#5a6a85] hover:text-[#031033]"
+                            isParentActive
+                              ? "text-[#031033]"
+                              : "text-[#5a6a85] hover:text-[#031033]"
                           }`}
                         >
                           <Icon
-                            className={`w-[17px] h-[17px] shrink-0 ${
-                              isParentActive ? "text-[#e8900a]" : "text-[#9ba8c0]"
+                            className={`w-4.25 h-4.25 shrink-0 ${
+                              isParentActive
+                                ? "text-[#e8900a]"
+                                : "text-[#9ba8c0]"
                             }`}
                           />
                           <span className="flex-1">{label}</span>
@@ -270,7 +288,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                       onClick={onClose}
                       className="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-150 border-l-2 border-transparent text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] hover:border-[#e2eaff]"
                     >
-                      <Icon className="w-[17px] h-[17px] shrink-0 text-[#e8900a]" />
+                      <Icon className="w-4.25 h-4.25 shrink-0 text-[#e8900a]" />
                       <span className="flex-1">{label}</span>
                       <ExternalLink className="w-3 h-3 text-[#9ba8c0]" />
                     </a>
@@ -290,7 +308,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                     }`}
                   >
                     <Icon
-                      className={`w-[17px] h-[17px] shrink-0 ${
+                      className={`w-4.25 h-4.25 shrink-0 ${
                         isActive ? "text-[#e8900a]" : "text-[#9ba8c0]"
                       }`}
                     />
@@ -324,9 +342,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </div>
         ) : (
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            {/* Gradient avatar */}
-            <div className="w-8 h-8 bg-[#e8900a] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
-              {initials}
+            {/* FluidOrb avatar */}
+            <div className="relative flex w-8 h-8 rounded-full overflow-hidden items-center justify-center shrink-0 shadow-xs">
+              <FluidOrb
+                size={32}
+                color="#3B82F6"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+              />
+              <span className="relative z-10 text-white text-[11px] font-bold select-none drop-shadow-xs">
+                {initials}
+              </span>
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[#031033] truncate">
@@ -343,7 +368,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           disabled={isLoggingOut}
           className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-[#5a6a85] hover:bg-red-50 hover:text-red-500 transition-all duration-150 disabled:opacity-60"
         >
-          <LogOut className="w-[17px] h-[17px] shrink-0" />
+          <LogOut className="w-4.25 h-4.25 shrink-0" />
           {isLoggingOut ? "Logging out…" : "Logout"}
         </button>
       </div>

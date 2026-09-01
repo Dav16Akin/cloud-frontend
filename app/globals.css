@@ -39,13 +39,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
   --shadow-apple: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
@@ -56,8 +56,11 @@
   /* Brand */
   --brand-navy: #031033;
   --brand-navy-light: #f2f5fc;
-  --brand-orange: #e8900a;
-  --brand-orange-light: #fff8ee;
+  --brand-primary: #1787D4;
+  --brand-primary-hover: #1370B5;
+  --brand-primary-light: #e8f4fc;
+  --brand-yellow: #FFC75D;
+  --brand-yellow-light: #fff8ee;
 
   /* Shadcn */
   --background: #ffffff;
@@ -66,36 +69,36 @@
   --card-foreground: #031033;
   --popover: #ffffff;
   --popover-foreground: #031033;
-  --primary: #031033;
+  --primary: #1787D4;
   --primary-foreground: #ffffff;
   --secondary: #f2f5fc;
   --secondary-foreground: #031033;
   --muted: #f2f5fc;
   --muted-foreground: #5a6a85;
-  --accent: #e8900a;
-  --accent-foreground: #ffffff;
+  --accent: #e8f4fc;
+  --accent-foreground: #0d5fa0;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #e2eaff;
-  --input: #e2eaff;
-  --ring: #031033;
-  --radius: 0px;                 /* All corners sharp by default */
+  --border: #cde6f5;
+  --input: #cde6f5;
+  --ring: #1787D4;
+  --radius: 0.5rem;
 
   /* Charts */
-  --chart-1: #031033;
-  --chart-2: #e8900a;
-  --chart-3: #1a2a5a;
-  --chart-4: #f5a520;
-  --chart-5: #3a4a7a;
+  --chart-1: #1787D4;
+  --chart-2: #1370B5;
+  --chart-3: #46a8e0;
+  --chart-4: #FFC75D;
+  --chart-5: #0d5fa0;
 
   /* Sidebar */
   --sidebar: #f2f5fc;
   --sidebar-foreground: #031033;
-  --sidebar-primary: #031033;
+  --sidebar-primary: #1787D4;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8f0ff;
-  --sidebar-accent-foreground: #031033;
-  --sidebar-border: #e2eaff;
-  --sidebar-ring: #031033;
+  --sidebar-accent: #e8f4fc;
+  --sidebar-accent-foreground: #1787D4;
+  --sidebar-border: #cde6f5;
+  --sidebar-ring: #1787D4;
 }
 
 /* ============================================================
@@ -105,7 +108,6 @@
   * {
     @apply border-border outline-ring/50;
     box-sizing: border-box;
-    border-radius: 0 !important;   /* Force sharp corners everywhere */
   }
   body {
     @apply bg-background text-foreground;
@@ -117,8 +119,6 @@
     @apply font-sans;
     scroll-behavior: smooth;
   }
-  /* Only allow rounded on elements that explicitly need it */
-  .allow-rounded { border-radius: revert !important; }
 }
 
 /* ============================================================
@@ -142,10 +142,10 @@
 }
 
 /* ============================================================
-   BUTTON SYSTEM — Flat, sharp corners, no gradients
+   BUTTON SYSTEM — Rounded (6px from Figma)
    ============================================================ */
 
-/* ── Primary orange button (main CTA everywhere) ── */
+/* ── Primary button (main CTA everywhere) ── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -156,13 +156,13 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #ffffff;
-  background: #e8900a;
+  background: #1787D4;
   transition: background 0.2s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
-  background: #c97a08;
+  background: #1370B5;
   transform: translateY(-1px);
 }
 .btn-primary:active {
@@ -180,7 +180,7 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #ffffff;
   background: #031033;
   transition: background 0.2s ease, transform 0.15s ease;
@@ -196,7 +196,7 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #031033;
   background: #ffffff;
   transition: background 0.2s ease, transform 0.15s ease;
@@ -223,7 +223,7 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #031033;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #031033;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
@@ -246,7 +246,7 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #ffffff;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #ffffff;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
@@ -258,7 +258,8 @@
   transform: translateY(-1px);
 }
 
-/* ── Outline orange ── */
+/* ── Outline primary ── */
+.btn-outline-primary,
 .btn-outline-orange {
   display: inline-flex;
   align-items: center;
@@ -268,14 +269,15 @@
   font-weight: 600;
   font-size: 0.9375rem;
   cursor: pointer;
-  border: 1.5px solid #e8900a;
-  border-radius: 0;
-  color: #e8900a;
+  border: 1.5px solid #1787D4;
+  border-radius: 6px !important;
+  color: #1787D4;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
+.btn-outline-primary:hover,
 .btn-outline-orange:hover {
-  background: #e8900a;
+  background: #1787D4;
   color: #ffffff;
 }
 
@@ -283,9 +285,10 @@
 .btn-sm {
   padding: 0.5rem 1.25rem;
   font-size: 0.875rem;
+  border-radius: 6px !important;
 }
 
-/* Legacy aliases — same styles as btn-primary / btn-outline */
+/* Legacy aliases */
 .btn-gradient {
   display: inline-flex;
   align-items: center;
@@ -296,12 +299,12 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #ffffff;
-  background: #e8900a;
+  background: #1787D4;
   transition: background 0.2s ease, transform 0.15s ease;
 }
-.btn-gradient:hover { background: #c97a08; transform: translateY(-1px); }
+.btn-gradient:hover { background: #1370B5; transform: translateY(-1px); }
 
 .btn-gradient-outline,
 .btn-outline-navy {
@@ -314,7 +317,7 @@
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #031033;
-  border-radius: 0;
+  border-radius: 6px !important;
   color: #031033;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
@@ -325,7 +328,7 @@
 /* ============================================================
    ACCENT TEXT
    ============================================================ */
-.gradient-text { color: #e8900a; }
+.gradient-text { color: #1787D4; }
 
 /* ============================================================
    SECTION BACKGROUNDS
@@ -346,17 +349,18 @@
 }
 
 /* ============================================================
-   CARD STYLES — Vesper / sharp
+   CARD STYLES — Rounded & Modern
    ============================================================ */
 .feature-card {
   background: #ffffff;
   border: 1px solid #e2eaff;
   border-left: 3px solid transparent;
+  border-radius: 12px;
   box-shadow: none;
   transition: border-left-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 .feature-card:hover {
-  border-left-color: #e8900a;
+  border-left-color: #1787D4;
   box-shadow: 0 4px 20px rgba(3, 16, 51, 0.06);
   transform: translateY(-2px);
 }
@@ -364,6 +368,7 @@
 .dashboard-card {
   background: #ffffff;
   border: 1px solid #e2eaff;
+  border-radius: 12px;
   box-shadow: none;
   transition: box-shadow 0.15s ease;
 }
@@ -380,6 +385,7 @@
   gap: 0.4rem;
   background: #f2f5fc;
   border: 1px solid #dce4f7;
+  border-radius: 6px;
   padding: 0.3rem 0.9rem;
   font-size: 0.78rem;
   font-weight: 500;

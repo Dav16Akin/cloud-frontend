@@ -2,12 +2,19 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 const WHATSAPP_NUMBER = "2349076646154"; // Replace with your number (no + sign)
 const MESSAGE = "Hi, I need help with my Nupat Cloud account.";
 
 export function WhatsAppButton() {
   const [hovered, setHovered] = useState(false);
+  const pathname = usePathname();
+
+  // Only show WhatsApp button on the main landing page (not on register, login, dashboard, etc.)
+  if (pathname !== "/") {
+    return null;
+  }
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(MESSAGE)}`;
 

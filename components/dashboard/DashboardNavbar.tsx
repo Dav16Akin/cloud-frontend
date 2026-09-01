@@ -5,6 +5,7 @@ import { Search, ShoppingCart, ChevronDown, LogOut, LayoutDashboard, ExternalLin
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
 import { useCartStore } from "@/store/cartStore";
+import { FluidOrb } from "@/components/ui/fluid-orb";
 
 const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
@@ -124,10 +125,17 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
           <button
             id="dashboard-nav-profile"
             onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#f2f5fc] transition-colors"
+            className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#f2f5fc] rounded-lg transition-colors cursor-pointer"
           >
-            <div className="w-7 h-7 bg-[#e8900a] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
-              {initials}
+            <div className="relative flex w-7 h-7 rounded-full overflow-hidden items-center justify-center shrink-0 shadow-xs">
+              <FluidOrb
+                size={28}
+                color="#3B82F6"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+              />
+              <span className="relative z-10 text-white text-[10px] font-bold select-none drop-shadow-xs">
+                {initials}
+              </span>
             </div>
             <div className="hidden sm:block text-left min-w-0">
               <p className="text-xs font-semibold text-[#031033] truncate max-w-22.5">

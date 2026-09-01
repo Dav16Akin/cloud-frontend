@@ -1,0 +1,6 @@
+Primary Color: #3B82F6 (Blue 500)
+Primary Hover: #2563EB (Blue 600)
+Primary Light: #EFF6FF (Blue 50)
+Navy (Dark/Foreground): #031033
+Navy Light: #F2F5FC
+Border / Input: #E2EAFF

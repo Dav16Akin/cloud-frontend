@@ -8,7 +8,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative w-full overflow-hidden bg-[#1787D4] h-screen flex items-center"
+      className="relative w-full overflow-hidden bg-[#1787D4] min-h-[580px] lg:min-h-[640px] pt-32 pb-16 lg:pt-36 lg:pb-20 flex items-center"
     >
       {/* ── White circle backdrop — sits behind the person, upper-right area ── */}
       <div
@@ -16,8 +16,8 @@ export default function HeroSection() {
         style={{
           width: "38vw",
           height: "38vw",
-          maxWidth: "560px",
-          maxHeight: "560px",
+          maxWidth: "540px",
+          maxHeight: "540px",
           top: "70%",
           right: "8%",
           transform: "translateY(-50%)",
@@ -56,7 +56,7 @@ export default function HeroSection() {
       </div>
 
       {/* ── Main content: left text column ── */}
-      <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex items-center h-full">
+      <div className="relative z-30 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-full">
         <div className="max-w-lg lg:max-w-[46%]">
           <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.12] tracking-tight text-white mb-5">
             One <span className="text-[#FFC75D]">Platform</span> to Build,

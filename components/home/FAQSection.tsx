@@ -54,7 +54,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq-section"
-      className="py-20 sm:py-28 bg-[#fafcff] relative overflow-hidden"
+      className="py-14 sm:py-18 bg-[#fafcff] relative overflow-hidden"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}

@@ -53,7 +53,7 @@ function CheckIcon() {
 
 export default function WhyChooseUsSection() {
   return (
-    <section id="why-choose-us" className="w-full py-14 px-4 sm:px-6 lg:px-8">
+    <section id="why-choose-us" className="w-full py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
         {/* ── Left: image as-is, no filter ── */}
         <div className="w-full lg:w-[46%] shrink-0 flex justify-center lg:justify-start">

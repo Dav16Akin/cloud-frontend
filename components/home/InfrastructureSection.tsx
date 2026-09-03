@@ -71,7 +71,7 @@ export default function InfrastructureSection() {
   return (
     <section
       id="infrastructure"
-      className="py-20 sm:py-28 bg-[#fafcff] relative overflow-hidden"
+      className="py-14 sm:py-18 bg-[#fafcff] relative overflow-hidden"
     >
       {/* Ambient background glow */}
       <motion.div
@@ -87,7 +87,7 @@ export default function InfrastructureSection() {
         className="absolute top-1/2 left-1/3 -translate-y-1/2 w-120 h-120 bg-blue-500 rounded-full blur-3xl pointer-events-none"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Column: Heading & Description with Motion */}
           <motion.div

@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Rocket, Users, Globe, Sparkles } from "lucide-react";
-import { AnimatedBadge } from "@/components/ui/animated-badge";
 
 const perks = [
   {
@@ -26,9 +24,9 @@ const perks = [
 
 export default function StartupProgramSection() {
   return (
-    <section id="startup" className="py-24 bg-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="rounded-3xl bg-linear-to-br from-[#031033] via-[#061845] to-[#031033] p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-2xl overflow-hidden relative">
+    <section id="startup" className="py-12 sm:py-16 bg-white relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="rounded-3xl bg-linear-to-br from-[#031033] via-[#061845] to-[#031033] p-7 sm:p-10 lg:p-12 border border-slate-800 shadow-2xl overflow-hidden relative">
           {/* Radial ambient glow */}
           <div className="absolute top-0 right-0 w-125 h-125 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 

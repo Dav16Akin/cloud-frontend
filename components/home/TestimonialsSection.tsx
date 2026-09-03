@@ -168,7 +168,7 @@ export default function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="py-20 sm:py-24 bg-white relative overflow-hidden"
+      className="py-14 sm:py-16 bg-white relative overflow-hidden"
     >
       {/* Background Curvelines */}
       <div className="absolute top-12 -left-28 pointer-events-none select-none z-0 hidden md:block">

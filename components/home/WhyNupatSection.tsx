@@ -75,7 +75,7 @@ export default function WhyNupatSection() {
   return (
     <section
       id="products-ecosystem"
-      className="py-24 bg-[#f8faff] relative overflow-hidden"
+      className="py-14 sm:py-16 bg-[#f8faff] relative overflow-hidden"
     >
       {/* Background ambient radial glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-175 h-112.5 bg-[#1787D4]/5 rounded-full blur-3xl pointer-events-none" />
@@ -103,14 +103,14 @@ export default function WhyNupatSection() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-16 flex flex-col items-center"
+          className="text-center mb-10 sm:mb-12 flex flex-col items-center"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] tracking-tight mb-4 max-w-3xl">
             <span className="relative inline-block pb-1">

@@ -27,7 +27,7 @@ export default function DomainSearchSection() {
   return (
     <section
       id="domain-search"
-      className="w-full bg-[#f0f4fa] py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+      className="w-full bg-[#f0f4fa] py-12 sm:py-14 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
     >
       {/* Background Curvelines */}
       <div className="absolute -top-12 -right-16 pointer-events-none select-none z-0 hidden sm:block">

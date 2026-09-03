@@ -85,9 +85,9 @@ export default function EverythingBusinessNeedsSection() {
   return (
     <section
       id="business-suite"
-      className="py-16 sm:py-24 bg-white relative overflow-hidden"
+      className="py-14 sm:py-18 bg-white relative overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Column: Heading, Subtitle & 8 Tool Cards with Motion */}
           <div className="lg:col-span-7 flex flex-col justify-center">

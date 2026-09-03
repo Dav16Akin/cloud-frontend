@@ -171,10 +171,14 @@ export default function EverythingBusinessNeedsSection() {
             initial={{ opacity: 0, scale: 0.94, x: 30 }}
             whileInView={{ opacity: 1, scale: 1, x: 0 }}
             viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+            transition={{
+              duration: 0.7,
+              ease: [0.22, 1, 0.36, 1],
+              delay: 0.15,
+            }}
             className="lg:col-span-5 relative flex justify-center lg:justify-end"
           >
-            <div className="relative w-full max-w-[480px] lg:max-w-none aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] bg-[#0058F6] rounded-3xl overflow-hidden shadow-2xl flex items-end justify-center">
+            <div className="relative w-full max-w-120 lg:max-w-none aspect-4/5 sm:aspect-3/4 lg:aspect-4/5 bg-[#0058F6] rounded-3xl overflow-hidden shadow-2xl flex items-end justify-center">
               {/* White Semicircular Notch cutouts from Figma design */}
               <div
                 className="absolute top-0 -left-6 w-14 h-14 bg-white rounded-full z-20 pointer-events-none hidden lg:block"

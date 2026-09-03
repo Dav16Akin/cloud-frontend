@@ -39,7 +39,7 @@ export default function StartupProgramSection() {
               alt=""
               width={500}
               height={200}
-              className="w-[450px] lg:w-[600px] h-auto opacity-15 rotate-[-18deg]"
+              className="w-112.5 lg:w-150 h-auto opacity-15 rotate-[-18deg]"
               aria-hidden
             />
           </div>
@@ -49,7 +49,7 @@ export default function StartupProgramSection() {
               alt=""
               width={500}
               height={200}
-              className="w-[400px] lg:w-[520px] h-auto opacity-12 rotate-[25deg]"
+              className="w-100 lg:w-130 h-auto opacity-12 rotate-25"
               aria-hidden
             />
           </div>

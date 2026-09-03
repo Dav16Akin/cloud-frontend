@@ -36,7 +36,7 @@ export default function DomainSearchSection() {
           alt=""
           width={500}
           height={200}
-          className="w-[420px] lg:w-[540px] h-auto brightness-0 opacity-[0.045] rotate-[20deg]"
+          className="w-105 lg:w-135 h-auto brightness-0 opacity-[0.045] rotate-20"
           aria-hidden
         />
       </div>
@@ -46,7 +46,7 @@ export default function DomainSearchSection() {
           alt=""
           width={500}
           height={200}
-          className="w-[380px] lg:w-[480px] h-auto brightness-0 opacity-[0.04] -rotate-[30deg]"
+          className="w-95 lg:w-120 h-auto brightness-0 opacity-[0.04] rotate-[-30deg]"
           aria-hidden
         />
       </div>

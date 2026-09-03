@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Search } from "lucide-react";
@@ -33,7 +32,7 @@ export default function FinalCTASection() {
           alt=""
           width={500}
           height={200}
-          className="w-[480px] lg:w-[650px] h-auto opacity-15 rotate-[-15deg]"
+          className="w-120 lg:w-162.5 h-auto opacity-15 rotate-[-15deg]"
           aria-hidden
         />
       </div>
@@ -43,7 +42,7 @@ export default function FinalCTASection() {
           alt=""
           width={500}
           height={200}
-          className="w-[440px] lg:w-[600px] h-auto opacity-15 rotate-[25deg]"
+          className="w-110 lg:w-150 h-auto opacity-15 rotate-25"
           aria-hidden
         />
       </div>

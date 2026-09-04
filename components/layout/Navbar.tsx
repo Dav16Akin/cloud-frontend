@@ -50,7 +50,7 @@ const productsLinks = [
   },
   {
     title: "Domain Transfer",
-    href: "/dashboard/domain-transfer",
+    href: "/domain-transfer",
     icon: ArrowRightLeft,
     description: "Move your domain to Nupat Cloud.",
   },

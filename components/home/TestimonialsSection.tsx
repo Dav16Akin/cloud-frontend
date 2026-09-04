@@ -177,7 +177,7 @@ export default function TestimonialsSection() {
           alt=""
           width={500}
           height={200}
-          className="w-[460px] lg:w-[620px] h-auto brightness-0 opacity-[0.04] -rotate-[18deg]"
+          className="w-155 lg:w-155 h-auto brightness-0 opacity-[0.04] rotate-[-18deg]"
           aria-hidden
         />
       </div>
@@ -187,7 +187,7 @@ export default function TestimonialsSection() {
           alt=""
           width={500}
           height={200}
-          className="w-[420px] lg:w-[580px] h-auto brightness-0 opacity-[0.04] rotate-[32deg]"
+          className="w-105 lg:w-145 h-auto brightness-0 opacity-[0.04] rotate-32"
           aria-hidden
         />
       </div>

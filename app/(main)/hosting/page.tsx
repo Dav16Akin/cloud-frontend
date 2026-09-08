@@ -2,233 +2,488 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ArrowRight,
-  Zap,
-  Lock,
-  RefreshCw,
-  Mail,
-  Shield,
   Activity,
-  Server,
-  Globe,
-  Layout,
-  Cloud,
+  ShieldCheck,
+  Shield,
+  Zap,
+  Check,
+  ArrowRight,
+  LayoutGrid,
+  BarChart3,
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Hosting — Nupat Cloud",
+  title: "Web Hosting — Nupat Cloud",
   description:
-    "Fast, secure, and reliable hosting for African businesses. Shared, WordPress, and Agency hosting with 99.9% uptime guarantee.",
+    "Reliable hosting for everything you want to build. Launch your website on fast, secure and reliable hosting designed to keep your online presence running smoothly.",
 };
 
-const features = [
+const starterFeatures = [
+  "1 Website",
+  "10GB SSD Storage",
+  "Free SSL",
+  "1 Email Account",
+  "99.9% Uptime",
+];
+
+const businessFeatures = [
+  "10 Websites",
+  "50GB SSD Storage",
+  "Free SSL",
+  "Free Domain",
+  "10 Email Accounts",
+  "Daily Backups",
+];
+
+const advancedFeatures = [
+  "Unlimited Websites",
+  "100GB NVMe Storage",
+  "Free SSL",
+  "Free Domain",
+  "Unlimited Email",
+  "Priority Support",
+  "Advanced Caching",
+];
+
+const coreFeatures = [
   {
     icon: Zap,
-    title: "SSD Storage",
-    desc: "High-performance SSD infrastructure for faster website loading speeds.",
-    color: "blue",
-  },
-  {
-    icon: Lock,
-    title: "Free SSL Certificates",
-    desc: "Protect your website and customer data with free SSL encryption.",
-    color: "orange",
-  },
-  {
-    icon: RefreshCw,
-    title: "Daily Backups",
-    desc: "Automatic backups help protect your data from unexpected issues.",
-    color: "blue",
-  },
-  {
-    icon: Mail,
-    title: "Business Emails",
-    desc: "Create professional email accounts for your business.",
-    color: "orange",
+    title: "Fast Performance",
+    desc: "Keep your website responsive for your visitors",
   },
   {
     icon: Shield,
-    title: "Advanced Security",
-    desc: "Protection against malware, attacks, and unauthorized access.",
-    color: "blue",
+    title: "Reliable Infrastructure",
+    desc: "Built on dependable cloud infrastructure",
   },
   {
-    icon: Activity,
-    title: "99.9% Uptime",
-    desc: "Reliable infrastructure built for stability and availability.",
-    color: "orange",
+    icon: LayoutGrid,
+    title: "Easy Management",
+    desc: "Manage your hosting from one simple dashboard",
+  },
+  {
+    icon: BarChart3,
+    title: "Scalable Resources",
+    desc: "Upgrade as your website and business grow",
   },
 ];
 
-const hostingTypes = [
+const steps = [
   {
-    icon: Server,
-    title: "Shared Hosting",
-    desc: "Affordable hosting for small businesses and websites.",
-    available: true,
+    number: "01",
+    title: "Choose a plan",
+    desc: "Select the hosting package that fits your needs",
   },
   {
-    icon: Globe,
-    title: "WordPress Hosting",
-    desc: "Optimized hosting environment for WordPress websites.",
-    available: true,
+    number: "02",
+    title: "Connect your domain",
+    desc: "Use your existing domain or register one with Nupat",
   },
   {
-    icon: Layout,
-    title: "Agency Hosting",
-    desc: "Designed for agencies and developers managing multiple clients.",
-    available: true,
-  },
-  {
-    icon: Cloud,
-    title: "VPS Hosting",
-    desc: "Scalable virtual servers for advanced workloads.",
-    available: false,
+    number: "03",
+    title: "Launch your website",
+    desc: "Upload your website or install your preferred platform",
   },
 ];
 
 export default function HostingPage() {
   return (
-    <div className="flex flex-col bg-white">
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 overflow-hidden section-navy-tint">
-        <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4 bg-[#fff8ee] border border-[#f5d38a] rounded-full px-4 py-1.5">Web Hosting</span> */}
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5 leading-tight">
-            Fast, Secure &amp; Reliable{" "}
-            <span className="gradient-text">Hosting</span>
-          </h1>
-          <p className="text-[#5a6a85] text-lg mb-10 max-w-xl mx-auto">
-            Host your websites and applications on cloud infrastructure designed
-            for performance, security, and growth.
+    <div className="flex flex-col bg-white overflow-hidden">
+      {/* ── 1. Hero Section ── */}
+      <section className="relative pt-32 pb-16 sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-6 text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#0a1128] tracking-tight leading-[1.12] mb-6">
+                Reliable hosting for
+                <br />
+                everything you want to
+                <br />
+                build
+              </h1>
+              <p className="text-[#5a6a85] text-base sm:text-lg leading-relaxed mb-8 max-w-lg">
+                Launch your website on fast, secure and reliable hosting designed
+                to keep your online presence running smoothly.
+              </p>
+              <Link
+                href="#plans"
+                id="view-hosting-plan-hero-cta"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-xl text-white font-semibold bg-[#1366e2] hover:bg-[#0f52b8] transition-colors shadow-sm text-sm"
+              >
+                View Hosting Plan
+              </Link>
+            </div>
+
+            {/* Right Visual with Floating Badges */}
+            <div className="lg:col-span-6 relative flex items-center justify-center">
+              <div className="relative w-full max-w-[500px] lg:max-w-[560px]">
+                {/* Hero Image */}
+                <Image
+                  src="/web-hosting.png"
+                  alt="Reliable web hosting - Nupat Cloud"
+                  width={560}
+                  height={500}
+                  priority
+                  style={{ height: "auto" }}
+                  className="w-full h-auto object-contain select-none"
+                />
+
+                {/* Badge 1: 99.9% Uptime (Top Left) */}
+                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                      99.9% Uptime
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-gray-400">
+                      Always stay online
+                    </div>
+                  </div>
+                </div>
+
+                {/* Badge 2: Free SSL included (Top Right) */}
+                <div className="absolute top-8 sm:top-12 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                      Free SSL included
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-gray-400">
+                      Security by default
+                    </div>
+                  </div>
+                </div>
+
+                {/* Badge 3: 1-Click Setup (Bottom Right) */}
+                <div className="absolute bottom-12 sm:bottom-16 right-0 sm:right-4 lg:-right-2 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                      1-Click Setup
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-gray-400">
+                      Go live instantly
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 2. Pricing Plans Section ── */}
+      <section id="plans" className="py-16 sm:py-20 lg:py-24 bg-white scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+              Choose the hosting that fits your website
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
+            {/* Plan 1: Starter */}
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
+              <div>
+                <h3 className="text-2xl font-bold text-[#0a1128]">Starter</h3>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 mb-6">
+                  For personal websites and small projects
+                </p>
+
+                <div className="space-y-3.5 pt-2">
+                  {starterFeatures.map((feat) => (
+                    <div key={feat} className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1366e2] shrink-0">
+                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                        {feat}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link
+                href="/pricing?plan=Starter"
+                id="choose-starter-btn"
+                className="w-full py-3 px-4 rounded-xl bg-[#eef3f8] hover:bg-[#e2eaf2] text-[#0a1128] text-sm font-semibold transition text-center mt-8 block"
+              >
+                Choose Starter
+              </Link>
+            </div>
+
+            {/* Plan 2: Business (POPULAR) */}
+            <div className="bg-[#0b63e5] rounded-3xl p-7 sm:p-8 flex flex-col justify-between text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
+              <div className="absolute top-6 right-6">
+                <span className="px-3 py-1 text-[11px] font-bold text-white uppercase tracking-wider rounded-full border border-white/30 bg-white/20 backdrop-blur-xs">
+                  POPULAR
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold text-white">Business</h3>
+                <p className="text-xs sm:text-sm text-white/80 mt-1 mb-6">
+                  For growing businesses and professional websites
+                </p>
+
+                <div className="space-y-3.5 pt-2">
+                  {businessFeatures.map((feat) => (
+                    <div key={feat} className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border border-white/40 bg-white/20 flex items-center justify-center text-white shrink-0">
+                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-white font-medium">
+                        {feat}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link
+                href="/pricing?plan=Business"
+                id="choose-business-btn"
+                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#0b63e5] text-sm font-bold transition text-center mt-8 shadow-sm block"
+              >
+                Choose Business
+              </Link>
+            </div>
+
+            {/* Plan 3: Advanced */}
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
+              <div>
+                <h3 className="text-2xl font-bold text-[#0a1128]">Advanced</h3>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 mb-6">
+                  For websites with higher traffic and resource needs
+                </p>
+
+                <div className="space-y-3.5 pt-2">
+                  {advancedFeatures.map((feat) => (
+                    <div key={feat} className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1366e2] shrink-0">
+                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                        {feat}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link
+                href="/pricing?plan=Agency"
+                id="choose-advanced-btn"
+                className="w-full py-3 px-4 rounded-xl bg-[#eef3f8] hover:bg-[#e2eaf2] text-[#0a1128] text-sm font-semibold transition text-center mt-8 block"
+              >
+                Choose Advanced
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. Core Features Grid Section ── */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+              Everything your website needs to stay online
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {coreFeatures.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col items-start hover:shadow-md transition-shadow"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-[#eff6ff] text-[#0b63e5] flex items-center justify-center mb-4">
+                    <Icon className="w-5 h-5 stroke-[2]" />
+                  </div>
+                  <h3 className="text-base font-bold text-[#0a1128] mb-1.5">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. Dashboard Preview Section ("Your hosting under control") ── */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight mb-3">
+              Your hosting under control
+            </h2>
+            <p className="text-sm sm:text-base text-gray-500">
+              Manage your website resources, domains and hosting services from one
+              connected dashboard
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center max-w-6xl mx-auto">
+            {/* Left: Dashboard Mockup Card */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.05)]">
+                {/* Window top dots */}
+                <div className="flex items-center gap-1.5 mb-6">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#fbbd23]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#36d399]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]" />
+                </div>
+
+                {/* Top metrics grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3.5">
+                  {/* Performance */}
+                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                    <div className="text-[11px] font-medium text-gray-400 mb-1">
+                      Performance
+                    </div>
+                    <div className="text-lg sm:text-xl font-extrabold text-gray-900">
+                      82%
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mt-3">
+                      <div className="w-[82%] bg-[#0b63e5] h-full rounded-full" />
+                    </div>
+                  </div>
+
+                  {/* Storage Usage */}
+                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                    <div className="text-[11px] font-medium text-gray-400 mb-1">
+                      Storage Usage
+                    </div>
+                    <div className="text-lg sm:text-xl font-extrabold text-gray-900">
+                      4.2 GB <span className="text-xs sm:text-sm font-normal text-gray-400">/ 10 GB</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mt-3">
+                      <div className="w-[42%] bg-[#0b63e5] h-full rounded-full" />
+                    </div>
+                  </div>
+
+                  {/* Bandwidth */}
+                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                    <div className="text-[11px] font-medium text-gray-400 mb-1">
+                      Bandwidth
+                    </div>
+                    <div className="text-lg sm:text-xl font-extrabold text-gray-900">
+                      32 GB
+                    </div>
+                    <div className="text-[11px] text-gray-400 mt-2">
+                      Unmetered traffic
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom status row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* SSL Certificate */}
+                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-medium text-gray-500">
+                      SSL Certificate
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      Active &amp; Secure
+                    </span>
+                  </div>
+
+                  {/* Next Renewal */}
+                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-medium text-gray-500">
+                      Next Renewal
+                    </span>
+                    <span className="text-xs font-semibold text-gray-700">
+                      Aug 24, 2026
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Graphic / Woman Celebrating Image */}
+            <div className="lg:col-span-5 flex justify-center">
+              <Image
+                src="/web-hosting-1.png"
+                alt="Hosting dashboard control"
+                width={420}
+                height={420}
+                style={{ height: "auto" }}
+                className="w-full max-w-[360px] sm:max-w-[400px] h-auto object-contain select-none"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. How It Works Section ("From sign-up to online in minutes") ── */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+              From sign-up to online in minutes
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
+            {steps.map((step, idx) => (
+              <div
+                key={step.number}
+                className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-start relative group hover:border-blue-200 transition-colors"
+              >
+                <div className="text-3xl font-extrabold text-[#0b63e5] mb-4">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-bold text-[#0a1128] mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                  {step.desc}
+                </p>
+
+                {/* Arrow to next step on desktop */}
+                {idx < steps.length - 1 && (
+                  <div className="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm items-center justify-center text-blue-500 z-10">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. Bottom Call to Action (CTA) ── */}
+      <section className="bg-gradient-to-b from-[#1b68e3] to-[#1153bc] py-20 sm:py-24 text-center px-4 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-3">
+            Ready to put your website online?
+          </h2>
+          <p className="text-sm sm:text-base text-white/85 mb-8 max-w-md mx-auto">
+            Reliable hosting for your next website or business.
           </p>
           <Link
             href="/pricing"
-            id="hosting-get-hosting-cta"
-            className="btn-primary inline-flex items-center gap-2 py-4 px-10 rounded-xl text-base"
+            id="cta-get-started-btn"
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold bg-white text-[#0b63e5] hover:bg-slate-50 transition-all shadow-lg text-sm"
           >
-            Get Hosting <ArrowRight className="w-5 h-5" />
+            Get Started
           </Link>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="section-pad section-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#031033] mb-3">Features</span> */}
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] mb-4">
-              Powerful <span className="gradient-text">Hosting Features</span>
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feat) => {
-              const Icon = feat.icon;
-              const isOrange = feat.color === "orange";
-              return (
-                <div
-                  key={feat.title}
-                  className="feature-card p-7 flex flex-col gap-4 group"
-                >
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${isOrange ? "bg-[#fff8ee] border border-[#f5d38a]" : "bg-[#f2f5fc] border border-[#dce4f7]"} group-hover:scale-110 transition-transform`}
-                  >
-                    <Icon
-                      className={`w-6 h-6 ${isOrange ? "text-[#e8900a]" : "text-[#031033]"}`}
-                      strokeWidth={1.8}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-[#031033] font-bold text-lg mb-2">
-                      {feat.title}
-                    </h3>
-                    <p className="text-[#5a6a85] text-sm leading-relaxed">
-                      {feat.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Hosting types */}
-      <section className="section-pad section-light relative">
-        <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-[#031033] mb-3">
-              Hosting <span className="gradient-text">Types</span>
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {hostingTypes.map((type) => {
-              const Icon = type.icon;
-              return (
-                <div
-                  key={type.title}
-                  className={`feature-card p-6 flex items-start gap-4 ${!type.available ? "opacity-60" : ""}`}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-                    <Icon
-                      className="w-6 h-6 text-[#031033]"
-                      strokeWidth={1.8}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-[#031033] font-bold">{type.title}</h3>
-                      {!type.available && (
-                        <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 font-semibold">
-                          Coming Soon
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[#5a6a85] text-sm">{type.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Nupat */}
-      <section className="bg-[#031033] section-white relative overflow-hidden">
-        <div className="mx-auto relative z-10">
-          <div className="bg-[#031033] section-pad  rounded-3xl p-10 lg:p-14 text-center overflow-hidden relative">
-            <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
-            <div className="flex justify-center mb-6">
-              <Image 
-                src="/images/nupat-cloud-logo-blackbg-removebg-preview.png"
-                alt="Nupat Cloud Logo"
-                width={140}
-                height={40}
-                className="object-contain h-auto w-auto"
-              />
-            </div>
-            {/* <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#e8900a] mb-4">
-              Why Nupat Cloud
-            </span> */}
-            <h2 className="text-3xl font-extrabold text-white mb-5">
-              Built for{" "}
-              <span style={{ color: "#fd9f09" }}>African Businesses</span>
-            </h2>
-            <p className="text-gray-300 leading-relaxed mb-8 max-w-2xl mx-auto">
-              Nupat Cloud combines reliable infrastructure, local support,
-              modern hosting tools, and affordable pricing to help businesses
-              grow online confidently.
-            </p>
-            <Link
-              href="/pricing"
-              id="hosting-choose-plan-cta"
-              className="inline-flex items-center gap-2 py-4 px-10 rounded-xl text-base font-semibold bg-white text-[#031033] hover:bg-gray-100 transition-all shadow-xl"
-            >
-              Choose Hosting Plan <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
         </div>
       </section>
     </div>

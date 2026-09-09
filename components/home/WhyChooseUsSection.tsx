@@ -53,8 +53,8 @@ function CheckIcon() {
 
 export default function WhyChooseUsSection() {
   return (
-    <section id="why-choose-us" className="w-full py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
+    <section id="why-choose-us" className="w-full py-7 sm:py-9 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
         {/* ── Left: image as-is, no filter ── */}
         <div className="w-full lg:w-[46%] shrink-0 flex justify-center lg:justify-start">
           <Image
@@ -70,29 +70,29 @@ export default function WhyChooseUsSection() {
         {/* ── Right: content ── */}
         <div className="flex-1 w-full">
           {/* Decorative dots — top */}
-          <div className="relative mb-4 h-6">
+          <div className="relative mb-3 h-5">
             <span className="absolute left-0 top-2 w-2.5 h-2.5 rounded-full bg-[#1787D4] opacity-60" />
             <span className="absolute left-[38%] top-0 w-2 h-2 rounded-full bg-[#1787D4]" />
             <span className="absolute right-4 top-1 w-2.5 h-2.5 rounded-full bg-[#1787D4] opacity-40" />
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] tracking-tight mb-2 text-center lg:text-left">
+          <h2 className="type-h2 text-[#031033] mb-2 text-center lg:text-left">
             Why Choose Us
           </h2>
-          <p className="text-[#5a6a85] text-sm sm:text-base mb-7 text-center lg:text-left">
+          <p className="type-lead text-[#5a6a85] mb-5 text-center lg:text-left">
             Everything you need for a smooth and hassle-free domain transfer.
           </p>
 
           {/* Feature list */}
-          <ul className="flex flex-col gap-5">
+          <ul className="flex flex-col gap-4">
             {features.map((feat) => (
-              <li key={feat.title} className="flex items-start gap-3">
+              <li key={feat.title} className="flex items-start gap-3.5">
                 <CheckIcon />
                 <div>
-                  <p className="text-sm font-bold text-[#031033] leading-snug">
+                  <h3 className="text-[17px] sm:text-[18px] font-semibold text-[#031033] leading-snug">
                     {feat.title}
-                  </p>
-                  <p className="text-sm text-[#5a6a85] leading-relaxed mt-0.5">
+                  </h3>
+                  <p className="text-[14px] text-[#5a6a85] leading-relaxed mt-1">
                     {feat.description}
                   </p>
                 </div>

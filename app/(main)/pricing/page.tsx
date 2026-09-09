@@ -116,19 +116,19 @@ function PlanCard({
         </div>
       )}
       <div className="mb-5">
-        <h2 className={`font-bold text-xl mb-1 ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
+        <h3 className={`type-h3 mb-1.5 ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
           {plan.name} Hosting
-        </h2>
-        <p className={`text-sm ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
+        </h3>
+        <p className={`text-[14px] leading-relaxed ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
           {planDescription(plan.name)}
         </p>
       </div>
       <div className={`mb-7 pb-7 border-b ${plan.isPopular ? "border-white/20" : "border-[#dce4f7]"}`}>
         <div className="flex items-baseline gap-1">
-          <span className={`text-4xl font-extrabold ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
+          <span className={`text-2xl sm:text-[30px] font-bold tracking-tight ${plan.isPopular ? "text-white" : "text-[#031033]"}`}>
             {formatPrice(price)}
           </span>
-          <span className={`text-sm ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
+          <span className={`text-xs sm:text-[13px] ${plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"}`}>
             /{selectedCycle === "yearly" ? "year" : selectedCycle === "quarterly" ? "quarter" : "month"}
           </span>
         </div>
@@ -139,7 +139,7 @@ function PlanCard({
             <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.isPopular ? "bg-white/20" : "bg-[#f2f5fc] border border-[#dce4f7]"}`}>
               <Check className={`w-3 h-3 ${plan.isPopular ? "text-white" : "text-[#031033]"}`} strokeWidth={2.5} />
             </div>
-            <span className={`text-sm ${plan.isPopular ? "text-gray-100" : "text-[#5a6a85]"}`}>{feat}</span>
+            <span className={`text-[14px] ${plan.isPopular ? "text-gray-100" : "text-[#5a6a85]"}`}>{feat}</span>
           </li>
         ))}
       </ul>
@@ -148,7 +148,7 @@ function PlanCard({
         <Link
           href="/cart"
           id={`pricing-cta-${slug}`}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all bg-emerald-500 text-white hover:bg-emerald-600 shadow-md"
+          className="flex items-center justify-center gap-2 py-3 rounded-full font-medium text-sm transition-all bg-emerald-500 text-white hover:bg-emerald-600 shadow-xs active:scale-95"
         >
           In Cart — Checkout
           <ArrowRight className="w-4 h-4" />
@@ -157,8 +157,8 @@ function PlanCard({
         <button
           onClick={handleAddToCart}
           id={`pricing-cta-${slug}`}
-          className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all ${
-            plan.isPopular ? "bg-[#e8900a] text-white hover:bg-[#c97a08] shadow-md" : "btn-primary"
+          className={`flex items-center justify-center gap-2 py-3 rounded-full font-medium text-sm transition-all cursor-pointer active:scale-95 ${
+            plan.isPopular ? "bg-[#1787D4] text-white hover:bg-[#1370B5] shadow-xs" : "btn-primary"
           }`}
         >
           {planCta(plan.name)}<ArrowRight className="w-4 h-4" />
@@ -175,13 +175,13 @@ export default function PricingPage() {
   return (
     <div className="flex flex-col bg-white">
       {/* Hero */}
-      <section className="relative pt-32 pb-20 overflow-hidden section-navy-tint">
+      <section className="relative pt-24 pb-12 sm:pt-28 sm:pb-14 overflow-hidden section-navy-tint">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-5">
-            Transparent <span className="gradient-text">Hosting Pricing</span>
+          <h1 className="type-h1 text-[#031033] mb-4">
+            Transparent <span className="text-[#1787D4]">Hosting Pricing</span>
           </h1>
-          <p className="text-[#5a6a85] text-lg max-w-xl mx-auto">
+          <p className="type-lead text-[#5a6a85] max-w-xl mx-auto">
             Affordable and scalable hosting plans for businesses, startups, developers, and agencies.
           </p>
         </div>
@@ -198,15 +198,15 @@ export default function PricingPage() {
 
           {/* Billing Cycle Selector Tabs */}
           <div className="flex justify-center mb-12">
-            <div className="inline-flex items-center bg-[#f2f5fc] border border-[#dce4f7] p-1 rounded-xl">
+            <div className="inline-flex items-center bg-white border border-slate-200/90 p-1 rounded-full shadow-xs">
               {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
                 <button
                   key={cycle}
                   type="button"
                   onClick={() => setBillingCycle(cycle)}
-                  className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                  className={`px-6 py-2 text-xs sm:text-[13px] font-medium rounded-full transition-all cursor-pointer ${
                     billingCycle === cycle
-                      ? "bg-[#031033] text-white shadow-sm"
+                      ? "bg-[#031033] text-white shadow-xs"
                       : "text-[#5a6a85] hover:text-[#031033]"
                   }`}
                 >
@@ -231,8 +231,8 @@ export default function PricingPage() {
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-3xl mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-[#031033] mb-4">
-              Frequently Asked <span className="gradient-text">Questions</span>
+            <h2 className="type-h2 text-[#031033] mb-3">
+              Frequently Asked <span className="text-[#1787D4]">Questions</span>
             </h2>
           </div>
           <div className="flex flex-col gap-4">
@@ -265,7 +265,7 @@ export default function PricingPage() {
               className="object-contain h-auto w-auto"
             />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+          <h2 className="type-h2 text-white mb-4">
             Launch Your Website <span style={{ color: "#fd9f09" }}>Today</span>
           </h2>
           <p className="text-gray-300 mb-8">Start with reliable cloud infrastructure designed for African businesses and developers.</p>

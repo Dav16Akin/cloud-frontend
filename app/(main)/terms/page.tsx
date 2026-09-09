@@ -35,7 +35,7 @@ function SectionHeading({
         <Icon className="w-5 h-5 text-[#e8900a]" />
       </div>
       <div>
-        <h2 className="text-2xl font-extrabold text-[#031033]">{title}</h2>
+        <h2 className="type-h2 text-[#031033]">{title}</h2>
         <p className="text-sm text-[#9ba8c0] mt-0.5">{subtitle}</p>
       </div>
     </div>
@@ -96,7 +96,7 @@ export default function TermsPage() {
             <Scale className="w-3.5 h-3.5" />
             Legal Documents
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#031033] mb-4 leading-tight">
+          <h1 className="type-h1 text-[#031033] mb-4">
             Terms, Privacy &{" "}
             <span className="gradient-text">Refund Policy</span>
           </h1>

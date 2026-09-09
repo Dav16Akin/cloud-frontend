@@ -168,7 +168,7 @@ export default function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="py-14 sm:py-16 bg-white relative overflow-hidden"
+      className="py-10 sm:py-12 bg-white relative overflow-hidden"
     >
       {/* Background Curvelines */}
       <div className="absolute top-12 -left-28 pointer-events-none select-none z-0 hidden md:block">
@@ -199,9 +199,9 @@ export default function TestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-14 sm:mb-16 flex flex-col items-center"
+          className="text-center mb-8 sm:mb-10 flex flex-col items-center"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0B1527] tracking-tight mb-4 inline-block text-center">
+          <h2 className="type-h2 text-[#031033] mb-3 inline-block text-center">
             <span className="relative inline-block pb-1">
               Helping businesses build what&apos;s next
               <span
@@ -210,7 +210,7 @@ export default function TestimonialsSection() {
               />
             </span>
           </h2>
-          <p className="text-[#64748B] text-sm sm:text-base md:text-[17px] max-w-2xl mx-auto leading-relaxed mt-2">
+          <p className="type-lead text-[#5a6a85] max-w-2xl mx-auto leading-relaxed">
             We are creating the infrastructure that helps businesses move from
             idea to online and beyond.
           </p>
@@ -224,7 +224,7 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-14 sm:mb-16 text-center"
         >
-          <p className="text-xs sm:text-sm font-bold tracking-[0.16em] text-[#64748B] uppercase mb-8 sm:mb-10">
+          <p className="type-overline text-[#5a6a85] mb-8 sm:mb-10">
             TRUSTED BY LEADERS IN TECH &amp; FINANCE
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-14 lg:gap-18">
@@ -255,7 +255,7 @@ export default function TestimonialsSection() {
             >
               <div>
                 <BlueQuoteIcon />
-                <p className="text-[#374151] text-sm sm:text-[15px] leading-relaxed mb-8 font-normal">
+                <p className="text-[#1d1d1f] text-[15px] leading-relaxed mb-8 font-normal">
                   {t.quote}
                 </p>
               </div>
@@ -272,10 +272,10 @@ export default function TestimonialsSection() {
                   />
                 </div>
                 <div>
-                  <h4 className="text-[#0B1527] font-bold text-sm leading-tight">
+                  <h4 className="text-[#031033] font-semibold text-[15px] leading-tight">
                     {t.name}
                   </h4>
-                  <p className="text-[#64748B] text-xs font-medium mt-1">
+                  <p className="text-[#5a6a85] text-[13px] mt-0.5">
                     {t.title}
                   </p>
                 </div>

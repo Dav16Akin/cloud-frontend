@@ -153,16 +153,16 @@ export default function DomainsPage() {
   return (
     <div className="flex flex-col bg-white">
       {/* ── New Hero Section ── */}
-      <section className="relative pt-32 pb-12 sm:pt-36 sm:pb-14 lg:pt-36 lg:pb-16 overflow-hidden bg-white">
+      <section className="relative pt-24 pb-8 sm:pt-28 sm:pb-10 lg:pt-30 lg:pb-12 overflow-hidden bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Left Column: Headline, subtext, CTA */}
             <div className="lg:col-span-6 xl:col-span-6 text-left z-10">
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] xl:text-[48px] font-black text-[#031033] tracking-tight leading-[1.12]">
+              <h1 className="type-display text-[#031033]">
                 <span className="lg:whitespace-nowrap block">Find the perfect domain</span>
                 <span className="block">for your business</span>
               </h1>
-              <p className="mt-6 text-[#5a6a85] text-base sm:text-lg leading-relaxed max-w-lg font-normal">
+              <p className="mt-4 type-lead text-[#5a6a85] leading-relaxed max-w-lg font-normal">
                 Search, register, and secure your domain with Nupat. Get your
                 business online with a domain that is easy to manage and ready to
                 grow with you.
@@ -172,7 +172,7 @@ export default function DomainsPage() {
                   type="button"
                   onClick={scrollToSearch}
                   id="hero-search-btn"
-                  className="btn-primary !rounded-[8px] py-3.5 px-7 sm:px-8 text-sm sm:text-base font-semibold text-white shadow-[0_2px_10px_rgba(23,135,212,0.35)] hover:shadow-[0_4px_16px_rgba(23,135,212,0.45)] transition-all cursor-pointer"
+                  className="btn-primary !rounded-full py-3 px-8 text-[15px] font-medium text-white shadow-sm hover:shadow-md transition-all cursor-pointer"
                 >
                   Search for a Domain
                 </button>
@@ -216,10 +216,10 @@ export default function DomainsPage() {
         className="bg-[#f8f9fb] py-12 sm:py-16 border-t border-[#edf2f7] relative scroll-mt-20"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#031033] tracking-tight">
+          <h2 className="type-h2 text-[#031033]">
             Your name starts here
           </h2>
-          <p className="mt-3 text-[#5a6a85] text-sm sm:text-base font-normal max-w-xl mx-auto">
+          <p className="mt-2 type-lead text-[#5a6a85] max-w-xl mx-auto">
             Search thousands of domain names and find the right one for your brand.
           </p>
 
@@ -506,10 +506,10 @@ export default function DomainsPage() {
       </section>
 
       {/* ── 3 Steps Section ── */}
-      <section className="bg-[#edf5ff] py-14 sm:py-18 border-t border-b border-[#e2edfc]">
+      <section className="bg-[#edf5ff] py-10 sm:py-12 border-t border-b border-[#e2edfc]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#031033] tracking-tight">
+            <h2 className="type-h2 text-[#031033]">
               Get your domain in three simple steps
             </h2>
           </div>
@@ -571,12 +571,12 @@ export default function DomainsPage() {
       </section>
 
       {/* ── Everything You Need Section ── */}
-      <section className="bg-white pt-14 pb-0 sm:pt-16 sm:pb-0 overflow-hidden">
+      <section className="bg-white pt-10 pb-0 sm:pt-12 sm:pb-0 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             {/* Left Column: Heading and 4 feature cards */}
             <div className="lg:col-span-8 pb-10 sm:pb-14 lg:pb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#031033] tracking-tight mb-8 sm:mb-10">
+              <h2 className="type-h2 text-[#031033] mb-8 sm:mb-10">
                 Everything you need to manage your domain
               </h2>
 
@@ -586,10 +586,10 @@ export default function DomainsPage() {
                   <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Search className="w-5 h-5 text-[#1787D4]" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#031033] mb-2 leading-snug">
+                  <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
                     Easy<br />Registration
                   </h3>
-                  <p className="text-[#5a6a85] text-xs leading-relaxed">
+                  <p className="text-[13px] text-[#5a6a85] leading-relaxed">
                     Search and register your domain in a few simple steps.
                   </p>
                 </div>
@@ -599,10 +599,10 @@ export default function DomainsPage() {
                   <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Shield className="w-5 h-5 text-[#1787D4]" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#031033] mb-2 leading-snug">
+                  <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
                     Secure
                   </h3>
-                  <p className="text-[#5a6a85] text-xs leading-relaxed">
+                  <p className="text-[13px] text-[#5a6a85] leading-relaxed">
                     Keep your domain protected with reliable infrastructure.
                   </p>
                 </div>
@@ -612,10 +612,10 @@ export default function DomainsPage() {
                   <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Settings className="w-5 h-5 text-[#1787D4]" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#031033] mb-2 leading-snug">
+                  <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
                     Easy<br />Management
                   </h3>
-                  <p className="text-[#5a6a85] text-xs leading-relaxed">
+                  <p className="text-[13px] text-[#5a6a85] leading-relaxed">
                     Manage your domain settings from one dashboard.
                   </p>
                 </div>
@@ -625,10 +625,10 @@ export default function DomainsPage() {
                   <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Globe className="w-5 h-5 text-[#1787D4]" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#031033] mb-2 leading-snug">
+                  <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
                     Built for Africa
                   </h3>
-                  <p className="text-[#5a6a85] text-xs leading-relaxed">
+                  <p className="text-[13px] text-[#5a6a85] leading-relaxed">
                     A digital platform designed around African businesses.
                   </p>
                 </div>
@@ -656,10 +656,10 @@ export default function DomainsPage() {
       </section>
 
       {/* ── Choose a Domain Section ── */}
-      <section className="bg-[#fff8f2] py-14 sm:py-18 border-t border-b border-[#fceee1]">
+      <section className="bg-[#fff8f2] py-10 sm:py-12 border-t border-b border-[#fceee1]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#031033] tracking-tight">
+            <h2 className="type-h2 text-[#031033]">
               Choose a domain that fits your brand
             </h2>
           </div>
@@ -720,11 +720,11 @@ export default function DomainsPage() {
       </section>
 
       {/* ── Ready to Claim Banner & FAQ Section ── */}
-      <section className="bg-white pt-12 pb-16 sm:pt-14 sm:pb-20">
+      <section className="bg-white pt-8 pb-10 sm:pt-10 sm:pb-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Orange CTA Banner Card */}
           <div className="relative rounded-3xl overflow-hidden p-8 sm:p-12 lg:p-14 text-center shadow-xl bg-gradient-to-r from-[#ff5e00] via-[#ff7800] to-[#ffa000]">
-            <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-white tracking-tight">
+            <h2 className="type-h2 text-white">
               Ready to claim your domain?
             </h2>
             <p className="text-white/95 text-sm sm:text-base font-normal mt-3 max-w-xl mx-auto">
@@ -743,7 +743,7 @@ export default function DomainsPage() {
 
           {/* Frequently Asked Questions */}
           <div className="mt-14 sm:mt-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-[38px] font-black text-[#031033] tracking-tight text-center mb-8 sm:mb-10">
+            <h2 className="type-h2 text-[#031033] text-center mb-8 sm:mb-10">
               Frequently asked questions
             </h2>
 

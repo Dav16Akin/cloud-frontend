@@ -223,7 +223,7 @@ export default function RegisterPage() {
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 tracking-tight">
+            <h1 className="type-h1 text-gray-900 mb-2">
               Create your account
             </h1>
             <p className="text-gray-600 text-sm">

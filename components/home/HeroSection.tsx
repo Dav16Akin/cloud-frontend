@@ -4,31 +4,41 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+import { FluidOrb } from "@/components/ui/fluid-orb";
+
 export default function HeroSection() {
   return (
     <section
       id="hero"
       className="relative w-full overflow-hidden bg-[#1787D4] min-h-[580px] lg:min-h-[640px] pt-32 pb-16 lg:pt-36 lg:pb-20 flex items-center"
     >
-      {/* ── White circle backdrop — sits behind the person, upper-right area ── */}
+      {/* ── FluidOrb backdrop — matching the navbar logged-in orb, sits behind the person ── */}
       <div
-        className="absolute rounded-full bg-white hidden lg:block"
+        className="absolute rounded-full hidden lg:flex items-center justify-center pointer-events-none"
         style={{
           width: "38vw",
           height: "38vw",
-          maxWidth: "540px",
-          maxHeight: "540px",
-          top: "70%",
+          maxWidth: "520px",
+          maxHeight: "520px",
+          top: "65%",
           right: "8%",
           transform: "translateY(-50%)",
           zIndex: 2,
         }}
-      />
+      >
+        <FluidOrb
+          size={520}
+          color="#1787D4"
+          topColor="#FD9F09"
+          style={{ width: "100%", height: "100%" }}
+          className="w-full h-full shadow-[0_0_90px_rgba(253,159,9,0.35)] ring-4 ring-white/25"
+        />
+      </div>
 
       {/* ── Top-right wavy squiggle ── */}
       <div
         className="absolute z-20 pointer-events-none hidden lg:block"
-        style={{ top: "30%", right: "0%" }}
+        style={{ top: "30%", right: "0%", zIndex: 2 }}
       >
         <Image
           src="/curveline.png"
@@ -58,7 +68,7 @@ export default function HeroSection() {
       {/* ── Main content: left text column ── */}
       <div className="relative z-30 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-full">
         <div className="max-w-lg lg:max-w-[46%]">
-          <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.12] tracking-tight text-white mb-5">
+          <h1 className="type-display text-white mb-5">
             One <span className="text-[#FFC75D]">Platform</span> to Build,
             <br />
             Launch, and Run Your
@@ -66,27 +76,27 @@ export default function HeroSection() {
             <span className="text-[#FFC75D]">Digital Business.</span>
           </h1>
 
-          <p className="text-white/90 text-sm sm:text-base leading-relaxed max-w-sm mb-8">
+          <p className="text-white/90 text-[15px] sm:text-[16px] leading-relaxed max-w-md mb-8">
             We bring domains, hosting, AI website creation, cloud
             infrastructure, email, payments, and business tools together giving
             you everything you need to grow online.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4">
+          {/* Apple Pill CTA Buttons */}
+          <div className="flex flex-wrap items-center gap-3.5">
             <Link
               href="/domains"
               id="hero-get-started"
-              className="inline-flex items-center justify-center border-2 border-white bg-white hover:bg-gray-100 text-[#1787D4] font-bold text-sm py-3 px-8 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+              className="btn-white !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-semibold cursor-pointer"
             >
               Get Started
             </Link>
             <Link
-              href="/products"
+              href="/hosting"
               id="hero-explore-products"
-              className="inline-flex items-center justify-center border-2 border-white hover:bg-white/10 text-white font-bold text-sm py-3 px-7 rounded-lg transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+              className="btn-outline-white !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-semibold cursor-pointer"
             >
-              Explore Products
+              Explore Hosting
             </Link>
           </div>
         </div>

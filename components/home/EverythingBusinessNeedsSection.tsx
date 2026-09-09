@@ -85,7 +85,7 @@ export default function EverythingBusinessNeedsSection() {
   return (
     <section
       id="business-suite"
-      className="py-14 sm:py-18 bg-white relative overflow-hidden"
+      className="py-10 sm:py-12 bg-white relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
@@ -97,16 +97,16 @@ export default function EverythingBusinessNeedsSection() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0B1527] leading-[1.18] tracking-tight mb-4">
+              <h2 className="type-h2 text-[#031033] mb-3">
                 Everything your business needs to{" "}
                 <br className="hidden sm:inline" />
                 operate and grow
               </h2>
 
-              <p className="text-[#5a6a85] text-sm sm:text-base leading-relaxed mb-8 max-w-2xl">
+              <p className="type-lead text-[#5a6a85] leading-relaxed mb-6 max-w-2xl">
                 We are expanding beyond infrastructure to bring essential tools
                 businesses need to manage customers, teams, finances, commerce,
-                and workflows - all within one ecosystem.
+                and workflows, all within one unified ecosystem.
               </p>
             </motion.div>
 
@@ -128,28 +128,28 @@ export default function EverythingBusinessNeedsSection() {
                       delay: idx * 0.06,
                     }}
                     whileHover={{ y: -3, scale: 1.01 }}
-                    className="bg-white border border-[#E2E8F0] rounded-2xl p-4 sm:p-4.5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-default"
+                    className="bg-white border border-[#E2E8F0] rounded-xl p-4 sm:p-4.5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-default"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2.5">
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                             isActive
-                              ? "text-[#0058F6] bg-blue-50"
+                              ? "text-[#1787D4] bg-blue-50"
                               : "text-[#64748B] bg-slate-100"
                           }`}
                         >
                           <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="font-bold text-[#0B1527] text-sm sm:text-[15px]">
+                        <span className="font-semibold text-[#031033] text-[15px] sm:text-[16px]">
                           {tool.name}
                         </span>
                       </div>
 
                       <span
-                        className={`text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full ${
+                        className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
                           isActive
-                            ? "bg-[#0058F6] text-white shadow-xs"
+                            ? "bg-[#1787D4] text-white shadow-xs"
                             : "bg-[#E2E8F0] text-[#64748B]"
                         }`}
                       >
@@ -157,7 +157,7 @@ export default function EverythingBusinessNeedsSection() {
                       </span>
                     </div>
 
-                    <p className="text-xs text-[#64748B] pl-10.5 leading-snug">
+                    <p className="text-[13px] text-[#5a6a85] pl-10.5 leading-relaxed">
                       {tool.desc}
                     </p>
                   </motion.div>

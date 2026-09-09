@@ -1,3 +1,4 @@
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,9 +8,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -43,7 +44,7 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  --radius-2xl: 1.125rem;
   --radius-3xl: 1.5rem;
   --radius-4xl: 2rem;
   --shadow-apple: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
@@ -78,8 +79,8 @@
   --accent: #e8f4fc;
   --accent-foreground: #0d5fa0;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #cde6f5;
-  --input: #cde6f5;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
   --ring: #1787D4;
   --radius: 0.5rem;
 
@@ -97,8 +98,120 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e8f4fc;
   --sidebar-accent-foreground: #1787D4;
-  --sidebar-border: #cde6f5;
+  --sidebar-border: #e2e8f0;
   --sidebar-ring: #1787D4;
+}
+
+/* ============================================================
+   TYPOGRAPHY SYSTEM — Apple SF Pro Unified Scale
+   Strict mathematical hierarchy:
+   Hero H1 > Page H1 > Section H2 > Card H3 > Feature H4 > Lead > Body > Body-SM > Caption
+   Guarantees headers are never smaller than body text.
+   ============================================================ */
+:root {
+  --font-apple-display: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-apple-text: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Sizing scale */
+  --fs-display:   clamp(2rem, 3.8vw, 2.75rem); /* 32–44px  Hero h1 (Apple hero display) */
+  --fs-h1:        2.25rem;                     /* 36px     Page h1 */
+  --fs-h2:        1.875rem;                    /* 30px     Uniform Section headings */
+  --fs-h3:        1.25rem;                     /* 20px     Card / sub-section headings */
+  --fs-h4:        1.0625rem;                   /* 17px     Small headings / feature titles */
+  --fs-body-lg:   1.0625rem;                   /* 17px     Section sub-headers / lead */
+  --fs-body:      0.9375rem;                   /* 15px     Standard body text */
+  --fs-body-sm:   0.875rem;                    /* 14px     Card descriptions / secondary text */
+  --fs-caption:   0.75rem;                     /* 12px     Labels, badges, eyebrows */
+  --fs-overline:  0.6875rem;                   /* 11px     All-caps eyebrow labels */
+
+  /* Line heights */
+  --lh-display: 1.15;
+  --lh-h1:      1.2;
+  --lh-h2:      1.25;
+  --lh-h3:      1.35;
+  --lh-h4:      1.4;
+  --lh-body-lg: 1.55;
+  --lh-body:    1.55;
+  --lh-body-sm: 1.5;
+
+  /* Letter spacing */
+  --ls-display: -0.025em;
+  --ls-h1:      -0.02em;
+  --ls-h2:      -0.018em;
+  --ls-h3:      -0.012em;
+  --ls-body:    -0.005em;
+}
+
+/* ── Utility classes ────────────────────────────────────────── */
+.type-display, .apple-hero {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: 600;
+  letter-spacing: var(--ls-display);
+}
+.type-h1, .apple-h1 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  font-weight: 600;
+  letter-spacing: var(--ls-h1);
+}
+.type-h2, .apple-h2 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: 600;
+  letter-spacing: var(--ls-h2);
+}
+.type-h3, .apple-h3 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  font-weight: 600;
+  letter-spacing: var(--ls-h3);
+}
+.type-h4, .apple-h4 {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-h4);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.type-body-lg, .type-lead, .apple-lead {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  font-weight: 400;
+  letter-spacing: var(--ls-body);
+}
+.type-body, .apple-body {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  letter-spacing: var(--ls-body);
+}
+.type-body-sm, .apple-caption {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body-sm);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.type-caption {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.type-overline, .apple-eyebrow {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ============================================================
@@ -109,16 +222,57 @@
     @apply border-border outline-ring/50;
     box-sizing: border-box;
   }
+  html {
+    font-family: var(--font-apple-text);
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-apple-text);
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-  }
+}
+
+/* ============================================================
+   HEADING ELEMENT DEFAULTS
+   Defined OUTSIDE @layer so plain CSS wins over Tailwind's
+   preflight reset (which sets font-size: inherit in @layer base).
+   Any heading with no extra Tailwind text-* class will use these.
+   ============================================================ */
+body h1 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  font-weight: 600;
+  letter-spacing: var(--ls-h1);
+}
+body h2 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: 600;
+  letter-spacing: var(--ls-h2);
+}
+body h3 {
+  font-family: var(--font-apple-display);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  font-weight: 600;
+  letter-spacing: var(--ls-h3);
+}
+body h4 {
+  font-family: var(--font-apple-text);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-h4);
+  font-weight: 600;
+}
+
+/* Authoritative body defaults */
+body {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
 }
 
 /* ============================================================
@@ -126,10 +280,10 @@
    ============================================================ */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
+  50%       { transform: translateY(-8px); }
 }
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes spin-slow {
@@ -142,7 +296,7 @@
 }
 
 /* ============================================================
-   BUTTON SYSTEM — Rounded (6px from Figma)
+   BUTTON SYSTEM — Apple Pill Buttons (rounded-full)
    ============================================================ */
 
 /* ── Primary button (main CTA everywhere) ── */
@@ -151,22 +305,24 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #ffffff;
   background: #1787D4;
-  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 1px 4px rgba(23, 135, 212, 0.25);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 .btn-primary:hover {
   background: #1370B5;
+  box-shadow: 0 3px 10px rgba(23, 135, 212, 0.35);
   transform: translateY(-1px);
 }
 .btn-primary:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
 /* ── Navy filled button ── */
@@ -175,87 +331,96 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #ffffff;
   background: #031033;
   transition: background 0.2s ease, transform 0.15s ease;
 }
+.btn-navy:hover {
+  background: #071d55;
+  transform: translateY(-1px);
+}
+.btn-navy:active {
+  transform: scale(0.97);
+}
 
+/* ── White filled pill button ── */
 .btn-white {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
+  padding: 0.625rem 1.375rem;
   font-weight: 600;
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 6px !important;
-  color: #031033;
+  border-radius: 9999px !important;
+  color: #1787D4;
   background: #ffffff;
-  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
-
 .btn-white:hover {
-  background: rgb(228, 225, 225);
+  background: #f8faff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transform: translateY(-1px);
 }
-
-.btn-navy:hover {
-  background: #071d55;
-  transform: translateY(-1px);
+.btn-white:active {
+  transform: scale(0.97);
 }
 
-/* ── Outline button — navy border ── */
+/* ── Outline button — blue border ── */
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
-  border: 1.5px solid #031033;
-  border-radius: 6px !important;
-  color: #031033;
+  border: 1.5px solid #1787D4;
+  border-radius: 9999px !important;
+  color: #1787D4;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
-
 .btn-outline:hover {
-  background: #031033;
-  color: #ffffff;
+  background: #f2f5fc;
   transform: translateY(-1px);
 }
+.btn-outline:active {
+  transform: scale(0.97);
+}
 
-/* ── Outline white button — white border for dark/navy sections ── */
+/* ── Outline white button — white border for dark/navy/blue sections ── */
 .btn-outline-white {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #ffffff;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #ffffff;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
-
 .btn-outline-white:hover {
-  background: #ffffff;
-  color: #031033;
+  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
+}
+.btn-outline-white:active {
+  transform: scale(0.97);
 }
 
 /* ── Outline primary ── */
@@ -265,12 +430,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #1787D4;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #1787D4;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
@@ -280,12 +445,16 @@
   background: #1787D4;
   color: #ffffff;
 }
+.btn-outline-primary:active,
+.btn-outline-orange:active {
+  transform: scale(0.97);
+}
 
 /* ── Small button variant ── */
 .btn-sm {
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-  border-radius: 6px !important;
+  padding: 0.375rem 1rem;
+  font-size: 0.8125rem;
+  border-radius: 9999px !important;
 }
 
 /* Legacy aliases */
@@ -294,12 +463,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: none;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #ffffff;
   background: #1787D4;
   transition: background 0.2s ease, transform 0.15s ease;
@@ -312,12 +481,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  font-weight: 600;
+  padding: 0.625rem 1.375rem;
+  font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   border: 1.5px solid #031033;
-  border-radius: 6px !important;
+  border-radius: 9999px !important;
   color: #031033;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
@@ -416,8 +585,8 @@
 /* ============================================================
    SECTION SPACING
    ============================================================ */
-.section-pad    { padding: 3.5rem 0; }
-.section-pad-lg { padding: 4.5rem 0; }
+.section-pad    { padding: 2.25rem 0; }
+.section-pad-lg { padding: 3rem 0; }
 .site-container {
   width: 100%;
   max-width: 72rem;

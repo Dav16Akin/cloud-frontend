@@ -9,7 +9,7 @@ export default function FinalCTASection() {
   return (
     <section
       id="final-cta"
-      className="py-24 sm:py-32 relative overflow-hidden bg-linear-to-b from-[#031033] via-[#051640] to-[#020b24]"
+      className="py-12 sm:py-16 relative overflow-hidden bg-linear-to-b from-[#031033] via-[#051640] to-[#020b24]"
     >
       {/* Ambient background glows with pulse motion */}
       <motion.div
@@ -42,7 +42,7 @@ export default function FinalCTASection() {
           alt=""
           width={500}
           height={200}
-          className="w-110 lg:w-150 h-auto opacity-15 rotate-25"
+          className="w-105 lg:w-145 h-auto opacity-12 rotate-30"
           aria-hidden
         />
       </div>
@@ -54,45 +54,45 @@ export default function FinalCTASection() {
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+          <h2 className="type-h2 text-white mb-3">
             <span className="relative inline-block pb-1">
               Start Building Online with Confidence
             </span>
           </h2>
 
-          <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
+          <p className="type-lead text-slate-300 leading-relaxed mb-6 max-w-2xl mx-auto">
             Get ultra-fast NVMe hosting, instant domain registrations, secure
             business emails, and African cloud infrastructure backed by 24/7
             technical support.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
               className="w-full sm:w-auto"
             >
               <Link
                 href="/register"
                 id="final-cta-get-started"
-                className="inline-flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-semibold text-base py-4 px-10 rounded-xl transition-all duration-200 shadow-xl shadow-blue-500/25 w-full sm:w-auto cursor-pointer"
+                className="btn-primary !rounded-full py-2.5 px-6 text-[14px] font-medium text-white shadow-md w-full sm:w-auto cursor-pointer inline-flex items-center justify-center gap-2"
               >
                 Get Started Free
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>
 
             <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
               className="w-full sm:w-auto"
             >
               <Link
                 href="/domains"
                 id="final-cta-search-domain"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold text-base py-4 px-10 rounded-xl border border-white/20 backdrop-blur-md transition-all duration-200 w-full sm:w-auto cursor-pointer"
+                className="btn-outline-white !rounded-full py-2.5 px-6 text-[14px] font-medium text-white backdrop-blur-md transition-all duration-200 w-full sm:w-auto cursor-pointer inline-flex items-center justify-center gap-2"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4" />
                 Search Domains
               </Link>
             </motion.div>

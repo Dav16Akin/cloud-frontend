@@ -90,26 +90,26 @@ export default function HostingPage() {
   return (
     <div className="flex flex-col bg-white overflow-hidden">
       {/* ── 1. Hero Section ── */}
-      <section className="relative pt-32 pb-16 sm:pt-36 sm:pb-20 lg:pt-40 lg:pb-24 overflow-hidden">
+      <section className="relative pt-24 pb-10 sm:pt-28 sm:pb-12 lg:pt-30 lg:pb-14 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Content */}
             <div className="lg:col-span-6 text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#0a1128] tracking-tight leading-[1.12] mb-6">
+              <h1 className="type-display text-[#031033] mb-5">
                 Reliable hosting for
                 <br />
                 everything you want to
                 <br />
                 build
               </h1>
-              <p className="text-[#5a6a85] text-base sm:text-lg leading-relaxed mb-8 max-w-lg">
+              <p className="type-lead text-[#5a6a85] leading-relaxed mb-8 max-w-lg">
                 Launch your website on fast, secure and reliable hosting designed
                 to keep your online presence running smoothly.
               </p>
               <Link
                 href="#plans"
                 id="view-hosting-plan-hero-cta"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-xl text-white font-semibold bg-[#1366e2] hover:bg-[#0f52b8] transition-colors shadow-sm text-sm"
+                className="btn-primary !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-medium"
               >
                 View Hosting Plan
               </Link>
@@ -131,7 +131,7 @@ export default function HostingPage() {
 
                 {/* Badge 1: 99.9% Uptime (Top Left) */}
                 <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <Activity className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -146,7 +146,7 @@ export default function HostingPage() {
 
                 {/* Badge 2: Free SSL included (Top Right) */}
                 <div className="absolute top-8 sm:top-12 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -161,7 +161,7 @@ export default function HostingPage() {
 
                 {/* Badge 3: 1-Click Setup (Bottom Right) */}
                 <div className="absolute bottom-12 sm:bottom-16 right-0 sm:right-4 lg:-right-2 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1366e2] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -180,30 +180,30 @@ export default function HostingPage() {
       </section>
 
       {/* ── 2. Pricing Plans Section ── */}
-      <section id="plans" className="py-16 sm:py-20 lg:py-24 bg-white scroll-mt-24">
+      <section id="plans" className="py-10 sm:py-12 lg:py-14 bg-white scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="type-h2 text-[#031033]">
               Choose the hosting that fits your website
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
             {/* Plan 1: Starter */}
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
               <div>
-                <h3 className="text-2xl font-bold text-[#0a1128]">Starter</h3>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1 mb-6">
+                <h3 className="type-h3 text-[#031033]">Starter</h3>
+                <p className="text-[14px] text-gray-500 mt-1 mb-6">
                   For personal websites and small projects
                 </p>
 
                 <div className="space-y-3.5 pt-2">
                   {starterFeatures.map((feat) => (
                     <div key={feat} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1366e2] shrink-0">
+                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1787D4] shrink-0">
                         <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                       </div>
-                      <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                      <span className="text-[14px] text-gray-700 font-medium">
                         {feat}
                       </span>
                     </div>
@@ -214,14 +214,14 @@ export default function HostingPage() {
               <Link
                 href="/pricing?plan=Starter"
                 id="choose-starter-btn"
-                className="w-full py-3 px-4 rounded-xl bg-[#eef3f8] hover:bg-[#e2eaf2] text-[#0a1128] text-sm font-semibold transition text-center mt-8 block"
+                className="w-full py-2.5 px-4 rounded-full bg-[#f2f5fc] hover:bg-[#e8edf8] text-[#031033] text-sm font-medium transition text-center mt-8 block active:scale-95"
               >
                 Choose Starter
               </Link>
             </div>
 
             {/* Plan 2: Business (POPULAR) */}
-            <div className="bg-[#0b63e5] rounded-3xl p-7 sm:p-8 flex flex-col justify-between text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
+            <div className="bg-[#1787D4] rounded-2xl p-7 sm:p-8 flex flex-col justify-between text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
               <div className="absolute top-6 right-6">
                 <span className="px-3 py-1 text-[11px] font-bold text-white uppercase tracking-wider rounded-full border border-white/30 bg-white/20 backdrop-blur-xs">
                   POPULAR
@@ -229,8 +229,8 @@ export default function HostingPage() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-white">Business</h3>
-                <p className="text-xs sm:text-sm text-white/80 mt-1 mb-6">
+                <h3 className="type-h3 text-white">Business</h3>
+                <p className="text-[14px] text-white/80 mt-1 mb-6">
                   For growing businesses and professional websites
                 </p>
 
@@ -240,7 +240,7 @@ export default function HostingPage() {
                       <div className="w-4 h-4 rounded-full border border-white/40 bg-white/20 flex items-center justify-center text-white shrink-0">
                         <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                       </div>
-                      <span className="text-xs sm:text-sm text-white font-medium">
+                      <span className="text-[14px] text-white font-medium">
                         {feat}
                       </span>
                     </div>
@@ -251,27 +251,27 @@ export default function HostingPage() {
               <Link
                 href="/pricing?plan=Business"
                 id="choose-business-btn"
-                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-[#0b63e5] text-sm font-bold transition text-center mt-8 shadow-sm block"
+                className="w-full py-2.5 px-4 rounded-full bg-white hover:bg-slate-50 text-[#1787D4] text-sm font-semibold transition text-center mt-8 shadow-xs block active:scale-95"
               >
                 Choose Business
               </Link>
             </div>
 
             {/* Plan 3: Advanced */}
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
               <div>
-                <h3 className="text-2xl font-bold text-[#0a1128]">Advanced</h3>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1 mb-6">
+                <h3 className="type-h3 text-[#031033]">Advanced</h3>
+                <p className="text-[14px] text-gray-500 mt-1 mb-6">
                   For websites with higher traffic and resource needs
                 </p>
 
                 <div className="space-y-3.5 pt-2">
                   {advancedFeatures.map((feat) => (
                     <div key={feat} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1366e2] shrink-0">
+                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1787D4] shrink-0">
                         <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                       </div>
-                      <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                      <span className="text-[14px] text-gray-700 font-medium">
                         {feat}
                       </span>
                     </div>
@@ -282,7 +282,7 @@ export default function HostingPage() {
               <Link
                 href="/pricing?plan=Agency"
                 id="choose-advanced-btn"
-                className="w-full py-3 px-4 rounded-xl bg-[#eef3f8] hover:bg-[#e2eaf2] text-[#0a1128] text-sm font-semibold transition text-center mt-8 block"
+                className="w-full py-2.5 px-4 rounded-full bg-[#f2f5fc] hover:bg-[#e8edf8] text-[#031033] text-sm font-medium transition text-center mt-8 block active:scale-95"
               >
                 Choose Advanced
               </Link>
@@ -292,10 +292,10 @@ export default function HostingPage() {
       </section>
 
       {/* ── 3. Core Features Grid Section ── */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+      <section className="py-10 sm:py-12 lg:py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="type-h2 text-[#031033]">
               Everything your website needs to stay online
             </h2>
           </div>
@@ -308,13 +308,13 @@ export default function HostingPage() {
                   key={item.title}
                   className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col items-start hover:shadow-md transition-shadow"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-[#eff6ff] text-[#0b63e5] flex items-center justify-center mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-4">
                     <Icon className="w-5 h-5 stroke-[2]" />
                   </div>
-                  <h3 className="text-base font-bold text-[#0a1128] mb-1.5">
+                  <h3 className="type-h3 text-[#031033] mb-1.5">
                     {item.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                  <p className="text-[14px] text-gray-500 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -325,13 +325,13 @@ export default function HostingPage() {
       </section>
 
       {/* ── 4. Dashboard Preview Section ("Your hosting under control") ── */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+      <section className="py-10 sm:py-12 lg:py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 max-w-2xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight mb-3">
+          <div className="text-center mb-8 sm:mb-10 max-w-2xl mx-auto">
+            <h2 className="type-h2 text-[#031033] mb-3">
               Your hosting under control
             </h2>
-            <p className="text-sm sm:text-base text-gray-500">
+            <p className="type-lead text-[#5a6a85]">
               Manage your website resources, domains and hosting services from one
               connected dashboard
             </p>
@@ -359,7 +359,7 @@ export default function HostingPage() {
                       82%
                     </div>
                     <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mt-3">
-                      <div className="w-[82%] bg-[#0b63e5] h-full rounded-full" />
+                      <div className="w-[82%] bg-[#1787D4] h-full rounded-full" />
                     </div>
                   </div>
 
@@ -372,7 +372,7 @@ export default function HostingPage() {
                       4.2 GB <span className="text-xs sm:text-sm font-normal text-gray-400">/ 10 GB</span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mt-3">
-                      <div className="w-[42%] bg-[#0b63e5] h-full rounded-full" />
+                      <div className="w-[42%] bg-[#1787D4] h-full rounded-full" />
                     </div>
                   </div>
 
@@ -432,10 +432,10 @@ export default function HostingPage() {
       </section>
 
       {/* ── 5. How It Works Section ("From sign-up to online in minutes") ── */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+      <section className="py-10 sm:py-12 lg:py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0a1128] tracking-tight">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="type-h2 text-[#031033]">
               From sign-up to online in minutes
             </h2>
           </div>
@@ -444,21 +444,21 @@ export default function HostingPage() {
             {steps.map((step, idx) => (
               <div
                 key={step.number}
-                className="bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-start relative group hover:border-blue-200 transition-colors"
+                className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-start relative group hover:border-blue-200 transition-colors"
               >
-                <div className="text-3xl font-extrabold text-[#0b63e5] mb-4">
+                <div className="text-3xl font-extrabold text-[#1787D4] mb-4">
                   {step.number}
                 </div>
-                <h3 className="text-lg font-bold text-[#0a1128] mb-2">
+                <h3 className="type-h3 text-[#031033] mb-2">
                   {step.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                <p className="text-[14px] text-gray-500 leading-relaxed">
                   {step.desc}
                 </p>
 
                 {/* Arrow to next step on desktop */}
                 {idx < steps.length - 1 && (
-                  <div className="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm items-center justify-center text-blue-500 z-10">
+                  <div className="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm items-center justify-center text-[#1787D4] z-10">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 )}
@@ -469,18 +469,18 @@ export default function HostingPage() {
       </section>
 
       {/* ── 6. Bottom Call to Action (CTA) ── */}
-      <section className="bg-gradient-to-b from-[#1b68e3] to-[#1153bc] py-20 sm:py-24 text-center px-4 relative overflow-hidden">
+      <section className="bg-[#1787D4] py-10 sm:py-12 text-center px-4 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-3">
+          <h2 className="type-h2 text-white mb-2.5">
             Ready to put your website online?
           </h2>
-          <p className="text-sm sm:text-base text-white/85 mb-8 max-w-md mx-auto">
+          <p className="type-lead text-white/90 mb-6 max-w-md mx-auto">
             Reliable hosting for your next website or business.
           </p>
           <Link
             href="/pricing"
             id="cta-get-started-btn"
-            className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold bg-white text-[#0b63e5] hover:bg-slate-50 transition-all shadow-lg text-sm"
+            className="btn-white !rounded-full px-8 py-3 text-[15px] font-semibold shadow-md cursor-pointer"
           >
             Get Started
           </Link>

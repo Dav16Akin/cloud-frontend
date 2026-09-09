@@ -75,7 +75,7 @@ export default function WhyNupatSection() {
   return (
     <section
       id="products-ecosystem"
-      className="py-14 sm:py-16 bg-[#f8faff] relative overflow-hidden"
+      className="py-10 sm:py-12 bg-[#f8faff] relative overflow-hidden"
     >
       {/* Background ambient radial glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-175 h-112.5 bg-[#1787D4]/5 rounded-full blur-3xl pointer-events-none" />
@@ -110,9 +110,9 @@ export default function WhyNupatSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-10 sm:mb-12 flex flex-col items-center"
+          className="text-center mb-7 sm:mb-9 flex flex-col items-center"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] tracking-tight mb-4 max-w-3xl">
+          <h2 className="type-h2 text-[#031033] mb-4 max-w-3xl">
             <span className="relative inline-block pb-1">
               Your digital business, connected
               <span
@@ -121,7 +121,7 @@ export default function WhyNupatSection() {
               />
             </span>
           </h2>
-          <p className="text-[#5a6a85] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="type-body-lg text-[#5a6a85] max-w-2xl mx-auto">
             Stop piecing together different platforms for your website,
             infrastructure, communication, and business operations.
           </p>
@@ -158,16 +158,16 @@ export default function WhyNupatSection() {
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="text-xl font-bold text-[#0B1527] tracking-tight group-hover:text-[#1787D4] transition-colors mb-2.5">
+                  <h3 className="type-h3 text-[#031033] group-hover:text-[#1787D4] transition-colors mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-[#5a6a85] leading-relaxed">
+                  <p className="text-[14px] text-[#5a6a85] leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
                 {/* Bottom arrow link */}
-                <div className="relative z-10 mt-6 pt-4 border-t border-[#E5E7EB] flex items-center justify-between text-xs font-semibold text-[#1787D4] group-hover:text-[#0052FF] transition-all">
+                <div className="relative z-10 mt-6 pt-4 border-t border-[#E5E7EB] flex items-center justify-between text-xs font-semibold text-[#1787D4] group-hover:text-[#1370B5] transition-all">
                   <span>Explore {item.title}</span>
                   <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -187,7 +187,7 @@ export default function WhyNupatSection() {
           <Link
             href="/hosting"
             id="explore-all-products-btn"
-            className="inline-flex items-center justify-center gap-2 bg-[#1787D4] hover:bg-[#1370B5] text-white font-bold text-sm sm:text-base py-3.5 px-8 rounded-xl transition-all duration-200 shadow-[0_4px_14px_rgba(23,135,212,0.35)] hover:shadow-[0_6px_20px_rgba(23,135,212,0.45)] hover:-translate-y-0.5 cursor-pointer"
+            className="btn-primary !rounded-full px-8 py-3 text-[14px] sm:text-[15px] font-medium cursor-pointer"
           >
             Explore All Products
             <ArrowRight className="w-4 h-4" />

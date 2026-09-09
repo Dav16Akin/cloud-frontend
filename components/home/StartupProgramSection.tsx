@@ -24,7 +24,10 @@ const perks = [
 
 export default function StartupProgramSection() {
   return (
-    <section id="startup" className="py-12 sm:py-16 bg-white relative overflow-hidden">
+    <section
+      id="startup"
+      className="py-12 sm:py-16 bg-white relative overflow-hidden"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="rounded-3xl bg-linear-to-br from-[#031033] via-[#061845] to-[#031033] p-7 sm:p-10 lg:p-12 border border-slate-800 shadow-2xl overflow-hidden relative">
           {/* Radial ambient glow */}
@@ -55,19 +58,19 @@ export default function StartupProgramSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
             {/* Left */}
             <div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+              <h2 className="type-h2 text-white mb-6">
                 <span className="relative inline-block pb-1">
                   Empowering African Startups to Scale Globally
                 </span>
               </h2>
 
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-4">
+              <p className="text-slate-300 text-[15px] sm:text-[16px] leading-relaxed mb-4">
                 Through the Nupat Startup Program, qualifying high-potential
                 startups access free cloud credits, high-speed hosting
                 infrastructure, and specialized technical guidance.
               </p>
 
-              <p className="text-slate-400 text-sm leading-relaxed mb-8">
+              <p className="text-slate-300/80 text-[14px] leading-relaxed mb-8">
                 We believe ambitious African founders deserve world-class
                 digital infrastructure without prohibitive entry costs.
               </p>
@@ -77,7 +80,7 @@ export default function StartupProgramSection() {
                 id="startup-apply-cta"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#1787D4] hover:bg-blue-600 text-white font-semibold text-base py-3.5 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-[#1787D4]/25 hover:-translate-y-0.5 cursor-pointer"
+                className="btn-primary !rounded-full px-8 py-3.5 text-[15px] font-medium shadow-md cursor-pointer"
               >
                 Apply for Startup Program
                 <ArrowRight className="w-4 h-4" />
@@ -95,10 +98,10 @@ export default function StartupProgramSection() {
                     <Icon className="w-5 h-5" strokeWidth={2} />
                   </div>
                   <div>
-                    <p className="text-white font-bold text-base mb-1">
+                    <h3 className="text-white font-semibold text-[17px] mb-1">
                       {title}
-                    </p>
-                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                    </h3>
+                    <p className="text-slate-300 text-[14px] leading-relaxed">
                       {desc}
                     </p>
                   </div>

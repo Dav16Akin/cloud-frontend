@@ -36,54 +36,48 @@ const networkDots = [
 
 export default function NetworkSection() {
   return (
-    <section id="network" className="section-pad section-white relative overflow-hidden">
-      <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none" />
+    <section id="network" className="section-pad bg-white relative overflow-hidden">
+      <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#e8900a] mb-3">
+        <div className="text-center mb-8">
+          <span className="type-caption text-[#1787D4] mb-2.5 block">
             Edge Backbone
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] mb-5">
-            Connecting Africa to the <span className="text-[#e8900a]">Global Cloud</span>
+          <h2 className="type-h2 text-[#031033] mb-3">
+            Connecting Africa to the <span className="text-[#1787D4]">Global Cloud</span>
           </h2>
-          <p className="text-[#5a6a85] text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="type-lead max-w-2xl mx-auto">
             With servers stationed across major African tech capitals, we bridge your business directly into global internet exchanges via optimized fiber routing paths.
           </p>
         </div>
 
-        {/* World Map Container */}
-        <div className="w-full border border-[#e2eaff] bg-[#f6f9ff] p-4 sm:p-8 relative">
-          {/* Subtle frame accents */}
-          <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#e8900a]" />
-          <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#031033]" />
-          <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#031033]" />
-          <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#e8900a]" />
-
+        {/* World Map Container — Apple Rounded Surface */}
+        <div className="w-full rounded-2xl border border-[#e2eaff] bg-[#f8faff] p-3 sm:p-6 relative shadow-xs overflow-hidden">
           <div className="w-full relative">
-            <WorldMap dots={networkDots} lineColor="#e8900a" />
+            <WorldMap dots={networkDots} lineColor="#1787D4" />
           </div>
         </div>
 
         {/* Network Metrics Footer */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 text-center">
-          <div className="p-4 border-r border-[#e2eaff] last:border-0">
-            <p className="text-3xl font-extrabold text-[#031033]">12ms</p>
-            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">Lagos to Accra Latency</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 text-center">
+          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">12ms</p>
+            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Lagos to Accra</p>
           </div>
-          <div className="p-4 border-r border-[#e2eaff] last:border-0">
-            <p className="text-3xl font-extrabold text-[#031033]">34ms</p>
-            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo&apos;burg Latency</p>
+          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">34ms</p>
+            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo&apos;burg</p>
           </div>
-          <div className="p-4 border-r border-[#e2eaff] last:border-0">
-            <p className="text-3xl font-extrabold text-[#031033]">10 Gbps</p>
-            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">Port Capacity</p>
+          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">10 Gbps</p>
+            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Port Capacity</p>
           </div>
-          <div className="p-4">
-            <p className="text-3xl font-extrabold text-[#031033]">Anycast</p>
-            <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wider mt-1">DNS Routing</p>
+          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">Anycast</p>
+            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">DNS Routing</p>
           </div>
         </div>
 

@@ -78,7 +78,7 @@ export default function CartPage() {
             <div className="w-20 h-20 mx-auto bg-white border border-[#e2eaff] flex items-center justify-center mb-6 shadow-sm">
               <ShoppingCart className="w-9 h-9 text-[#9ba8c0]" />
             </div>
-            <h1 className="text-3xl font-extrabold text-[#031033] mb-3">
+            <h1 className="type-h1 text-[#031033] mb-3">
               Your Cart is <span className="gradient-text">Empty</span>
             </h1>
             <p className="text-[#5a6a85] mb-8 text-base">
@@ -116,7 +116,7 @@ export default function CartPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold text-[#031033]">
+              <h1 className="type-h1 text-[#031033]">
                 Your <span className="gradient-text">Cart</span>
               </h1>
               <p className="text-[#5a6a85] text-sm mt-1">

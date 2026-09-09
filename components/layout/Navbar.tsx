@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import {
   Globe,
   ArrowRightLeft,
-  Shield,
   ShoppingCart,
   LogOut,
   LayoutDashboard,
@@ -18,7 +17,6 @@ import {
   Tag,
   ChevronDown,
   Zap,
-  BotMessageSquare,
   FileText,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +28,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
 import CartDrawer from "@/components/layout/CartDrawer";
+import { ProductsMegaMenu, ResourcesMegaMenu } from "@/components/layout/ProductsMegaMenu";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -37,29 +36,56 @@ const DOCS_URL =
 /* ─── Data ──────────────────────────────────────────────────── */
 const productsLinks = [
   {
-    title: "Web Hosting",
-    href: "/hosting",
-    icon: Server,
-    description: "Fast, reliable hosting for every site.",
-  },
-  {
-    title: "Domain Names",
+    title: "Domain Registration",
     href: "/domains",
     icon: Globe,
     description: "Find and register your perfect domain.",
+    available: true,
   },
   {
     title: "Domain Transfer",
     href: "/domain-transfer",
     icon: ArrowRightLeft,
-    description: "Move your domain to Nupat Cloud.",
+    description: "Move your domain to Nupat.",
+    available: true,
   },
   {
-    title: "SSL Certificates",
-    href: "/dashboard/ssl",
-    icon: Shield,
-    description: "Secure visitors with 256-bit encryption.",
+    title: "Web Hosting",
+    href: "/hosting",
+    icon: Server,
+    description: "Reliable hosting for websites.",
+    available: true,
   },
+  {
+    title: "Pricing & Plans",
+    href: "/pricing",
+    icon: Tag,
+    description: "Transparent hosting packages.",
+    available: true,
+  },
+  /* Commented out unused items:
+  {
+    title: "Domain Management",
+    href: "#",
+    icon: Globe,
+    description: "Manage your domains in one place.",
+    available: false,
+  },
+  {
+    title: "VPS Hosting",
+    href: "#",
+    icon: Server,
+    description: "Powerful infrastructure with more control.",
+    available: false,
+  },
+  {
+    title: "AI Website Builder",
+    href: "#",
+    icon: Zap,
+    description: "Create professional websites with AI.",
+    available: false,
+  },
+  */
 ];
 
 const resourcesLinks = [
@@ -76,17 +102,19 @@ const resourcesLinks = [
     description: "Our team is ready to help.",
   },
   {
-    title: "Blog",
-    href: "/blog",
-    icon: FileText,
-    description: "News, tips and product updates.",
-  },
-  {
     title: "Pricing",
     href: "/pricing",
     icon: Tag,
     description: "Transparent plans for every budget.",
   },
+  /* Commented out until /blog route exists:
+  {
+    title: "Blog",
+    href: "/blog",
+    icon: FileText,
+    description: "News, tips and product updates.",
+  },
+  */
 ];
 
 /* ─── Scroll hook ───────────────────────────────────────────── */
@@ -121,17 +149,17 @@ function DropdownItem({
   return (
     <Link
       href={href}
-      className="flex items-start gap-3 p-2.5 !rounded-[8px] transition-colors hover:bg-[#eff6ff] group"
+      className="flex items-start gap-3 p-2.5 rounded-xl transition-all duration-150 hover:bg-[#1787D4]/6 hover:translate-x-0.5 group"
     >
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center !rounded-[8px] border border-[#e2eaff] bg-white shadow-sm">
-        <Icon className="h-4 w-4 text-[#1787D4]" />
+      <div className="mt-0.5 flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all shadow-2xs">
+        <Icon className="h-4 w-4 transition-colors" />
       </div>
-      <div>
-        <p className="text-[13px] font-semibold text-[#031033] leading-none mb-1">
+      <div className="min-w-0">
+        <p className="text-[12.5px] font-semibold text-[#031033] group-hover:text-[#1787D4] leading-tight mb-1 transition-colors">
           {title}
         </p>
         {description && (
-          <p className="text-[11.5px] text-[#5a6a85] leading-relaxed">
+          <p className="text-[11px] text-[#5a6a85] leading-snug">
             {description}
           </p>
         )}
@@ -213,33 +241,37 @@ export default function Navbar() {
   /* ── shared link styles ── */
   const navLink = (active: boolean) =>
     cn(
-      "inline-flex h-9 items-center px-3.5 text-[14px] font-medium !rounded-[8px] transition-colors hover:bg-[#f2f5fc] hover:text-[#031033]",
-      active ? "text-[#1787D4]" : "text-[#5a6a85]",
+      "inline-flex h-8.5 items-center px-3.5 text-[13.5px] font-medium rounded-full transition-all duration-150",
+      active
+        ? "text-[#1787D4] bg-[#1787D4]/10 font-semibold"
+        : "text-[#5a6a85] hover:text-[#1787D4] hover:bg-[#1787D4]/8",
     );
 
   const triggerBtn = (active: boolean) =>
     cn(
-      "inline-flex h-9 items-center gap-1 px-3.5 text-[14px] font-medium !rounded-[8px] transition-colors bg-transparent border-none cursor-pointer hover:bg-[#f2f5fc] hover:text-[#031033]",
-      active ? "text-[#1787D4]" : "text-[#5a6a85]",
+      "inline-flex h-8.5 items-center gap-1 px-3.5 text-[13.5px] font-medium rounded-full transition-all duration-150 bg-transparent border-none cursor-pointer",
+      active
+        ? "text-[#1787D4] bg-[#1787D4]/10 font-semibold"
+        : "text-[#5a6a85] hover:text-[#1787D4] hover:bg-[#1787D4]/8",
     );
 
   return (
     <>
       {/* ═══ Floating pill shell ═════════════════════════════════ */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-4">
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4">
         <div
           className={cn(
-            "mx-auto max-w-7xl rounded-xl border border-[#e2eaff] bg-white backdrop-blur-xl",
+            "mx-auto max-w-7xl rounded-2xl border border-[#e2eaff] bg-white/95 backdrop-blur-xl",
             "transition-all duration-300",
             scrolled
-              ? "bg-white/85 shadow-[0_8px_32px_rgba(23,135,212,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
+              ? "bg-white/90 shadow-[0_12px_36px_rgba(23,135,212,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
               : "shadow-[0_4px_20px_rgba(23,135,212,0.08),0_1px_4px_rgba(0,0,0,0.04)]",
           )}
         >
           {/* 3-col grid: logo | center nav | actions */}
           <div
             className="grid items-center px-4 sm:px-5"
-            style={{ gridTemplateColumns: "auto 1fr auto", height: 72 }}
+            style={{ gridTemplateColumns: "auto 1fr auto", height: 66 }}
           >
             {/* ── Logo ── */}
             <Link
@@ -268,25 +300,16 @@ export default function Navbar() {
                   id="nav-products"
                 >
                   Products
-                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-transform duration-200 group-hover:rotate-180" />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-all duration-200 group-hover:rotate-180 group-hover:text-[#1787D4]" />
                 </button>
-                {/* dropdown */}
+                {/* Mega dropdown */}
                 <div
-                  className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50
-                                opacity-0 invisible translate-y-1
-                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50
+                                opacity-0 invisible translate-y-1 pointer-events-none
+                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto
                                 transition-all duration-200"
                 >
-                  <div
-                    className="rounded-lg border border-[#e2eaff] bg-white
-                                  shadow-[0_10px_40px_rgba(23,135,212,0.12),0_2px_8px_rgba(0,0,0,0.06)]
-                                  grid grid-cols-2 gap-1 p-3"
-                    style={{ width: 480 }}
-                  >
-                    {productsLinks.map((item) => (
-                      <DropdownItem key={item.href} {...item} />
-                    ))}
-                  </div>
+                  <ProductsMegaMenu />
                 </div>
               </div>
 
@@ -326,25 +349,16 @@ export default function Navbar() {
                   id="nav-resources"
                 >
                   Resources
-                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-transform duration-200 group-hover:rotate-180" />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-all duration-200 group-hover:rotate-180 group-hover:text-[#1787D4]" />
                 </button>
                 {/* dropdown */}
                 <div
-                  className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50
-                                opacity-0 invisible translate-y-1
-                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50
+                                opacity-0 invisible translate-y-1 pointer-events-none
+                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto
                                 transition-all duration-200"
                 >
-                  <div
-                    className="rounded-lg border border-[#e2eaff] bg-white
-                                  shadow-[0_10px_40px_rgba(23,135,212,0.12),0_2px_8px_rgba(0,0,0,0.06)]
-                                  grid grid-cols-2 gap-1 p-3"
-                    style={{ width: 440 }}
-                  >
-                    {resourcesLinks.map((item) => (
-                      <DropdownItem key={item.href} {...item} />
-                    ))}
-                  </div>
+                  <ResourcesMegaMenu />
                 </div>
               </div>
             </div>
@@ -453,14 +467,14 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     id="nav-login"
-                    className="px-3.5 py-[7px] text-[13px] font-medium text-[#5a6a85] hover:text-[#031033] transition-colors !rounded-[6px] hover:bg-[#f2f5fc]"
+                    className="px-4 py-[7px] text-[13px] font-medium text-[#5a6a85] hover:text-[#031033] transition-colors rounded-full hover:bg-[#f2f5fc]"
                   >
                     Log In
                   </Link>
                   <Link
                     href="/register"
                     id="nav-get-started"
-                    className="inline-flex items-center gap-1.5 rounded-[6px]! bg-[#1787D4] px-4 py-[7px] text-[13px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#1787D4] px-4 py-[7px] text-[13px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
                   >
                     Get Started
                   </Link>
@@ -508,6 +522,33 @@ export default function Navbar() {
           </p>
           {productsLinks.map((link) => {
             const Icon = link.icon;
+            if (!link.available) {
+              return (
+                <div
+                  key={link.title}
+                  className="flex items-center gap-3 !rounded-[10px] px-3 py-2.5 opacity-40 cursor-not-allowed select-none"
+                  aria-disabled="true"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center !rounded-[8px] border border-gray-200 bg-gray-50 shrink-0 text-gray-400">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[14px] font-semibold text-gray-600">
+                        {link.title}
+                      </p>
+                      <span className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">
+                        Soon
+                      </span>
+                    </div>
+                    <p className="text-[12px] text-gray-400">
+                      {link.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
             const active =
               pathname === link.href || pathname.startsWith(link.href + "/");
             return (
@@ -628,18 +669,18 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-[100%]! border border-[#e2eaff] bg-white px-4 py-3 text-[14px] font-semibold text-[#031033] hover:border-[#1787D4] hover:text-[#1787D4] transition-colors cursor-pointer">
+              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#e2eaff] bg-white px-4 py-3 text-[14px] font-semibold text-[#031033] hover:border-[#1787D4] hover:text-[#1787D4] transition-colors cursor-pointer">
                 Ask AI
               </button>
               <Link
                 href="/login"
-                className="flex w-full items-center justify-center !rounded-[6px] border border-[#e2eaff] px-4 py-3 text-[14px] font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+                className="flex w-full items-center justify-center rounded-full border border-[#e2eaff] px-4 py-3 text-[14px] font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors"
               >
                 Log In
               </Link>
               <Link
                 href="/register"
-                className="flex w-full items-center justify-center gap-1.5 !rounded-[6px] bg-[#1787D4] px-4 py-3 text-[14px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
+                className="flex w-full items-center justify-center gap-1.5 rounded-full bg-[#1787D4] px-4 py-3 text-[14px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
               >
                 <Zap className="h-4 w-4" />
                 Get Started

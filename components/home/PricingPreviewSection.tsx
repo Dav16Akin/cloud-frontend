@@ -104,14 +104,14 @@ function PlanCard({
 
       <div className="mb-6">
         <h3
-          className={`font-bold text-xl mb-1 ${
+          className={`type-h3 mb-1.5 ${
             plan.isPopular ? "text-white" : "text-[#031033]"
           }`}
         >
           {plan.name}
         </h3>
         <p
-          className={`text-xs sm:text-sm ${
+          className={`text-[14px] leading-relaxed ${
             plan.isPopular ? "text-slate-300" : "text-[#5a6a85]"
           }`}
         >
@@ -127,14 +127,14 @@ function PlanCard({
       >
         <div className="flex items-baseline gap-1">
           <span
-            className={`text-3xl sm:text-4xl font-extrabold ${
+            className={`text-2xl sm:text-[30px] font-bold tracking-tight ${
               plan.isPopular ? "text-white" : "text-[#031033]"
             }`}
           >
             {formatPrice(price)}
           </span>
           <span
-            className={`text-xs sm:text-sm ${
+            className={`text-xs sm:text-[13px] ${
               plan.isPopular ? "text-slate-300" : "text-[#5a6a85]"
             }`}
           >
@@ -161,7 +161,7 @@ function PlanCard({
               <Check className="w-3 h-3" strokeWidth={3} />
             </div>
             <span
-              className={`text-xs sm:text-sm ${
+              className={`text-[14px] ${
                 plan.isPopular ? "text-slate-200" : "text-[#5a6a85]"
               }`}
             >
@@ -175,7 +175,7 @@ function PlanCard({
         <Link
           href="/cart"
           id={`plan-${slug}-cta`}
-          className="flex items-center justify-center gap-2 py-3 px-4 font-semibold text-sm rounded-xl transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md cursor-pointer"
+          className="flex items-center justify-center gap-2 py-2.5 px-4 font-medium text-sm rounded-full transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs cursor-pointer active:scale-95"
         >
           In Cart — Checkout
           <ArrowRight className="w-4 h-4" />
@@ -184,7 +184,7 @@ function PlanCard({
         <button
           onClick={handleAddToCart}
           id={`plan-${slug}-cta`}
-          className={`flex items-center justify-center gap-2 py-3 px-4 font-semibold text-sm rounded-lg transition-all cursor-pointer shadow-sm ${
+          className={`flex items-center justify-center gap-2 py-2.5 px-4 font-medium text-sm rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${
             plan.isPopular
               ? "bg-[#1787D4] hover:bg-blue-600 text-white shadow-blue-500/20"
               : "bg-[#031033] hover:bg-[#061c52] text-white"
@@ -211,24 +211,24 @@ export default function PricingPreviewSection() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12 flex flex-col items-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#031033] tracking-tight mb-4">
+          <h2 className="type-h2 text-[#031033] mb-3">
             Plans for Every{" "}
             <span className="text-[#1787D4]">Stage of Growth</span>
           </h2>
-          <p className="text-[#5a6a85] text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="type-lead text-[#5a6a85] max-w-2xl mx-auto mb-8">
             Flexible, high-speed hosting plans for startups, enterprises,
             agencies, and independent creators.
           </p>
 
-          {/* Billing Cycle Selector Tabs */}
+          {/* Billing Cycle Selector Tabs — Apple Pill */}
           <div className="flex justify-center mb-2">
-            <div className="inline-flex items-center bg-white border border-[#e2eaff] p-1 rounded-lg shadow-xs">
+            <div className="inline-flex items-center bg-white border border-slate-200/90 p-1 rounded-full shadow-xs">
               {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
                 <button
                   key={cycle}
                   type="button"
                   onClick={() => setBillingCycle(cycle)}
-                  className={`px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+                  className={`px-5 py-2 text-xs sm:text-[13px] font-medium rounded-full transition-all cursor-pointer ${
                     billingCycle === cycle
                       ? "bg-[#031033] text-white shadow-xs"
                       : "text-[#5a6a85] hover:text-[#031033]"

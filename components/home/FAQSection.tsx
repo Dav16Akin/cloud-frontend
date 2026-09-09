@@ -54,7 +54,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq-section"
-      className="py-14 sm:py-18 bg-[#fafcff] relative overflow-hidden"
+      className="py-10 sm:py-12 bg-[#fafcff] relative overflow-hidden"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
@@ -63,12 +63,12 @@ export default function FAQSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-7 sm:mb-9"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0B1527] tracking-tight mb-3">
+          <h2 className="type-h2 text-[#031033] mb-2.5">
             Everything you need to know
           </h2>
-          <p className="text-[#64748B] text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="type-lead text-[#5a6a85] max-w-xl mx-auto">
             Quick answers about our platform, our products, and how you can get
             started.
           </p>
@@ -99,7 +99,7 @@ export default function FAQSection() {
                   aria-expanded={isOpen}
                   className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer transition-colors"
                 >
-                  <span className="font-bold text-base sm:text-[17px] text-[#0B1527] pr-4">
+                  <span className="font-semibold text-[16px] sm:text-[17px] text-[#031033] pr-4">
                     {faq.question}
                   </span>
                   <div
@@ -122,7 +122,7 @@ export default function FAQSection() {
                       className="overflow-hidden"
                     >
                       <div className="px-5 sm:px-6 pb-6 pt-0">
-                        <p className="text-xs sm:text-sm text-[#5a6a85] leading-relaxed">
+                        <p className="text-[14px] sm:text-[15px] text-[#5a6a85] leading-relaxed">
                           {faq.answer}
                         </p>
                       </div>

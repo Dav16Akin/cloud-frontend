@@ -98,16 +98,16 @@ export default function DomainTransferPage() {
   return (
     <div className="flex flex-col bg-white">
       {/* ── 1. Hero Section ── */}
-      <section className="relative pt-32 pb-14 sm:pt-36 sm:pb-16 lg:pt-38 lg:pb-18 overflow-hidden bg-white">
+      <section className="relative pt-24 pb-10 sm:pt-28 sm:pb-12 lg:pt-30 lg:pb-14 overflow-hidden bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Left Column: Headline, subtext, CTA */}
             <div className="lg:col-span-6 xl:col-span-6 text-left z-10">
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-black text-[#031033] tracking-tight leading-[1.14]">
+              <h1 className="type-display text-[#031033]">
                 Move your domain
                 <span className="block mt-1">with Confidence</span>
               </h1>
-              <p className="mt-5 text-[#5a6a85] text-sm sm:text-base lg:text-[17px] leading-relaxed max-w-lg font-normal">
+              <p className="mt-4 type-lead text-[#5a6a85] leading-relaxed max-w-lg font-normal">
                 Transfer your existing domain and manage it alongside your other
                 digital services. Simple, transparent, and built for builders.
               </p>
@@ -115,7 +115,7 @@ export default function DomainTransferPage() {
                 <Link
                   href="/dashboard/domain-transfer"
                   id="hero-transfer-btn"
-                  className="btn-primary !rounded-[8px] py-3.5 px-7 sm:px-8 text-sm sm:text-base font-semibold text-white shadow-[0_2px_10px_rgba(23,135,212,0.35)] hover:shadow-[0_4px_16px_rgba(23,135,212,0.45)] transition-all cursor-pointer inline-flex items-center justify-center"
+                  className="btn-primary !rounded-full py-3 px-8 text-[15px] font-medium text-white shadow-sm hover:shadow-md transition-all cursor-pointer inline-flex items-center justify-center"
                 >
                   Transfer Your Domain
                 </Link>
@@ -140,10 +140,10 @@ export default function DomainTransferPage() {
       </section>
 
       {/* ── 2. Transfer in a Few Steps Section ── */}
-      <section className="bg-[#f8faff] py-14 sm:py-18 border-t border-b border-[#e8eff8]">
+      <section className="bg-[#f8faff] py-10 sm:py-12 border-t border-b border-[#e8eff8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 sm:mb-14">
-            <h2 className="text-2xl sm:text-3xl lg:text-[38px] font-black text-[#031033] tracking-tight">
+            <h2 className="type-h2 text-[#031033]">
               Transfer your domain in a few steps
             </h2>
           </div>
@@ -166,10 +166,10 @@ export default function DomainTransferPage() {
 
                     {/* Text */}
                     <div>
-                      <h3 className="text-base font-bold text-[#031033] mb-2">
+                      <h3 className="type-h3 text-[#031033] mb-1.5">
                         {item.title}
                       </h3>
-                      <p className="text-[#5a6a85] text-xs sm:text-sm leading-relaxed">
+                      <p className="text-[14px] text-[#5a6a85] leading-relaxed">
                         {item.desc}
                       </p>
                     </div>
@@ -178,7 +178,7 @@ export default function DomainTransferPage() {
                   {/* Arrow divider (desktop only) */}
                   {idx < steps.length - 1 && (
                     <div className="hidden lg:flex items-center justify-center text-[#1787D4] px-1 shrink-0">
-                      <ArrowRight className="w-5 h-5 stroke-[2.2]" />
+                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
                     </div>
                   )}
                 </React.Fragment>
@@ -189,14 +189,13 @@ export default function DomainTransferPage() {
       </section>
 
       {/* ── 3. Bring Everything Under One Roof Section ── */}
-      <section className="bg-white py-14 sm:py-20 overflow-hidden">
+      <section className="bg-white py-10 sm:py-12 lg:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Column: Heading and 3 Feature Cards */}
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-[#031033] tracking-tight mb-8 sm:mb-10 leading-tight">
-                Bring everything
-                <span className="block">under one roof</span>
+              <h2 className="type-h2 text-[#031033] mb-8 sm:mb-10">
+                Bring everything under one roof
               </h2>
 
               <div className="flex flex-col gap-4 sm:gap-5">
@@ -211,10 +210,10 @@ export default function DomainTransferPage() {
                         <Icon className="w-5 h-5 text-[#1787D4]" />
                       </div>
                       <div>
-                        <h3 className="text-base font-bold text-[#031033] mb-1.5">
+                        <h3 className="type-h3 text-[#031033] mb-1.5">
                           {feat.title}
                         </h3>
-                        <p className="text-[#5a6a85] text-xs sm:text-sm leading-relaxed">
+                        <p className="text-[14px] text-[#5a6a85] leading-relaxed">
                           {feat.desc}
                         </p>
                       </div>
@@ -241,12 +240,12 @@ export default function DomainTransferPage() {
       </section>
 
       {/* ── 4. Before You Transfer Section ── */}
-      <section className="bg-[#f8faff] relative py-14 sm:py-20 border-t border-b border-[#e8eff8] overflow-hidden">
+      <section className="bg-[#f8faff] relative py-10 sm:py-12 border-t border-b border-[#e8eff8] overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Column: Heading and Checklist Box */}
             <div className="lg:col-span-6 flex flex-col justify-center">
-              <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-[#031033] tracking-tight mb-8 sm:mb-10 leading-tight">
+              <h2 className="type-h2 text-[#031033] mb-8 sm:mb-10">
                 Before you transfer
               </h2>
 
@@ -290,9 +289,9 @@ export default function DomainTransferPage() {
       </section>
 
       {/* ── 5. Frequently Asked Questions Section ── */}
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-white py-10 sm:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-[38px] font-black text-[#031033] tracking-tight text-center mb-10 sm:mb-14">
+          <h2 className="type-h2 text-[#031033] text-center mb-10 sm:mb-14">
             Frequently asked questions
           </h2>
 

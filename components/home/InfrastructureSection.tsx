@@ -71,7 +71,7 @@ export default function InfrastructureSection() {
   return (
     <section
       id="infrastructure"
-      className="py-14 sm:py-18 bg-[#fafcff] relative overflow-hidden"
+      className="py-10 sm:py-12 bg-[#fafcff] relative overflow-hidden"
     >
       {/* Ambient background glow */}
       <motion.div
@@ -97,12 +97,12 @@ export default function InfrastructureSection() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-4 flex flex-col justify-center"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0B1527] leading-[1.18] tracking-tight mb-5">
+            <h2 className="type-h2 text-[#031033] mb-4">
               Infrastructure <br className="hidden lg:inline" />
               that grows with <br className="hidden lg:inline" />
               you
             </h2>
-            <p className="text-[#5a6a85] text-sm sm:text-base leading-relaxed max-w-md">
+            <p className="type-lead text-[#5a6a85] leading-relaxed max-w-md">
               Whether you&apos;re launching a website or deploying a growing
               application, our platform gives you reliable infrastructure
               designed to scale with your needs.
@@ -151,13 +151,13 @@ export default function InfrastructureSection() {
                   >
                     <Link
                       href={card.href}
-                      className="block bg-[#0077C8] text-white rounded-2xl p-5 sm:p-5.5 shadow-md shadow-[#0077C8]/25 hover:bg-[#006bb5] hover:shadow-lg transition-all duration-200"
+                      className="block bg-[#1787D4] text-white rounded-2xl p-5 sm:p-5.5 shadow-md shadow-[#1787D4]/25 hover:bg-[#1370B5] hover:shadow-lg transition-all duration-200"
                     >
                       <div className="mb-3">
-                        <h3 className="font-bold text-lg text-white">
+                        <h3 className="type-h3 text-white">
                           {card.title}
                         </h3>
-                        <p className="text-white/85 text-xs sm:text-sm mt-0.5">
+                        <p className="text-white/85 text-[14px] mt-0.5">
                           {card.subtitle}
                         </p>
                       </div>
@@ -198,10 +198,10 @@ export default function InfrastructureSection() {
                     className="block bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-5.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-blue-200 hover:shadow-md transition-all duration-200"
                   >
                     <div className="mb-3">
-                      <h3 className="font-bold text-lg text-[#0B1527]">
+                      <h3 className="type-h3 text-[#031033]">
                         {card.title}
                       </h3>
-                      <p className="text-[#64748B] text-xs sm:text-sm mt-0.5">
+                      <p className="text-[#5a6a85] text-[14px] mt-0.5">
                         {card.subtitle}
                       </p>
                     </div>

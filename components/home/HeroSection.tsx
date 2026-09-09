@@ -10,7 +10,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative w-full overflow-hidden bg-[#1787D4] min-h-[580px] lg:min-h-[640px] pt-32 pb-16 lg:pt-36 lg:pb-20 flex items-center"
+      className="relative w-full overflow-hidden bg-[#1787D4] min-h-[580px] lg:min-h-[840px] pt-32 pb-16 lg:pt-36 lg:pb-20 flex items-center"
     >
       {/* ── FluidOrb backdrop — matching the navbar logged-in orb, sits behind the person ── */}
       <div

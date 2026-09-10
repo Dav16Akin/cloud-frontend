@@ -104,7 +104,7 @@ export default function CheckoutPage() {
   if (!_hasHydrated || !token) {
     return (
       <div className="min-h-screen flex items-center justify-center section-navy-tint">
-        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
       </div>
     );
   }
@@ -146,13 +146,13 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2 space-y-6">
 
               {/* Account info */}
-              <div className="bg-white border border-[#e2eaff]">
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
-                  <div className="w-6 h-6 bg-[#031033] flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff]">
+                  <div className="w-6 h-6 rounded-full bg-[#1787D4] flex items-center justify-center text-white text-xs font-bold shrink-0">
                     1
                   </div>
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#5a6a85]" />
+                    <User className="w-4 h-4 text-[#1787D4]" />
                     <h2 className="font-bold text-[#031033] text-sm">Account Information</h2>
                   </div>
                   <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
@@ -191,14 +191,14 @@ export default function CheckoutPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-sm text-[#5a6a85]">
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin text-[#1787D4]" />
                       Loading account details...
                     </div>
                   )}
                   <Link
                     href="/dashboard/settings"
                     id="checkout-edit-profile"
-                    className="mt-4 inline-block text-xs text-[#e8900a] hover:underline underline-offset-4"
+                    className="mt-4 inline-block text-xs font-semibold text-[#1787D4] hover:underline underline-offset-4"
                   >
                     Edit billing info →
                   </Link>
@@ -206,14 +206,14 @@ export default function CheckoutPage() {
               </div>
 
               {/* Order summary */}
-              <div className="bg-white border border-[#e2eaff]">
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
-                  <div className="w-6 h-6 bg-[#031033] flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff]">
+                  <div className="w-6 h-6 rounded-full bg-[#1787D4] flex items-center justify-center text-white text-xs font-bold shrink-0">
                     2
                   </div>
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-[#5a6a85]" />
-                    <h2 className="font-bold text-[#031033] text-sm">Domain Order</h2>
+                    <Globe className="w-4 h-4 text-[#1787D4]" />
+                    <h2 className="font-bold text-[#031033] text-sm">Order Items</h2>
                   </div>
                 </div>
                 <div className="divide-y divide-[#f0f4fc]">
@@ -231,8 +231,8 @@ export default function CheckoutPage() {
                       <div key={label} className="px-6 py-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-                              <Icon className="w-4 h-4 text-[#031033]" />
+                            <div className="w-8 h-8 rounded-lg bg-[#e8f4fc] border border-[#d4e9f7] flex items-center justify-center shrink-0">
+                              <Icon className="w-4 h-4 text-[#1787D4]" />
                             </div>
                             <div className="min-w-0">
                               <p className="font-bold text-[#031033] text-sm truncate">{label}</p>
@@ -249,19 +249,19 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment method */}
-              <div className="bg-white border border-[#e2eaff]">
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
-                  <div className="w-6 h-6 bg-[#031033] flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+                <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff]">
+                  <div className="w-6 h-6 rounded-full bg-[#1787D4] flex items-center justify-center text-white text-xs font-bold shrink-0">
                     3
                   </div>
                   <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-[#5a6a85]" />
+                    <CreditCard className="w-4 h-4 text-[#1787D4]" />
                     <h2 className="font-bold text-[#031033] text-sm">Payment Method</h2>
                   </div>
                 </div>
                 <div className="px-6 py-5">
-                  <div className="border border-[#e8900a] bg-[#fff8ee] p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 bg-[#e8900a] flex items-center justify-center shrink-0">
+                  <div className="border-2 border-[#1787D4] bg-[#f0f7ff] rounded-xl p-4 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#1787D4] flex items-center justify-center shrink-0 shadow-xs">
                       <CreditCard className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -271,14 +271,14 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <div className="ml-auto">
-                      <div className="w-4 h-4 border-2 border-[#e8900a] flex items-center justify-center">
-                        <div className="w-2 h-2 bg-[#e8900a]" />
+                      <div className="w-4 h-4 rounded-full border-2 border-[#1787D4] flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-[#1787D4]" />
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 flex items-center gap-2 text-xs text-[#9ba8c0]">
-                    <Lock className="w-3 h-3 shrink-0" />
+                    <Lock className="w-3 h-3 shrink-0 text-[#1787D4]" />
                     <span>Your payment is encrypted and secure. We never store your card details.</span>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function CheckoutPage() {
 
               {/* Error state */}
               {error && (
-                <div className="flex items-start gap-3 bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
+                <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-600">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -295,8 +295,8 @@ export default function CheckoutPage() {
 
             {/* Right: total + CTA */}
             <div className="lg:sticky lg:top-24 space-y-4">
-              <div className="bg-white border border-[#e2eaff]">
-                <div className="px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
+              <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+                <div className="px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff]">
                   <p className="font-bold text-[#031033] text-sm">Order Total</p>
                 </div>
                 <div className="px-6 py-5 space-y-2.5">
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
                     id="checkout-pay-btn"
                     onClick={handlePay}
                     disabled={isProcessing}
-                    className="btn-primary w-full py-4 text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="btn-primary w-full py-4 text-base font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-all active:scale-[0.99] cursor-pointer"
                   >
                     {isProcessing ? (
                       <>
@@ -341,14 +341,14 @@ export default function CheckoutPage() {
               </div>
 
               {/* Trust */}
-              <div className="bg-[#f6f9ff] border border-[#dce4f7] px-5 py-4 space-y-3">
+              <div className="bg-[#f8faff] border border-[#e2eaff] rounded-2xl px-5 py-4 space-y-3 shadow-2xs">
                 {[
                   { icon: Shield, text: "256-bit SSL encryption" },
                   { icon: Lock, text: "PCI-DSS compliant payment" },
                   { icon: CheckCircle, text: "Instant domain activation" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-2 text-xs text-[#5a6a85]">
-                    <Icon className="w-3.5 h-3.5 text-[#e8900a] shrink-0" />
+                    <Icon className="w-3.5 h-3.5 text-[#1787D4] shrink-0" />
                     {text}
                   </div>
                 ))}

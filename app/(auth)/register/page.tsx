@@ -68,7 +68,7 @@ type FormState = z.infer<typeof registerSchema>;
 type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 const inputBase =
-  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-xl outline-none text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
+  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
 
 const inputClass = (err?: string) =>
   `${inputBase} ${

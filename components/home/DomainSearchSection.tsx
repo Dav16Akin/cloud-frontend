@@ -193,27 +193,27 @@ export default function DomainSearchSection() {
 
         {/* Blue Search Card */}
         <div className="bg-[#1787D4] rounded-2xl overflow-hidden shadow-lg border border-[#1474b8]/20">
-          <div className="flex-1 flex flex-col justify-center px-5 sm:px-8 py-7 gap-4">
+          <div className="flex-1 flex flex-col justify-center px-3.5 sm:px-8 py-5 sm:py-7 gap-4">
             {/* Search bar — Apple pill container */}
             <form
               onSubmit={handleSearch}
-              className="flex items-center bg-white rounded-full p-1.5 shadow-sm overflow-hidden h-14 border border-white/40 focus-within:ring-2 focus-within:ring-white/40 transition-all"
+              className="flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-sm overflow-hidden h-12 sm:h-14 border border-white/40 focus-within:ring-2 focus-within:ring-white/40 transition-all"
             >
-              <div className="flex items-center gap-2.5 flex-1 px-4 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-1 px-3 sm:px-4 min-w-0">
                 <Search className="w-4 h-4 text-[#9ca3af] shrink-0" />
                 <input
                   id="domain-search-input"
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Enter your domain name (e.g., yourbusiness.ng)"
-                  className="flex-1 text-sm text-[#031033] placeholder:text-[#9ca3af] outline-none bg-transparent"
+                  placeholder="Enter domain (e.g., yourbusiness.ng)"
+                  className="flex-1 text-base sm:text-sm text-[#031033] placeholder:text-[#9ca3af] outline-none bg-transparent min-w-0"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="text-slate-400 hover:text-slate-600 p-1"
+                    className="text-slate-400 hover:text-slate-600 p-1 shrink-0"
                     aria-label="Clear input"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -224,17 +224,18 @@ export default function DomainSearchSection() {
                 type="submit"
                 id="domain-search-btn"
                 disabled={state === "searching"}
-                className="shrink-0 h-full bg-[#031033] hover:bg-[#081a4a] text-white font-semibold rounded-full text-sm px-6 sm:px-7 transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
+                className="shrink-0 h-full bg-[#031033] hover:bg-[#081a4a] text-white font-semibold rounded-full text-xs sm:text-sm px-4 sm:px-7 transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2"
               >
                 {state === "searching" ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-[#FD9F09]" />
-                    Searching…
+                    <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-[#FD9F09]" />
+                    <span className="hidden sm:inline">Searching…</span>
                   </>
                 ) : (
                   <>
-                    <Search className="w-3.5 h-3.5 hidden sm:inline" />
-                    Search Domain
+                    <Search className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Search Domain</span>
+                    <span className="sm:hidden">Search</span>
                   </>
                 )}
               </button>
@@ -426,7 +427,7 @@ export default function DomainSearchSection() {
                         {/* Badges row: Popular / Premium */}
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {isPopular && (
-                            <span className="text-[10px] font-bold text-[#e8900a] bg-[#fff8ee] border border-[#f5d38a] px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-[#fd9f09] bg-[#fff8ee] border border-[#fde8c0] px-2 py-0.5 rounded-full">
                               Popular
                             </span>
                           )}

@@ -280,7 +280,7 @@ function DomainsDashboardPageContent() {
                         <td className="px-6 py-3.5">
                           <Link
                             href={`/dashboard/domains/${domain.id}`}
-                            className="inline-flex items-center gap-1 text-xs text-[#e8900a] hover:underline underline-offset-2 font-semibold"
+                            className="inline-flex items-center gap-1 text-xs text-[#1787D4] hover:underline underline-offset-2 font-semibold"
                           >
                             <Network className="w-3 h-3" />
                             Manage DNS
@@ -408,9 +408,9 @@ function DomainsDashboardPageContent() {
               </p>
 
               <form onSubmit={handleSearch} className="flex gap-2">
-                <div className="flex-1 flex items-center bg-white border border-[#dce4f7] overflow-hidden focus-within:border-[#e8900a] transition-all">
-                  <div className="pl-3 shrink-0">
-                    <Search className="w-4 h-4 text-[#9ba8c0]" />
+                <div className="flex-1 flex items-center bg-white border border-[#dce4f7] rounded-xl overflow-hidden focus-within:border-[#1787D4] focus-within:ring-2 focus-within:ring-[#1787D4]/15 transition-all">
+                  <div className="pl-3.5 shrink-0">
+                    <Search className="w-4 h-4 text-[#1787D4]" />
                   </div>
                   <input
                     type="text"
@@ -422,14 +422,14 @@ function DomainsDashboardPageContent() {
                         setSearchResults([]);
                       }
                     }}
-                    placeholder="Enter your ideal domain (e.g. business.com.ng)..."
-                    className="w-full bg-transparent px-3 py-3 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none"
+                    placeholder="Enter domain (e.g. business.com.ng)..."
+                    className="w-full bg-transparent px-3 py-3 text-[#031033] placeholder-[#9ba8c0] text-base sm:text-sm outline-none"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={searchState === "searching" || !searchQuery.trim()}
-                  className="btn-primary py-3 px-6 text-sm shrink-0 flex items-center gap-2 disabled:opacity-60"
+                  className="btn-primary py-3 px-5 sm:px-6 text-sm shrink-0 rounded-xl flex items-center gap-2 disabled:opacity-60 cursor-pointer"
                 >
                   {searchState === "searching" ? (
                     <>
@@ -520,7 +520,7 @@ function DomainsDashboardPageContent() {
                                     toast.info(`SSL Certificate for ${result.domain} removed.`);
                                   }
                                 }}
-                                className="w-3.5 h-3.5 text-[#e8900a] border-[#dce4f7] rounded focus:ring-[#e8900a] accent-[#e8900a]"
+                                className="w-3.5 h-3.5 text-[#1787D4] border-[#dce4f7] rounded focus:ring-[#1787D4] accent-[#1787D4]"
                               />
                               <span className="text-[11px] text-[#5a6a85] font-medium flex items-center gap-1 hover:text-[#031033] transition-colors">
                                 <Shield className="w-3.5 h-3.5 text-emerald-500" />

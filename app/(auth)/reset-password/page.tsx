@@ -109,7 +109,7 @@ function ResetPasswordContent() {
                 setTouched(true);
               }}
               required
-              className="w-full bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors"
+              className="w-full bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-base sm:text-sm outline-none transition-all"
             />
             <button
               type="button"
@@ -213,7 +213,7 @@ function ResetPasswordContent() {
                   : passwordsMatch
                   ? "border-emerald-400"
                   : "border-[#dce4f7]"
-              } focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors`}
+              } focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-base sm:text-sm outline-none transition-all`}
             />
             <button
               type="button"

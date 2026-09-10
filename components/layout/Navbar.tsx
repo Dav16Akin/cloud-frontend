@@ -205,9 +205,12 @@ export default function Navbar() {
   const { itemCount, toggleDrawer } = useCartStore();
   const cartCount = itemCount();
 
-  /* Cart only on domain pages */
+  /* Cart visible on domain/hosting pages OR whenever user has items in cart */
   const showCart =
-    pathname.startsWith("/domains") || pathname.startsWith("/dashboard/domain");
+    cartCount > 0 ||
+    pathname.startsWith("/domains") ||
+    pathname.startsWith("/hosting") ||
+    pathname.startsWith("/dashboard/domain");
 
   const firstName = me?.data?.firstName ?? "";
   const lastName = me?.data?.lastName ?? "";

@@ -23,25 +23,25 @@ function formatNGN(n: number) {
 function ItemTypeIcon({ item }: { item: CartItem }) {
   if (item.type === "HOSTING")
     return (
-      <div className="w-9 h-9 bg-[#fff8ee] border border-[#f5d99e] flex items-center justify-center shrink-0">
-        <Server className="w-4 h-4 text-[#e8900a]" />
+      <div className="w-10 h-10 rounded-xl bg-[#e8f4fc] border border-[#d4e9f7] flex items-center justify-center shrink-0">
+        <Server className="w-5 h-5 text-[#1787D4]" />
       </div>
     );
   if (item.type === "DOMAIN")
     return (
-      <div className="w-9 h-9 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-        <Globe className="w-4 h-4 text-[#031033]" />
+      <div className="w-10 h-10 rounded-xl bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
+        <Globe className="w-5 h-5 text-[#031033]" />
       </div>
     );
   if (item.type === "DOMAIN_TRANSFER")
     return (
-      <div className="w-9 h-9 bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
-        <ArrowRightLeft className="w-4 h-4 text-amber-600" />
+      <div className="w-10 h-10 rounded-xl bg-[#fff8ee] border border-[#fde8c0] flex items-center justify-center shrink-0">
+        <ArrowRightLeft className="w-5 h-5 text-[#fd9f09]" />
       </div>
     );
   return (
-    <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-      <Shield className="w-4 h-4 text-emerald-500" />
+    <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+      <Shield className="w-5 h-5 text-emerald-500" />
     </div>
   );
 }
@@ -157,25 +157,25 @@ export default function CartPage() {
                   <div
                     key={key}
                     id={`cart-item-${key.replace(/[.:]/g, "-")}`}
-                    className="bg-white border border-[#e2eaff] hover:border-[#e8900a]/30 hover:shadow-sm transition-all p-4 sm:p-5"
+                    className="bg-white rounded-2xl border border-[#e2eaff] hover:border-[#1787D4]/40 hover:shadow-sm transition-all p-4 sm:p-5"
                   >
                     <div className="flex items-center gap-4">
                       <ItemTypeIcon item={item} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-[#031033] text-sm truncate">
+                        <p className="font-bold text-[#031033] text-sm sm:text-base truncate">
                           {cartItemLabel(item)}
                         </p>
-                        <p className="text-xs text-[#9ba8c0] mt-0.5">
+                        <p className="text-xs text-[#5a6a85] mt-0.5">
                           {itemTypeLabel(item)}
                         </p>
                       </div>
-                      <p className="font-bold text-[#031033] text-sm shrink-0">
+                      <p className="font-extrabold text-[#031033] text-base shrink-0">
                         {formatNGN(item.price)}
                       </p>
                       <button
                         id={`cart-remove-${key.replace(/[.:]/g, "-")}`}
                         onClick={() => removeItem(key)}
-                        className="text-[#c5cedf] hover:text-red-500 transition-colors ml-2 shrink-0"
+                        className="text-[#c5cedf] hover:text-red-500 transition-colors ml-2 shrink-0 p-1 cursor-pointer"
                         aria-label={`Remove ${cartItemLabel(item)}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function CartPage() {
 
                     {/* SSL cross-sell recommendation */}
                     {item.type === "DOMAIN" && !items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
-                      <div className="mt-4 pt-4 border-t border-[#f0f4fc] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#fbfdff] -mx-4 -mb-4 p-4 sm:-mx-5 sm:-mb-5">
+                      <div className="mt-4 pt-4 border-t border-[#edf2f7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f0f7ff] rounded-xl border border-[#d4e9f7] p-3.5 sm:p-4">
                         <div className="flex items-start gap-2.5">
                           <Shield className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                           <div>
@@ -204,7 +204,7 @@ export default function CartPage() {
                               price: 10000,
                             });
                           }}
-                          className="shrink-0 text-xs font-semibold py-1.5 px-3 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1.5"
+                          className="shrink-0 text-xs font-bold py-2 px-3.5 bg-[#1787D4] text-white hover:bg-[#1370B5] rounded-xl transition-colors shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Shield className="w-3.5 h-3.5" />
                           Add SSL (+₦10,000/yr)
@@ -218,11 +218,11 @@ export default function CartPage() {
 
             {/* Right: Order summary */}
             <div className="lg:sticky lg:top-24">
-              <div className="bg-white border border-[#e2eaff]">
+              <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
+                <div className="px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff]">
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#5a6a85]" />
+                    <Package className="w-4 h-4 text-[#1787D4]" />
                     <h2 className="font-bold text-[#031033] text-sm">
                       Order Summary
                     </h2>
@@ -261,9 +261,9 @@ export default function CartPage() {
                 {/* Auth notice */}
                 {!token && (
                   <div className="px-6 pb-2">
-                    <div className="flex items-start gap-2 bg-[#fff8ee] border border-[#f5d38a] px-3 py-2.5 text-xs text-[#e8900a]">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                      <span>
+                    <div className="flex items-start gap-2 bg-[#f0f7ff] border border-[#d4e9f7] rounded-xl px-3.5 py-2.5 text-xs text-[#1787D4]">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#1787D4]" />
+                      <span className="text-[#031033]">
                         You&apos;ll need to <strong>sign in</strong> or{" "}
                         <strong>create an account</strong> to complete your
                         purchase.
@@ -276,7 +276,7 @@ export default function CartPage() {
                   <button
                     id="cart-checkout-btn"
                     onClick={handleCheckout}
-                    className="btn-primary w-full py-4 text-base font-semibold flex items-center justify-center gap-2"
+                    className="btn-primary w-full py-4 text-base font-semibold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all active:scale-[0.99] cursor-pointer"
                   >
                     {!token ? "Sign In & Checkout" : "Proceed to Checkout"}
                     <ArrowRight className="w-4 h-4" />
@@ -297,9 +297,9 @@ export default function CartPage() {
                 ].map(({ icon: Icon, label }) => (
                   <div
                     key={label}
-                    className="bg-[#f6f9ff] border border-[#dce4f7] p-3 flex flex-col items-center gap-1.5 text-center"
+                    className="bg-[#f8faff] border border-[#e2eaff] rounded-xl p-3 flex flex-col items-center gap-1.5 text-center shadow-2xs"
                   >
-                    <Icon className="w-4 h-4 text-[#e8900a]" />
+                    <Icon className="w-4 h-4 text-[#1787D4]" />
                     <span className="text-[10px] text-[#5a6a85] font-medium">
                       {label}
                     </span>

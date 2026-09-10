@@ -103,7 +103,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alex.morgan@example.com"
-                className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
+                className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
               />
             </div>
 
@@ -123,7 +123,7 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full px-3.5 py-2.5 sm:py-3 pr-10 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
+                  className="w-full px-3.5 py-2.5 sm:py-3 pr-10 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
                 />
                 <button
                   type="button"

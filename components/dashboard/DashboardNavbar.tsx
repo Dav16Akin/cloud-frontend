@@ -68,11 +68,11 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
       <div
         id="dashboard-search-trigger"
         onClick={onSearchOpen}
-        className="flex-1 max-w-md hidden md:flex items-center gap-2 bg-[#f6f9ff] border border-[#e2eaff] hover:border-[#e8900a]/40 cursor-pointer px-3 py-1.5 text-sm text-[#9ba8c0] transition-colors"
+        className="flex-1 max-w-md hidden md:flex items-center gap-2 bg-[#f6f9ff] border border-[#e2eaff] hover:border-[#1787D4]/50 rounded-xl cursor-pointer px-3.5 py-2 text-sm text-[#9ba8c0] transition-colors"
       >
-        <Search className="w-4 h-4 shrink-0" />
-        <span className="select-none">Search…</span>
-        <kbd className="ml-auto hidden sm:inline-flex items-center gap-0.5 bg-white border border-[#e2eaff] px-1.5 py-0.5 text-[10px] font-mono text-[#9ba8c0]">
+        <Search className="w-4 h-4 shrink-0 text-[#1787D4]" />
+        <span className="select-none">Search pages, domains, hosting...</span>
+        <kbd className="ml-auto hidden sm:inline-flex items-center gap-0.5 bg-white border border-[#e2eaff] rounded px-1.5 py-0.5 text-[10px] font-mono text-[#9ba8c0]">
           {platformShortcut}
         </kbd>
       </div>
@@ -85,7 +85,7 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
           target="_blank"
           rel="noopener noreferrer"
           id="dashboard-nav-docs"
-          className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#e8900a] hover:text-[#c97a08] transition-colors px-2.5 py-1 bg-[#fff8ee] border border-[#f5a520]/30 hover:border-[#e8900a]"
+          className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#1787D4] hover:text-[#1370B5] transition-colors px-3 py-1.5 bg-[#e8f4fc] border border-[#d4e9f7] rounded-lg"
         >
           <BookOpen className="w-3.5 h-3.5" />
           Documentation ↗
@@ -95,7 +95,7 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
         <Link
           href="/"
           id="dashboard-nav-main-site"
-          className="hidden sm:flex items-center gap-1.5 text-sm text-[#5a6a85] hover:text-[#031033] transition-colors px-3 py-1.5 hover:bg-[#f2f5fc]"
+          className="hidden sm:flex items-center gap-1.5 text-sm text-[#5a6a85] hover:text-[#031033] transition-colors px-3 py-1.5 hover:bg-[#f2f5fc] rounded-lg"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           Main Site
@@ -105,12 +105,12 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
         <button
           id="dashboard-nav-cart"
           onClick={toggleDrawer}
-          className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+          className="relative p-2 text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] rounded-lg transition-colors cursor-pointer"
           aria-label="Shopping cart"
         >
           <ShoppingCart className="w-4.5 h-4.5" />
           {cartCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#e8900a] text-white text-[8px] font-extrabold flex items-center justify-center rounded-full">
+            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#1787D4] text-white text-[8.5px] font-extrabold flex items-center justify-center rounded-full">
               {cartCount > 9 ? "9+" : cartCount}
             </span>
           )}

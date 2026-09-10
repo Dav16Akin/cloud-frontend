@@ -241,13 +241,13 @@ export default function DomainsPage() {
                   }
                 }}
                 placeholder="Search for your domain..."
-                className="flex-1 bg-transparent py-2.5 px-3 text-[#031033] placeholder-[#9ba8c0] text-sm sm:text-base outline-none"
+                className="flex-1 bg-transparent py-2.5 px-3 text-[#031033] placeholder-[#9ba8c0] text-base sm:text-sm outline-none min-w-0"
               />
               <button
                 id="domain-search-btn"
                 type="submit"
                 disabled={state === "searching"}
-                className="btn-primary !rounded-[8px] py-2.5 sm:py-3 px-6 sm:px-8 text-sm sm:text-base font-semibold text-white shrink-0 disabled:opacity-60 transition-colors"
+                className="btn-primary !rounded-xl py-2.5 sm:py-3 px-5 sm:px-8 text-sm sm:text-base font-semibold text-white shrink-0 disabled:opacity-60 transition-colors cursor-pointer"
               >
                 {state === "searching" ? (
                   <span className="flex items-center gap-2">
@@ -372,7 +372,7 @@ export default function DomainsPage() {
                               {result.domain}
                             </span>
                             {info?.popular && (
-                              <span className="text-[10px] bg-[#fff8ee] text-[#e8900a] border border-[#f5d38a] px-2 py-0.5 rounded font-semibold shrink-0">
+                              <span className="text-[10px] bg-[#fff8ee] text-[#fd9f09] border border-[#fde8c0] px-2 py-0.5 rounded font-semibold shrink-0">
                                 Popular
                               </span>
                             )}

@@ -189,7 +189,7 @@ export default function ContactPage() {
                         value={form.name}
                         onChange={handleChange}
                         placeholder="John Doe"
-                        className="px-4 py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all"
+                        className="px-4 py-3 sm:py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all"
                       />
                     </div>
                     {/* Email */}
@@ -205,7 +205,7 @@ export default function ContactPage() {
                         value={form.email}
                         onChange={handleChange}
                         placeholder="john@example.com"
-                        className="px-4 py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all"
+                        className="px-4 py-3 sm:py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all"
                       />
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function ContactPage() {
                       required
                       value={form.subject}
                       onChange={handleChange}
-                      className="px-4 py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-sm text-[#031033] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all appearance-none"
+                      className="px-4 py-3 sm:py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-base sm:text-sm text-[#031033] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all appearance-none"
                     >
                       <option value="" disabled>Select a topic…</option>
                       <option value="hosting">Web Hosting</option>
@@ -246,19 +246,19 @@ export default function ContactPage() {
                       value={form.message}
                       onChange={handleChange}
                       placeholder="Tell us how we can help you…"
-                      className="px-4 py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all resize-none"
+                      className="px-4 py-3 sm:py-2.5 border border-[#e2eaff] bg-[#f8faff] rounded-xl text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-all resize-none"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between gap-4 pt-1">
-                    <p className="text-xs text-[#9ba8c0]">
+                  <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+                    <p className="text-xs text-[#9ba8c0] text-center sm:text-left">
                       We typically respond within 2 business hours.
                     </p>
                     <button
                       id="contact-submit"
                       type="submit"
                       disabled={loading}
-                      className="btn-primary text-sm py-3 px-7 shrink-0 !rounded-full disabled:opacity-70"
+                      className="btn-primary text-sm py-3 px-8 w-full sm:w-auto shrink-0 !rounded-full disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                     >
                       {loading ? (
                         <span className="flex items-center gap-2">

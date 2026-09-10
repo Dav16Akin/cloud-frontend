@@ -210,7 +210,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
       {/* Modal Container */}
       <div
-        className="relative bg-white w-full max-w-xl shadow-2xl border border-[#e2eaff] flex flex-col max-h-[70vh] overflow-hidden animate-slideDown"
+        className="relative bg-white w-full max-w-xl shadow-2xl border border-[#e2eaff] rounded-2xl flex flex-col max-h-[70vh] overflow-hidden animate-slideDown"
         onKeyDown={handleKeyDown}
       >
         {/* Search Input Area */}
@@ -222,14 +222,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             placeholder="Search pages, domains, plans, orders..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 py-4 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
+            className="flex-1 py-4 text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
           />
           <kbd className="hidden sm:inline-flex items-center gap-0.5 bg-[#f2f5fc] border border-[#e2eaff] px-1.5 py-0.5 text-[9px] font-mono text-[#9ba8c0]">
             ESC
           </kbd>
           <button
             onClick={onClose}
-            className="p-1 text-[#9ba8c0] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+            className="p-1 text-[#9ba8c0] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors cursor-pointer rounded-lg"
             aria-label="Close search"
           >
             <X className="w-4 h-4" />
@@ -261,13 +261,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     onMouseEnter={() => setActiveIndex(idx)}
                     className={`w-full flex items-center text-left px-4 py-3 gap-3 transition-colors ${
                       isSelected
-                        ? "bg-[#fff8ee] text-[#031033] border-l-4 border-[#e8900a]"
+                        ? "bg-[#f0f7ff] text-[#031033] border-l-4 border-[#1787D4]"
                         : "text-[#5a6a85] hover:bg-[#f2f5fc] border-l-4 border-transparent"
                     }`}
                   >
                     <div
-                      className={`w-8 h-8 flex items-center justify-center shrink-0 ${
-                        isSelected ? "bg-white border border-[#f5d38a] text-[#e8900a]" : "bg-[#f2f5fc] text-[#9ba8c0]"
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        isSelected ? "bg-white border border-[#d4e9f7] text-[#1787D4]" : "bg-[#f2f5fc] text-[#9ba8c0]"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       )}
                     </div>
                     {isSelected && (
-                      <ArrowRight className="w-4 h-4 text-[#e8900a] shrink-0 animate-pulse" />
+                      <ArrowRight className="w-4 h-4 text-[#1787D4] shrink-0 animate-pulse" />
                     )}
                   </button>
                 );

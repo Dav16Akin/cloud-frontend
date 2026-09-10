@@ -2,118 +2,74 @@
 
 import React from "react";
 import Image from "next/image";
+import { motion } from "motion/react";
 
-/* ── Brand Logos for Trusted By Section ── */
-function KoraLogo() {
-  return (
-    <div className="flex items-center hover:opacity-100 transition-opacity">
-      <span className="font-extrabold text-2xl sm:text-[28px] tracking-tight text-[#0B63E5] font-sans select-none">
-        kora
-      </span>
-    </div>
-  );
-}
-
-function FlutterwaveLogo() {
-  return (
-    <div className="flex items-center gap-2 hover:opacity-100 transition-opacity">
-      {/* Flutterwave colorful ribbon loops */}
-      <svg
-        viewBox="0 0 36 28"
-        className="h-7 w-auto shrink-0"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M10 5C5 5 1.5 9 1.5 14C1.5 19 5 23 10 23C13.5 23 16.5 21 18 18"
-          stroke="#F5A623"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M26 5C31 5 34.5 9 34.5 14C34.5 19 31 23 26 23C22.5 23 19.5 21 18 18"
-          stroke="#7ED321"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M11 9C15 9 18 11.5 18 14C18 16.5 15 19 11 19"
-          stroke="#FF5A5F"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M25 9C21 9 18 11.5 18 14C18 16.5 21 19 25 19"
-          stroke="#00C2CB"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-      </svg>
-      <span className="font-bold text-lg sm:text-[20px] tracking-tight text-[#1E293B] lowercase select-none">
-        flutterwave
-      </span>
-    </div>
-  );
-}
-
-function PaystackLogo() {
-  return (
-    <div className="flex items-center gap-2.5 hover:opacity-100 transition-opacity">
-      <div className="flex flex-col gap-1 justify-center shrink-0">
-        <div className="w-5 h-1 bg-[#00C3F8] rounded-full" />
-        <div className="w-3.5 h-1 bg-[#00C3F8] rounded-full" />
-        <div className="w-2 h-1 bg-[#00C3F8] rounded-full" />
-      </div>
-      <span className="font-extrabold text-xl sm:text-[22px] tracking-tight text-[#0A2540] select-none">
-        paystack
-      </span>
-    </div>
-  );
-}
-
-function KudaLogo() {
-  return (
-    <div className="flex items-center gap-1.5 hover:opacity-100 transition-opacity">
-      <svg
-        viewBox="0 0 24 24"
-        className="h-6 w-6 shrink-0"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M6 4.5V19.5M6 12L15.5 4.5M8.5 10.5L16.5 19.5"
-          stroke="#40196D"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="font-bold text-xl sm:text-[22px] tracking-tight text-[#40196D] select-none">
-        kuda<span className="text-[#40196D]">.</span>
-      </span>
-    </div>
-  );
-}
-
-function MoniepointLogo() {
-  return (
-    <div className="flex items-center gap-2 hover:opacity-100 transition-opacity">
-      <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 bg-[#0052FF] rounded-lg flex items-center justify-center shadow-xs shrink-0">
-        <span className="text-white font-extrabold text-sm sm:text-base tracking-tighter">
-          M
-        </span>
-      </div>
-      <div className="flex flex-col -space-y-0.5 text-left">
-        <span className="font-extrabold text-base sm:text-[18px] tracking-tight text-[#0052FF] leading-tight select-none">
-          Moniepoint
-        </span>
-        <span className="text-[7.5px] font-bold tracking-wider text-[#0052FF]/70 uppercase select-none">
-          MICROFINANCE BANK
-        </span>
-      </div>
-    </div>
-  );
-}
+/* ── Authentic Client & Partner Logos from Nupat Africa ── */
+const CLIENT_LOGOS = [
+  {
+    name: "DC Datalab",
+    src: "/logo-dcdatalab.svg",
+    width: 140,
+    height: 30,
+    className: "h-5 sm:h-6 w-auto object-contain",
+  },
+  {
+    name: "Nupat",
+    src: "/logo-nupat-dark.png",
+    width: 110,
+    height: 30,
+    className: "h-5 sm:h-6 w-auto object-contain",
+  },
+  {
+    name: "Ulego",
+    src: "/logos/ulego-logo-removebg-preview.png",
+    width: 90,
+    height: 34,
+    className: "h-7 sm:h-8 w-auto object-contain",
+  },
+  {
+    name: "HLB",
+    src: "/logos/HLB-logo-removebg-preview.png",
+    width: 80,
+    height: 34,
+    className: "h-7 sm:h-8 w-auto object-contain",
+  },
+  {
+    name: "Turaka",
+    src: "/logos/turaka-logo-removebg-preview.png",
+    width: 80,
+    height: 34,
+    className: "h-6 sm:h-7 w-auto object-contain",
+  },
+  {
+    name: "Nestopia",
+    src: "/logos/nestopia-removebg-preview.png",
+    width: 80,
+    height: 34,
+    className: "h-6 sm:h-7 w-auto object-contain",
+  },
+  {
+    name: "Nidanet",
+    src: "/logos/NIDANET_LOGO-removebg-preview.png",
+    width: 100,
+    height: 30,
+    className: "h-5 sm:h-6 w-auto object-contain",
+  },
+  {
+    name: "The Afrobeat",
+    src: "/logos/THE-AFROBEAT-logo-removebg-preview.png",
+    width: 110,
+    height: 28,
+    className: "h-4 sm:h-5 w-auto object-contain",
+  },
+  {
+    name: "Fatusin Foundation",
+    src: "/logos/fatusin-foundation-logo-removebg-preview.png",
+    width: 130,
+    height: 24,
+    className: "h-4 sm:h-5 w-auto object-contain",
+  },
+];
 
 /* ── Distinctive Blue Double Quotation Mark ── */
 function BlueQuoteIcon() {
@@ -124,7 +80,7 @@ function BlueQuoteIcon() {
       viewBox="0 0 28 22"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="shrink-0 mb-4"
+      className="shrink-0"
       aria-hidden="true"
     >
       <path
@@ -137,38 +93,42 @@ function BlueQuoteIcon() {
 
 const testimonials = [
   {
-    id: "sola-adesina",
+    id: "nnamdi-ugwu",
     quote:
-      "“ Nupat Cloud has been instrumental in our online success, their hosting is fast, reliable, and support is exceptional.",
-    name: "Sola Adesina",
-    title: "CEO, AgriCorp Nigeria",
+      "“Nupat Cloud has been instrumental in our online success. Their hosting is fast, reliable, and support is exceptional.”",
+    name: "Nnamdi Patrick Ugwu",
+    title: "CEO, Nupat",
+    company: "Nupat",
+    companyLogo: "/logo-nupat-dark.png",
     image: "/testimonials/sola-adesina.jpg",
   },
   {
-    id: "michael-bamidele",
+    id: "frank-ugwu",
     quote:
       "“Our application latency dropped significantly after deploying on our platform's local cloud infrastructure.”",
-    name: "Michael Bamidele",
-    title: "CTO, Inovate Nigeria",
+    name: "Frank Ugwu",
+    title: "CEO, DC Datalab",
+    company: "DC Datalab",
+    companyLogo: "/logo-dcdatalab.svg",
     image: "/testimonials/michael-bamidele.jpg",
   },
   {
     id: "aisha-hassan",
     quote:
-      "“this platform has saved us thousands in hosting fees and reduced our website setup friction to nearly zero. The AI builder is incredibly intuitive.”",
+      "“This platform has saved us thousands in hosting fees and reduced our website setup friction to nearly zero. The infrastructure is solid.”",
     name: "Aisha Hassan",
-    title: "Founder, Beauty Store",
+    title: "Engineer, Ulego",
+    company: "Ulego",
+    companyLogo: "/logos/ulego-logo-removebg-preview.png",
     image: "/testimonials/aisha-hassan.jpg",
   },
 ];
-
-import { motion } from "motion/react";
 
 export default function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="py-10 sm:py-12 bg-white relative overflow-hidden"
+      className="py-12 sm:py-16 bg-white relative overflow-hidden"
     >
       {/* Background Curvelines */}
       <div className="absolute top-12 -left-28 pointer-events-none select-none z-0 hidden md:block">
@@ -216,7 +176,7 @@ export default function TestimonialsSection() {
           </p>
         </motion.div>
 
-        {/* ── Trusted by leaders in Tech & Finance ── */}
+        {/* ── Trusted by Growing Brands & Corporations ── */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -224,15 +184,24 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-14 sm:mb-16 text-center"
         >
-          <p className="type-overline text-[#5a6a85] mb-8 sm:mb-10">
-            TRUSTED BY LEADERS IN TECH &amp; FINANCE
+          <p className="type-overline text-[#5a6a85] mb-8 sm:mb-10 tracking-widest uppercase text-xs font-semibold">
+            TRUSTED BY GROWING BRANDS &amp; CORPORATIONS
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-14 lg:gap-18">
-            <KoraLogo />
-            <FlutterwaveLogo />
-            <PaystackLogo />
-            <KudaLogo />
-            <MoniepointLogo />
+          <div className="flex flex-wrap items-center justify-center gap-7 sm:gap-10 md:gap-12 lg:gap-14">
+            {CLIENT_LOGOS.map((logo) => (
+              <div
+                key={logo.name}
+                className="flex items-center justify-center transition-all duration-200 select-none hover:scale-105"
+              >
+                <Image
+                  src={logo.src}
+                  alt={logo.name}
+                  width={logo.width}
+                  height={logo.height}
+                  className={logo.className}
+                />
+              </div>
+            ))}
           </div>
         </motion.div>
 
@@ -254,14 +223,27 @@ export default function TestimonialsSection() {
               className="bg-white border border-[#E5E7EB] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300"
             >
               <div>
-                <BlueQuoteIcon />
+                {/* Header with Quote Icon + Real Company Logo */}
+                <div className="flex items-center justify-between mb-6 min-h-[34px]">
+                  <BlueQuoteIcon />
+                  <div className="relative h-7 max-w-[130px] flex items-center justify-end">
+                    <Image
+                      src={t.companyLogo}
+                      alt={t.company}
+                      width={130}
+                      height={32}
+                      className="h-6 sm:h-7 w-auto object-contain hover:scale-105 transition-transform"
+                    />
+                  </div>
+                </div>
+
                 <p className="text-[#1d1d1f] text-[15px] leading-relaxed mb-8 font-normal">
                   {t.quote}
                 </p>
               </div>
 
               {/* Author Footer */}
-              <div className="flex items-center gap-3.5 pt-2">
+              <div className="flex items-center gap-3.5 pt-4 border-t border-slate-100">
                 <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-slate-200/80 shadow-xs">
                   <Image
                     src={t.image}
@@ -275,9 +257,7 @@ export default function TestimonialsSection() {
                   <h4 className="text-[#031033] font-semibold text-[15px] leading-tight">
                     {t.name}
                   </h4>
-                  <p className="text-[#5a6a85] text-[13px] mt-0.5">
-                    {t.title}
-                  </p>
+                  <p className="text-[#5a6a85] text-[13px] mt-0.5">{t.title}</p>
                 </div>
               </div>
             </motion.div>

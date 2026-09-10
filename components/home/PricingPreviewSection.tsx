@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Star, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import { usePlans } from "@/hooks/usePlans";
 import type { Plan } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
@@ -11,66 +11,175 @@ function formatPrice(price: number) {
   return "₦" + price.toLocaleString("en-NG");
 }
 
+type BillingCycle = "monthly" | "quarterly" | "yearly";
+
+const DURATION_CYCLES: {
+  id: BillingCycle;
+  label: string;
+  periodText: string;
+  months: number;
+  badge?: string;
+}[] = [
+  {
+    id: "monthly",
+    label: "Monthly",
+    periodText: "1 Month",
+    months: 1,
+  },
+  {
+    id: "quarterly",
+    label: "Quarterly",
+    periodText: "3 Months",
+    months: 3,
+    badge: "Save ~10%",
+  },
+  {
+    id: "yearly",
+    label: "Yearly",
+    periodText: "12 Months",
+    months: 12,
+    badge: "Save ~17%",
+  },
+];
+
+// Fallback plans strictly matching the endpoint /plans response
+const FALLBACK_PLANS: Plan[] = [
+  {
+    id: "cmqm5fvx20000r5ru44e7b4il",
+    name: "Starter",
+    price: 30000,
+    monthlyPrice: 3000,
+    quarterlyPrice: 8000,
+    billingCycle: "yearly",
+    storage: "2GB SSD",
+    bandwidth: "10GB",
+    websites: 1,
+    emails: 2,
+    features: [
+      "Free SSL Certificate",
+      "Daily Backups",
+      "cPanel Access",
+      "24/7 Monitoring",
+    ],
+    isPopular: false,
+    isActive: true,
+    createdAt: "2026-06-20T09:22:26.006Z",
+    updatedAt: "2026-09-04T10:12:11.439Z",
+  },
+  {
+    id: "cmqm5fvx40001r5ruk7esbeys",
+    name: "Business",
+    price: 100000,
+    monthlyPrice: 10000,
+    quarterlyPrice: 28000,
+    billingCycle: "yearly",
+    storage: "10GB SSD",
+    bandwidth: "50GB",
+    websites: 5,
+    emails: 10,
+    features: [
+      "Free SSL Certificate",
+      "Daily Backups",
+      "Priority Support",
+      "Enhanced Performance",
+    ],
+    isPopular: true,
+    isActive: true,
+    createdAt: "2026-06-20T09:22:26.006Z",
+    updatedAt: "2026-07-20T12:52:50.864Z",
+  },
+  {
+    id: "cmqm5fvx40002r5rurekio07y",
+    name: "Agency",
+    price: 250000,
+    monthlyPrice: 24000,
+    quarterlyPrice: 68000,
+    billingCycle: "yearly",
+    storage: "50GB SSD",
+    bandwidth: "Unlimited",
+    websites: 999,
+    emails: 999,
+    features: [
+      "White-label Support",
+      "Dedicated Resources",
+      "Advanced Security",
+      "Priority Infrastructure",
+    ],
+    isPopular: false,
+    isActive: true,
+    createdAt: "2026-06-20T09:22:26.006Z",
+    updatedAt: "2026-07-20T12:52:51.158Z",
+  },
+];
+
 const planDescriptions: Record<string, string> = {
-  Starter: "Small businesses and personal websites",
-  Business: "Growing businesses, e-commerce & startups",
-  Agency: "Agencies and developers managing multiple clients",
+  Starter: "Ideal for personal websites, blogs, and small projects.",
+  Business: "Fast caching, custom security setup, extra storage.",
+  Agency: "Agencies and developers managing high-traffic websites.",
 };
-
-const planCtas: Record<string, string> = {
-  Starter: "Get Started",
-  Business: "Choose Business",
-  Agency: "Start Scaling",
-};
-
-function PlanCardSkeleton() {
-  return (
-    <div className="relative flex flex-col p-8 rounded-2xl border border-[#e2eaff] bg-white animate-pulse">
-      <div className="h-5 w-28 bg-[#e8edf8] rounded mb-2" />
-      <div className="h-4 w-44 bg-[#e8edf8] rounded mb-6" />
-      <div className="h-10 w-24 bg-[#e8edf8] rounded mb-7 pb-7" />
-      <div className="flex flex-col gap-3 mb-8">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-4 w-full bg-[#e8edf8] rounded" />
-        ))}
-      </div>
-      <div className="h-12 w-full bg-[#e8edf8] rounded-xl" />
-    </div>
-  );
-}
 
 function PlanCard({
   plan,
   selectedCycle,
 }: {
   plan: Plan;
-  selectedCycle: "monthly" | "quarterly" | "yearly";
+  selectedCycle: BillingCycle;
 }) {
   const { addHostingItem, hasItem, openDrawer } = useCartStore();
   const slug = plan.name.toLowerCase();
 
-  const priceMap = {
-    monthly: plan.monthlyPrice,
-    quarterly: plan.quarterlyPrice,
-    yearly: plan.price,
-  };
-  const price = priceMap[selectedCycle];
+  // Price calculation strictly according to endpoint fields:
+  // - monthlyPrice
+  // - quarterlyPrice
+  // - price (yearly)
+  const cyclePrice =
+    selectedCycle === "monthly"
+      ? plan.monthlyPrice
+      : selectedCycle === "quarterly"
+        ? plan.quarterlyPrice
+        : plan.price;
+
+  // Monthly equivalent breakdown for the "/month" rate
+  const monthlyEquivalent =
+    selectedCycle === "monthly"
+      ? plan.monthlyPrice
+      : selectedCycle === "quarterly"
+        ? Math.round(plan.quarterlyPrice / 3)
+        : Math.round(plan.price / 12);
+
+  // Exact savings percentage compared to unbundled monthly billing
+  const savingsPercent =
+    selectedCycle === "quarterly"
+      ? Math.max(
+          0,
+          Math.round(
+            (1 - plan.quarterlyPrice / (plan.monthlyPrice * 3)) * 100
+          )
+        )
+      : selectedCycle === "yearly"
+        ? Math.max(
+            0,
+            Math.round((1 - plan.price / (plan.monthlyPrice * 12)) * 100)
+          )
+        : 0;
+
   const inCart = hasItem(`hosting:${plan.id}:${selectedCycle}`);
 
   const websiteLabel =
     plan.websites >= 999
       ? "Unlimited Websites"
       : `${plan.websites} Website${plan.websites > 1 ? "s" : ""}`;
+
   const emailLabel =
     plan.emails >= 999
-      ? "Unlimited Emails"
+      ? "Unlimited Email"
       : `${plan.emails} Email Account${plan.emails > 1 ? "s" : ""}`;
 
   const derivedFeatures = [
-    `${plan.storage} NVMe Storage`,
     websiteLabel,
+    `${plan.storage} Storage`,
     emailLabel,
-    ...plan.features.slice(0, 4),
+    ...plan.features,
   ];
 
   const handleAddToCart = () => {
@@ -78,120 +187,165 @@ function PlanCard({
       type: "HOSTING",
       planId: plan.id,
       planName: plan.name,
-      price: price,
+      price: cyclePrice,
       billingCycle: selectedCycle,
     });
     openDrawer();
   };
 
+  if (plan.isPopular) {
+    // Featured Business Card using official Brand Blue (#1787D4)
+    return (
+      <div
+        id={`plan-${slug}`}
+        className="bg-[#1787D4] text-white rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-2xl shadow-[#1787D4]/20 md:scale-[1.02] md:-translate-y-1 relative transition-all duration-300"
+      >
+        <div>
+          {/* Header */}
+          <div className="mb-5">
+            <h3 className="text-2xl font-bold text-white tracking-tight">
+              {plan.name}
+            </h3>
+            <p className="text-blue-100 text-[13.5px] mt-1.5 leading-relaxed min-h-[40px]">
+              {planDescriptions[plan.name] ??
+                "Fast caching, custom security setup, extra storage."}
+            </p>
+          </div>
+
+          {/* Price & Savings Pill */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 flex-nowrap">
+              <span className="text-3xl sm:text-[34px] font-extrabold text-white tracking-tight shrink-0">
+                {formatPrice(monthlyEquivalent)}
+              </span>
+              <span className="text-sm font-semibold text-blue-100 shrink-0">
+                /month
+              </span>
+              {savingsPercent > 0 && (
+                <span className="bg-white text-[#16a34a] font-semibold text-xs px-2.5 py-0.5 rounded-full shadow-xs inline-flex items-center whitespace-nowrap">
+                  Save {savingsPercent}%
+                </span>
+              )}
+            </div>
+            <div className="text-[12px] text-blue-100/80 mt-1">
+              {selectedCycle === "monthly"
+                ? "Billed monthly"
+                : `Billed ${formatPrice(cyclePrice)} ${
+                    selectedCycle === "yearly" ? "yearly" : "quarterly"
+                  }`}
+            </div>
+          </div>
+
+          {/* Features List */}
+          <ul className="space-y-3.5 mb-8">
+            {derivedFeatures.map((feat) => (
+              <li key={feat} className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-white shrink-0 stroke-[2.2]" />
+                <span className="text-white text-[14.5px] font-medium">
+                  {feat}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA Button */}
+        {inCart ? (
+          <Link
+            href="/cart"
+            id={`plan-${slug}-cta`}
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
+          >
+            In Cart — Checkout
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            id={`plan-${slug}-cta`}
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-white hover:bg-blue-50 text-[#1787D4] shadow-sm cursor-pointer active:scale-[0.98]"
+          >
+            Get Started
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Standard White Card (Starter & Agency)
   return (
     <div
       id={`plan-${slug}`}
-      className={`relative flex flex-col p-7 sm:p-8 rounded-lg transition-all duration-300 ${
-        plan.isPopular
-          ? "bg-[#031033] text-white shadow-2xl shadow-blue-900/20 scale-[1.03] md:-mt-2 border-2 border-[#1787D4]"
-          : "bg-white border border-[#e2eaff] text-[#031033] shadow-sm hover:shadow-xl hover:-translate-y-1"
-      }`}
+      className="bg-white text-[#031033] border border-slate-100 rounded-[28px] p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-300"
     >
-      {plan.isPopular && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-          <span className="inline-flex items-center gap-1.5 bg-[#1787D4] text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-            <Star className="w-3 h-3 fill-white" />
-            Most Popular
-          </span>
+      <div>
+        {/* Header */}
+        <div className="mb-5">
+          <h3 className="text-2xl font-bold text-[#031033] tracking-tight">
+            {plan.name}
+          </h3>
+          <p className="text-[#5a6a85] text-[13.5px] mt-1.5 leading-relaxed min-h-[40px]">
+            {planDescriptions[plan.name] ??
+              "A reliable hosting package tailored to your needs."}
+          </p>
         </div>
-      )}
 
-      <div className="mb-6">
-        <h3
-          className={`type-h3 mb-1.5 ${
-            plan.isPopular ? "text-white" : "text-[#031033]"
-          }`}
-        >
-          {plan.name}
-        </h3>
-        <p
-          className={`text-[14px] leading-relaxed ${
-            plan.isPopular ? "text-slate-300" : "text-[#5a6a85]"
-          }`}
-        >
-          {planDescriptions[plan.name] ??
-            "A great hosting plan for your needs."}
-        </p>
-      </div>
-
-      <div
-        className={`mb-6 pb-6 border-b ${
-          plan.isPopular ? "border-slate-800" : "border-[#e2eaff]"
-        }`}
-      >
-        <div className="flex items-baseline gap-1">
-          <span
-            className={`text-2xl sm:text-[30px] font-bold tracking-tight ${
-              plan.isPopular ? "text-white" : "text-[#031033]"
-            }`}
-          >
-            {formatPrice(price)}
-          </span>
-          <span
-            className={`text-xs sm:text-[13px] ${
-              plan.isPopular ? "text-slate-300" : "text-[#5a6a85]"
-            }`}
-          >
-            /
-            {selectedCycle === "yearly"
-              ? "year"
-              : selectedCycle === "quarterly"
-                ? "quarter"
-                : "month"}
-          </span>
-        </div>
-      </div>
-
-      <ul className="flex flex-col gap-3 mb-8 flex-1">
-        {derivedFeatures.map((feat) => (
-          <li key={feat} className="flex items-center gap-2.5">
-            <div
-              className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                plan.isPopular
-                  ? "bg-blue-500/20 text-[#1787D4]"
-                  : "bg-blue-50 text-[#1787D4]"
-              }`}
-            >
-              <Check className="w-3 h-3" strokeWidth={3} />
-            </div>
-            <span
-              className={`text-[14px] ${
-                plan.isPopular ? "text-slate-200" : "text-[#5a6a85]"
-              }`}
-            >
-              {feat}
+        {/* Price & Savings Pill */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 flex-nowrap">
+            <span className="text-3xl sm:text-[34px] font-extrabold text-[#031033] tracking-tight shrink-0">
+              {formatPrice(monthlyEquivalent)}
             </span>
-          </li>
-        ))}
-      </ul>
+            <span className="text-sm font-semibold text-[#5a6a85] shrink-0">
+              /month
+            </span>
+            {savingsPercent > 0 && (
+              <span className="bg-[#eafaf1] text-[#16a34a] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center whitespace-nowrap">
+                Save {savingsPercent}%
+              </span>
+            )}
+          </div>
+          <div className="text-[12px] text-slate-400 mt-1">
+            {selectedCycle === "monthly"
+              ? "Billed monthly"
+              : `Billed ${formatPrice(cyclePrice)} ${
+                  selectedCycle === "yearly" ? "yearly" : "quarterly"
+                }`}
+          </div>
+        </div>
 
+        {/* Features List */}
+        <ul className="space-y-3.5 mb-8">
+          {derivedFeatures.map((feat) => (
+            <li key={feat} className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-[#1787D4] shrink-0 stroke-[2.2]" />
+              <span className="text-slate-700 text-[14.5px] font-medium">
+                {feat}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* CTA Button */}
       {inCart ? (
         <Link
           href="/cart"
           id={`plan-${slug}-cta`}
-          className="flex items-center justify-center gap-2 py-2.5 px-4 font-medium text-sm rounded-full transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs cursor-pointer active:scale-95"
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
         >
           In Cart — Checkout
           <ArrowRight className="w-4 h-4" />
         </Link>
       ) : (
         <button
+          type="button"
           onClick={handleAddToCart}
           id={`plan-${slug}-cta`}
-          className={`flex items-center justify-center gap-2 py-2.5 px-4 font-medium text-sm rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${
-            plan.isPopular
-              ? "bg-[#1787D4] hover:bg-blue-600 text-white shadow-blue-500/20"
-              : "bg-[#031033] hover:bg-[#061c52] text-white"
-          }`}
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#031033] cursor-pointer active:scale-[0.98]"
         >
-          {planCtas[plan.name] ?? "Get Started"}
-          <ArrowRight className="w-4 h-4" />
+          Get Started
         </button>
       )}
     </div>
@@ -199,64 +353,92 @@ function PlanCard({
 }
 
 export default function PricingPreviewSection() {
-  const { data: plans, isLoading } = usePlans();
-  const [billingCycle, setBillingCycle] = useState<
-    "monthly" | "quarterly" | "yearly"
-  >("monthly");
+  const { data: apiPlans, isLoading } = usePlans();
+  const [selectedCycle, setSelectedCycle] =
+    useState<BillingCycle>("yearly");
+
+  // Use live API endpoint data (with endpoint fallback)
+  const plans = apiPlans && apiPlans.length > 0 ? apiPlans : FALLBACK_PLANS;
 
   return (
     <section
       id="pricing-preview"
-      className="py-14 sm:py-16 bg-[#f8faff] relative overflow-hidden"
+      className="py-16 sm:py-20 lg:py-24 bg-[#f8faff] relative overflow-hidden scroll-mt-20"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-12 flex flex-col items-center">
-          <h2 className="type-h2 text-[#031033] mb-3">
-            Plans for Every{" "}
-            <span className="text-[#1787D4]">Stage of Growth</span>
+        {/* Section Header */}
+        <div className="text-center mb-10 flex flex-col items-center">
+          <h2 className="text-3xl sm:text-4xl md:text-[44px] font-extrabold tracking-tight text-[#031033] leading-tight max-w-3xl">
+            Start with what you need. Scale when you&apos;re ready.
           </h2>
-          <p className="type-lead text-[#5a6a85] max-w-2xl mx-auto mb-8">
-            Flexible, high-speed hosting plans for startups, enterprises,
-            agencies, and independent creators.
+          <p className="text-sm sm:text-base text-[#5a6a85] max-w-2xl mx-auto mt-3">
+            Choose the hosting plan that fits your website today and scale as your traffic grows.
           </p>
 
-          {/* Billing Cycle Selector Tabs — Apple Pill */}
-          <div className="flex justify-center mb-2">
-            <div className="inline-flex items-center bg-white border border-slate-200/90 p-1 rounded-full shadow-xs">
-              {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
-                <button
-                  key={cycle}
-                  type="button"
-                  onClick={() => setBillingCycle(cycle)}
-                  className={`px-5 py-2 text-xs sm:text-[13px] font-medium rounded-full transition-all cursor-pointer ${
-                    billingCycle === cycle
-                      ? "bg-[#031033] text-white shadow-xs"
-                      : "text-[#5a6a85] hover:text-[#031033]"
-                  }`}
-                >
-                  {cycle === "monthly"
-                    ? "Monthly"
-                    : cycle === "quarterly"
-                      ? "Quarterly (5% off)"
-                      : "Yearly (15% off)"}
-                </button>
-              ))}
+          {/* Duration Options Segmented Bar directly mapping to endpoint billing cycles */}
+          <div className="flex flex-col items-center justify-center gap-2 mt-8">
+            <div className="inline-flex items-center p-1 bg-white border border-slate-200/90 rounded-full shadow-xs">
+              {DURATION_CYCLES.map((dur) => {
+                const isSelected = selectedCycle === dur.id;
+                return (
+                  <button
+                    key={dur.id}
+                    type="button"
+                    onClick={() => setSelectedCycle(dur.id)}
+                    className={`relative px-4 sm:px-6 py-2 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                      isSelected
+                        ? "bg-[#031033] text-white shadow-xs"
+                        : "text-[#5a6a85] hover:text-[#031033]"
+                    }`}
+                  >
+                    <span>{dur.label}</span>
+                    <span className="text-[11px] opacity-70">
+                      ({dur.periodText})
+                    </span>
+                    {dur.badge && (
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
+                          isSelected
+                            ? "bg-emerald-500/20 text-emerald-300"
+                            : "bg-[#eafaf1] text-[#16a34a]"
+                        }`}
+                      >
+                        {dur.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
+            <p className="text-xs text-slate-400 mt-1">
+              {selectedCycle === "monthly"
+                ? "Flexible monthly billing. Cancel anytime."
+                : selectedCycle === "quarterly"
+                  ? "Billed quarterly. Enjoy lower effective monthly pricing."
+                  : "Annual plan with maximum savings. Billed once a year."}
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          {isLoading
-            ? [...Array(3)].map((_, i) => <PlanCardSkeleton key={i} />)
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch mt-8">
+          {isLoading && !plans
+            ? [...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-[28px] p-8 border border-slate-100 bg-white animate-pulse h-96"
+                />
+              ))
             : plans?.map((plan) => (
                 <PlanCard
                   key={plan.id}
                   plan={plan}
-                  selectedCycle={billingCycle}
+                  selectedCycle={selectedCycle}
                 />
               ))}
         </div>
 
+        {/* Footer Link */}
         <div className="text-center mt-12">
           <Link
             href="/pricing"
@@ -264,7 +446,7 @@ export default function PricingPreviewSection() {
             className="text-[#1787D4] text-sm font-semibold hover:underline underline-offset-4 inline-flex items-center gap-1.5 cursor-pointer"
           >
             View full feature comparison & pricing
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

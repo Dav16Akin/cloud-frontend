@@ -2,7 +2,7 @@
 import { useState, Suspense } from "react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, Loader2, LockKeyhole } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2, LockKeyhole, Check, X } from "lucide-react";
 import { useResetPassword } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -15,7 +15,7 @@ function ResetPasswordContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [mismatch, setMismatch] = useState(false);
+  const [touched, setTouched] = useState(false);
 
   const { mutate: reset, isPending } = useResetPassword();
 
@@ -24,13 +24,40 @@ function ResetPasswordContent() {
     if (!resetToken) router.push("/forgot-password");
   }, [resetToken, router]);
 
+  // Backend password rules
+  const hasMinLength = newPassword.length >= 8;
+  const hasUpper = /[A-Z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
+  const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0;
+  const allRulesPassed = hasMinLength && hasUpper && hasNumber && passwordsMatch;
+
+  // Strength calculation
+  const calcStrength = (pw: string) => {
+    if (!pw) return 0;
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return score;
+  };
+
+  const strength = calcStrength(newPassword);
+  const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
+  const strengthColors = ["", "bg-red-400", "bg-amber-400", "bg-blue-400", "bg-emerald-500"];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      setMismatch(true);
+    setTouched(true);
+
+    if (!hasMinLength || !hasUpper || !hasNumber) {
       return;
     }
-    setMismatch(false);
+
+    if (newPassword !== confirmPassword) {
+      return;
+    }
+
     reset({ resetToken, newPassword });
   };
 
@@ -77,9 +104,11 @@ function ResetPasswordContent() {
               type={showPass ? "text" : "password"}
               placeholder="••••••••"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setTouched(true);
+              }}
               required
-              minLength={8}
               className="w-full bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors"
             />
             <button
@@ -94,6 +123,69 @@ function ResetPasswordContent() {
                 <Eye className="w-4 h-4" />
               )}
             </button>
+          </div>
+
+          {/* Strength meter */}
+          {newPassword && (
+            <div className="space-y-1 mt-1">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-[#9ba8c0]">Password strength:</span>
+                <span className="font-semibold text-[#031033]">
+                  {strengthLabels[strength]}
+                </span>
+              </div>
+              <div className="flex gap-1 h-1.5 w-full bg-[#f2f5fc] rounded-full overflow-hidden">
+                {[1, 2, 3, 4].map((step) => (
+                  <div
+                    key={step}
+                    className={`h-full flex-1 transition-all duration-300 ${
+                      strength >= step
+                        ? strengthColors[strength]
+                        : "bg-transparent"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Backend Password Rules Checklist */}
+        <div className="bg-[#f8faff] border border-[#e2eaff] rounded-xl p-3.5 space-y-2 text-xs">
+          <p className="font-semibold text-[#031033] text-[11px] uppercase tracking-wider">
+            Password Requirements:
+          </p>
+          <div className="space-y-1.5 text-[#5a6a85]">
+            <div className="flex items-center gap-2">
+              {hasMinLength ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              ) : (
+                <span className="w-3.5 h-3.5 rounded-full border border-[#c2d0eb] shrink-0" />
+              )}
+              <span className={hasMinLength ? "text-emerald-700 font-medium" : ""}>
+                At least 8 characters
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasUpper ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              ) : (
+                <span className="w-3.5 h-3.5 rounded-full border border-[#c2d0eb] shrink-0" />
+              )}
+              <span className={hasUpper ? "text-emerald-700 font-medium" : ""}>
+                At least one uppercase letter (A-Z)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasNumber ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              ) : (
+                <span className="w-3.5 h-3.5 rounded-full border border-[#c2d0eb] shrink-0" />
+              )}
+              <span className={hasNumber ? "text-emerald-700 font-medium" : ""}>
+                At least one number (0-9)
+              </span>
+            </div>
           </div>
         </div>
 
@@ -113,12 +205,14 @@ function ResetPasswordContent() {
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
-                setMismatch(false);
               }}
               required
-              minLength={8}
               className={`w-full bg-[#f2f5fc] border ${
-                mismatch ? "border-red-400" : "border-[#dce4f7]"
+                confirmPassword && !passwordsMatch
+                  ? "border-red-400"
+                  : passwordsMatch
+                  ? "border-emerald-400"
+                  : "border-[#dce4f7]"
               } focus:border-[#031033] focus:bg-white rounded-xl px-4 py-3 pr-12 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none transition-colors`}
             />
             <button
@@ -134,9 +228,16 @@ function ResetPasswordContent() {
               )}
             </button>
           </div>
-          {mismatch && (
-            <p className="text-red-500 text-xs mt-0.5">
+          {confirmPassword && !passwordsMatch && (
+            <p className="text-red-500 text-xs mt-0.5 flex items-center gap-1">
+              <X className="w-3 h-3 shrink-0" />
               Passwords do not match.
+            </p>
+          )}
+          {passwordsMatch && (
+            <p className="text-emerald-600 text-xs mt-0.5 flex items-center gap-1">
+              <Check className="w-3 h-3 shrink-0" />
+              Passwords match.
             </p>
           )}
         </div>
@@ -144,8 +245,8 @@ function ResetPasswordContent() {
         <button
           id="reset-password-submit"
           type="submit"
-          disabled={isPending}
-          className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={isPending || !allRulesPassed}
+          className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold mt-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? (
             <>

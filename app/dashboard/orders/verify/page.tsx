@@ -56,11 +56,21 @@ function OrderVerifyContent() {
   const router = useRouter();
 
   const reference = searchParams.get("reference") ?? "";
-  const { data, isLoading, isError, error } = useVerifyPayment(
-    reference || null,
-  );
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    isPaid,
+    isFailed,
+    isPendingStatus,
+    isExhausted,
+    pollCount,
+    maxPolls,
+    checkStatusNow,
+    isManualChecking,
+  } = useVerifyPayment(reference || null);
 
-  const isPaid = data?.status === "PAID";
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
@@ -106,7 +116,7 @@ function OrderVerifyContent() {
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
+  // ── Initial Loading ───────────────────────────────────────────────────────
 
   if (isLoading) {
     return (
@@ -131,18 +141,79 @@ function OrderVerifyContent() {
     );
   }
 
-  // ── Error / Failed ────────────────────────────────────────────────────────
+  // ── Pending / Processing State ───────────────────────────────────────────
 
-  if (isError || !data || data.status !== "PAID") {
+  if (isPendingStatus && !isPaid && !isFailed) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5 max-w-md mx-auto animate-fade-up">
+        <div className="w-16 h-16 bg-amber-50 border border-amber-200 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+        </div>
+
+        <div>
+          <span className="inline-block text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full mb-2">
+            Payment Processing
+          </span>
+          <h1 className="text-xl font-extrabold text-[#031033]">
+            Awaiting Confirmation
+          </h1>
+          <p className="text-sm text-[#5a6a85] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            {!isExhausted ? (
+              `Checking transaction status with Paystack (attempt ${pollCount + 1} of ${maxPolls})…`
+            ) : (
+              "Paystack has received your payment instruction. Verification is taking a moment longer than expected. Your order is secure, and services will provision automatically once confirmed."
+            )}
+          </p>
+        </div>
+
+        <p className="text-xs font-mono text-[#9ba8c0] bg-[#f6f9ff] border border-[#e2eaff] px-3 py-1.5">
+          ref: {reference}
+        </p>
+
+        <div className="p-3.5 bg-amber-50/60 border border-amber-200/70 rounded-xl text-xs text-amber-800 text-left w-full">
+          <p className="font-semibold mb-0.5">No need to wait here</p>
+          <p>
+            You can safely navigate away. You will receive an email confirmation as soon as Paystack confirms the transaction.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+          <button
+            type="button"
+            onClick={checkStatusNow}
+            disabled={isManualChecking}
+            className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {isManualChecking ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Checking…
+              </>
+            ) : (
+              "Check Status"
+            )}
+          </button>
+          <Link
+            href="/dashboard/orders"
+            className="flex-1 text-sm py-2.5 font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors flex items-center justify-center gap-2"
+          >
+            My Orders
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Failed / Error State ──────────────────────────────────────────────────
+
+  if (isFailed || (isError && !isPaid)) {
     const message =
       isError && error instanceof Error
         ? error.message
-        : data?.status === "PENDING"
-        ? "Your payment is still being processed. Please check back in a moment."
-        : "Payment verification failed. The payment may not have completed.";
+        : "Payment verification failed. The transaction may have been cancelled or declined.";
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5 max-w-md mx-auto">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5 max-w-md mx-auto animate-fade-up">
         <div className="w-16 h-16 bg-red-50 border border-red-200 flex items-center justify-center">
           <XCircle className="w-7 h-7 text-red-500" />
         </div>
@@ -207,7 +278,7 @@ function OrderVerifyContent() {
 
       {/* Items summary */}
       <div className="w-full bg-[#f6f9ff] border border-[#e2eaff] text-left">
-        {data.items.map((item) => (
+        {data?.items?.map((item) => (
           <div
             key={item.id}
             className="flex items-center gap-3 px-4 py-3 border-b border-[#e2eaff] last:border-b-0"
@@ -232,7 +303,7 @@ function OrderVerifyContent() {
             Total
           </span>
           <span className="text-base font-extrabold text-[#031033]">
-            ₦{data.amount.toLocaleString("en-NG")}
+            ₦{(data?.amount ?? 0).toLocaleString("en-NG")}
           </span>
         </div>
         {/* Reference */}
@@ -241,7 +312,7 @@ function OrderVerifyContent() {
             Reference
           </span>
           <span className="text-xs font-mono text-[#5a6a85]">
-            {data.reference}
+            {data?.reference ?? reference}
           </span>
         </div>
       </div>

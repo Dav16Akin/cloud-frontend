@@ -33,6 +33,16 @@ function DomainTransferPageContent() {
   const [domainName, setDomainName] = useState(queryDomain);
   const [authCode, setAuthCode] = useState("");
   const [showAuthCode, setShowAuthCode] = useState(false);
+
+  // Auto-mask sensitive transfer authorization code after 30 seconds
+  useEffect(() => {
+    if (!showAuthCode) return;
+    const timer = setTimeout(() => {
+      setShowAuthCode(false);
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [showAuthCode]);
+
   const [eligibilityResult, setEligibilityResult] = useState<{
     domainName: string;
     price: number;

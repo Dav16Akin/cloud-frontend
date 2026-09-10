@@ -156,7 +156,16 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "nupat-cart",
-      partialize: (state) => ({ items: state.items }),
+      // Sanitize sensitive values: never persist raw transfer authorization codes (EPP keys) in plaintext in localStorage
+      partialize: (state) => ({
+        items: state.items.map((item) => {
+          if (item.type === "DOMAIN_TRANSFER") {
+            const { authCode, ...rest } = item;
+            return { ...rest, authCode: "" };
+          }
+          return item;
+        }),
+      }),
     },
   ),
 );

@@ -17,7 +17,10 @@ import { verifyPayment } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 
-type VerifyState = "loading" | "success" | "failed" | "error";
+type VerifyState = "loading" | "pending" | "success" | "failed" | "error";
+
+const MAX_POLL_ATTEMPTS = 6;
+const POLL_INTERVAL_MS = 3500;
 
 function CartSuccessContent() {
   const searchParams = useSearchParams();
@@ -30,12 +33,86 @@ function CartSuccessContent() {
     "";
 
   const [verifyState, setVerifyState] = useState<VerifyState>("loading");
+  const [pollCount, setPollCount] = useState(0);
+  const [isManualChecking, setIsManualChecking] = useState(false);
   const [orderData, setOrderData] = useState<{
-    items: Array<{ type: string; domainName?: string; plan?: { name?: string }; price: number; id: string }>;
+    items: Array<{
+      type: string;
+      domainName?: string;
+      plan?: { name?: string };
+      price: number;
+      id: string;
+    }>;
     amount: number;
     reference: string;
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const verifyAttempt = async (isManual = false) => {
+    if (!reference) {
+      setVerifyState("error");
+      setErrorMsg("No payment reference found.");
+      return;
+    }
+
+    if (isManual) {
+      setIsManualChecking(true);
+    }
+
+    const token = useAuthStore.getState().token;
+
+    try {
+      const res = await verifyPayment(token, reference);
+      const status = res?.data?.status;
+
+      // Handle successful or idempotent responses
+      if (
+        status === "PAID" ||
+        (status as any) === "ALREADY_VERIFIED" ||
+        (status as any) === "COMPLETED"
+      ) {
+        setOrderData({
+          items: res.data.items ?? [],
+          amount: res.data.amount ?? 0,
+          reference: res.data.reference ?? reference,
+        });
+        setVerifyState("success");
+        useCartStore.getState().clearCart();
+        sessionStorage.removeItem("cart_order_ref");
+        sessionStorage.removeItem("domain_order_ref");
+      } else if (status === "FAILED" || (status as any) === "CANCELLED") {
+        setVerifyState("failed");
+      } else {
+        // Status is PENDING
+        setVerifyState("pending");
+      }
+    } catch (err: any) {
+      // Check if error message contains idempotent confirmation
+      const msg = (err?.message || "").toLowerCase();
+      if (
+        msg.includes("already verified") ||
+        msg.includes("already processed") ||
+        msg.includes("already completed")
+      ) {
+        setOrderData({
+          items: [],
+          amount: 0,
+          reference,
+        });
+        setVerifyState("success");
+        useCartStore.getState().clearCart();
+        sessionStorage.removeItem("cart_order_ref");
+        sessionStorage.removeItem("domain_order_ref");
+      } else {
+        setErrorMsg(err?.message || "Could not verify payment status.");
+        setVerifyState("error");
+      }
+    } finally {
+      if (isManual) {
+        setIsManualChecking(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!reference) {
@@ -44,63 +121,111 @@ function CartSuccessContent() {
       return;
     }
 
-    const token = useAuthStore.getState().token;
-
-    const verify = async () => {
-      try {
-        const res = await verifyPayment(token!, reference);
-        if (res?.data?.status === "PAID") {
-          setOrderData({
-            items: res.data.items ?? [],
-            amount: res.data.amount ?? 0,
-            reference: res.data.reference ?? reference,
-          });
-          setVerifyState("success");
-          useCartStore.getState().clearCart();
-          sessionStorage.removeItem("cart_order_ref");
-          sessionStorage.removeItem("domain_order_ref");
-        } else if (res?.data?.status === "FAILED") {
-          setVerifyState("failed");
-        } else {
-          setOrderData({
-            items: res.data.items ?? [],
-            amount: res.data.amount ?? 0,
-            reference: res.data.reference ?? reference,
-          });
-          setVerifyState("success");
-          useCartStore.getState().clearCart();
-          sessionStorage.removeItem("cart_order_ref");
-          sessionStorage.removeItem("domain_order_ref");
-        }
-      } catch {
-        // Optimistic success if API not yet reachable
-        setVerifyState("success");
-        setOrderData({ items: [], amount: 0, reference });
-        useCartStore.getState().clearCart();
-        sessionStorage.removeItem("cart_order_ref");
-        sessionStorage.removeItem("domain_order_ref");
-      }
-    };
-
-    verify();
+    // Initial check
+    verifyAttempt();
   }, [reference]);
 
-  const domainCount = orderData?.items?.filter((item) => item.type === "DOMAIN").length ?? 0;
+  // Safe polling effect when in pending state
+  useEffect(() => {
+    if (verifyState !== "pending" && verifyState !== "loading") return;
+    if (pollCount >= MAX_POLL_ATTEMPTS) return;
+
+    const timer = setTimeout(() => {
+      setPollCount((prev) => prev + 1);
+      verifyAttempt();
+    }, POLL_INTERVAL_MS);
+
+    return () => clearTimeout(timer);
+  }, [verifyState, pollCount]);
+
+  const domainCount =
+    orderData?.items?.filter((item) => item.type === "DOMAIN").length ?? 0;
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
       <section className="relative pt-32 pb-24 overflow-hidden section-navy-tint flex-1">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
         <div className="max-w-2xl mx-auto px-4 text-center relative z-10">
-
           {/* Loading */}
           {verifyState === "loading" && (
             <div className="space-y-5 animate-fade-up">
               <div className="w-20 h-20 mx-auto bg-white border border-[#dce4f7] flex items-center justify-center shadow-sm">
                 <Loader2 className="w-9 h-9 text-[#e8900a] animate-spin" />
               </div>
-              <h1 className="text-2xl font-extrabold text-[#031033]">Verifying Payment…</h1>
-              <p className="text-[#5a6a85]">Please wait while we confirm your order.</p>
+              <h1 className="text-2xl font-extrabold text-[#031033]">
+                Verifying Payment…
+              </h1>
+              <p className="text-[#5a6a85]">
+                Please wait while we confirm your transaction.
+              </p>
+            </div>
+          )}
+
+          {/* Pending Payment State */}
+          {verifyState === "pending" && (
+            <div className="space-y-6 animate-fade-up">
+              <div className="w-20 h-20 mx-auto bg-amber-50 border border-amber-200 flex items-center justify-center shadow-sm">
+                <Loader2 className="w-9 h-9 text-amber-500 animate-spin" />
+              </div>
+              <div>
+                <span className="inline-block text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-3 py-1 rounded-full mb-3">
+                  Payment Processing
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#031033] mb-2">
+                  Awaiting Confirmation
+                </h1>
+                <p className="text-[#5a6a85] text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                  {pollCount < MAX_POLL_ATTEMPTS ? (
+                    `Communicating with Paystack to confirm your order (attempt ${pollCount + 1} of ${MAX_POLL_ATTEMPTS})…`
+                  ) : (
+                    "Paystack has received your payment instruction. Confirmation is taking a little longer than usual, but your order is safe."
+                  )}
+                </p>
+              </div>
+
+              {reference && (
+                <div className="bg-white border border-[#e2eaff] px-5 py-3 text-left inline-block w-full max-w-md">
+                  <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-semibold mb-1">
+                    Payment Reference
+                  </p>
+                  <p className="font-mono text-sm text-[#031033] font-bold break-all">
+                    {reference}
+                  </p>
+                </div>
+              )}
+
+              <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-800 text-left max-w-md mx-auto space-y-1">
+                <p className="font-semibold">What happens next?</p>
+                <p>
+                  You do not need to keep this page open. Your services will be activated
+                  automatically once confirmed by Paystack, and a receipt will be emailed to you.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => verifyAttempt(true)}
+                  disabled={isManualChecking}
+                  className="btn-primary py-3 px-6 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {isManualChecking ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Checking Status…
+                    </>
+                  ) : (
+                    "Check Status Again"
+                  )}
+                </button>
+                <Link
+                  href="/dashboard"
+                  className="btn-outline py-3 px-6 text-sm inline-flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Go to Dashboard
+                </Link>
+              </div>
             </div>
           )}
 

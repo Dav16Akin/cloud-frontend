@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -164,6 +164,15 @@ export default function ManageDomainPage() {
   const [authCode, setAuthCode] = useState<string | null>(null);
   const [showAuthCode, setShowAuthCode] = useState(false);
   const [copiedAuthCode, setCopiedAuthCode] = useState(false);
+
+  // Auto-mask sensitive authorization code after 30 seconds
+  useEffect(() => {
+    if (!showAuthCode) return;
+    const timer = setTimeout(() => {
+      setShowAuthCode(false);
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [showAuthCode]);
 
   const handleRequestAuthCode = () => {
     getAuthCode(undefined, {

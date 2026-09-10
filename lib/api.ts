@@ -3,7 +3,98 @@ import { useAuthStore } from "@/store/authStore";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
 
-// lib/api.ts
+// ── Standardized API Errors ───────────────────────────────────────────────────
+
+export class ApiError extends Error {
+  status: number;
+  data?: any;
+  retryAfter?: number; // wait time in seconds
+
+  constructor(status: number, message: string, data?: any, retryAfter?: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+    this.retryAfter = retryAfter;
+    Object.setPrototypeOf(this, ApiError.prototype);
+  }
+}
+
+export class UnauthorizedError extends ApiError {
+  constructor(message: string = "Unauthorized or session expired", data?: any) {
+    super(401, message, data);
+    this.name = "UnauthorizedError";
+    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+  }
+}
+
+export class ForbiddenError extends ApiError {
+  constructor(
+    message: string = "Access denied: You do not have permission to perform this action.",
+    data?: any
+  ) {
+    super(403, message, data);
+    this.name = "ForbiddenError";
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
+  }
+}
+
+export class RateLimitError extends ApiError {
+  retryAfter: number;
+
+  constructor(retryAfter: number = 60, message?: string, data?: any) {
+    const formatted =
+      message ||
+      `Rate limit exceeded. Please wait ${retryAfter} second${
+        retryAfter === 1 ? "" : "s"
+      } before trying again.`;
+    super(429, formatted, data, retryAfter);
+    this.name = "RateLimitError";
+    this.retryAfter = retryAfter;
+    Object.setPrototypeOf(this, RateLimitError.prototype);
+  }
+}
+
+export const isRateLimitError = (err: unknown): err is RateLimitError => {
+  return (
+    err instanceof RateLimitError ||
+    (err instanceof ApiError && err.status === 429)
+  );
+};
+
+// Parses standard HTTP Retry-After header or backend body for 429 responses
+function parseRetryAfter(res: Response, bodyData?: any): number {
+  const headerVal =
+    res.headers.get("retry-after") || res.headers.get("Retry-After");
+  if (headerVal) {
+    const parsedInt = parseInt(headerVal, 10);
+    if (!isNaN(parsedInt) && parsedInt > 0) {
+      return parsedInt;
+    }
+    const parsedDate = Date.parse(headerVal);
+    if (!isNaN(parsedDate)) {
+      const diffSecs = Math.ceil((parsedDate - Date.now()) / 1000);
+      if (diffSecs > 0) return diffSecs;
+    }
+  }
+
+  if (bodyData) {
+    const bodyVal =
+      bodyData.retryAfter ??
+      bodyData.retry_after ??
+      bodyData.data?.retryAfter ??
+      bodyData.data?.retry_after;
+    if (typeof bodyVal === "number" && bodyVal > 0) return bodyVal;
+    if (typeof bodyVal === "string") {
+      const num = parseInt(bodyVal, 10);
+      if (!isNaN(num) && num > 0) return num;
+    }
+  }
+
+  return 60; // safe fallback: 60 seconds
+}
+
+// ── Refresh Queue & Fetch Client ──────────────────────────────────────────────
 
 // Prevents multiple simultaneous token refresh calls.
 // All in-flight 401 requests are queued and replayed once refresh resolves.
@@ -27,21 +118,32 @@ function processQueue(error: unknown, token: string | null) {
 
 const fetchWithRefresh = async (
   url: string,
-  options: RequestInit,
+  options: RequestInit = {},
 ): Promise<Response> => {
-  let res = await fetch(url, options);
+  const mergedOptions: RequestInit = {
+    ...options,
+    credentials: "include", // Stricter CORS/cookie behavior — sends cookies across origins
+  };
+
+  let res = await fetch(url, mergedOptions);
 
   // Access token expired — attempt a silent refresh
-  if (res.status === 401) {
+  // Exclude auth routes to avoid infinite refresh loops
+  const isAuthEndpoint =
+    url.includes("/auth/refresh") ||
+    url.includes("/auth/login") ||
+    url.includes("/auth/register");
+
+  if (res.status === 401 && !isAuthEndpoint) {
     // If a refresh is already in flight, queue this request until it resolves.
     if (isRefreshing) {
       return new Promise<Response>((resolve, reject) => {
         failedQueue.push({
           resolve: (newToken) => {
             const retryOptions: RequestInit = {
-              ...options,
+              ...mergedOptions,
               headers: {
-                ...options.headers,
+                ...mergedOptions.headers,
                 Authorization: `Bearer ${newToken}`,
               },
             };
@@ -69,30 +171,37 @@ const fetchWithRefresh = async (
           body?.token ??
           body?.data?.token;
 
-        // Persist the new access token in the store
-        useAuthStore.getState().setToken(newToken);
+        if (newToken) {
+          // Persist the new access token in the store
+          useAuthStore.getState().setToken(newToken);
 
-        // Unblock all queued requests with the new token
-        processQueue(null, newToken);
+          // Unblock all queued requests with the new token
+          processQueue(null, newToken);
 
-        // Retry the original request with the fresh token
-        res = await fetch(url, {
-          ...options,
-          headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
-        });
+          // Retry the original request with the fresh token
+          res = await fetch(url, {
+            ...mergedOptions,
+            headers: {
+              ...mergedOptions.headers,
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+        } else {
+          throw new UnauthorizedError("Invalid token returned from refresh");
+        }
       } else {
-        processQueue(new Error("Session expired"), null);
-        // Refresh token is also expired — force a clean logout
+        const authErr = new UnauthorizedError("Session expired. Please log in again.");
+        processQueue(authErr, null);
         useAuthStore.getState().logout();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          window.location.href = "/login?session_expired=true";
         }
       }
     } catch (err) {
       processQueue(err, null);
       useAuthStore.getState().logout();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login?session_expired=true";
       }
     } finally {
       isRefreshing = false;
@@ -102,28 +211,62 @@ const fetchWithRefresh = async (
   return res;
 };
 
-const getHeaders = () => {
+const getHeaders = (extraHeaders?: Record<string, string>) => {
   const token = useAuthStore.getState().token;
-  return {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    ...extraHeaders,
   };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
 };
 
-// Parses the response and throws an Error with the backend message on non-2xx.
-// Handles both simple { message } and Zod-style { message, error: string[] } shapes.
-// NOTE: Do NOT log out on 401 here — fetchWithRefresh already handles the
-// token-refresh retry before this function is called.
+// Parses the response and throws standardized ApiError, UnauthorizedError, ForbiddenError, or RateLimitError
 const handleResponse = async (res: Response) => {
-  const data = await res.json();
+  let data: any = null;
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+  } else {
+    try {
+      const text = await res.text();
+      data = text ? { message: text } : null;
+    } catch {
+      data = null;
+    }
+  }
+
   if (!res.ok) {
     const details =
       Array.isArray(data?.error) && data.error.length > 0
         ? data.error.join(" · ")
         : null;
-    throw new Error(
-      details || data?.message || `Request failed (${res.status})`,
-    );
+    const baseMessage =
+      details || data?.message || `Request failed with status ${res.status}`;
+
+    if (res.status === 401) {
+      throw new UnauthorizedError(baseMessage, data);
+    }
+    if (res.status === 403) {
+      throw new ForbiddenError(baseMessage, data);
+    }
+    if (res.status === 429) {
+      const retryAfter = parseRetryAfter(res, data);
+      const retryMsg =
+        data?.message ||
+        `Too many requests. Please wait ${retryAfter} second${
+          retryAfter === 1 ? "" : "s"
+        } before retrying.`;
+      throw new RateLimitError(retryAfter, retryMsg, data);
+    }
+
+    throw new ApiError(res.status, baseMessage, data);
   }
   return data;
 };
@@ -185,6 +328,7 @@ export const resendOTP = (data: { email: string }) =>
   fetch(`${BASE_URL}/auth/resend`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -233,6 +377,7 @@ export const forgotPassword = (data: { email: string }) =>
   fetch(`${BASE_URL}/auth/forgot-password`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -241,6 +386,7 @@ export const verifyResetOTP = (data: { email: string; code: string }) =>
   fetch(`${BASE_URL}/auth/verify-reset-otp`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -252,6 +398,7 @@ export const resetPassword = (data: {
   fetch(`${BASE_URL}/auth/reset-password`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(data),
   }).then(handleResponse);
 
@@ -283,6 +430,7 @@ export const getPlans = (): Promise<{
 }> =>
   fetch(`${BASE_URL}/plans`, {
     headers: getHeaders(),
+    credentials: "include",
   }).then(handleResponse);
 
 // ── Hosting ───────────────────────────────────────────────────────────────────
@@ -739,17 +887,48 @@ export const initializeCartPayment = (
     body: JSON.stringify(data),
   }).then(handleResponse);
 
-/** GET /orders/verify/:reference — verifies a Paystack payment */
-export const verifyPayment = (
-  token: string,
-  reference: string,
-): Promise<{ success: boolean; data: VerifyPaymentResult; message: string }> =>
-  fetchWithRefresh(
-    `${BASE_URL}/orders/verify/${encodeURIComponent(reference)}`,
-    {
-      headers: getHeaders(),
-    },
-  ).then(handleResponse);
+/** GET /orders/verify/:reference — verifies a Paystack payment with duplicate / idempotent handling */
+export const verifyPayment = async (
+  token?: string | null,
+  reference?: string | null,
+): Promise<{ success: boolean; data: VerifyPaymentResult; message: string }> => {
+  if (!reference) {
+    throw new Error("Payment reference is required");
+  }
+
+  try {
+    const res = await fetchWithRefresh(
+      `${BASE_URL}/orders/verify/${encodeURIComponent(reference)}`,
+      {
+        headers: getHeaders(),
+      },
+    );
+    const data = await handleResponse(res);
+    return data;
+  } catch (err: any) {
+    // Handle duplicate / idempotent verification responses (e.g. 409 or message indicating already processed/verified)
+    const errMsg = (err?.message || "").toLowerCase();
+    if (
+      (err?.status === 409 || err?.status === 200) &&
+      (errMsg.includes("already verified") ||
+        errMsg.includes("already processed") ||
+        errMsg.includes("duplicate") ||
+        errMsg.includes("already completed"))
+    ) {
+      return {
+        success: true,
+        message: err.message || "Payment already verified",
+        data: {
+          status: "PAID",
+          items: err.data?.items ?? [],
+          amount: err.data?.amount ?? 0,
+          reference: reference,
+        },
+      };
+    }
+    throw err;
+  }
+};
 
 /** GET /orders — list all orders for the current user */
 export const getOrders = (
@@ -794,6 +973,7 @@ export const searchDomains = (
   fetch(`${BASE_URL}/domains/search?term=${encodeURIComponent(term)}`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
   }).then(handleResponse);
 
 export type RegisteredDomain = {

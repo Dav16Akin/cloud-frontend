@@ -12,6 +12,7 @@ import {
   Loader2,
   RefreshCw,
   Eye,
+  EyeOff,
   Lock,
   ExternalLink,
   Clock,
@@ -44,6 +45,7 @@ function SSLDashboardContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCert, setSelectedCert] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
 
   const { data: certificates, isLoading, refetch } = useGetSslCertificates();
@@ -102,6 +104,7 @@ function SSLDashboardContent() {
 
   const handleViewCert = (cert: any) => {
     setSelectedCert(cert);
+    setShowPrivateKey(false);
     setIsViewOpen(true);
   };
 
@@ -539,18 +542,53 @@ function SSLDashboardContent() {
               {selectedCert.privateKey && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-bold">Private Key (KEY)</p>
-                    <button
-                      onClick={() => handleCopyText(selectedCert.privateKey, "Private Key")}
-                      className="text-xs text-[#e8900a] hover:underline flex items-center gap-1 font-semibold"
-                    >
-                      <Copy className="w-3 h-3" />
-                      Copy KEY
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-bold">
+                        Private Key (KEY)
+                      </p>
+                      <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded font-medium">
+                        Confidential
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowPrivateKey((v) => !v)}
+                        className="text-xs text-[#5a6a85] hover:text-[#031033] flex items-center gap-1 font-semibold transition-colors"
+                      >
+                        {showPrivateKey ? (
+                          <>
+                            <EyeOff className="w-3.5 h-3.5" />
+                            Mask Key
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-3.5 h-3.5" />
+                            Reveal Key
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleCopyText(selectedCert.privateKey, "Private Key")}
+                        className="text-xs text-[#e8900a] hover:underline flex items-center gap-1 font-semibold"
+                      >
+                        <Copy className="w-3 h-3" />
+                        Copy KEY
+                      </button>
+                    </div>
                   </div>
-                  <pre className="p-4 bg-gray-50 border border-gray-200 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-48 whitespace-pre-wrap select-all">
-                    {selectedCert.privateKey}
-                  </pre>
+                  {showPrivateKey ? (
+                    <pre className="p-4 bg-gray-50 border border-gray-200 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-48 whitespace-pre-wrap select-all animate-fade-in">
+                      {selectedCert.privateKey}
+                    </pre>
+                  ) : (
+                    <div className="p-4 bg-slate-50 border border-slate-200 text-xs font-mono text-slate-400 rounded flex flex-col gap-2 select-none">
+                      <p className="tracking-widest">••••••••••••••••••••••••••••••••••••••••••••••••</p>
+                      <p className="text-[11px] text-[#5a6a85] font-sans">
+                        Private key is masked for security. Click &ldquo;Reveal Key&rdquo; above to view the plain text.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -558,7 +596,10 @@ function SSLDashboardContent() {
             {/* Modal Footer */}
             <div className="border-t border-[#e2eaff] px-6 py-4 bg-gray-50 flex justify-end">
               <button
-                onClick={() => setIsViewOpen(false)}
+                onClick={() => {
+                  setIsViewOpen(false);
+                  setShowPrivateKey(false);
+                }}
                 className="py-2 px-5 text-xs font-semibold bg-white border border-[#dce4f7] text-[#5a6a85] hover:text-[#031033] hover:bg-[#f6f9ff] transition-colors"
               >
                 Close

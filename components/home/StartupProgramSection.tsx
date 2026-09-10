@@ -1,116 +1,143 @@
 "use client";
 
-import Link from "next/link";
+import React from "react";
 import Image from "next/image";
-import { ArrowRight, Rocket, Users, Globe, Sparkles } from "lucide-react";
-
-const perks = [
-  {
-    icon: Rocket,
-    title: "Accelerated Launch",
-    desc: "Deploy your company website and store in days, not months.",
-  },
-  {
-    icon: Users,
-    title: "Dedicated Local Mentorship",
-    desc: "1-on-1 technical advisory tailored for African growth markets.",
-  },
-  {
-    icon: Globe,
-    title: "Global Cloud Scale",
-    desc: "High-performance infrastructure ready to support millions of queries.",
-  },
-];
+import { ChevronRight } from "lucide-react";
+import { motion } from "motion/react";
 
 export default function StartupProgramSection() {
+  const WHATSAPP_NUMBER = "2349076646154";
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    "Hi! I would like smart AI guidance on deploying and choosing the right hosting infrastructure with Nupat Cloud."
+  )}`;
+
   return (
     <section
-      id="startup"
-      className="py-12 sm:py-16 bg-white relative overflow-hidden"
+      id="ai-help"
+      className="py-10 sm:py-14 bg-white relative overflow-hidden scroll-mt-20"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="rounded-3xl bg-linear-to-br from-[#031033] via-[#061845] to-[#031033] p-7 sm:p-10 lg:p-12 border border-slate-800 shadow-2xl overflow-hidden relative">
-          {/* Radial ambient glow */}
-          <div className="absolute top-0 right-0 w-125 h-125 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="rounded-3xl bg-[linear-gradient(105deg,#061536_0%,#082052_30%,#0A3B8B_65%,#0C62D6_100%)] border border-blue-900/40 shadow-2xl overflow-hidden relative">
+          {/* Subtle dark circular accent in bottom-left */}
+          <div
+            className="absolute -bottom-24 -left-20 w-80 h-80 rounded-full bg-[#020B1D]/40 pointer-events-none"
+            aria-hidden="true"
+          />
 
-          {/* Curvelines on dark gradient */}
-          <div className="absolute -top-10 -right-20 pointer-events-none select-none z-0 hidden sm:block">
-            <Image
-              src="/curveline.png"
-              alt=""
-              width={500}
-              height={200}
-              className="w-112.5 lg:w-150 h-auto opacity-15 rotate-[-18deg]"
-              aria-hidden
-            />
-          </div>
-          <div className="absolute -bottom-16 -left-20 pointer-events-none select-none z-0">
-            <Image
-              src="/curveline.png"
-              alt=""
-              width={500}
-              height={200}
-              className="w-100 lg:w-130 h-auto opacity-12 rotate-25"
-              aria-hidden
-            />
-          </div>
+          {/* Luminous bright blue circular disc behind the man on the right */}
+          <div
+            className="absolute right-[-30px] sm:right-[10px] lg:right-[40px] xl:right-[70px] top-1/2 -translate-y-1/2 w-[340px] sm:w-[440px] lg:w-[480px] xl:w-[510px] h-[340px] sm:h-[440px] lg:h-[480px] xl:h-[510px] rounded-full bg-[#0E7AF5] pointer-events-none"
+            aria-hidden="true"
+          />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
-            {/* Left */}
-            <div>
-              <h2 className="type-h2 text-white mb-6">
-                <span className="relative inline-block pb-1">
-                  Empowering African Startups to Scale Globally
-                </span>
+          {/* Ambient top-right azure blur */}
+          <div
+            className="absolute top-0 right-0 w-80 h-80 bg-sky-400/15 rounded-full blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center min-h-[460px] lg:min-h-[500px] xl:min-h-[520px] relative z-10">
+            {/* Left Column: Heading, Description & CTA */}
+            <motion.div
+              initial={{ opacity: 0, x: -25 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="lg:col-span-5 p-7 sm:p-10 lg:p-12 xl:p-14 flex flex-col justify-center relative z-20"
+            >
+              <h2 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-extrabold text-white leading-[1.14] tracking-tight mb-4 sm:mb-5">
+                Deploy, launch, and <br className="hidden sm:inline" />
+                grow with smart AI <br className="hidden sm:inline" />
+                help
               </h2>
 
-              <p className="text-slate-300 text-[15px] sm:text-[16px] leading-relaxed mb-4">
-                Through the Nupat Startup Program, qualifying high-potential
-                startups access free cloud credits, high-speed hosting
-                infrastructure, and specialized technical guidance.
+              <p className="text-slate-200/90 text-sm sm:text-[15px] lg:text-[15.5px] leading-relaxed max-w-[420px] mb-7 sm:mb-8 font-normal">
+                Start a conversation, get instant help, and let our AI guide you
+                through choosing the right products, setting up your
+                infrastructure, and growing your business.
               </p>
 
-              <p className="text-slate-300/80 text-[14px] leading-relaxed mb-8">
-                We believe ambitious African founders deserve world-class
-                digital infrastructure without prohibitive entry costs.
-              </p>
-
-              <Link
-                href="https://nupat.africa/startup-program"
-                id="startup-apply-cta"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary !rounded-full px-8 py-3.5 text-[15px] font-medium shadow-md cursor-pointer"
-              >
-                Apply for Startup Program
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {/* Right */}
-            <div className="grid grid-cols-1 gap-4">
-              {perks.map(({ icon: Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="group flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+              <div>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="smart-ai-chat-btn"
+                  className="inline-flex items-center justify-center bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] text-white font-medium text-[15px] px-7 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-200 cursor-pointer"
                 >
-                  <div className="w-11 h-11 shrink-0 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-[#1787D4] group-hover:scale-105 transition-transform">
-                    <Icon className="w-5 h-5" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-[17px] mb-1">
-                      {title}
-                    </h3>
-                    <p className="text-slate-300 text-[14px] leading-relaxed">
-                      {desc}
-                    </p>
-                  </div>
+                  Chat with AI
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Chat Widget Card + Person in Armchair */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              className="lg:col-span-7 relative h-full flex flex-col lg:flex-row items-center justify-center lg:justify-end px-6 sm:px-10 lg:px-0 lg:pr-8 xl:pr-12 pt-4 lg:pt-0"
+            >
+              {/* White Chat Widget Card */}
+              <div className="w-full max-w-[340px] sm:max-w-[360px] bg-white rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-slate-100/60 relative z-20 mb-6 lg:mb-0 lg:mr-[-60px] xl:mr-[-70px]">
+                {/* Online Badge */}
+                <div className="mb-3.5">
+                  <span className="inline-block bg-[#3B82F6] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md tracking-wide">
+                    Online
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                {/* AI Greeting Message Bubble */}
+                <div className="bg-[#3B82F6] text-white text-[14px] sm:text-[15px] font-normal leading-snug p-3.5 sm:p-4 rounded-2xl rounded-tl-xs mb-3.5 shadow-xs">
+                  Hello! How can I help you today?
+                </div>
+
+                {/* Interactive Action Options */}
+                <div className="space-y-2.5">
+                  <a
+                    href="#domain-search"
+                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                  >
+                    <span>I want to register a domain</span>
+                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+
+                  <a
+                    href="#pricing-preview"
+                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                  >
+                    <span>I want to create a website</span>
+                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+
+                  <a
+                    href="#pricing-preview"
+                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                  >
+                    <span>Help me choose a hosting plan</span>
+                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Person Image (Sitting in Armchair with Laptop) */}
+              <div className="relative z-10 w-[290px] sm:w-[370px] lg:w-[410px] xl:w-[450px] shrink-0 flex items-end justify-center pointer-events-none select-none lg:self-end">
+                <Image
+                  src="/deploy.png"
+                  alt="Deploy, launch, and grow with smart AI help"
+                  width={450}
+                  height={520}
+                  priority
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                />
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+// Named alias export
+export { StartupProgramSection as SmartAiHelpSection };

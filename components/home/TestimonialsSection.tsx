@@ -9,65 +9,45 @@ const CLIENT_LOGOS = [
   {
     name: "DC Datalab",
     src: "/logo-dcdatalab.svg",
-    width: 140,
-    height: 30,
-    className: "h-5 sm:h-6 w-auto object-contain",
+    width: 150,
+    height: 32,
+    className: "h-6 sm:h-7 md:h-8 w-auto object-contain",
   },
   {
     name: "Nupat",
     src: "/logo-nupat-dark.png",
-    width: 110,
-    height: 30,
-    className: "h-5 sm:h-6 w-auto object-contain",
+    width: 130,
+    height: 38,
+    className: "h-7 sm:h-8 md:h-9 w-auto object-contain",
   },
   {
     name: "Ulego",
     src: "/logos/ulego-logo-removebg-preview.png",
-    width: 90,
-    height: 34,
-    className: "h-7 sm:h-8 w-auto object-contain",
+    width: 200,
+    height: 38,
+    className: "h-7 sm:h-8 md:h-9 w-auto object-contain",
   },
-  {
-    name: "HLB",
-    src: "/logos/HLB-logo-removebg-preview.png",
-    width: 80,
-    height: 34,
-    className: "h-7 sm:h-8 w-auto object-contain",
-  },
-  {
-    name: "Turaka",
-    src: "/logos/turaka-logo-removebg-preview.png",
-    width: 80,
-    height: 34,
-    className: "h-6 sm:h-7 w-auto object-contain",
-  },
+
   {
     name: "Nestopia",
     src: "/logos/nestopia-removebg-preview.png",
-    width: 80,
-    height: 34,
-    className: "h-6 sm:h-7 w-auto object-contain",
+    width: 65,
+    height: 44,
+    className: "h-9 sm:h-10 md:h-11 w-auto object-contain",
   },
   {
     name: "Nidanet",
     src: "/logos/NIDANET_LOGO-removebg-preview.png",
-    width: 100,
-    height: 30,
-    className: "h-5 sm:h-6 w-auto object-contain",
+    width: 95,
+    height: 40,
+    className: "h-8 sm:h-9 md:h-10 w-auto object-contain",
   },
   {
     name: "The Afrobeat",
     src: "/logos/THE-AFROBEAT-logo-removebg-preview.png",
-    width: 110,
-    height: 28,
-    className: "h-4 sm:h-5 w-auto object-contain",
-  },
-  {
-    name: "Fatusin Foundation",
-    src: "/logos/fatusin-foundation-logo-removebg-preview.png",
     width: 130,
-    height: 24,
-    className: "h-4 sm:h-5 w-auto object-contain",
+    height: 38,
+    className: "h-6 sm:h-7 md:h-8 w-auto object-contain",
   },
 ];
 
@@ -224,15 +204,15 @@ export default function TestimonialsSection() {
             >
               <div>
                 {/* Header with Quote Icon + Real Company Logo */}
-                <div className="flex items-center justify-between mb-6 min-h-[34px]">
+                <div className="flex items-center justify-between mb-6 min-h-[40px]">
                   <BlueQuoteIcon />
-                  <div className="relative h-7 max-w-[130px] flex items-center justify-end">
+                  <div className="relative h-8 sm:h-9 max-w-[150px] flex items-center justify-end">
                     <Image
                       src={t.companyLogo}
                       alt={t.company}
-                      width={130}
-                      height={32}
-                      className="h-6 sm:h-7 w-auto object-contain hover:scale-105 transition-transform"
+                      width={150}
+                      height={40}
+                      className="h-7 sm:h-8 w-auto object-contain hover:scale-105 transition-transform"
                     />
                   </div>
                 </div>

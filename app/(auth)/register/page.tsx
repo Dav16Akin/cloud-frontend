@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Eye,
   EyeOff,
@@ -14,11 +14,12 @@ import {
   User,
   MapPin,
   Lock,
+  Mail,
 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useRegister } from "@/hooks/useAuth";
-import { MeshGradient } from "@/components/ui/mesh-gradient";
+import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 // ── Zod Schema ────────────────────────────────────────────────────────────────
 
@@ -36,7 +37,7 @@ const registerSchema = z
       .max(11, "Phone number must be exactly 11 digits")
       .regex(
         /^0\d{10}$/,
-        "Enter a valid 11-digit phone number starting with 0 (e.g. 08140397106)"
+        "Enter a valid 11-digit phone number starting with 0 (e.g. 08140397106)",
       ),
     companyName: z.string().min(1, "Company name is required"),
     address: z.string().min(3, "Street address is required"),
@@ -45,7 +46,7 @@ const registerSchema = z
       .optional()
       .refine(
         (v) => !v || /^\d+$/.test(v),
-        "House / unit number must be a number"
+        "House / unit number must be a number",
       ),
     city: z.string().min(1, "City is required"),
     state: z.string().optional(),
@@ -67,16 +68,16 @@ type FormState = z.infer<typeof registerSchema>;
 type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 const inputBase =
-  "w-full px-3.5 py-2.5 sm:py-3 border rounded-xl outline-none transition-all text-sm text-gray-900 placeholder:text-gray-400 bg-white";
+  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-xl outline-none text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
 
 const inputClass = (err?: string) =>
   `${inputBase} ${
     err
-      ? "border-red-400 focus:ring-2 focus:ring-red-400 focus:border-transparent"
-      : "border-gray-200 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
+      ? "border-red-400 focus:ring-2 focus:ring-red-400/20 focus:border-red-400"
+      : "border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
   }`;
 
-const labelClass = "block text-xs font-semibold text-[#031033] mb-1.5";
+const labelClass = "block text-[13px] font-medium text-slate-700 mb-1";
 
 function FieldError({ msg }: { msg?: string }) {
   if (!msg) return null;
@@ -85,6 +86,29 @@ function FieldError({ msg }: { msg?: string }) {
       <AlertCircle className="w-3 h-3 shrink-0" />
       {msg}
     </p>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+      />
+    </svg>
   );
 }
 
@@ -148,7 +172,7 @@ export default function RegisterPage() {
 
     if (!agreed) {
       toast.error(
-        "Please check the 'I agree to Terms and Conditions' box to complete registration."
+        "Please check the 'I agree to Terms and Conditions' box to complete registration.",
       );
       return;
     }
@@ -158,83 +182,40 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="h-screen w-full bg-[#f8faff] flex flex-col lg:flex-row lg:overflow-hidden">
-      {/* Left Panel - Image Section with Shader Background (STATIONARY/FIXED) */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden h-screen border-r border-[#e2eaff] select-none">
-        {/* Back Button */}
-        <div className="absolute top-6 left-6 z-20">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            aria-label="Back to home"
-            className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white text-[#031033] shadow-md border border-[#e2eaff] transition-all cursor-pointer"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        </div>
+    <div className="h-screen w-full bg-white flex flex-col lg:flex-row lg:overflow-hidden">
+      {/* Left Panel: Solid Nupat Brand Blue with Stacked White & Yellow Logo */}
+      <AuthLeftPanel />
 
-        {/* White mixed with soft azure/pearl shader background */}
-        <MeshGradient
-          colors={["#FFFFFF", "#F0F6FF", "#E0ECFF", "#CCE2FE"]}
-          className="absolute inset-0 flex items-center justify-center p-12"
-        >
-          <div className="relative w-full h-full max-w-lg max-h-[600px] flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">
-            <Image
-              src="/register.png"
-              alt="Nupat Cloud Register"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-contain drop-shadow-xl"
-            />
-          </div>
-        </MeshGradient>
-      </div>
-
-      {/* Right Panel - Form Section (ONLY THIS SCROLLS) */}
-      <div className="flex-1 flex justify-center bg-white px-6 py-8 sm:px-10 lg:px-14 h-screen overflow-y-auto">
-        <div className="w-full max-w-xl py-6 my-auto">
-          {/* Mobile Back Button */}
-          <div className="lg:hidden mb-6">
+      {/* Right Panel: Form Section (Scrolls independently) */}
+      <div className="flex-1 flex justify-center bg-white px-6 sm:px-10 lg:px-14 py-8 h-screen overflow-y-auto">
+        <div className="w-full max-w-xl my-auto py-4">
+          {/* Mobile Back & Brand Header (hidden on desktop) */}
+          <div className="lg:hidden flex items-center justify-between mb-6">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              Back
             </Link>
-          </div>
-
-          {/* Brand Logo */}
-          <div className="mb-6">
-            <Link href="/" className="inline-block" aria-label="Go to home">
-              <div className="relative" style={{ width: 170, height: 32 }}>
-                <Image
-                  src="/nupat_cloud_logo-nav.png"
-                  alt="Nupat Cloud"
-                  fill
-                  priority
-                  sizes="170px"
-                  className="object-contain object-left"
-                />
-              </div>
-            </Link>
+            <div className="relative w-28 h-6">
+              <Image
+                src="/nupat_cloud_logo-nav.png"
+                alt="Nupat Cloud"
+                fill
+                priority
+                className="object-contain"
+              />
+            </div>
           </div>
 
           {/* Heading */}
-          <div className="mb-8">
-            <h1 className="type-h1 text-gray-900 mb-2">
-              Create your account
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#031033]">
+              Create Account
             </h1>
-            <p className="text-gray-600 text-sm">
-              Already registered?{" "}
-              <Link
-                href="/login"
-                id="register-to-login"
-                className="text-[#3B82F6] hover:text-blue-700 font-semibold hover:underline"
-              >
-                Sign in to your account
-              </Link>
+            <p className="text-sm text-slate-500 mt-1">
+              Start your cloud journey with Nupat Cloud today
             </p>
           </div>
 
@@ -246,15 +227,15 @@ export default function RegisterPage() {
             className="space-y-6"
           >
             {/* ════════ Section 1: Personal Information ════════ */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                <User className="w-4 h-4 text-[#3B82F6]" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
+            <div className="space-y-3.5">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <User className="w-4 h-4 text-[#1787D4]" />
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
                   1. Personal Information
-                </h2>
+                </h5>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-first-name" className={labelClass}>
                     First Name
@@ -262,7 +243,7 @@ export default function RegisterPage() {
                   <input
                     id="register-first-name"
                     type="text"
-                    placeholder="John"
+                    placeholder="Alex"
                     value={form.firstName}
                     onChange={(e) => set("firstName", e.target.value)}
                     onBlur={() => validateField("firstName")}
@@ -277,7 +258,7 @@ export default function RegisterPage() {
                   <input
                     id="register-last-name"
                     type="text"
-                    placeholder="Doe"
+                    placeholder="Morgan"
                     value={form.lastName}
                     onChange={(e) => set("lastName", e.target.value)}
                     onBlur={() => validateField("lastName")}
@@ -287,7 +268,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-email" className={labelClass}>
                     Email Address
@@ -295,7 +276,7 @@ export default function RegisterPage() {
                   <input
                     id="register-email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="alex.morgan@example.com"
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
                     onBlur={() => validateField("email")}
@@ -325,12 +306,12 @@ export default function RegisterPage() {
             </div>
 
             {/* ════════ Section 2: Business & Billing Address ════════ */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                <MapPin className="w-4 h-4 text-[#3B82F6]" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
+            <div className="space-y-3.5 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <MapPin className="w-4 h-4 text-[#1787D4]" />
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
                   2. Business & Address Details
-                </h2>
+                </h5>
               </div>
 
               <div>
@@ -349,7 +330,7 @@ export default function RegisterPage() {
                 <FieldError msg={errors.companyName} />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="sm:col-span-2">
                   <label htmlFor="register-address" className={labelClass}>
                     Street Address
@@ -386,7 +367,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
                   <label htmlFor="register-city" className={labelClass}>
                     City
@@ -452,15 +433,15 @@ export default function RegisterPage() {
             </div>
 
             {/* ════════ Section 3: Account Security ════════ */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                <Lock className="w-4 h-4 text-[#3B82F6]" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
+            <div className="space-y-3.5 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Lock className="w-4 h-4 text-[#1787D4]" />
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
                   3. Account Security
-                </h2>
+                </h5>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-password" className={labelClass}>
                     Password
@@ -478,7 +459,7 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setShowPass((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
                       aria-label={showPass ? "Hide password" : "Show password"}
                     >
                       {showPass ? (
@@ -511,8 +492,10 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                      aria-label={showConfirm ? "Hide password" : "Show password"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                      aria-label={
+                        showConfirm ? "Hide password" : "Show password"
+                      }
                     >
                       {showConfirm ? (
                         <EyeOff className="w-4 h-4" />
@@ -538,12 +521,12 @@ export default function RegisterPage() {
                       className={`flex items-center gap-1.5 rounded-lg px-2 py-1 border transition-colors ${
                         ok
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-gray-50 text-gray-400 border-gray-100"
+                          : "bg-slate-50 text-slate-400 border-slate-100"
                       }`}
                     >
                       <Check
                         className={`w-3.5 h-3.5 shrink-0 ${
-                          ok ? "text-emerald-600 font-bold" : "text-gray-300"
+                          ok ? "text-emerald-600 font-bold" : "text-slate-300"
                         }`}
                       />
                       <span>{label}</span>
@@ -555,10 +538,10 @@ export default function RegisterPage() {
 
             {/* ════════ Terms Agreement ════════ */}
             <div
-              className={`p-3 rounded-xl border transition-all ${
+              className={`p-3.5 rounded-xl border transition-all ${
                 submitted && !agreed
                   ? "bg-red-50/60 border-red-200"
-                  : "bg-slate-50/50 border-slate-100"
+                  : "bg-slate-50/70 border-slate-200/80"
               }`}
             >
               <label className="flex items-start gap-3 cursor-pointer select-none">
@@ -568,14 +551,14 @@ export default function RegisterPage() {
                   checked={agreed}
                   required
                   onChange={(e) => setAgreed(e.target.checked)}
-                  className="w-4.5 h-4.5 mt-0.5 text-[#3B82F6] border-gray-300 rounded focus:ring-[#3B82F6] cursor-pointer shrink-0"
+                  className="w-4 h-4 mt-0.5 text-[#1787D4] border-slate-300 rounded focus:ring-[#1787D4] cursor-pointer shrink-0"
                 />
-                <span className="text-xs sm:text-sm text-gray-700 leading-snug">
+                <span className="text-xs sm:text-sm text-slate-700 leading-snug">
                   I agree to the{" "}
                   <Link
                     href="/terms"
                     target="_blank"
-                    className="text-[#3B82F6] hover:text-blue-700 font-semibold underline underline-offset-2"
+                    className="text-[#1787D4] hover:underline font-semibold"
                   >
                     Terms and Conditions
                   </Link>{" "}
@@ -583,7 +566,7 @@ export default function RegisterPage() {
                   <Link
                     href="/privacy"
                     target="_blank"
-                    className="text-[#3B82F6] hover:text-blue-700 font-semibold underline underline-offset-2"
+                    className="text-[#1787D4] hover:underline font-semibold"
                   >
                     Privacy Policy
                   </Link>
@@ -591,9 +574,10 @@ export default function RegisterPage() {
                 </span>
               </label>
               {submitted && !agreed && (
-                <p className="flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2 pl-7.5">
+                <p className="flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2 pl-7">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  You must check and agree to the Terms and Conditions before completing registration.
+                  You must check and agree to the Terms and Conditions before
+                  completing registration.
                 </p>
               )}
             </div>
@@ -603,11 +587,7 @@ export default function RegisterPage() {
               id="register-submit"
               type="submit"
               disabled={isPending}
-              className={`w-full py-3.5 px-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2 ${
-                !agreed
-                  ? "bg-[#031033]/80 hover:bg-[#031033] text-white"
-                  : "bg-[#031033] hover:bg-[#061c52] text-white"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className="w-full py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-xl shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -619,6 +599,59 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-5 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <span className="relative bg-white px-3 text-[12px] text-slate-400 uppercase tracking-wider">
+              or continue with
+            </span>
+          </div>
+
+          {/* Social / Alternate Auth Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `${
+                    process.env.NEXT_PUBLIC_API_URL ||
+                    "https://cloud-backend-chi.vercel.app/api"
+                  }/auth/google`,
+                )
+              }
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+            >
+              <GoogleIcon />
+              <span>Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("register-email");
+                el?.focus();
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+            >
+              <Mail className="w-4 h-4 text-[#1787D4]" />
+              <span>Email</span>
+            </button>
+          </div>
+
+          {/* Footer Link */}
+          <p className="text-center text-[13px] text-slate-500 mt-6 pb-2">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              id="register-to-login"
+              className="font-semibold text-[#1787D4] hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

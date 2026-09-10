@@ -17,22 +17,22 @@ export default function StartupProgramSection() {
       className="py-10 sm:py-14 bg-white relative overflow-hidden scroll-mt-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="rounded-3xl bg-[linear-gradient(105deg,#061536_0%,#082052_30%,#0A3B8B_65%,#0C62D6_100%)] border border-blue-900/40 shadow-2xl overflow-hidden relative">
+        <div className="rounded-3xl bg-[linear-gradient(105deg,#031033_0%,#051D4D_32%,#0E509E_68%,#1787D4_100%)] border border-blue-900/40 shadow-2xl overflow-hidden relative">
           {/* Subtle dark circular accent in bottom-left */}
           <div
-            className="absolute -bottom-24 -left-20 w-80 h-80 rounded-full bg-[#020B1D]/40 pointer-events-none"
+            className="absolute -bottom-24 -left-20 w-80 h-80 rounded-full bg-[#020B1D]/50 pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* Luminous bright blue circular disc behind the man on the right */}
+          {/* Luminous brand blue circular disc behind the man on the right */}
           <div
-            className="absolute right-[-30px] sm:right-[10px] lg:right-[40px] xl:right-[70px] top-1/2 -translate-y-1/2 w-[340px] sm:w-[440px] lg:w-[480px] xl:w-[510px] h-[340px] sm:h-[440px] lg:h-[480px] xl:h-[510px] rounded-full bg-[#0E7AF5] pointer-events-none"
+            className="absolute right-[-30px] sm:right-[10px] lg:right-[40px] xl:right-[70px] top-1/2 -translate-y-1/2 w-[340px] sm:w-[440px] lg:w-[480px] xl:w-[510px] h-[340px] sm:h-[440px] lg:h-[480px] xl:h-[510px] rounded-full bg-[#1787D4] pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* Ambient top-right azure blur */}
+          {/* Ambient top-right brand blue blur */}
           <div
-            className="absolute top-0 right-0 w-80 h-80 bg-sky-400/15 rounded-full blur-3xl pointer-events-none"
+            className="absolute top-0 right-0 w-80 h-80 bg-[#1787D4]/25 rounded-full blur-3xl pointer-events-none"
             aria-hidden="true"
           />
 
@@ -63,7 +63,7 @@ export default function StartupProgramSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   id="smart-ai-chat-btn"
-                  className="inline-flex items-center justify-center bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] text-white font-medium text-[15px] px-7 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-200 cursor-pointer"
+                  className="inline-flex items-center justify-center bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] text-white font-medium text-[15px] px-7 py-3 rounded-xl shadow-lg shadow-[#1787D4]/35 transition-all duration-200 cursor-pointer"
                 >
                   Chat with AI
                 </a>
@@ -79,16 +79,16 @@ export default function StartupProgramSection() {
               className="lg:col-span-7 relative h-full flex flex-col lg:flex-row items-center justify-center lg:justify-end px-6 sm:px-10 lg:px-0 lg:pr-8 xl:pr-12 pt-4 lg:pt-0"
             >
               {/* White Chat Widget Card */}
-              <div className="w-full max-w-[340px] sm:max-w-[360px] bg-white rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-slate-100/60 relative z-20 mb-6 lg:mb-0 lg:mr-[-60px] xl:mr-[-70px]">
+              <div className="w-full max-w-[340px] sm:max-w-[360px] bg-white rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(3,16,51,0.35)] border border-slate-100/70 relative z-20 mb-6 lg:mb-0 lg:mr-[-60px] xl:mr-[-70px]">
                 {/* Online Badge */}
                 <div className="mb-3.5">
-                  <span className="inline-block bg-[#3B82F6] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md tracking-wide">
+                  <span className="inline-block bg-[#1787D4] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md tracking-wide">
                     Online
                   </span>
                 </div>
 
                 {/* AI Greeting Message Bubble */}
-                <div className="bg-[#3B82F6] text-white text-[14px] sm:text-[15px] font-normal leading-snug p-3.5 sm:p-4 rounded-2xl rounded-tl-xs mb-3.5 shadow-xs">
+                <div className="bg-[#1787D4] text-white text-[14px] sm:text-[15px] font-normal leading-snug p-3.5 sm:p-4 rounded-2xl rounded-tl-xs mb-3.5 shadow-xs">
                   Hello! How can I help you today?
                 </div>
 
@@ -96,26 +96,26 @@ export default function StartupProgramSection() {
                 <div className="space-y-2.5">
                   <a
                     href="#domain-search"
-                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>I want to register a domain</span>
-                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />
                   </a>
 
                   <a
                     href="#pricing-preview"
-                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>I want to create a website</span>
-                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />
                   </a>
 
                   <a
                     href="#pricing-preview"
-                    className="w-full bg-[#0D285D] hover:bg-[#133273] active:bg-[#091D45] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>Help me choose a hosting plan</span>
-                    <ChevronRight className="w-4 h-4 text-[#3B82F6] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />
                   </a>
                 </div>
               </div>

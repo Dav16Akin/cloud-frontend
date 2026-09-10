@@ -9,46 +9,66 @@ const CLIENT_LOGOS = [
   {
     name: "DC Datalab",
     src: "/logo-dcdatalab.svg",
-    width: 150,
-    height: 32,
-    className: "h-6 sm:h-7 md:h-8 w-auto object-contain",
+    width: 170,
+    height: 38,
+    className: "h-7 sm:h-8 md:h-8.5 w-auto object-contain",
   },
   {
     name: "Nupat",
     src: "/logo-nupat-dark.png",
-    width: 130,
-    height: 38,
-    className: "h-7 sm:h-8 md:h-9 w-auto object-contain",
+    width: 150,
+    height: 46,
+    className: "h-8 sm:h-9 md:h-10 w-auto object-contain",
   },
   {
     name: "Ulego",
     src: "/logos/ulego-logo-removebg-preview.png",
-    width: 200,
-    height: 38,
-    className: "h-7 sm:h-8 md:h-9 w-auto object-contain",
-  },
-
-  {
-    name: "Nestopia",
-    src: "/logos/nestopia-removebg-preview.png",
-    width: 65,
-    height: 44,
+    width: 160,
+    height: 46,
     className: "h-9 sm:h-10 md:h-11 w-auto object-contain",
   },
+  // {
+  //   name: "HLB",
+  //   src: "/logos/HLB-logo-removebg-preview.png",
+  //   width: 95,
+  //   height: 54,
+  //   className: "h-11 sm:h-12 md:h-13 w-auto object-contain",
+  // },
   {
-    name: "Nidanet",
-    src: "/logos/NIDANET_LOGO-removebg-preview.png",
-    width: 95,
-    height: 40,
+    name: "Turaka",
+    src: "/logos/turaka-logo-removebg-preview.png",
+    width: 140,
+    height: 50,
     className: "h-8 sm:h-9 md:h-10 w-auto object-contain",
   },
   {
-    name: "The Afrobeat",
-    src: "/logos/THE-AFROBEAT-logo-removebg-preview.png",
-    width: 130,
-    height: 38,
-    className: "h-6 sm:h-7 md:h-8 w-auto object-contain",
+    name: "Nestopia",
+    src: "/logos/nestopia-removebg-preview.png",
+    width: 85,
+    height: 52,
+    className: "h-10 sm:h-11 md:h-12 w-auto object-contain",
   },
+  // {
+  //   name: "Nidanet",
+  //   src: "/logos/NIDANET_LOGO-removebg-preview.png",
+  //   width: 120,
+  //   height: 50,
+  //   className: "h-9 sm:h-10 md:h-11 w-auto object-contain",
+  // },
+  // {
+  //   name: "The Afrobeat",
+  //   src: "/logos/THE-AFROBEAT-logo-removebg-preview.png",
+  //   width: 150,
+  //   height: 46,
+  //   className: "h-7 sm:h-8 md:h-9 w-auto object-contain",
+  // },
+  // {
+  //   name: "Fatusin Foundation",
+  //   src: "/logos/fatusin-foundation-logo-removebg-preview.png",
+  //   width: 220,
+  //   height: 40,
+  //   className: "h-7 sm:h-8 md:h-8.5 w-auto object-contain",
+  // },
 ];
 
 /* ── Distinctive Blue Double Quotation Mark ── */
@@ -80,6 +100,7 @@ const testimonials = [
     title: "CEO, Nupat",
     company: "Nupat",
     companyLogo: "/logo-nupat-dark.png",
+    companyLogoClassName: "h-8 sm:h-9 w-auto object-contain",
     image: "/testimonials/sola-adesina.jpg",
   },
   {
@@ -90,6 +111,7 @@ const testimonials = [
     title: "CEO, DC Datalab",
     company: "DC Datalab",
     companyLogo: "/logo-dcdatalab.svg",
+    companyLogoClassName: "h-7 sm:h-8 w-auto object-contain",
     image: "/testimonials/michael-bamidele.jpg",
   },
   {
@@ -100,6 +122,7 @@ const testimonials = [
     title: "Engineer, Ulego",
     company: "Ulego",
     companyLogo: "/logos/ulego-logo-removebg-preview.png",
+    companyLogoClassName: "h-9 sm:h-10 md:h-11 w-auto object-contain",
     image: "/testimonials/aisha-hassan.jpg",
   },
 ];
@@ -204,15 +227,15 @@ export default function TestimonialsSection() {
             >
               <div>
                 {/* Header with Quote Icon + Real Company Logo */}
-                <div className="flex items-center justify-between mb-6 min-h-[40px]">
+                <div className="flex items-center justify-between mb-6 min-h-[44px]">
                   <BlueQuoteIcon />
-                  <div className="relative h-8 sm:h-9 max-w-[150px] flex items-center justify-end">
+                  <div className="relative h-9 sm:h-10 max-w-[160px] flex items-center justify-end">
                     <Image
                       src={t.companyLogo}
                       alt={t.company}
-                      width={150}
-                      height={40}
-                      className="h-7 sm:h-8 w-auto object-contain hover:scale-105 transition-transform"
+                      width={160}
+                      height={44}
+                      className={`${t.companyLogoClassName || "h-8 sm:h-9 w-auto object-contain"} hover:scale-105 transition-transform`}
                     />
                   </div>
                 </div>

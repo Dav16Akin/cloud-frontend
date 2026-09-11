@@ -114,45 +114,53 @@ export default function CartDrawer() {
       {/* Backdrop */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-xs"
         onClick={closeDrawer}
         aria-hidden="true"
       />
 
-      {/* Drawer */}
+      {/* Centered Dialog Wrapper */}
       <div
-        id="cart-drawer"
-        role="dialog"
-        aria-label="Shopping cart"
-        className="fixed top-0 right-0 h-full z-50 w-full max-w-md bg-white border-l border-[#e2eaff] shadow-2xl flex flex-col"
-        style={{ animation: "slideInRight 0.25s ease" }}
+        className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeDrawer();
+        }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#1787D4]/10 flex items-center justify-center shrink-0">
-              <ShoppingCart className="w-4.5 h-4.5 text-[#1787D4]" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[#031033] text-sm tracking-tight">
-                Shopping Cart
-              </h2>
-              <p className="text-xs text-[#5a6a85]">
-                {itemCount()} item{itemCount() !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-          <button
-            id="cart-drawer-close"
-            onClick={closeDrawer}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-[#9ba8c0] hover:text-[#031033] hover:bg-[#e2eaff] transition-colors cursor-pointer"
-            aria-label="Close cart"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <div
+          id="cart-drawer"
+          role="dialog"
+          aria-label="Shopping cart"
+          className="cart-modal-container pointer-events-auto w-full max-w-lg max-h-[85vh] sm:max-h-[80vh] bg-white rounded-t-3xl sm:rounded-3xl border border-[#e2eaff] shadow-2xl flex flex-col overflow-hidden"
+        >
+          {/* Mobile Pull Indicator */}
+          <div className="w-10 h-1 rounded-full bg-slate-200 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
 
-        {/* Items list */}
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e2eaff] bg-[#f8faff] shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#1787D4]/10 flex items-center justify-center shrink-0">
+                <ShoppingCart className="w-4.5 h-4.5 text-[#1787D4]" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[#031033] text-sm tracking-tight">
+                  Shopping Cart
+                </h2>
+                <p className="text-xs text-[#5a6a85]">
+                  {itemCount()} item{itemCount() !== 1 ? "s" : ""}
+                </p>
+              </div>
+            </div>
+            <button
+              id="cart-drawer-close"
+              onClick={closeDrawer}
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-[#9ba8c0] hover:text-[#031033] hover:bg-[#e2eaff] transition-colors cursor-pointer"
+              aria-label="Close cart"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Items list */}
         <div className="flex-1 overflow-y-auto py-2">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
@@ -275,12 +283,25 @@ export default function CartDrawer() {
             </p>
           </div>
         )}
+        </div>
       </div>
 
       <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); opacity: 0; }
-          to   { transform: translateX(0);    opacity: 1; }
+        @keyframes cartSlideUpMobile {
+          from { transform: translateY(100%); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes cartPopCenterDesktop {
+          from { transform: translateY(24px) scale(0.96); opacity: 0; }
+          to   { transform: translateY(0)    scale(1);    opacity: 1; }
+        }
+        .cart-modal-container {
+          animation: cartSlideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @media (min-width: 640px) {
+          .cart-modal-container {
+            animation: cartPopCenterDesktop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
         }
       `}</style>
     </>

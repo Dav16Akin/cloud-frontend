@@ -18,7 +18,6 @@ const DURATION_CYCLES: {
   label: string;
   periodText: string;
   months: number;
-  badge?: string;
 }[] = [
   {
     id: "monthly",
@@ -31,14 +30,12 @@ const DURATION_CYCLES: {
     label: "Quarterly",
     periodText: "3 Months",
     months: 3,
-    badge: "Save ~10%",
   },
   {
     id: "yearly",
     label: "Yearly",
     periodText: "12 Months",
     months: 12,
-    badge: "Save ~17%",
   },
 ];
 
@@ -147,22 +144,6 @@ function PlanCard({
         ? Math.round(plan.quarterlyPrice / 3)
         : Math.round(plan.price / 12);
 
-  // Exact savings percentage compared to unbundled monthly billing
-  const savingsPercent =
-    selectedCycle === "quarterly"
-      ? Math.max(
-          0,
-          Math.round(
-            (1 - plan.quarterlyPrice / (plan.monthlyPrice * 3)) * 100
-          )
-        )
-      : selectedCycle === "yearly"
-        ? Math.max(
-            0,
-            Math.round((1 - plan.price / (plan.monthlyPrice * 12)) * 100)
-          )
-        : 0;
-
   const inCart = hasItem(`hosting:${plan.id}:${selectedCycle}`);
 
   const websiteLabel =
@@ -212,20 +193,15 @@ function PlanCard({
             </p>
           </div>
 
-          {/* Price & Savings Pill */}
+          {/* Price */}
           <div className="mb-6">
-            <div className="flex items-center gap-2 flex-nowrap">
+            <div className="flex items-baseline gap-1 flex-nowrap">
               <span className="text-3xl sm:text-[34px] font-extrabold text-white tracking-tight shrink-0">
                 {formatPrice(monthlyEquivalent)}
               </span>
               <span className="text-sm font-semibold text-blue-100 shrink-0">
                 /month
               </span>
-              {savingsPercent > 0 && (
-                <span className="bg-white text-[#16a34a] font-semibold text-xs px-2.5 py-0.5 rounded-full shadow-xs inline-flex items-center whitespace-nowrap">
-                  Save {savingsPercent}%
-                </span>
-              )}
             </div>
             <div className="text-[12px] text-blue-100/80 mt-1">
               {selectedCycle === "monthly"
@@ -291,20 +267,15 @@ function PlanCard({
           </p>
         </div>
 
-        {/* Price & Savings Pill */}
+        {/* Price */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 flex-nowrap">
+          <div className="flex items-baseline gap-1 flex-nowrap">
             <span className="text-3xl sm:text-[34px] font-extrabold text-[#031033] tracking-tight shrink-0">
               {formatPrice(monthlyEquivalent)}
             </span>
             <span className="text-sm font-semibold text-[#5a6a85] shrink-0">
               /month
             </span>
-            {savingsPercent > 0 && (
-              <span className="bg-[#eafaf1] text-[#16a34a] font-semibold text-xs px-2.5 py-0.5 rounded-full inline-flex items-center whitespace-nowrap">
-                Save {savingsPercent}%
-              </span>
-            )}
           </div>
           <div className="text-[12px] text-slate-400 mt-1">
             {selectedCycle === "monthly"
@@ -352,7 +323,21 @@ function PlanCard({
   );
 }
 
-export default function PricingPreviewSection() {
+export interface PricingPreviewSectionProps {
+  id?: string;
+  title?: string;
+  subtitle?: string;
+  showFooterLink?: boolean;
+  className?: string;
+}
+
+export default function PricingPreviewSection({
+  id = "pricing-preview",
+  title = "Start with what you need. Scale when you're ready.",
+  subtitle = "Choose the hosting plan that fits your website today and scale as your traffic grows.",
+  showFooterLink = true,
+  className = "py-16 sm:py-20 lg:py-24 bg-[#f8faff] relative overflow-hidden scroll-mt-20",
+}: PricingPreviewSectionProps = {}) {
   const { data: apiPlans, isLoading } = usePlans();
   const [selectedCycle, setSelectedCycle] =
     useState<BillingCycle>("yearly");
@@ -362,18 +347,20 @@ export default function PricingPreviewSection() {
 
   return (
     <section
-      id="pricing-preview"
-      className="py-16 sm:py-20 lg:py-24 bg-[#f8faff] relative overflow-hidden scroll-mt-20"
+      id={id}
+      className={className}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-10 flex flex-col items-center">
           <h2 className="text-3xl sm:text-4xl md:text-[44px] font-extrabold tracking-tight text-[#031033] leading-tight max-w-3xl">
-            Start with what you need. Scale when you&apos;re ready.
+            {title}
           </h2>
-          <p className="text-sm sm:text-base text-[#5a6a85] max-w-2xl mx-auto mt-3">
-            Choose the hosting plan that fits your website today and scale as your traffic grows.
-          </p>
+          {subtitle && (
+            <p className="text-sm sm:text-base text-[#5a6a85] max-w-2xl mx-auto mt-3">
+              {subtitle}
+            </p>
+          )}
 
           {/* Duration Options Segmented Bar directly mapping to endpoint billing cycles */}
           <div className="flex flex-col items-center justify-center gap-2 mt-8">
@@ -395,17 +382,6 @@ export default function PricingPreviewSection() {
                     <span className="text-[11px] opacity-70">
                       ({dur.periodText})
                     </span>
-                    {dur.badge && (
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
-                          isSelected
-                            ? "bg-emerald-500/20 text-emerald-300"
-                            : "bg-[#eafaf1] text-[#16a34a]"
-                        }`}
-                      >
-                        {dur.badge}
-                      </span>
-                    )}
                   </button>
                 );
               })}
@@ -415,7 +391,7 @@ export default function PricingPreviewSection() {
                 ? "Flexible monthly billing. Cancel anytime."
                 : selectedCycle === "quarterly"
                   ? "Billed quarterly. Enjoy lower effective monthly pricing."
-                  : "Annual plan with maximum savings. Billed once a year."}
+                  : "Annual plan billed once a year."}
             </p>
           </div>
         </div>
@@ -439,16 +415,18 @@ export default function PricingPreviewSection() {
         </div>
 
         {/* Footer Link */}
-        <div className="text-center mt-12">
-          <Link
-            href="/pricing"
-            id="view-all-pricing"
-            className="text-[#1787D4] text-sm font-semibold hover:underline underline-offset-4 inline-flex items-center gap-1.5 cursor-pointer"
-          >
-            View full feature comparison & pricing
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        {showFooterLink && (
+          <div className="text-center mt-12">
+            <Link
+              href="/pricing"
+              id="view-all-pricing"
+              className="text-[#1787D4] text-sm font-semibold hover:underline underline-offset-4 inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              View full feature comparison & pricing
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

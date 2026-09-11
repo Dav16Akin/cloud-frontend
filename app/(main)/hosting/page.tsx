@@ -6,44 +6,18 @@ import {
   ShieldCheck,
   Shield,
   Zap,
-  Check,
   ArrowRight,
   LayoutGrid,
   BarChart3,
 } from "lucide-react";
+
+import PricingPreviewSection from "@/components/home/PricingPreviewSection";
 
 export const metadata: Metadata = {
   title: "Web Hosting — Nupat Cloud",
   description:
     "Reliable hosting for everything you want to build. Launch your website on fast, secure and reliable hosting designed to keep your online presence running smoothly.",
 };
-
-const starterFeatures = [
-  "1 Website",
-  "10GB SSD Storage",
-  "Free SSL",
-  "1 Email Account",
-  "99.9% Uptime",
-];
-
-const businessFeatures = [
-  "10 Websites",
-  "50GB SSD Storage",
-  "Free SSL",
-  "Free Domain",
-  "10 Email Accounts",
-  "Daily Backups",
-];
-
-const advancedFeatures = [
-  "Unlimited Websites",
-  "100GB NVMe Storage",
-  "Free SSL",
-  "Free Domain",
-  "Unlimited Email",
-  "Priority Support",
-  "Advanced Caching",
-];
 
 const coreFeatures = [
   {
@@ -179,117 +153,14 @@ export default function HostingPage() {
         </div>
       </section>
 
-      {/* ── 2. Pricing Plans Section ── */}
-      <section id="plans" className="py-10 sm:py-12 lg:py-14 bg-white scroll-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-10">
-            <h2 className="type-h2 text-[#031033]">
-              Choose the hosting that fits your website
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
-            {/* Plan 1: Starter */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
-              <div>
-                <h3 className="type-h3 text-[#031033]">Starter</h3>
-                <p className="text-[14px] text-gray-500 mt-1 mb-6">
-                  For personal websites and small projects
-                </p>
-
-                <div className="space-y-3.5 pt-2">
-                  {starterFeatures.map((feat) => (
-                    <div key={feat} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1787D4] shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-                      </div>
-                      <span className="text-[14px] text-gray-700 font-medium">
-                        {feat}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Link
-                href="/pricing?plan=Starter"
-                id="choose-starter-btn"
-                className="w-full py-2.5 px-4 rounded-full bg-[#f2f5fc] hover:bg-[#e8edf8] text-[#031033] text-sm font-medium transition text-center mt-8 block active:scale-95"
-              >
-                Choose Starter
-              </Link>
-            </div>
-
-            {/* Plan 2: Business (POPULAR) */}
-            <div className="bg-[#1787D4] rounded-2xl p-7 sm:p-8 flex flex-col justify-between text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
-              <div className="absolute top-6 right-6">
-                <span className="px-3 py-1 text-[11px] font-bold text-white uppercase tracking-wider rounded-full border border-white/30 bg-white/20 backdrop-blur-xs">
-                  POPULAR
-                </span>
-              </div>
-
-              <div>
-                <h3 className="type-h3 text-white">Business</h3>
-                <p className="text-[14px] text-white/80 mt-1 mb-6">
-                  For growing businesses and professional websites
-                </p>
-
-                <div className="space-y-3.5 pt-2">
-                  {businessFeatures.map((feat) => (
-                    <div key={feat} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border border-white/40 bg-white/20 flex items-center justify-center text-white shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-                      </div>
-                      <span className="text-[14px] text-white font-medium">
-                        {feat}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Link
-                href="/pricing?plan=Business"
-                id="choose-business-btn"
-                className="w-full py-2.5 px-4 rounded-full bg-white hover:bg-slate-50 text-[#1787D4] text-sm font-semibold transition text-center mt-8 shadow-xs block active:scale-95"
-              >
-                Choose Business
-              </Link>
-            </div>
-
-            {/* Plan 3: Advanced */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all">
-              <div>
-                <h3 className="type-h3 text-[#031033]">Advanced</h3>
-                <p className="text-[14px] text-gray-500 mt-1 mb-6">
-                  For websites with higher traffic and resource needs
-                </p>
-
-                <div className="space-y-3.5 pt-2">
-                  {advancedFeatures.map((feat) => (
-                    <div key={feat} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border border-blue-500/30 bg-blue-50/80 flex items-center justify-center text-[#1787D4] shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-                      </div>
-                      <span className="text-[14px] text-gray-700 font-medium">
-                        {feat}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Link
-                href="/pricing?plan=Agency"
-                id="choose-advanced-btn"
-                className="w-full py-2.5 px-4 rounded-full bg-[#f2f5fc] hover:bg-[#e8edf8] text-[#031033] text-sm font-medium transition text-center mt-8 block active:scale-95"
-              >
-                Choose Advanced
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── 2. Pricing Plans Section (Unified with Homepage & Live Cart) ── */}
+      <PricingPreviewSection
+        id="plans"
+        title="Choose the hosting that fits your website"
+        subtitle="Scale seamlessly with fast NVMe storage, free SSL certificates, and 99.9% uptime."
+        showFooterLink={true}
+        className="py-14 sm:py-18 lg:py-22 bg-[#f8faff] relative overflow-hidden scroll-mt-24 border-y border-slate-100"
+      />
 
       {/* ── 3. Core Features Grid Section ── */}
       <section className="py-10 sm:py-12 lg:py-14 bg-white">

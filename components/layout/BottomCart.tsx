@@ -48,8 +48,8 @@ export default function BottomCart() {
 
   return (
     <div
-      className={`fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-[#031033]/95 backdrop-blur-md border border-[#1787D4]/30 rounded-2xl shadow-2xl shadow-[#031033]/40 transition-all duration-300 transform ${
-        shouldHide ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-auto sm:min-w-[440px] max-w-lg bg-[#031033]/95 backdrop-blur-md border border-[#1787D4]/30 rounded-2xl shadow-2xl shadow-[#031033]/40 transition-all duration-300 transform ${
+        shouldHide ? "translate-y-28 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       }`}
     >
       <div className="px-4 py-3 flex items-center justify-between gap-3">

@@ -337,7 +337,7 @@ export default function TicketsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
+          <h1 className="text-[1.15rem] font-semibold text-[#031033]">
             Support Tickets
           </h1>
           <p className="text-[#5a6a85] mt-1 text-sm">
@@ -374,7 +374,7 @@ export default function TicketsPage() {
               <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wide">
                 {label}
               </p>
-              <p className={`text-2xl font-extrabold mt-1 ${color}`}>
+              <p className={`text-[1.5rem] font-bold mt-1 ${color}`}>
                 {value}
               </p>
             </div>

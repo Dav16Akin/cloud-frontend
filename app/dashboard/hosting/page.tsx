@@ -758,7 +758,7 @@ function HostingPlanCard({
         </div>
         <div className="flex items-baseline gap-1">
           <span
-            className={`text-3xl font-extrabold ${
+            className={`text-[1.6rem] font-bold ${
               plan.isPopular ? "text-white" : "text-[#031033]"
             }`}
           >
@@ -882,7 +882,7 @@ export default function HostingDashboardPage() {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
+            <h1 className="text-[1.15rem] font-semibold text-[#031033]">
               Hosting
             </h1>
             <p className="text-[#5a6a85] mt-1 text-sm">

@@ -82,7 +82,7 @@ export default function DashboardLayout({
   // Show spinner while we're determining auth state
   if (authStatus === "loading") {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#f6f9ff]">
+      <div className="flex h-screen items-center justify-center" style={{ background: "#f5f5f7" }}>
         <Loader2 className="w-6 h-6 animate-spin text-[#e8900a]" />
       </div>
     );
@@ -93,7 +93,7 @@ export default function DashboardLayout({
 
   return (
     <>
-      <div className="flex h-screen bg-[#f6f9ff] overflow-hidden">
+      <div className="flex h-screen overflow-hidden" style={{ background: "#f5f5f7" }}>
 
         {/* ── Desktop sidebar ─────────────────────────────────────────── */}
         <div className="hidden md:flex h-full">

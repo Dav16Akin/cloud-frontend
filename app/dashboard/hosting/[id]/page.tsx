@@ -299,7 +299,7 @@ function OverviewTab({ hostingId }: { hostingId: string }) {
               <p className="text-[11px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
                 {label}
               </p>
-              <p className="text-xl font-extrabold text-[#031033] mt-0.5 leading-none">
+              <p className="text-[1.05rem] font-semibold text-[#031033] mt-0.5 leading-none">
                 {value}
               </p>
               <p className="text-[11px] text-[#9ba8c0] mt-1">{sub}</p>
@@ -2016,7 +2016,7 @@ export default function ManageHostingPage() {
             {/* Main info */}
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-xl font-extrabold text-[#031033]">
+                <h1 className="text-[1.05rem] font-semibold text-[#031033]">
                   {account.domain}
                 </h1>
                 <StatusBadge status={status} />

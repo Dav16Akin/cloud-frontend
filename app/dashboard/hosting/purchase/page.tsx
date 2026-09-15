@@ -107,7 +107,7 @@ function HostingPurchaseContent() {
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Hosting Dashboard
         </Link>
-        <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
+        <h1 className="text-[1.15rem] font-semibold text-[#031033]">
           Purchase Web Hosting
         </h1>
         <p className="text-[#5a6a85] mt-1 text-sm">
@@ -288,7 +288,7 @@ function HostingPurchaseContent() {
 
                 <div className="border-t border-[#e2eaff] pt-3 flex items-center justify-between">
                   <span className="text-sm font-bold text-[#031033]">Total</span>
-                  <span className="text-xl font-extrabold text-[#031033]">
+                  <span className="text-[1.05rem] font-semibold text-[#031033]">
                     {formatNGN(getPrice(selectedPlan))}
                   </span>
                 </div>

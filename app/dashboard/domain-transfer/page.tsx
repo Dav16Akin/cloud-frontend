@@ -150,7 +150,7 @@ function DomainTransferPageContent() {
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-[#031033] flex items-center gap-2">
+        <h1 className="text-[1.15rem] font-semibold text-[#031033] flex items-center gap-2">
           <ArrowRightLeft className="w-6 h-6 text-[#e8900a]" />
           Domain Transfer
         </h1>

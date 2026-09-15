@@ -89,7 +89,7 @@ function HostingVerifyContent() {
         <div className="w-14 h-14 bg-amber-50 border border-amber-200 flex items-center justify-center">
           <AlertCircle className="w-6 h-6 text-amber-500" />
         </div>
-        <h1 className="text-xl font-extrabold text-[#031033]">
+        <h1 className="text-[1.05rem] font-semibold text-[#031033]">
           No payment reference found
         </h1>
         <p className="text-sm text-[#5a6a85] max-w-xs">
@@ -114,7 +114,7 @@ function HostingVerifyContent() {
           <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-[#031033]">
+          <h1 className="text-[1.05rem] font-semibold text-[#031033]">
             Verifying your hosting payment…
           </h1>
           <p className="text-sm text-[#5a6a85] mt-1.5 max-w-xs">
@@ -140,7 +140,7 @@ function HostingVerifyContent() {
           <span className="inline-block text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full mb-2">
             Payment Processing
           </span>
-          <h1 className="text-xl font-extrabold text-[#031033]">
+          <h1 className="text-[1.05rem] font-semibold text-[#031033]">
             Confirming Hosting Order
           </h1>
           <p className="text-sm text-[#5a6a85] mt-1.5 max-w-sm mx-auto leading-relaxed">
@@ -204,7 +204,7 @@ function HostingVerifyContent() {
         </div>
 
         <div>
-          <h1 className="text-xl font-extrabold text-[#031033]">
+          <h1 className="text-[1.05rem] font-semibold text-[#031033]">
             Payment not verified
           </h1>
           <p className="text-sm text-[#5a6a85] mt-1.5 max-w-xs mx-auto leading-relaxed">
@@ -250,7 +250,7 @@ function HostingVerifyContent() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-extrabold text-[#031033]">
+        <h1 className="text-[1.15rem] font-semibold text-[#031033]">
           Hosting Account Purchased!
         </h1>
         <p className="text-[#5a6a85] mt-2 text-sm leading-relaxed">

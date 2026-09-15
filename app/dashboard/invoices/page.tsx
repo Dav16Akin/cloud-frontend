@@ -169,7 +169,7 @@ function StatCard({
         <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wide">
           {label}
         </p>
-        <p className={`text-xl font-extrabold mt-0.5 ${color}`}>{value}</p>
+        <p className={`text-[1.4rem] font-bold mt-0.5 ${color}`}>{value}</p>
       </div>
     </div>
   );
@@ -190,7 +190,7 @@ export default function InvoicesPage() {
     <div className="flex flex-col gap-7 max-w-5xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-[1.75rem] font-extrabold text-[#031033]">
+        <h1 className="text-[1.15rem] font-semibold text-[#031033]">
           Invoices
         </h1>
         <p className="text-[#5a6a85] mt-1 text-sm">

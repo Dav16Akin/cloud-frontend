@@ -131,7 +131,7 @@ function DomainsDashboardPageContent() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-[#031033]">Domains</h1>
+          <h1 className="text-[1.15rem] font-semibold text-[#031033]">Domains</h1>
           <p className="text-[#5a6a85] text-sm mt-0.5">
             Register new domain names or manage your existing domain portfolio.
           </p>
@@ -402,7 +402,7 @@ function DomainsDashboardPageContent() {
           <div className="bg-[#031033] border border-[#1a2d5a] p-6 sm:p-8 relative overflow-hidden">
             <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none" />
             <div className="max-w-2xl relative z-10">
-              <h2 className="text-xl font-bold text-white mb-2">Find a Domain Name</h2>
+              <h2 className="text-[1rem] font-semibold text-white mb-1.5">Find a Domain Name</h2>
               <p className="text-[#9ba8c0] text-sm mb-6">
                 Type in the name you want, click search, and register it instantly.
               </p>

@@ -1,98 +1,65 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
-  LayoutDashboard,
-  Server,
-  Globe,
-  ArrowRightLeft,
-  Receipt,
-  LifeBuoy,
-  Settings,
+  User,
+  ChevronDown,
   LogOut,
   X,
-  ExternalLink,
-  ShoppingCart,
-  ChevronDown,
-  Shield,
-  BookOpen,
+  ChevronRight,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
-import { FluidOrb } from "@/components/ui/fluid-orb";
 
-const DOCS_URL =
-  process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+// ── Sidebar design tokens — dark teal, matching screenshot ───────────────────
+const S = {
+  // Surfaces — brand navy palette
+  bg: "#031033",                     // brand navy
+  bgActive: "#1787D4",               // brand blue active pill
+  bgUser: "rgba(255,255,255,0.07)",  // subtle user chip
 
-type LinkItem = {
+  // Text
+  textPrimary: "#ffffff",
+  textInactive: "rgba(255,255,255,0.58)",
+  textMuted: "rgba(255,255,255,0.32)",
+
+  // Structural
+  divider: "rgba(255,255,255,0.08)",
+};
+
+// ── Nav items — flat list matching picture structure ──────────────────────────
+type NavItem = {
   label: string;
   href: string;
-  icon: any;
-  subLinks?: { label: string; href: string }[];
-  external?: boolean;
+  exact?: boolean;
+  subItems?: { label: string; href: string }[];
 };
 
-type NavGroup = {
-  label: string;
-  links: LinkItem[];
-};
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "GENERAL",
-    links: [
-      { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-      { label: "Settings", href: "/dashboard/settings", icon: Settings },
-    ],
-  },
-  {
-    label: "SERVICES",
-    links: [
-      { label: "Hosting", href: "/dashboard/hosting", icon: Server },
-      {
-        label: "Domains",
-        href: "/dashboard/domains",
-        icon: Globe,
-        subLinks: [
-          {
-            label: "Register / Search",
-            href: "/dashboard/domains?tab=register",
-          },
-          {
-            label: "Registered Domains",
-            href: "/dashboard/domains?tab=registered",
-          },
-          { label: "Hosted Domains", href: "/dashboard/domains?tab=hosted" },
-          { label: "Domain Transfer", href: "/dashboard/domain-transfer" },
-        ],
-      },
-      { label: "SSL Certificates", href: "/dashboard/ssl", icon: Shield },
-    ],
-  },
-  {
-    label: "BILLING & SUPPORT",
-    links: [
-      { label: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
-      { label: "Invoices", href: "/dashboard/invoices", icon: Receipt },
-      { label: "Support Tickets", href: "/dashboard/tickets", icon: LifeBuoy },
-      {
-        label: "Documentation",
-        href: DOCS_URL,
-        icon: BookOpen,
-        external: true,
-      },
-    ],
-  },
+const NAV_ITEMS: NavItem[] = [
+  { label: "Dashboard",        href: "/dashboard",            exact: true },
+  { label: "Domain List",      href: "/dashboard/domains",    subItems: [
+      { label: "Register / Search",  href: "/dashboard/domains?tab=register"  },
+      { label: "Registered Domains", href: "/dashboard/domains?tab=registered"},
+      { label: "Hosted Domains",     href: "/dashboard/domains?tab=hosted"    },
+      { label: "Domain Transfer",    href: "/dashboard/domain-transfer"       },
+  ]},
+  { label: "Hosting List",     href: "/dashboard/hosting"    },
+  { label: "Private Email",    href: "/dashboard/hosting"    },
+  { label: "SSL Certificates", href: "/dashboard/ssl"        },
+  { label: "Orders",           href: "/dashboard/orders"     },
+  { label: "Invoices",         href: "/dashboard/invoices"   },
+  { label: "Support Tickets",  href: "/dashboard/tickets"    },
+  { label: "Profile",          href: "/dashboard/settings"   },
 ];
 
-function SidebarSubLinks({
-  subLinks,
+// ── Sub-items (Domains expand) ─────────────────────────────────────────────
+function SubItems({
+  items,
   onClose,
   pathname,
 }: {
-  subLinks: { label: string; href: string }[];
+  items: { label: string; href: string }[];
   onClose?: () => void;
   pathname: string;
 }) {
@@ -100,11 +67,13 @@ function SidebarSubLinks({
   const activeTab = searchParams.get("tab") || "registered";
 
   return (
-    <div className="flex flex-col gap-0.5 ml-6 pl-3 border-l border-[#e2eaff] mt-0.5 mb-1.5">
-      {subLinks.map(({ label, href }) => {
+    <div
+      className="flex flex-col pl-4 mt-0.5 gap-px"
+      style={{ borderLeft: `1px solid ${S.divider}`, marginLeft: "16px" }}
+    >
+      {items.map(({ label, href }) => {
         const isTransfer = href.includes("domain-transfer");
         let isActive = false;
-
         if (isTransfer) {
           isActive = pathname.startsWith("/dashboard/domain-transfer");
         } else {
@@ -119,11 +88,12 @@ function SidebarSubLinks({
             href={href}
             id={`sidebar-sub-${label.toLowerCase().replace(/\s+/g, "-")}`}
             onClick={onClose}
-            className={`px-3 py-1.5 text-xs font-medium transition-all duration-150 rounded ${
-              isActive
-                ? "bg-[#fff8ee] text-[#e8900a] font-semibold"
-                : "text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033]"
-            }`}
+            className="py-1.5 px-3 rounded-md text-[12.5px] transition-colors duration-150"
+            style={{
+              color: isActive ? S.textPrimary : S.textInactive,
+              background: isActive ? "rgba(27,107,120,0.5)" : "transparent",
+              fontWeight: isActive ? 500 : 400,
+            }}
           >
             {label}
           </Link>
@@ -133,243 +103,186 @@ function SidebarSubLinks({
   );
 }
 
-type SidebarProps = {
-  onClose?: () => void;
-};
-
-export default function Sidebar({ onClose }: SidebarProps) {
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { data: me, isLoading } = useGetMe();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const firstName = me?.data?.firstName ?? "";
-  const lastName = me?.data?.lastName ?? "";
-  const email = me?.data?.email ?? "";
-  const initials =
-    `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "?";
+  const lastName  = me?.data?.lastName  ?? "";
+  const username  = [firstName, lastName].filter(Boolean).join(" ") || "Account";
 
-  const isDomainsPath =
+  const isDomainsActive =
     pathname.startsWith("/dashboard/domains") ||
     pathname.startsWith("/dashboard/domain-transfer");
-  const [domainsExpanded, setDomainsExpanded] = useState(isDomainsPath);
+
+  const [domainsOpen, setDomainsOpen] = useState(isDomainsActive);
 
   useEffect(() => {
-    if (isDomainsPath) {
-      setDomainsExpanded(true);
-    }
-  }, [pathname, isDomainsPath]);
+    if (isDomainsActive) setDomainsOpen(true);
+  }, [pathname, isDomainsActive]);
 
   return (
-    <aside className="flex flex-col h-full bg-white border-r border-[#e2eaff] w-64 shrink-0">
-      {/* Logo + mobile close */}
-      <div className="flex items-center justify-between px-5 h-14 border-b border-[#e2eaff] shrink-0">
-        <Link href="/dashboard" id="sidebar-logo">
-          <Image
-            src="/images/nupat-cloud-logo-whitebg.png"
-            alt="Nupat Cloud"
-            width={120}
-            height={34}
-            className="h-auto w-auto object-contain"
-          />
-        </Link>
-        {onClose && (
+    <aside
+      className="flex flex-col h-full w-56 shrink-0"
+      style={{ background: S.bg }}
+    >
+      {/* ── Mobile close (no logo — logo lives in the topbar) ─── */}
+      {onClose && (
+        <div
+          className="flex items-center justify-end px-3 shrink-0 md:hidden"
+          style={{ height: "48px", borderBottom: `1px solid ${S.divider}` }}
+        >
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
-            aria-label="Close sidebar"
+            className="w-7 h-7 flex items-center justify-center rounded-md transition-colors"
+            style={{ color: S.textMuted }}
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
-        )}
+        </div>
+      )}
+
+      {/* ── User chip ─────────────────────────────────────────── */}
+      <div className="px-3 pt-4 pb-2 shrink-0">
+        <div
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg w-full cursor-default"
+          style={{ background: S.bgUser }}
+        >
+          {/* Avatar icon */}
+          <span
+            className="flex items-center justify-center w-6 h-6 rounded-full shrink-0"
+            style={{ background: "rgba(255,255,255,0.15)" }}
+          >
+            <User className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.8)" }} />
+          </span>
+
+          {/* Name */}
+          {isLoading ? (
+            <div
+              className="flex-1 h-3 rounded animate-pulse"
+              style={{ background: "rgba(255,255,255,0.12)" }}
+            />
+          ) : (
+            <span
+              className="flex-1 text-[13px] font-medium truncate"
+              style={{ color: S.textPrimary, letterSpacing: "-0.1px" }}
+            >
+              {username}
+            </span>
+          )}
+
+          <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: S.textMuted }} />
+        </div>
       </div>
 
-      {/* Nav groups */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-5">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.label}>
-            <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest text-[#9ba8c0] uppercase select-none">
-              {group.label}
-            </p>
-            <div className="flex flex-col gap-0.5">
-              {group.links.map((link) => {
-                const { label, href, icon: Icon, subLinks } = link;
+      {/* ── Nav list ──────────────────────────────────────────── */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-3 flex flex-col gap-px">
+        {NAV_ITEMS.map((item) => {
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href.split("?")[0]) &&
+              // Prevent "Hosting List" from being active on /dashboard/hosting/... when "Private Email" is also /dashboard/hosting
+              // Both map to same route — just highlight Hosting List
+              !(item.label === "Private Email" && pathname.startsWith("/dashboard/hosting"));
 
-                const isParentActive =
-                  href === "/dashboard"
-                    ? pathname === "/dashboard"
-                    : pathname.startsWith(href) ||
-                      (subLinks &&
-                        subLinks.some((sub) =>
-                          pathname.startsWith(sub.href.split("?")[0]),
-                        ));
+          // Domain List with sub-items
+          if (item.subItems) {
+            const domainActive =
+              pathname.startsWith("/dashboard/domains") ||
+              pathname.startsWith("/dashboard/domain-transfer");
 
-                if (subLinks) {
-                  return (
-                    <div key={href} className="flex flex-col">
-                      <div
-                        className={`flex items-center w-full transition-all duration-150 border-l-2 rounded-r ${
-                          isParentActive
-                            ? "border-[#e8900a] bg-[#fff8ee]"
-                            : "border-transparent hover:bg-[#f2f5fc]"
-                        }`}
-                      >
-                        <Link
-                          href={href}
-                          id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
-                          onClick={onClose}
-                          className={`flex-1 flex items-center gap-3 px-3 py-2 text-sm font-medium ${
-                            isParentActive
-                              ? "text-[#031033]"
-                              : "text-[#5a6a85] hover:text-[#031033]"
-                          }`}
-                        >
-                          <Icon
-                            className={`w-4.25 h-4.25 shrink-0 ${
-                              isParentActive
-                                ? "text-[#e8900a]"
-                                : "text-[#9ba8c0]"
-                            }`}
-                          />
-                          <span className="flex-1">{label}</span>
-                        </Link>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDomainsExpanded(!domainsExpanded);
-                          }}
-                          className={`p-2 transition-colors shrink-0 rounded-r ${
-                            isParentActive
-                              ? "text-[#e8900a] hover:bg-[#ffeacf]/50"
-                              : "text-[#9ba8c0] hover:text-[#031033] hover:bg-gray-200/50"
-                          }`}
-                          aria-label="Toggle sub-menu"
-                        >
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              domainsExpanded ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {domainsExpanded && (
-                        <Suspense
-                          fallback={
-                            <div className="ml-6 pl-3 text-xs text-[#9ba8c0] animate-pulse py-1.5">
-                              Loading...
-                            </div>
-                          }
-                        >
-                          <SidebarSubLinks
-                            subLinks={subLinks}
-                            onClose={onClose}
-                            pathname={pathname}
-                          />
-                        </Suspense>
-                      )}
-                    </div>
-                  );
-                }
-
-                const isActive =
-                  href === "/dashboard"
-                    ? pathname === "/dashboard"
-                    : pathname.startsWith(href);
-
-                if (link.external) {
-                  return (
-                    <a
-                      key={href}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
-                      onClick={onClose}
-                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-150 border-l-2 border-transparent text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] hover:border-[#e2eaff]"
-                    >
-                      <Icon className="w-4.25 h-4.25 shrink-0 text-[#e8900a]" />
-                      <span className="flex-1">{label}</span>
-                      <ExternalLink className="w-3 h-3 text-[#9ba8c0]" />
-                    </a>
-                  );
-                }
-
-                return (
+            return (
+              <div key={item.href}>
+                <div
+                  className="flex items-center justify-between rounded-lg transition-colors duration-150"
+                  style={{ background: domainActive ? S.bgActive : "transparent" }}
+                >
                   <Link
-                    key={href}
-                    href={href}
-                    id={`sidebar-${label.toLowerCase().replace(/\s+/g, "-")}`}
+                    href={item.href}
+                    id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-150 border-l-2 ${
-                      isActive
-                        ? "border-[#e8900a] bg-[#fff8ee] text-[#031033]"
-                        : "border-transparent text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] hover:border-[#e2eaff]"
-                    }`}
+                    className="flex-1 px-3 py-2 text-[13.5px] transition-colors duration-150"
+                    style={{
+                      color: domainActive ? S.textPrimary : S.textInactive,
+                      fontWeight: domainActive ? 500 : 400,
+                      letterSpacing: "-0.1px",
+                    }}
                   >
-                    <Icon
-                      className={`w-4.25 h-4.25 shrink-0 ${
-                        isActive ? "text-[#e8900a]" : "text-[#9ba8c0]"
-                      }`}
-                    />
-                    {label}
+                    {item.label}
                   </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+                  <button
+                    onClick={() => setDomainsOpen((v) => !v)}
+                    className="px-2 py-2 transition-colors"
+                    style={{ color: domainActive ? S.textPrimary : S.textMuted }}
+                    aria-label="Toggle domain sub-menu"
+                  >
+                    <ChevronRight
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${domainsOpen ? "rotate-90" : ""}`}
+                    />
+                  </button>
+                </div>
+
+                {domainsOpen && (
+                  <Suspense fallback={null}>
+                    <SubItems
+                      items={item.subItems}
+                      onClose={onClose}
+                      pathname={pathname}
+                    />
+                  </Suspense>
+                )}
+              </div>
+            );
+          }
+
+          // Regular item
+          return (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={onClose}
+              className="px-3 py-2 rounded-lg text-[13.5px] transition-colors duration-150"
+              style={{
+                color: isActive ? S.textPrimary : S.textInactive,
+                background: isActive ? S.bgActive : "transparent",
+                fontWeight: isActive ? 500 : 400,
+                letterSpacing: "-0.1px",
+              }}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Visit main site */}
-      <div className="px-3 pt-3 border-t border-[#e2eaff] shrink-0">
-        {/* <Link
-          href="/"
-          id="sidebar-visit-main"
-          className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] transition-colors"
+      {/* ── Footer ────────────────────────────────────────────── */}
+      <div
+        className="px-3 pb-4 pt-2 shrink-0 flex flex-col gap-px"
+        style={{ borderTop: `1px solid ${S.divider}` }}
+      >
+        <Link
+          href="/dashboard/tickets"
+          id="sidebar-feedback-support"
+          className="px-3 py-2 rounded-lg text-[13px] transition-colors duration-150"
+          style={{ color: S.textInactive }}
         >
-          <ExternalLink className="w-[17px] h-[17px] shrink-0 text-[#9ba8c0]" />
-          Visit Main Site
-        </Link> */}
-      </div>
-
-      {/* User section */}
-      <div className="px-3 py-3 shrink-0">
-        {isLoading ? (
-          <div className="px-3 py-2">
-            <div className="h-4 w-28 bg-[#f2f5fc] rounded animate-pulse mb-1.5" />
-            <div className="h-3 w-36 bg-[#f2f5fc] rounded animate-pulse" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            {/* FluidOrb avatar */}
-            <div className="relative flex w-8 h-8 rounded-full overflow-hidden items-center justify-center shrink-0 shadow-xs">
-              <FluidOrb
-                size={32}
-                color="#3B82F6"
-                className="absolute inset-0 w-full h-full pointer-events-none"
-              />
-              <span className="relative z-10 text-white text-[11px] font-bold select-none drop-shadow-xs">
-                {initials}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#031033] truncate">
-                {firstName} {lastName}
-              </p>
-              <p className="text-xs text-[#5a6a85] truncate">{email}</p>
-            </div>
-          </div>
-        )}
-
+          Feedback &amp; Support
+        </Link>
         <button
           id="sidebar-logout"
           onClick={() => logout()}
           disabled={isLoggingOut}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-[#5a6a85] hover:bg-red-50 hover:text-red-500 transition-all duration-150 disabled:opacity-60"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] transition-colors duration-150 group disabled:opacity-50 w-full text-left"
+          style={{ color: S.textMuted }}
         >
-          <LogOut className="w-4.25 h-4.25 shrink-0" />
-          {isLoggingOut ? "Logging out…" : "Logout"}
+          <LogOut className="w-3.5 h-3.5 shrink-0 group-hover:text-red-400 transition-colors" />
+          <span className="group-hover:text-red-400 transition-colors">
+            {isLoggingOut ? "Logging out…" : "Logout"}
+          </span>
         </button>
       </div>
     </aside>

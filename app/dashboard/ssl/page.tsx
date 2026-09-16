@@ -1,627 +1,432 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
 import {
+  Search,
+  Plus,
   Shield,
   ShieldCheck,
   ShieldAlert,
-  Globe,
-  Plus,
-  Copy,
-  CheckCircle,
-  Loader2,
-  RefreshCw,
-  Eye,
-  EyeOff,
   Lock,
-  ExternalLink,
-  Clock,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
   X,
-  FileText,
-  Download,
 } from "lucide-react";
-import { useGetSslCertificates, useGetSslStatus, useGetSslProducts } from "@/hooks/useSsl";
+import { useGetSslCertificates, useGetSslProducts } from "@/hooks/useSsl";
 import { useCartStore } from "@/store/cartStore";
-import { downloadSSLCertificateFile } from "@/lib/api";
 import { toast } from "sonner";
 
-type Tab = "certificates" | "buy";
-
-const PRODUCT_PRICES: Record<number, { price: number; displayName: string }> = {
-  41: { price: 10000, displayName: "Positive SSL" },
-  42: { price: 25000, displayName: "Positive SSL Wildcard" },
-  20: { price: 35000, displayName: "InstantSSL" },
-  24: { price: 50000, displayName: "EV SSL" },
-};
-
-function formatNGN(n: number) {
-  return "₦" + n.toLocaleString("en-NG");
+interface SslItem {
+  id: string;
+  certificate: string;
+  domain: string;
+  status: "Active" | "Expiring Soon" | "Expired" | "Pending";
+  expires: string;
 }
 
-function SSLDashboardContent() {
-  const [activeTab, setActiveTab] = useState<Tab>("certificates");
-  const [domainInput, setDomainInput] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState<number>(41);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedCert, setSelectedCert] = useState<any>(null);
-  const [isViewOpen, setIsViewOpen] = useState(false);
-  const [showPrivateKey, setShowPrivateKey] = useState(false);
-  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+export default function SslCertificatesPage() {
+  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Expiring Soon">("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [buyDomain, setBuyDomain] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<number>(41);
 
-  const { data: certificates, isLoading, refetch } = useGetSslCertificates();
-  const { mutate: checkStatus, isPending: isCheckingStatus } = useGetSslStatus();
-  const { data: products, isLoading: loadingProducts } = useGetSslProducts();
-  const { addSslItem, openDrawer, hasItem } = useCartStore();
+  const { data: liveCerts, isLoading } = useGetSslCertificates();
+  const { data: products } = useGetSslProducts();
+  const { addSslItem, openDrawer } = useCartStore();
 
-  const handleBuySSL = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!domainInput.trim()) {
-      toast.error("Please enter a valid domain name.");
-      return;
+  // Use only live data from API endpoint
+  const certificates: SslItem[] = useMemo(() => {
+    if (!liveCerts || !Array.isArray(liveCerts)) {
+      return [];
     }
+    return liveCerts.map((c: any) => {
+      let st: SslItem["status"] = "Active";
+      const statusUpper = (c.status as string)?.toUpperCase();
+      if (statusUpper === "EXPIRED") st = "Expired";
+      else if (statusUpper === "PENDING" || statusUpper === "PROCESSING") st = "Pending";
 
-    const domain = domainInput.trim().toLowerCase();
-    
-    // Check if domain input is valid (simple validation)
-    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
-    if (!domainRegex.test(domain)) {
-      toast.error("Please enter a valid domain (e.g. yourdomain.com).");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      if (hasItem(`ssl:${domain}`)) {
-        toast.info("This SSL Certificate is already in your cart.");
-        openDrawer();
-      } else {
-        const priceInfo = PRODUCT_PRICES[selectedProductId] || { price: 10000, displayName: "Positive SSL" };
-        addSslItem({
-          type: "SSL",
-          domainName: domain,
-          price: priceInfo.price,
-          productId: selectedProductId,
-        });
-        toast.success(`SSL Certificate (${priceInfo.displayName}) for ${domain} added to cart!`);
-        setDomainInput("");
-        openDrawer();
+      let expStr = "—";
+      if (c.expiresAt) {
+        const d = new Date(c.expiresAt);
+        expStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const diffDays = (d.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+        if (diffDays <= 30 && diffDays > 0) st = "Expiring Soon";
       }
-    } catch (err) {
-      toast.error("Failed to add SSL certificate to cart.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const handleCheckStatus = (certId: string) => {
-    checkStatus(certId, {
-      onSuccess: () => {
-        refetch();
-      },
+      return {
+        id: c.id,
+        certificate: c.productName || "SSL Certificate",
+        domain: c.domainName || "—",
+        status: st,
+        expires: expStr,
+      };
     });
-  };
+  }, [liveCerts]);
 
-  const handleViewCert = (cert: any) => {
-    setSelectedCert(cert);
-    setShowPrivateKey(false);
-    setIsViewOpen(true);
-  };
+  // Filter items
+  const filteredCerts = useMemo(() => {
+    return certificates.filter((c) => {
+      const matchesFilter =
+        statusFilter === "All" ||
+        (statusFilter === "Active" && c.status === "Active") ||
+        (statusFilter === "Expiring Soon" && c.status === "Expiring Soon");
 
-  const handleDownloadCert = async (cert: any) => {
-    setIsDownloading(cert.id);
-    try {
-      const blob = await downloadSSLCertificateFile(cert.id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `ssl-${cert.domainName.replace(/[^a-z0-9.-]/gi, "_")}.pem`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success("Certificate downloaded successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to download certificate.");
-    } finally {
-      setIsDownloading(null);
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        c.domain.toLowerCase().includes(q) ||
+        c.certificate.toLowerCase().includes(q);
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [certificates, statusFilter, searchQuery]);
+
+  // Metrics directly from live data
+  const activeCount = certificates.filter((c) => c.status === "Active").length;
+  const expiringSoonCount = certificates.filter((c) => c.status === "Expiring Soon").length;
+  const expiredCount = certificates.filter((c) => c.status === "Expired").length;
+
+  const handleOrderSsl = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!buyDomain.trim()) {
+      toast.error("Please enter a domain name");
+      return;
     }
-  };
+    const cleanDomain = buyDomain.trim().toLowerCase().replace(/^https?:\/\//, "");
+    
+    // Find price from products if available
+    const prod = (products || []).find((p: any) => p.id === selectedProduct || p.productId === selectedProduct);
+    const price = prod?.price || 15000;
 
-  const handleCopyText = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(`${type} copied to clipboard!`);
-  };
-
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return "—";
-    try {
-      return new Date(dateStr).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return dateStr;
-    }
+    addSslItem({
+      type: "SSL",
+      domainName: cleanDomain,
+      price: price,
+      productId: selectedProduct,
+    });
+    toast.success(`SSL certificate for ${cleanDomain} added to cart`);
+    setShowBuyModal(false);
+    setBuyDomain("");
+    openDrawer();
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-[1.15rem] font-semibold text-[#031033]">SSL Certificates</h2>
-          <p className="text-[#5a6a85] text-sm mt-0.5">
-            Manage your SSL security certificates or secure new domain names instantly.
-          </p>
+      <div>
+        <h2
+          className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
+          style={{
+            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+            letterSpacing: "-0.4px",
+          }}
+        >
+          SSL Certificates
+        </h2>
+        <p className="text-[14px] mt-1 text-[#6e6e73]">
+          Keep your websites protected with secure SSL certificates.
+        </p>
+      </div>
+
+      {/* Top 3 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Active */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">Active</span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : activeCount}
+          </div>
         </div>
-        {activeTab !== "buy" && (
-          <button
-            onClick={() => setActiveTab("buy")}
-            className="btn-primary flex items-center gap-1.5 self-start sm:self-auto text-sm py-2 px-4"
-          >
-            <Plus className="w-4 h-4" />
-            Buy Standalone SSL
-          </button>
-        )}
+
+        {/* Expiring Soon */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">Expiring Soon</span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : expiringSoonCount}
+          </div>
+        </div>
+
+        {/* Expired */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">Expired</span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : expiredCount}
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#e2eaff]">
-        <button
-          onClick={() => setActiveTab("certificates")}
-          className={`px-5 py-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
-            activeTab === "certificates"
-              ? "border-[#e8900a] text-[#e8900a]"
-              : "border-transparent text-[#5a6a85] hover:text-[#031033]"
-          }`}
-        >
-          My Certificates ({isLoading ? "..." : certificates?.length ?? 0})
-        </button>
-        <button
-          onClick={() => setActiveTab("buy")}
-          className={`px-5 py-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
-            activeTab === "buy"
-              ? "border-[#e8900a] text-[#e8900a]"
-              : "border-transparent text-[#5a6a85] hover:text-[#031033]"
-          }`}
-        >
-          Buy Standalone SSL
-        </button>
-      </div>
+      {/* Filter Tabs, Search Bar, and Action Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          {(["All", "Active", "Expiring Soon"] as const).map((filter) => {
+            const isActive = statusFilter === filter;
+            return (
+              <button
+                key={filter}
+                id={`btn-ssl-filter-${filter.toLowerCase().replace(/\s+/g, "-")}`}
+                type="button"
+                onClick={() => setStatusFilter(filter)}
+                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 ${
+                  isActive
+                    ? "bg-[#1787D4] text-white shadow-sm"
+                    : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:text-[#1d1d1f]"
+                }`}
+              >
+                {filter}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Tab Contents */}
-      {activeTab === "certificates" && (
-        <div className="bg-white border border-[#e2eaff]">
-          <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between bg-[#f6f9ff]">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#e8900a]" />
-              <h2 className="text-sm font-semibold text-[#031033]">SSL Certificates</h2>
-            </div>
-            <button
-              onClick={() => refetch()}
-              className="text-xs text-[#5a6a85] hover:text-[#031033] flex items-center gap-1 font-semibold"
-            >
-              <RefreshCw className="w-3 h-3" />
-              Refresh
-            </button>
+        <div className="flex items-center gap-3 flex-1 sm:justify-end">
+          {/* Search */}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search certificates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+            />
           </div>
 
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-2">
-              <Loader2 className="w-6 h-6 text-[#e8900a] animate-spin" />
-              <p className="text-xs text-[#5a6a85]">Loading certificates...</p>
-            </div>
-          ) : !certificates || certificates.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <div className="w-12 h-12 bg-[#f2f5fc] flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-[#c5cedf]" />
-              </div>
-              <h3 className="font-bold text-[#031033] text-sm">No SSL certificates found</h3>
-              <p className="text-xs text-[#5a6a85] max-w-xs mt-1 mb-4">
-                Secure your website data by purchasing a PositiveSSL certificate for any domain name.
-              </p>
-              <button
-                onClick={() => setActiveTab("buy")}
-                className="btn-primary text-xs py-2 px-4"
-              >
-                Buy SSL Certificate
-              </button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#fafbff] border-b border-[#e2eaff]">
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                      Domain / Product Name
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                      Validation Method
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                      Expiry Date
-                    </th>
-                    <th className="px-6 py-3.5 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider text-right">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#f0f4fc]">
-                  {certificates.map((cert: any) => (
-                    <tr key={cert.id} className="hover:bg-[#fafbff] transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-[#031033] text-sm">{cert.domainName}</span>
-                          <span className="text-[10px] text-[#9ba8c0]">{cert.productName}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 border ${
-                            cert.status === "ACTIVE"
-                              ? "bg-emerald-50 border-emerald-100 text-emerald-600"
-                              : cert.status === "PROCESSING" || cert.status === "PENDING"
-                              ? "bg-amber-50 border-amber-100 text-amber-600"
-                              : "bg-red-50 border-red-100 text-red-500"
-                          }`}
+          {/* Get SSL Certificate */}
+          <button
+            type="button"
+            id="btn-get-ssl-cert"
+            onClick={() => setShowBuyModal(true)}
+            className="px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm shrink-0 whitespace-nowrap"
+          >
+            Get SSL Certificate
+          </button>
+        </div>
+      </div>
+
+      {/* Certificates Table */}
+      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
+                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                  Certificate
+                </th>
+                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                  Domain
+                </th>
+                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                  Status
+                </th>
+                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                  Expires
+                </th>
+                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#f2f5fc]">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-[13.5px] text-[#6e6e73]">
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+                      <span>Loading SSL certificates…</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredCerts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4]">
+                        <Shield className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
+                        No SSL certificates found
+                      </p>
+                      <p className="text-[12.5px] text-[#6e6e73] max-w-sm">
+                        {searchQuery || statusFilter !== "All"
+                          ? "No certificates match your current filters."
+                          : "Protect your domains and visitor trust with industry-standard SSL encryption."}
+                      </p>
+                      {!searchQuery && statusFilter === "All" && (
+                        <button
+                          type="button"
+                          onClick={() => setShowBuyModal(true)}
+                          className="mt-2 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm"
                         >
-                          {cert.status === "ACTIVE" ? (
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                          ) : cert.status === "PROCESSING" ? (
-                            <Clock className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-                          ) : (
-                            <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
-                          )}
-                          {cert.status}
+                          Get SSL Certificate
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredCerts.map((cert) => {
+                  const isExpiring = cert.status === "Expiring Soon";
+                  return (
+                    <tr
+                      key={cert.id}
+                      className="hover:bg-[#fbfcfe] transition-colors"
+                    >
+                      <td className="py-5 px-6">
+                        <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                          {cert.certificate}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-[#5a6a85] text-xs capitalize">
-                        {cert.validationMethod}
+                      <td className="py-5 px-6">
+                        <span className="text-[13px] text-[#6e6e73]">
+                          {cert.domain}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-[#5a6a85] text-xs">
-                        {formatDate(cert.expiresAt)}
+                      <td className="py-5 px-6">
+                        {cert.status === "Active" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                            Active
+                          </span>
+                        )}
+                        {cert.status === "Expiring Soon" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
+                            Expiring Soon
+                          </span>
+                        )}
+                        {cert.status === "Expired" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
+                            Expired
+                          </span>
+                        )}
+                        {cert.status === "Pending" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                            Pending
+                          </span>
+                        )}
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {(cert.status === "PROCESSING" || cert.status === "PENDING") && (
-                            <button
-                              onClick={() => handleCheckStatus(cert.id)}
-                              disabled={isCheckingStatus}
-                              className="inline-flex items-center gap-1 py-1.5 px-3 border border-[#dce4f7] hover:border-[#e8900a] text-xs text-[#5a6a85] hover:text-[#031033] font-semibold bg-white transition-colors disabled:opacity-50"
-                            >
-                              <RefreshCw className={`w-3 h-3 ${isCheckingStatus ? "animate-spin" : ""}`} />
-                              Check Status
-                            </button>
-                          )}
-                          {cert.status === "ACTIVE" && (
-                            <>
-                              <button
-                                onClick={() => handleViewCert(cert)}
-                                className="inline-flex items-center gap-1.5 py-1.5 px-3 border border-[#dce4f7] hover:border-[#e8900a] text-xs text-[#5a6a85] hover:text-[#031033] font-semibold bg-white transition-colors"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                View
-                              </button>
-                              <button
-                                onClick={() => handleDownloadCert(cert)}
-                                disabled={isDownloading === cert.id}
-                                className="inline-flex items-center gap-1.5 py-1.5 px-3 border border-[#dce4f7] hover:border-[#e8900a] text-xs text-[#5a6a85] hover:text-[#031033] font-semibold bg-white transition-colors disabled:opacity-50"
-                              >
-                                {isDownloading === cert.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <Download className="w-3.5 h-3.5" />
-                                )}
-                                Download
-                              </button>
-                            </>
-                          )}
-                        </div>
+                      <td className="py-5 px-6">
+                        <span className="text-[13px] text-[#1d1d1f]">
+                          {cert.expires}
+                        </span>
+                      </td>
+                      <td className="py-5 px-6 text-right">
+                        {isExpiring ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              addSslItem({
+                                type: "SSL",
+                                domainName: cert.domain,
+                                price: 15000,
+                                productId: 41,
+                              });
+                              toast.success(`Renewal for ${cert.domain} added to cart`);
+                              openDrawer();
+                            }}
+                            className="inline-flex items-center justify-center px-4 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold rounded-full transition-colors active:scale-95 shadow-sm"
+                          >
+                            Renew
+                          </button>
+                        ) : (
+                          <Link
+                            href={`/dashboard/ssl/${encodeURIComponent(cert.id || cert.domain)}`}
+                            id={`manage-ssl-${(cert.domain || cert.id).replace(/[@.]/g, "-")}`}
+                            className="inline-flex items-center justify-center px-4 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold rounded-full transition-colors active:scale-95 shadow-sm"
+                          >
+                            Manage
+                          </Link>
+                        )}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
-      {activeTab === "buy" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Form */}
-          <div className="lg:col-span-2 bg-white border border-[#e2eaff] p-6 sm:p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-[#031033]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-[#031033] text-base">Get Standalone SSL Certificate</h3>
-                <p className="text-[#5a6a85] text-xs mt-0.5">
-                  Secure any external domain or a domain registered elsewhere.
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleBuySSL} className="space-y-5">
-              <div>
-                <label htmlFor="domain-input" className="block text-xs font-bold text-[#031033] uppercase tracking-wide mb-2">
-                  Domain Name
-                </label>
-                <div className="flex items-center bg-white border border-[#dce4f7] overflow-hidden focus-within:border-[#e8900a] transition-all">
-                  <div className="pl-3 shrink-0">
-                    <Globe className="w-4 h-4 text-[#9ba8c0]" />
-                  </div>
-                  <input
-                    id="domain-input"
-                    type="text"
-                    value={domainInput}
-                    onChange={(e) => setDomainInput(e.target.value)}
-                    placeholder="e.g. mybusiness.com"
-                    className="w-full bg-transparent px-3 py-3 text-[#031033] placeholder-[#9ba8c0] text-sm outline-none font-medium"
-                    required
-                  />
-                </div>
-                <p className="text-[10px] text-[#9ba8c0] mt-1.5">
-                  Do not include https:// or www. Just enter the root domain.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#031033] uppercase tracking-wide mb-2">
-                  Select Certificate Type
-                </label>
-                {loadingProducts ? (
-                  <div className="flex items-center gap-2 text-xs text-[#5a6a85] py-6 bg-[#f6f9ff] border border-[#e2eaff] justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#e8900a]" />
-                    Loading available products...
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {products?.map((prod: any) => {
-                      const priceInfo = PRODUCT_PRICES[prod.id] || { price: 10000, displayName: prod.name };
-                      const isSelected = selectedProductId === prod.id;
-                      return (
-                        <label
-                          key={prod.id}
-                          className={`border p-4 flex flex-col justify-between cursor-pointer transition-all ${
-                            isSelected
-                              ? "border-[#e8900a] bg-[#fff8ee] ring-1 ring-[#e8900a]"
-                              : "border-[#dce4f7] hover:border-[#e8900a]/50 bg-white"
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-start gap-2">
-                              <input
-                                type="radio"
-                                name="ssl-product"
-                                checked={isSelected}
-                                onChange={() => setSelectedProductId(prod.id)}
-                                className="w-3.5 h-3.5 mt-0.5 text-[#e8900a] border-gray-300 focus:ring-[#e8900a] accent-[#e8900a]"
-                              />
-                              <div>
-                                <p className="text-xs font-bold text-[#031033]">{prod.name}</p>
-                                <p className="text-[10px] text-[#5a6a85] mt-0.5 capitalize">
-                                  {prod.validationMethod} validation · {prod.deliveryTime}
-                                </p>
-                              </div>
-                            </div>
-                            <span className="text-xs font-extrabold text-[#031033] shrink-0">
-                              {formatNGN(priceInfo.price)}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || !domainInput.trim()}
-                className="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Adding to Cart...
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    Add SSL Certificate to Cart
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* Pricing Info / Sidebar */}
-          <div className="bg-[#f6f9ff] border border-[#dce4f7] p-5 space-y-4">
-            <h4 className="font-bold text-[#031033] text-sm flex items-center gap-2 border-b border-[#e2eaff] pb-3">
-              <Lock className="w-4 h-4 text-[#e8900a]" />
-              Why SSL is mandatory
-            </h4>
-            <ul className="space-y-3.5 text-xs text-[#5a6a85]">
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 bg-[#e8900a] rounded-full shrink-0 mt-1.5" />
-                <span>
-                  <strong>Data Encryption:</strong> Encrypts sensitive data transmitted between browser and server, securing logins and credit card entries.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 bg-[#e8900a] rounded-full shrink-0 mt-1.5" />
-                <span>
-                  <strong>SEO Ranking Boost:</strong> Search engines like Google give higher ranking preference to HTTPS secured domains.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 bg-[#e8900a] rounded-full shrink-0 mt-1.5" />
-                <span>
-                  <strong>Trust Badges:</strong> Displays a secure padlock symbol in the address bar, assuring visitors your site is safe.
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {/* View Certificate PEM Modal */}
-      {isViewOpen && selectedCert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsViewOpen(false)} />
+      {/* Get SSL Certificate Modal */}
+      {showBuyModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
           <div
-            className="bg-white border border-[#e2eaff] max-w-2xl w-full max-h-[85vh] flex flex-col relative z-10 shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#e2eaff] bg-[#f6f9ff]">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-[#e8900a]" />
-                <h3 className="font-bold text-[#031033] text-sm">
-                  SSL Certificate Code — {selectedCert.domainName}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsViewOpen(false)}
-                className="w-8 h-8 flex items-center justify-center text-[#9ba8c0] hover:text-[#031033] transition-colors hover:bg-[#e2eaff]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowBuyModal(false)}
+          />
+          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
+            <h3 className="text-base font-bold text-[#1d1d1f]">
+              Get SSL Certificate
+            </h3>
+            <p className="text-xs text-[#6e6e73]">
+              Protect your website with instant SSL/TLS encryption.
+            </p>
 
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-5 flex-1">
+            <form onSubmit={handleOrderSsl} className="flex flex-col gap-4">
               <div>
-                <p className="text-xs text-[#9ba8c0] mb-2 uppercase tracking-wide font-bold">Certificate Details</p>
-                <div className="grid grid-cols-2 gap-3 bg-[#f6f9ff] border border-[#e2eaff] p-3 text-xs">
-                  <div>
-                    <span className="text-[#9ba8c0]">Domain: </span>
-                    <span className="font-bold text-[#031033]">{selectedCert.domainName}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#9ba8c0]">Product: </span>
-                    <span className="font-bold text-[#031033]">{selectedCert.productName}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#9ba8c0]">Issued Date: </span>
-                    <span className="font-bold text-[#031033]">{formatDate(selectedCert.createdAt)}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#9ba8c0]">Expiry Date: </span>
-                    <span className="font-bold text-[#031033]">{formatDate(selectedCert.expiresAt)}</span>
-                  </div>
-                </div>
+                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                  Domain Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="example.com"
+                  value={buyDomain}
+                  onChange={(e) => setBuyDomain(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                  required
+                />
               </div>
 
-              {selectedCert.certificate && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-bold">Certificate PEM (CRT)</p>
-                    <button
-                      onClick={() => handleCopyText(selectedCert.certificate, "Certificate Code")}
-                      className="text-xs text-[#e8900a] hover:underline flex items-center gap-1 font-semibold"
-                    >
-                      <Copy className="w-3 h-3" />
-                      Copy CRT
-                    </button>
-                  </div>
-                  <pre className="p-4 bg-gray-50 border border-gray-200 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-48 whitespace-pre-wrap select-all">
-                    {selectedCert.certificate}
-                  </pre>
-                </div>
-              )}
-
-              {selectedCert.privateKey && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-bold">
-                        Private Key (KEY)
-                      </p>
-                      <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded font-medium">
-                        Confidential
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowPrivateKey((v) => !v)}
-                        className="text-xs text-[#5a6a85] hover:text-[#031033] flex items-center gap-1 font-semibold transition-colors"
-                      >
-                        {showPrivateKey ? (
-                          <>
-                            <EyeOff className="w-3.5 h-3.5" />
-                            Mask Key
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="w-3.5 h-3.5" />
-                            Reveal Key
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleCopyText(selectedCert.privateKey, "Private Key")}
-                        className="text-xs text-[#e8900a] hover:underline flex items-center gap-1 font-semibold"
-                      >
-                        <Copy className="w-3 h-3" />
-                        Copy KEY
-                      </button>
-                    </div>
-                  </div>
-                  {showPrivateKey ? (
-                    <pre className="p-4 bg-gray-50 border border-gray-200 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-48 whitespace-pre-wrap select-all animate-fade-in">
-                      {selectedCert.privateKey}
-                    </pre>
+              <div>
+                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                  Certificate Type
+                </label>
+                <select
+                  value={selectedProduct}
+                  onChange={(e) => setSelectedProduct(Number(e.target.value))}
+                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                >
+                  {products && products.length > 0 ? (
+                    products.map((p: any) => (
+                      <option key={p.id || p.productId} value={p.id || p.productId}>
+                        {p.name || p.productName || "SSL Certificate"} — ₦{Number(p.price || 15000).toLocaleString()} / yr
+                      </option>
+                    ))
                   ) : (
-                    <div className="p-4 bg-slate-50 border border-slate-200 text-xs font-mono text-slate-400 rounded flex flex-col gap-2 select-none">
-                      <p className="tracking-widest">••••••••••••••••••••••••••••••••••••••••••••••••</p>
-                      <p className="text-[11px] text-[#5a6a85] font-sans">
-                        Private key is masked for security. Click &ldquo;Reveal Key&rdquo; above to view the plain text.
-                      </p>
-                    </div>
+                    <>
+                      <option value={41}>Positive SSL — ₦15,000 / yr</option>
+                      <option value={42}>Positive SSL Wildcard — ₦45,000 / yr</option>
+                      <option value={20}>InstantSSL — ₦35,000 / yr</option>
+                      <option value={24}>EV SSL — ₦75,000 / yr</option>
+                    </>
                   )}
-                </div>
-              )}
-            </div>
+                </select>
+              </div>
 
-            {/* Modal Footer */}
-            <div className="border-t border-[#e2eaff] px-6 py-4 bg-gray-50 flex justify-end">
-              <button
-                onClick={() => {
-                  setIsViewOpen(false);
-                  setShowPrivateKey(false);
-                }}
-                className="py-2 px-5 text-xs font-semibold bg-white border border-[#dce4f7] text-[#5a6a85] hover:text-[#031033] hover:bg-[#f6f9ff] transition-colors"
-              >
-                Close
-              </button>
-            </div>
+              <div className="flex gap-2 justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBuyModal(false)}
+                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl shadow-sm"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
     </div>
-  );
-}
-
-export default function SSLDashboardPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
-        </div>
-      }
-    >
-      <SSLDashboardContent />
-    </Suspense>
   );
 }

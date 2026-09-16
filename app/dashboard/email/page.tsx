@@ -77,6 +77,29 @@ export default function PrivateEmailPage() {
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
+      {/* Disabled Notification Banner */}
+      <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+            <Mail className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-[14px] font-semibold text-amber-900">
+              Private Email is Temporarily Disabled
+            </h3>
+            <p className="text-[12.5px] text-amber-700 mt-0.5">
+              Email creation and management are currently offline. All existing data is safely preserved.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard"
+          className="text-[12.5px] font-medium text-amber-900 hover:text-amber-950 bg-amber-200/50 hover:bg-amber-200 px-3.5 py-1.5 rounded-lg transition-colors shrink-0"
+        >
+          Return to Dashboard
+        </Link>
+      </div>
+
       {/* Header */}
       <div>
         <h2

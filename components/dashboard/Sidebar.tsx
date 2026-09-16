@@ -39,6 +39,7 @@ type NavItem = {
   label: string;
   href: string;
   exact?: boolean;
+  disabled?: boolean;
   subItems?: { label: string; href: string }[];
 };
 
@@ -46,7 +47,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard",        href: "/dashboard",                   exact: true },
   { label: "Domain List",      href: "/dashboard/domains"                        },
   { label: "Hosting List",     href: "/dashboard/hosting"                        },
-  { label: "Private Email",    href: "/dashboard/email"                          },
+  { label: "Private Email",    href: "/dashboard/email",             disabled: true },
   { label: "SSL Certificates", href: "/dashboard/ssl"                            },
   { label: "Orders",           href: "/dashboard/orders"                         },
   { label: "Invoices",         href: "/dashboard/invoices"                       },
@@ -303,6 +304,26 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       {/* ── Nav list ──────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-3 pb-3 flex flex-col gap-px">
         {NAV_ITEMS.map((item) => {
+          if (item.disabled) {
+            return (
+              <div
+                key={`${item.href}-${item.label}`}
+                id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                className="px-3 py-2 rounded-lg text-[13.5px] opacity-40 cursor-not-allowed flex items-center justify-between select-none"
+                style={{
+                  color: S.textInactive,
+                  letterSpacing: "-0.1px",
+                }}
+                title={`${item.label} is temporarily disabled`}
+              >
+                <span>{item.label}</span>
+                <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-white/10 text-white/50">
+                  Soon
+                </span>
+              </div>
+            );
+          }
+
           const isActive = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href.split("?")[0]);
@@ -334,12 +355,12 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         style={{ borderTop: `1px solid ${S.divider}` }}
       >
         <Link
-          href="/dashboard/tickets"
-          id="sidebar-feedback-support"
+          href="/contact"
+          id="sidebar-feedback"
           className="px-3 py-2 rounded-lg text-[13px] transition-colors duration-150"
           style={{ color: S.textInactive }}
         >
-          Feedback &amp; Support
+          Feedback
         </Link>
         <button
           id="sidebar-logout"

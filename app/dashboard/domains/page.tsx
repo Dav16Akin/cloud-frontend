@@ -19,6 +19,7 @@ import {
   Network,
   Calendar,
   AlertTriangle,
+  ArrowRightLeft,
 } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
@@ -232,15 +233,25 @@ function DomainsDashboardPageContent() {
                 Manage your domains, renewals, DNS settings, and domain details from one place.
               </p>
             </div>
-            <button
-              id="domains-register-new"
-              onClick={() => handleTabChange("register")}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0"
-              style={{ background: T.blue }}
-            >
-              <Plus className="w-4 h-4" />
-              Register New Domain
-            </button>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Link
+                href="/dashboard/domain-transfer"
+                id="domains-transfer-in"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1d1d1f] bg-white border border-[#e2eaff] hover:bg-[#f8fafc] transition-all duration-150 active:scale-95 shrink-0 shadow-xs"
+              >
+                <ArrowRightLeft className="w-4 h-4 text-[#1787D4]" />
+                Transfer In
+              </Link>
+              <button
+                id="domains-register-new"
+                onClick={() => handleTabChange("register")}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 shadow-xs"
+                style={{ background: T.blue }}
+              >
+                <Plus className="w-4 h-4" />
+                Register New Domain
+              </button>
+            </div>
           </div>
 
           {/* Filter row: pills + search */}

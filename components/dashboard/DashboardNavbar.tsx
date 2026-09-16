@@ -41,7 +41,8 @@ const NAV_SERVICES: NavService[] = [
   { id: "nav-domains",  label: "Domains",   href: "/dashboard/domains",  icon: Globe },
   { id: "nav-hosting",  label: "Hosting",   href: "/dashboard/hosting",  icon: Server },
   { id: "nav-security", label: "Security",  href: "/dashboard/ssl",      icon: Shield },
-  { id: "nav-email",    label: "Email",     href: "/dashboard/email",    icon: Mail,  badge: "NEW" },
+  // Email service temporarily disabled as requested (code preserved)
+  // { id: "nav-email",    label: "Email",     href: "/dashboard/email",    icon: Mail,  badge: "NEW" },
 ];
 
 type DashboardNavbarProps = {

@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   ArrowRightLeft,
   Loader2,
   AlertCircle,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   HelpCircle,
-  Copy,
-  Check,
-  RefreshCw,
   ShoppingCart,
   Eye,
   EyeOff,
   Globe,
   Clock,
-  ShieldAlert,
+  ShieldCheck,
+  RefreshCw,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -34,7 +35,7 @@ function DomainTransferPageContent() {
   const [authCode, setAuthCode] = useState("");
   const [showAuthCode, setShowAuthCode] = useState(false);
 
-  // Auto-mask sensitive transfer authorization code after 30 seconds
+  // Auto-mask sensitive authorization code after 30 seconds
   useEffect(() => {
     if (!showAuthCode) return;
     const timer = setTimeout(() => {
@@ -56,13 +57,20 @@ function DomainTransferPageContent() {
 
   const checkEligibilityMutation = useCheckTransferEligibility();
   const refreshStatusMutation = useGetTransferStatus();
-  const { data: transfers, isLoading: loadingTransfers, refetch: refetchTransfers } = useGetTransfers();
-  const { addDomainTransferItem, removeItem, hasItem, openDrawer } = useCartStore();
+  const {
+    data: transfers,
+    isLoading: loadingTransfers,
+    refetch: refetchTransfers,
+  } = useGetTransfers();
+  const { addDomainTransferItem, removeItem, hasItem, openDrawer } =
+    useCartStore();
 
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!domainName.trim() || !authCode.trim()) {
-      toast.error("Please fill in both the domain name and the authorization code.");
+      toast.error(
+        "Please fill in both the domain name and the authorization code."
+      );
       return;
     }
 
@@ -135,309 +143,464 @@ function DomainTransferPageContent() {
   };
 
   const formatNGN = (n: number) => {
-    return "₦" + n.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+    return "₦" + n.toLocaleString("en-NG", { minimumFractionDigits: 0 });
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-NG", {
-      day: "numeric",
+    return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
+      day: "numeric",
       year: "numeric",
     });
   };
 
+  // Metrics
+  const totalTransfers = transfers?.length || 0;
+  const completedTransfers =
+    transfers?.filter((t) => t.status === "COMPLETED").length || 0;
+  const inProgressTransfers =
+    transfers?.filter(
+      (t) => t.status === "PENDING" || t.status === "PROCESSING"
+    ).length || 0;
+
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-      {/* Page Header */}
-      <div>
-        <h2 className="text-[1.15rem] font-semibold text-[#031033] flex items-center gap-2">
-          <ArrowRightLeft className="w-6 h-6 text-[#e8900a]" />
-          Domain Transfer
-        </h2>
-        <p className="text-[#5a6a85] text-sm mt-1">
-          Transfer your existing domain names to Nupat Cloud easily and consolidate your management in one place.
-        </p>
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2
+            className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
+            style={{
+              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+              letterSpacing: "-0.4px",
+            }}
+          >
+            Domain Transfer
+          </h2>
+          <p className="text-[14px] mt-1 text-[#6e6e73]">
+            Transfer your domains to Nupat Cloud with seamless renewal extension.
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/domains"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-all shadow-sm self-start sm:self-auto"
+        >
+          <Globe className="w-4 h-4 text-[#1787D4]" />
+          View My Domains
+        </Link>
       </div>
 
-      {/* Grid: Form & Instructions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Transfer Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Informational Banner */}
-          <div className="bg-[#fffbf2] border border-[#f5d99e] p-5 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#e8900a] shrink-0 mt-0.5" />
+      {/* Top 3 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Total Transfers */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">
+            Total Transfers
+          </span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {loadingTransfers ? (
+              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+            ) : (
+              totalTransfers
+            )}
+          </div>
+        </div>
+
+        {/* Completed */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">
+            Completed
+          </span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {loadingTransfers ? (
+              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+            ) : (
+              completedTransfers
+            )}
+          </div>
+        </div>
+
+        {/* In Progress */}
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+          <span className="text-[13px] font-medium text-[#6e6e73]">
+            In Progress
+          </span>
+          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+            {loadingTransfers ? (
+              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+            ) : (
+              inProgressTransfers
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Form & Instructions Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (8 cols): Initiation Card */}
+        <div className="lg:col-span-8 flex flex-col gap-5">
+          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-5">
             <div>
-              <p className="text-sm font-semibold text-[#031033]">Domain Transfer Cost &amp; Benefits</p>
-              <p className="text-xs text-[#5a6a85] mt-1 leading-relaxed">
-                Transferring your domain starts from <span className="font-bold text-[#031033]">₦26,000</span> (depending on the domain extension), which includes 1 year of renewal. Your domain expiry will be extended by 1 year from today.
+              <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#1787D4] bg-[#eff6fc] px-2.5 py-1 rounded-full">
+                Transfer In
+              </span>
+              <h3 className="text-[17px] font-bold text-[#1d1d1f] mt-2.5">
+                Initiate a Domain Transfer
+              </h3>
+              <p className="text-[13px] text-[#6e6e73] mt-0.5">
+                Enter your domain and the authorization EPP code provided by your
+                current registrar.
               </p>
             </div>
-          </div>
 
-          <div className="bg-white border border-[#e2eaff] p-6 shadow-sm relative overflow-hidden">
-            <h2 className="text-base font-bold text-[#031033] mb-4">
-              Initiate Domain Transfer (In)
-            </h2>
-            <form onSubmit={handleCheck} className="space-y-4" autoComplete="off">
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="transfer-domain-input"
-                  className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide"
-                >
-                  Domain Name
+            <form onSubmit={handleCheck} className="flex flex-col gap-4">
+              <div>
+                <label className="text-[12.5px] font-semibold text-[#1d1d1f] block mb-1.5">
+                  Domain Name *
                 </label>
-                <div className="flex items-center border border-[#dce4f7] focus-within:border-[#e8900a] transition-all bg-white px-3">
-                  <Globe className="w-4 h-4 text-[#9ba8c0] shrink-0" />
+                <div className="relative">
+                  <Globe className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
-                    id="transfer-domain-input"
-                    name="transfer-domain-input"
-                    autoComplete="off"
                     type="text"
                     required
-                    placeholder="mycompany.com"
+                    placeholder="mybusiness.com"
                     value={domainName}
                     onChange={(e) => {
                       setDomainName(e.target.value);
                       if (eligibilityResult) setEligibilityResult(null);
                     }}
-                    className="w-full py-3 px-3 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="transfer-auth-code-input"
-                  className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide"
-                >
-                  Authorization Code (EPP Code)
-                </label>
-                <div className="flex items-center border border-[#dce4f7] focus-within:border-[#e8900a] transition-all bg-white px-3">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[12.5px] font-semibold text-[#1d1d1f]">
+                    Authorization Code (EPP Code) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthCode(!showAuthCode)}
+                    className="text-[12px] font-medium text-[#1787D4] hover:text-[#1371B5] flex items-center gap-1 cursor-pointer"
+                  >
+                    {showAuthCode ? (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5" /> Hide Code
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-3.5 h-3.5" /> Reveal Code
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
                   <input
-                    id="transfer-auth-code-input"
-                    name="transfer-auth-code-input"
-                    autoComplete="new-password"
                     type={showAuthCode ? "text" : "password"}
                     required
-                    placeholder="Enter EPP transfer code"
+                    placeholder="e.g. EP-x899-auth-code"
                     value={authCode}
                     onChange={(e) => {
                       setAuthCode(e.target.value);
                       if (eligibilityResult) setEligibilityResult(null);
                     }}
-                    className="w-full py-3 px-1 text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
+                    className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs font-mono"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowAuthCode(!showAuthCode)}
-                    className="text-[#9ba8c0] hover:text-[#031033] p-1.5 transition-colors"
-                  >
-                    {showAuthCode ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
                 </div>
+                <p className="text-[11.5px] text-[#6e6e73] mt-1.5">
+                  The EPP code is obtained directly from your domain management
+                  portal at your current provider.
+                </p>
               </div>
 
-              <button
-                type="submit"
-                disabled={checkEligibilityMutation.isPending}
-                className="btn-primary w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {checkEligibilityMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Checking Eligibility...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4" />
-                    Check Transfer Eligibility
-                  </>
-                )}
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={checkEligibilityMutation.isPending}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-98"
+                >
+                  {checkEligibilityMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Verifying Eligibility…
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRightLeft className="w-4 h-4" />
+                      Check Transfer Eligibility
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
-          </div>
 
-          {/* Eligibility Result Container */}
-          {eligibilityResult && (
-            <div className="bg-emerald-50 border border-emerald-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 animate-fadeIn">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="text-sm font-bold text-[#031033]">
-                    Eligible for Transfer
-                  </h3>
-                  <p className="text-xs text-[#5a6a85] mt-0.5">
-                    Domain: <span className="font-mono font-semibold text-[#031033]">{eligibilityResult.domainName}</span>
+            {/* Eligibility Result Box */}
+            {eligibilityResult && (
+              <div className="bg-[#effaf2] border border-[#a3e5b9] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2 animate-fadeIn">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-[#d5f5e0] flex items-center justify-center text-[#12a150] shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-[14.5px] font-bold text-[#1d1d1f]">
+                      Eligible for Transfer!
+                    </h4>
+                    <p className="text-[12.5px] text-[#4b5563] mt-0.5">
+                      Domain:{" "}
+                      <span className="font-semibold text-[#1d1d1f]">
+                        {eligibilityResult.domainName}
+                      </span>
+                    </p>
+                    <p className="text-[18px] font-extrabold text-[#12a150] mt-1.5 flex items-baseline gap-1.5">
+                      {formatNGN(eligibilityResult.price)}
+                      <span className="text-[12px] font-normal text-[#6e6e73]">
+                        (includes 1-year registration renewal)
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="shrink-0 w-full sm:w-auto">
+                  {isAlreadyInCart() ? (
+                    <button
+                      type="button"
+                      onClick={handleRemoveFromCart}
+                      className="w-full sm:w-auto px-4 py-2.5 border border-red-200 text-red-600 hover:bg-red-50 text-[13px] font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      Remove from Cart
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      Add to Cart &amp; Checkout
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {checkEligibilityMutation.isError && (
+              <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 mt-2">
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="text-[13px]">
+                  <p className="font-bold text-red-700">
+                    Verification Unsuccessful
                   </p>
-                  <p className="text-lg font-extrabold text-emerald-600 mt-2">
-                    {formatNGN(eligibilityResult.price)}
-                    <span className="text-xs font-normal text-[#9ba8c0]"> / 1 year</span>
+                  <p className="text-red-600 mt-0.5">
+                    {checkEligibilityMutation.error.message}
                   </p>
                 </div>
               </div>
-              <div className="shrink-0">
-                {isAlreadyInCart() ? (
-                  <button
-                    onClick={handleRemoveFromCart}
-                    className="w-full sm:w-auto py-2 px-4 border border-red-200 text-red-500 hover:bg-red-50 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    Remove from Cart
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full sm:w-auto btn-primary py-2 px-4 text-xs font-semibold flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    Add to Cart &amp; Checkout
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {checkEligibilityMutation.isError && (
-            <div className="bg-red-50 border border-red-100 p-5 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-bold text-red-700">Check Eligibility Failed</p>
-                <p className="text-red-600 mt-0.5">{checkEligibilityMutation.error.message}</p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Right Column: Steps & Instructions */}
-        <div className="space-y-6">
-          <div className="bg-[#f6f9ff] border border-[#dce4f7] p-6 shadow-sm">
-            <h3 className="text-xs font-bold text-[#031033] uppercase tracking-wider mb-4 flex items-center gap-1.5">
-              <HelpCircle className="w-4 h-4 text-[#e8900a]" />
-              Transfer Instructions
+        {/* Right Column (4 cols): Checklist / Guide Card */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+            <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#1787D4]" />
+              Transfer Requirements
             </h3>
-            <ol className="space-y-4 text-xs text-[#5a6a85] list-decimal pl-4">
-              <li>
-                <strong className="text-[#031033]">Unlock Domain:</strong> Log into your current domain registrar and ensure the domain registration is unlocked (disabled lock status).
-              </li>
-              <li>
-                <strong className="text-[#031033]">Get Auth / EPP Code:</strong> Request the EPP transfer code or authorization code from your current provider.
-              </li>
-              <li>
-                <strong className="text-[#031033]">Check &amp; Add:</strong> Input the domain name and code on this page, click verify, and add to the cart.
-              </li>
-              <li>
-                <strong className="text-[#031033]">Complete Checkout:</strong> Complete checkout and make payment. The transfer request will then be submitted to the registry automatically.
-              </li>
-              <li>
-                <strong className="text-[#031033]">Confirm Email:</strong> Depending on the domain extension, you may receive a verification email. Click the confirmation link to authorize the move.
-              </li>
-            </ol>
+
+            <div className="flex flex-col gap-3.5 text-[12.5px] text-[#6e6e73]">
+              <div className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full bg-[#eff6fb] text-[#1787D4] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                  1
+                </span>
+                <div>
+                  <strong className="text-[#1d1d1f] block font-semibold">
+                    Unlock Domain
+                  </strong>
+                  Ensure registrar lock is turned OFF at your current provider.
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full bg-[#eff6fb] text-[#1787D4] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                  2
+                </span>
+                <div>
+                  <strong className="text-[#1d1d1f] block font-semibold">
+                    Obtain EPP Code
+                  </strong>
+                  Request the authorization secret code from your registrar.
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full bg-[#eff6fb] text-[#1787D4] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                  3
+                </span>
+                <div>
+                  <strong className="text-[#1d1d1f] block font-semibold">
+                    60-Day Minimum
+                  </strong>
+                  Domains must be at least 60 days old since initial
+                  registration.
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full bg-[#eff6fb] text-[#1787D4] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                  4
+                </span>
+                <div>
+                  <strong className="text-[#1d1d1f] block font-semibold">
+                    1-Year Extension
+                  </strong>
+                  Your expiration date extends by a full year automatically upon
+                  completion.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-2xl p-5 flex flex-col gap-2">
+            <span className="text-[13px] font-bold text-[#1787D4] flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" /> Need assistance?
+            </span>
+            <p className="text-[12px] text-[#4b5563] leading-relaxed">
+              Our team can handle migrations and transfers for you. Reach out
+              via Support Tickets for concierge onboarding.
+            </p>
+            <Link
+              href="/dashboard/tickets"
+              className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] inline-flex items-center gap-1 mt-1"
+            >
+              Open a Ticket <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Domain Transfer Progress / History */}
-      <div className="bg-white border border-[#e2eaff]">
-        <div className="px-6 py-4 border-b border-[#e2eaff] flex items-center justify-between">
+      {/* Transfers Progress & History Table */}
+      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
+        <div className="px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ArrowRightLeft className="w-4 h-4 text-[#e8900a]" />
-            <h2 className="text-sm font-semibold text-[#031033]">Domain Transfer History</h2>
+            <ArrowRightLeft className="w-4 h-4 text-[#1787D4]" />
+            <h3 className="text-[14.5px] font-bold text-[#1d1d1f]">
+              Transfer Records &amp; Progress
+            </h3>
           </div>
           <button
+            type="button"
             onClick={() => refetchTransfers()}
             disabled={loadingTransfers}
-            className="text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1.5 disabled:opacity-60"
+            className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
           >
-            <RefreshCw className={`w-3 h-3 ${loadingTransfers ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${loadingTransfers ? "animate-spin" : ""}`}
+            />
             Refresh List
           </button>
         </div>
 
         {loadingTransfers ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <Loader2 className="w-6 h-6 text-[#e8900a] animate-spin" />
-            <p className="text-xs text-[#5a6a85]">Loading transfer records...</p>
+          <div className="flex flex-col items-center justify-center py-16 gap-2">
+            <Loader2 className="w-6 h-6 text-[#1787D4] animate-spin" />
+            <p className="text-[13px] text-[#6e6e73]">
+              Loading transfer records…
+            </p>
           </div>
         ) : !transfers || transfers.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-            <p className="text-xs text-[#5a6a85] max-w-xs mb-1">
-              No domain transfers found.
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
+              <ArrowRightLeft className="w-6 h-6 stroke-[2]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
+              No domain transfers found
             </p>
-            <p className="text-[11px] text-[#9ba8c0] max-w-xs">
-              When you transfer a domain to Nupat Cloud, it will be listed here to track its progression.
+            <p className="text-[12.5px] text-[#6e6e73] max-w-sm mt-0.5">
+              Initiate your first transfer above and you can monitor real-time
+              registry progress here.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f6f9ff] border-b border-[#e2eaff]">
-                  <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
+                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
                     Domain Name
                   </th>
-                  <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
                     Direction
                   </th>
-                  <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
                     Initiation Date
                   </th>
-                  <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider">
+                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wider text-right">
+                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f0f4fc]">
+              <tbody className="divide-y divide-[#f2f5fc]">
                 {transfers.map((transfer) => {
-                  const isProcessing = transfer.status === "PROCESSING" || transfer.status === "PENDING";
-                  const statusColors: Record<string, string> = {
-                    PENDING: "bg-amber-50 border-amber-100 text-amber-600",
-                    PROCESSING: "bg-blue-50 border-blue-100 text-blue-600",
-                    COMPLETED: "bg-emerald-50 border-emerald-100 text-emerald-600",
-                    FAILED: "bg-red-50 border-red-100 text-red-500",
-                    CANCELLED: "bg-gray-50 border-gray-200 text-gray-500",
-                  };
+                  const isProcessing =
+                    transfer.status === "PROCESSING" ||
+                    transfer.status === "PENDING";
 
                   return (
-                    <tr key={transfer.id} className="hover:bg-[#fafbff] transition-colors">
-                      <td className="px-6 py-3.5">
-                        <span className="font-bold text-[#031033] text-sm">{transfer.domainName}</span>
-                      </td>
-                      <td className="px-6 py-3.5">
-                        <span className="text-xs text-[#5a6a85] font-semibold flex items-center gap-1">
-                          {transfer.direction === "IN" ? (
-                            <span className="text-emerald-600 font-bold">Transfer In</span>
-                          ) : (
-                            <span className="text-blue-600 font-bold">Transfer Out</span>
-                          )}
+                    <tr
+                      key={transfer.id}
+                      className="hover:bg-[#fbfcfe] transition-colors"
+                    >
+                      <td className="py-5 px-6">
+                        <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                          {transfer.domainName}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-[#5a6a85] text-xs">
+                      <td className="py-5 px-6">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#eef6fc] text-[#1787D4] border border-[#d6eaf8]">
+                          {transfer.direction === "IN"
+                            ? "Transfer In"
+                            : "Transfer Out"}
+                        </span>
+                      </td>
+                      <td className="py-5 px-6 text-[13px] text-[#6e6e73]">
                         {formatDate(transfer.createdAt)}
                       </td>
-                      <td className="px-6 py-3.5">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 border ${
-                            statusColors[transfer.status] ?? "bg-gray-50 border-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {isProcessing && <Loader2 className="w-2.5 h-2.5 animate-spin mr-0.5" />}
-                          {transfer.status}
-                        </span>
+                      <td className="py-5 px-6">
+                        {transfer.status === "COMPLETED" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                            Completed
+                          </span>
+                        )}
+                        {isProcessing && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            {transfer.status}
+                          </span>
+                        )}
+                        {transfer.status === "FAILED" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
+                            Failed
+                          </span>
+                        )}
+                        {transfer.status === "CANCELLED" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                            Cancelled
+                          </span>
+                        )}
                       </td>
-                      <td className="px-6 py-3.5 text-right">
+                      <td className="py-5 px-6 text-right">
                         {transfer.direction === "IN" && isProcessing && (
                           <button
+                            type="button"
                             onClick={() => handleRefreshStatus(transfer.id)}
                             disabled={refreshStatusMutation.isPending}
-                            title="Fetch Live Status Update"
-                            className="inline-flex items-center gap-1.5 text-xs text-[#e8900a] hover:underline underline-offset-2 font-semibold disabled:opacity-60"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1787D4] text-[12px] font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
                           >
                             {refreshStatusMutation.isPending ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
@@ -456,26 +619,19 @@ function DomainTransferPageContent() {
           </div>
         )}
       </div>
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 }
 
 export default function DomainTransferPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-[#e8900a]" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
+        </div>
+      }
+    >
       <DomainTransferPageContent />
     </Suspense>
   );

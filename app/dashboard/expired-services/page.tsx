@@ -393,15 +393,16 @@ export default function ExpiredServicesPage() {
 
     // Expired domains
     (registeredDomains ?? []).forEach((domain) => {
-      if (!domain.expiryDate) return;
-      const days = daysUntil(domain.expiryDate);
-      if (days < 0) {
+      const exp = domain.expiryDate ?? (domain as any).expiresAt;
+      const days = exp ? daysUntil(exp) : null;
+      const isExpired = (days !== null && days < 0) || (domain.status ?? "").toUpperCase() === "EXPIRED";
+      if (isExpired) {
         services.push({
           id: `domain-${domain.id}`,
           name: domain.domain,
           type: "Domain",
-          expiredOn: domain.expiryDate,
-          daysAgo: Math.abs(days),
+          expiredOn: exp || new Date().toISOString(),
+          daysAgo: days !== null && days < 0 ? Math.abs(days) : 0,
           renewHref: "/dashboard/domains",
           renewalPrice: 14.98,
         });
@@ -410,15 +411,16 @@ export default function ExpiredServicesPage() {
 
     // Expired SSL certs
     (sslCerts ?? []).forEach((cert: any) => {
-      if (!cert.expiryDate) return;
-      const days = daysUntil(cert.expiryDate);
-      if (days < 0) {
+      const exp = cert.expiresAt ?? cert.expiryDate;
+      const days = exp ? daysUntil(exp) : null;
+      const isExpired = (days !== null && days < 0) || (cert.status ?? "").toUpperCase() === "EXPIRED";
+      if (isExpired) {
         services.push({
           id: `ssl-${cert.id}`,
-          name: cert.domain ?? cert.commonName ?? "SSL Certificate",
+          name: cert.domainName ?? cert.domain ?? cert.commonName ?? "SSL Certificate",
           type: "SSL",
-          expiredOn: cert.expiryDate,
-          daysAgo: Math.abs(days),
+          expiredOn: exp || new Date().toISOString(),
+          daysAgo: days !== null && days < 0 ? Math.abs(days) : 0,
           renewHref: "/dashboard/ssl",
           renewalPrice: 9.99,
         });
@@ -429,15 +431,16 @@ export default function ExpiredServicesPage() {
     (hostingAccounts ?? []).forEach((account: any) => {
       const expiryDate =
         account.expiresAt ?? account.expiryDate ?? account.expiry_date;
-      if (!expiryDate) return;
-      const days = daysUntil(expiryDate);
-      if (days < 0) {
+      const statusUpper = (account.status ?? "").toUpperCase();
+      const days = expiryDate ? daysUntil(expiryDate) : null;
+      const isExpired = (days !== null && days < 0) || statusUpper === "TERMINATED" || statusUpper === "SUSPENDED";
+      if (isExpired) {
         services.push({
           id: `hosting-${account.id}`,
           name: account.domain ?? account.username ?? "Hosting Account",
           type: "Hosting",
-          expiredOn: expiryDate,
-          daysAgo: Math.abs(days),
+          expiredOn: expiryDate || new Date().toISOString(),
+          daysAgo: days !== null && days < 0 ? Math.abs(days) : 0,
           renewHref: "/dashboard/hosting",
           renewalPrice: 4.99,
         });

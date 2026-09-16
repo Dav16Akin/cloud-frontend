@@ -32,17 +32,18 @@ export const useGetRegisteredDomains = () => {
       // 1. Try to fetch from real /domains endpoint
       try {
         const res = await getRegisteredDomains(token);
-        if (res?.success && Array.isArray(res.data)) {
-          res.data.forEach((d: any) => {
-            const domainName = d.name ?? d.domain;
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (list.length > 0) {
+          list.forEach((d: any) => {
+            const domainName = d.domain ?? d.name ?? d.domainName;
             if (domainName && !seen.has(domainName)) {
               seen.add(domainName);
               domains.push({
-                id: d.id,
+                id: d.id || domainName,
                 domain: domainName,
                 status: d.status,
-                registrationDate: d.registeredAt ?? d.registrationDate,
-                expiryDate: d.expiresAt ?? d.expiryDate,
+                registrationDate: d.registeredAt ?? d.registrationDate ?? d.createdAt,
+                expiryDate: d.expiresAt ?? d.expiryDate ?? d.expirationDate,
                 autoRenew: d.autoRenew ?? true,
               });
             }

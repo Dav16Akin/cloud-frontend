@@ -184,10 +184,50 @@ function StatCard({
 }
 
 // ─── Days until expiry helper ─────────────────────────────────────────────────
-function daysUntil(dateStr: string): number {
+function daysUntil(dateStr?: string | null): number | null {
+  if (!dateStr) return null;
   const exp = new Date(dateStr).getTime();
+  if (isNaN(exp)) return null;
   const now = Date.now();
   return Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+}
+
+// ─── Service type badge ───────────────────────────────────────────────────────
+type ServiceType = "Domain" | "Hosting" | "SSL";
+
+function ServiceTypeBadge({ type }: { type: ServiceType }) {
+  const cfg = {
+    Domain: {
+      icon: Globe,
+      label: "Domain",
+      bg: "#eff6fb",
+      color: "#1787D4",
+    },
+    Hosting: {
+      icon: Server,
+      label: "Hosting",
+      bg: "#fff8ee",
+      color: "#e8900a",
+    },
+    SSL: {
+      icon: Shield,
+      label: "SSL",
+      bg: "#f5f3ff",
+      color: "#7c3aed",
+    },
+  }[type];
+
+  const Icon = cfg.icon;
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold shrink-0"
+      style={{ background: cfg.bg, color: cfg.color }}
+    >
+      <Icon className="w-3 h-3" />
+      {cfg.label}
+    </span>
+  );
 }
 
 // ─── Attention item badge ─────────────────────────────────────────────────────
@@ -195,15 +235,30 @@ type AlertSeverity = "renewal" | "expiring" | "expired";
 
 function AlertBadge({ severity }: { severity: AlertSeverity }) {
   const cfg = {
-    renewal: { label: "Renewal Due", bg: T.amberLight, color: T.amber },
-    expiring: { label: "SSL Expiring", bg: "#fff7ed", color: "#ea580c" },
-    expired: { label: "Expired", bg: T.redLight, color: T.red },
+    expired: {
+      label: "Expired",
+      bg: T.redLight,
+      color: T.red,
+      border: "1px solid #fee2e2",
+    },
+    expiring: {
+      label: "Expiring Soon",
+      bg: "#fff7ed",
+      color: "#ea580c",
+      border: "1px solid #ffedd5",
+    },
+    renewal: {
+      label: "Renewal Due",
+      bg: T.amberLight,
+      color: T.amber,
+      border: "1px solid #fef3c7",
+    },
   }[severity];
 
   return (
     <span
-      className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold"
-      style={{ background: cfg.bg, color: cfg.color }}
+      className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold shrink-0"
+      style={{ background: cfg.bg, color: cfg.color, border: cfg.border }}
     >
       {cfg.label}
     </span>
@@ -213,9 +268,11 @@ function AlertBadge({ severity }: { severity: AlertSeverity }) {
 // ─── Attention Required section ───────────────────────────────────────────────
 type AttentionItem = {
   id: string;
-  domain: string;
+  name: string;
+  serviceType: ServiceType;
   severity: AlertSeverity;
   subtitle: string;
+  daysRemaining: number;
   primaryAction: {
     label: string;
     href: string;
@@ -230,6 +287,8 @@ function AttentionRequired({
   items: AttentionItem[];
   loading: boolean;
 }) {
+  const expiredCount = items.filter((i) => i.severity === "expired").length;
+
   return (
     <div
       className="flex flex-col overflow-hidden"
@@ -242,25 +301,51 @@ function AttentionRequired({
     >
       {/* Header */}
       <div
-        className="flex items-center gap-2.5 px-5 py-4"
+        className="flex items-center justify-between px-5 py-4"
         style={{ borderBottom: `1px solid ${T.hairline}` }}
       >
-        <span
-          className="flex items-center justify-center w-7 h-7 rounded-lg"
-          style={{ background: T.orangeMid }}
-        >
-          <AlertTriangle className="w-3.5 h-3.5" style={{ color: T.orange }} />
-        </span>
-        <h3
-          className="text-[15px] font-semibold"
-          style={{
-            color: T.ink,
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.2px",
-          }}
-        >
-          Attention Required
-        </h3>
+        <div className="flex items-center gap-2.5">
+          <span
+            className="flex items-center justify-center w-7 h-7 rounded-lg"
+            style={{ background: expiredCount > 0 ? T.redLight : T.orangeMid }}
+          >
+            <AlertTriangle
+              className="w-3.5 h-3.5"
+              style={{ color: expiredCount > 0 ? T.red : T.orange }}
+            />
+          </span>
+          <h3
+            className="text-[15px] font-semibold"
+            style={{
+              color: T.ink,
+              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+              letterSpacing: "-0.2px",
+            }}
+          >
+            Attention Required
+          </h3>
+          {!loading && items.length > 0 && (
+            <span
+              className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
+              style={{
+                background: expiredCount > 0 ? T.redLight : T.amberLight,
+                color: expiredCount > 0 ? T.red : T.amber,
+              }}
+            >
+              {items.length} {items.length === 1 ? "service" : "services"}
+            </span>
+          )}
+        </div>
+
+        {!loading && expiredCount > 0 && (
+          <Link
+            href="/dashboard/expired-services"
+            className="text-[12px] font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
+          >
+            Expired Services ({expiredCount})
+            <ChevronRight className="w-3 h-3" />
+          </Link>
+        )}
       </div>
 
       {/* Body */}
@@ -275,8 +360,8 @@ function AttentionRequired({
               className="flex items-center gap-3 px-5 py-4 animate-pulse"
             >
               <div className="flex-1">
-                <Skeleton className="h-3.5 w-28 mb-2" />
-                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-3.5 w-32 mb-2" />
+                <Skeleton className="h-3 w-24" />
               </div>
               <Skeleton className="h-8 w-16 rounded-lg" />
             </div>
@@ -290,7 +375,7 @@ function AttentionRequired({
           >
             <CheckCircle2 className="w-5 h-5" style={{ color: T.emerald }} />
           </span>
-          <p className="text-[14px] font-medium" style={{ color: T.ink }}>
+          <p className="text-[14px] font-semibold" style={{ color: T.ink }}>
             All services look good
           </p>
           <p className="text-[13px] mt-1" style={{ color: T.inkMuted }}>
@@ -299,23 +384,26 @@ function AttentionRequired({
         </div>
       ) : (
         <div className="flex flex-col">
-          {items.map((item, i) => {
+          {items.slice(0, 5).map((item, i) => {
             const ActionIcon = item.primaryAction.icon;
+            const isExpired = item.severity === "expired";
             return (
               <div
                 key={item.id}
-                className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-[#fafafa]"
+                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#fafafa]"
                 style={{
                   borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
                 }}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <ServiceTypeBadge type={item.serviceType} />
                     <p
-                      className="text-[13px] font-semibold truncate"
+                      className="text-[13.5px] font-semibold truncate max-w-[180px] sm:max-w-xs"
                       style={{ color: T.ink }}
+                      title={item.name}
                     >
-                      {item.domain}
+                      {item.name}
                     </p>
                     <AlertBadge severity={item.severity} />
                   </div>
@@ -326,7 +414,7 @@ function AttentionRequired({
                 <Link
                   href={item.primaryAction.href}
                   className="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                  style={{ background: T.blue }}
+                  style={{ background: isExpired ? T.red : T.blue }}
                 >
                   <ActionIcon className="w-3.5 h-3.5" />
                   {item.primaryAction.label}
@@ -334,6 +422,27 @@ function AttentionRequired({
               </div>
             );
           })}
+
+          {items.length > 5 && (
+            <div
+              className="px-5 py-3 border-t flex items-center justify-between text-[12.5px]"
+              style={{
+                borderColor: T.hairline,
+                background: T.parchment,
+              }}
+            >
+              <span style={{ color: T.inkMuted }}>
+                Showing 5 of {items.length} items requiring attention
+              </span>
+              <Link
+                href="/dashboard/expired-services"
+                className="font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
+              >
+                View all
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -556,52 +665,91 @@ export default function DashboardOverview() {
   }, []);
 
   // ── Computed stats ──────────────────────────────────────────────────────────
-  const activeDomains = (registeredDomains ?? []).filter(
-    (d) => (d.status as string).toUpperCase() === "ACTIVE",
-  ).length;
+  const activeDomains = (registeredDomains ?? []).filter((d) => {
+    const statusUpper = (d.status ?? "").toUpperCase();
+    if (statusUpper === "EXPIRED" || statusUpper === "CANCELLED") return false;
+    const days = daysUntil(d.expiryDate);
+    if (days !== null && days < 0) return false;
+    return statusUpper === "ACTIVE" || !statusUpper;
+  }).length;
 
-  const activeHosting = (hostingAccounts ?? []).filter(
-    (a) => (a.status as string).toUpperCase() === "ACTIVE",
-  ).length;
+  const activeHosting = (hostingAccounts ?? []).filter((a) => {
+    const statusUpper = (a.status ?? "").toUpperCase();
+    if (statusUpper === "TERMINATED" || statusUpper === "SUSPENDED") return false;
+    const exp = a.expiresAt ?? (a as any).expiryDate;
+    const days = daysUntil(exp);
+    if (days !== null && days < 0) return false;
+    return statusUpper === "ACTIVE" || !statusUpper;
+  }).length;
 
-  // Private email = sum of all email accounts across hosting accounts (no dedicated hook)
-  const privateEmailCount = 0; // placeholder — no email API hook available yet
+  const [privateEmailCount, setPrivateEmailCount] = useState(0);
 
-  const activeSsl = (sslCerts ?? []).filter(
-    (c: any) => (c.status as string)?.toUpperCase() === "ACTIVE",
-  ).length;
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("nupat_private_mailboxes");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setPrivateEmailCount(parsed.length);
+        }
+      }
+    } catch {}
+  }, []);
 
-  const displayDomains = activeDomains > 0 ? activeDomains : 12;
-  const displayHosting = activeHosting > 0 ? activeHosting : 4;
-  const displayEmail = privateEmailCount > 0 ? privateEmailCount : 0;
+  const activeSsl = (sslCerts ?? []).filter((c: any) => {
+    const statusUpper = (c.status ?? "").toUpperCase();
+    if (statusUpper === "EXPIRED" || statusUpper === "CANCELLED" || statusUpper === "FAILED") return false;
+    const exp = c.expiresAt ?? c.expiryDate;
+    const days = daysUntil(exp);
+    if (days !== null && days < 0) return false;
+    return statusUpper === "ACTIVE" || !statusUpper;
+  }).length;
+
+  const displayDomains = activeDomains;
+  const displayHosting = activeHosting;
+  const displayEmail = privateEmailCount;
   const displaySsl = activeSsl;
 
   // ── Attention Required items ────────────────────────────────────────────────
   const attentionItems: AttentionItem[] = [];
 
-  (registeredDomains ?? []).forEach((domain) => {
-    if (!domain.expiryDate) return;
-    const days = daysUntil(domain.expiryDate);
-    const domainName = domain.domain;
+  // 1. Domains: expired or expiring in <= 30 days
+  (registeredDomains ?? []).forEach((domain, idx) => {
+    const exp = domain.expiryDate ?? (domain as any).expiresAt;
+    const days = daysUntil(exp);
+    const domainName = domain.domain || `Domain #${idx + 1}`;
+    const statusUpper = (domain.status ?? "").toUpperCase();
+    const isExplicitlyExpired = statusUpper === "EXPIRED";
 
-    if (days < 0) {
+    if ((days !== null && days < 0) || isExplicitlyExpired) {
+      const daysAgo = days !== null && days < 0 ? Math.abs(days) : null;
       attentionItems.push({
-        id: `dom-expired-${domain.id}`,
-        domain: domainName,
+        id: `dom-expired-${domain.id || idx}`,
+        name: domainName,
+        serviceType: "Domain",
         severity: "expired",
-        subtitle: `Expired ${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`,
+        daysRemaining: days ?? -1,
+        subtitle:
+          daysAgo !== null
+            ? `Expired ${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`
+            : "Domain expired",
         primaryAction: {
-          label: "Manage",
+          label: "Renew",
           href: "/dashboard/domains",
-          icon: Wrench,
+          icon: RefreshCcw,
         },
       });
-    } else if (days <= 30) {
+    } else if (days !== null && days <= 30 && days >= 0) {
       attentionItems.push({
-        id: `dom-renewal-${domain.id}`,
-        domain: domainName,
-        severity: "renewal",
-        subtitle: `Expires in ${days} day${days === 1 ? "" : "s"}`,
+        id: `dom-renewal-${domain.id || idx}`,
+        name: domainName,
+        serviceType: "Domain",
+        severity: days <= 7 ? "expiring" : "renewal",
+        daysRemaining: days,
+        subtitle:
+          days === 0
+            ? "Expires today"
+            : `Expires in ${days} day${days === 1 ? "" : "s"}`,
         primaryAction: {
           label: "Renew",
           href: "/dashboard/domains",
@@ -611,31 +759,121 @@ export default function DashboardOverview() {
     }
   });
 
-  (sslCerts ?? []).forEach((cert: any) => {
-    if (!cert.expiryDate) return;
-    const days = daysUntil(cert.expiryDate);
-    if (days <= 30 && days >= 0) {
+  // 2. Hosting accounts: expired or expiring in <= 30 days
+  (hostingAccounts ?? []).forEach((account, idx) => {
+    const exp =
+      account.expiresAt ?? (account as any).expiryDate ?? (account as any).expiry_date;
+    const days = daysUntil(exp);
+    const hostingName =
+      account.domain || (account as any).username || `Hosting #${idx + 1}`;
+    const statusUpper = (account.status ?? "").toUpperCase();
+    const isExplicitlyTerminated =
+      statusUpper === "TERMINATED" || statusUpper === "SUSPENDED";
+
+    if ((days !== null && days < 0) || isExplicitlyTerminated) {
+      const daysAgo = days !== null && days < 0 ? Math.abs(days) : null;
+      const statusNote =
+        statusUpper === "SUSPENDED" ? "Hosting suspended" : "Hosting expired";
       attentionItems.push({
-        id: `ssl-${cert.id}`,
-        domain: cert.domain ?? cert.commonName ?? "SSL Certificate",
-        severity: "expiring",
-        subtitle: `Expires in ${days} day${days === 1 ? "" : "s"}`,
-        primaryAction: { label: "View", href: "/dashboard/ssl", icon: Eye },
+        id: `hosting-expired-${account.id || idx}`,
+        name: hostingName,
+        serviceType: "Hosting",
+        severity: "expired",
+        daysRemaining: days ?? -1,
+        subtitle:
+          daysAgo !== null
+            ? `Expired ${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`
+            : statusNote,
+        primaryAction: {
+          label: "Renew",
+          href: "/dashboard/hosting",
+          icon: RefreshCcw,
+        },
+      });
+    } else if (days !== null && days <= 30 && days >= 0) {
+      attentionItems.push({
+        id: `hosting-renewal-${account.id || idx}`,
+        name: hostingName,
+        serviceType: "Hosting",
+        severity: days <= 7 ? "expiring" : "renewal",
+        daysRemaining: days,
+        subtitle:
+          days === 0
+            ? "Expires today"
+            : `Expires in ${days} day${days === 1 ? "" : "s"}`,
+        primaryAction: {
+          label: "Renew",
+          href: "/dashboard/hosting",
+          icon: RefreshCcw,
+        },
       });
     }
   });
 
-  // Sort: expired first, then by urgency
-  attentionItems.sort((a, b) => {
-    const order: Record<AlertSeverity, number> = {
-      expired: 0,
-      renewal: 1,
-      expiring: 2,
-    };
-    return order[a.severity] - order[b.severity];
+  // 3. SSL Certificates: expired or expiring in <= 30 days
+  (sslCerts ?? []).forEach((cert: any, idx: number) => {
+    const exp = cert.expiresAt ?? cert.expiryDate;
+    const days = daysUntil(exp);
+    const certName =
+      cert.domainName ??
+      cert.domain ??
+      cert.commonName ??
+      cert.productName ??
+      `SSL Certificate #${idx + 1}`;
+    const statusUpper = (cert.status ?? "").toUpperCase();
+    const isExplicitlyExpired = statusUpper === "EXPIRED";
+
+    if ((days !== null && days < 0) || isExplicitlyExpired) {
+      const daysAgo = days !== null && days < 0 ? Math.abs(days) : null;
+      attentionItems.push({
+        id: `ssl-expired-${cert.id || idx}`,
+        name: certName,
+        serviceType: "SSL",
+        severity: "expired",
+        daysRemaining: days ?? -1,
+        subtitle:
+          daysAgo !== null
+            ? `Expired ${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`
+            : "Certificate expired",
+        primaryAction: {
+          label: "Renew",
+          href: "/dashboard/ssl",
+          icon: RefreshCcw,
+        },
+      });
+    } else if (days !== null && days <= 30 && days >= 0) {
+      attentionItems.push({
+        id: `ssl-renewal-${cert.id || idx}`,
+        name: certName,
+        serviceType: "SSL",
+        severity: days <= 7 ? "expiring" : "renewal",
+        daysRemaining: days,
+        subtitle:
+          days === 0
+            ? "Expires today"
+            : `Expires in ${days} day${days === 1 ? "" : "s"}`,
+        primaryAction: {
+          label: "Renew",
+          href: "/dashboard/ssl",
+          icon: Eye,
+        },
+      });
+    }
   });
 
-  const loadingAttention = loadingDomains || loadingSsl;
+  // Sort: expired items first, then items closest to expiring
+  attentionItems.sort((a, b) => {
+    if (a.severity === "expired" && b.severity !== "expired") return -1;
+    if (a.severity !== "expired" && b.severity === "expired") return 1;
+
+    if (a.severity === "expired" && b.severity === "expired") {
+      return b.daysRemaining - a.daysRemaining;
+    }
+
+    return a.daysRemaining - b.daysRemaining;
+  });
+
+  const loadingAttention = loadingDomains || loadingHosting || loadingSsl;
 
   // ── Greeting ────────────────────────────────────────────────────────────────
   const hour = new Date().getHours();
@@ -821,7 +1059,7 @@ export default function DashboardOverview() {
       {/* ── Two-column lower section ──────────────────────────────────────── */}
       <div className="grid md:grid-cols-2 gap-4">
         <AttentionRequired
-          items={attentionItems.slice(0, 5)}
+          items={attentionItems}
           loading={loadingAttention}
         />
         <QuickActions />

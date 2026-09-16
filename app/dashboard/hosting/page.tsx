@@ -24,7 +24,9 @@ import {
   XCircle,
   RefreshCw,
   Zap,
+  Search,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { usePlans } from "@/hooks/usePlans";
 import {
@@ -649,176 +651,7 @@ function AccountRowSkeleton() {
   );
 }
 
-// ── Plan Card Skeleton ────────────────────────────────────────────────────────
 
-function PlanCardSkeleton() {
-  return (
-    <div className="bg-white border border-[#e2eaff] p-6 flex flex-col gap-4 animate-pulse">
-      <div className="h-5 w-28 bg-[#e8edf8] rounded" />
-      <div className="h-4 w-44 bg-[#e8edf8] rounded" />
-      <div className="h-8 w-24 bg-[#e8edf8] rounded" />
-      <div className="flex flex-col gap-2">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-3 w-full bg-[#e8edf8] rounded" />
-        ))}
-      </div>
-      <div className="h-10 w-full bg-[#e8edf8] rounded" />
-    </div>
-  );
-}
-
-// ── Plan Card ─────────────────────────────────────────────────────────────────
-
-function HostingPlanCard({
-  plan,
-  selectedCycle,
-}: {
-  plan: Plan;
-  selectedCycle: "monthly" | "quarterly" | "yearly";
-}) {
-  const slug = plan.name.toLowerCase();
-
-  const priceMap = {
-    monthly: plan.monthlyPrice,
-    quarterly: plan.quarterlyPrice,
-    yearly: plan.price,
-  };
-  const price = priceMap[selectedCycle];
-
-  const websiteLabel =
-    plan.websites >= 999
-      ? "Unlimited Websites"
-      : `${plan.websites} Website${plan.websites > 1 ? "s" : ""}`;
-  const emailLabel =
-    plan.emails >= 999
-      ? "Unlimited Emails"
-      : `${plan.emails} Email Account${plan.emails > 1 ? "s" : ""}`;
-
-  const features = [
-    `${plan.storage} Storage`,
-    `${plan.bandwidth} Bandwidth`,
-    websiteLabel,
-    emailLabel,
-    ...plan.features,
-  ];
-
-  return (
-    <div
-      id={`hosting-plan-${slug}`}
-      className={`relative flex flex-col border transition-all duration-200 hover:shadow-lg ${
-        plan.isPopular
-          ? "bg-[#031033] border-[#031033] shadow-xl shadow-[#031033]/20 text-white"
-          : "bg-white border-[#e2eaff] hover:border-[#e8900a] text-[#031033]"
-      }`}
-    >
-      {plan.isPopular && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-          <span className="inline-flex items-center gap-1.5 bg-[#e8900a] text-white text-[11px] font-bold px-3 py-1 shadow shadow-[#e8900a]/30">
-            <Star className="w-3 h-3 fill-white" />
-            Most Popular
-          </span>
-        </div>
-      )}
-
-      <div
-        className={`p-6 border-b ${
-          plan.isPopular ? "border-white/10" : "border-[#e2eaff]"
-        }`}
-      >
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div>
-            <h3
-              className={`font-bold text-lg ${
-                plan.isPopular ? "text-white" : "text-[#031033]"
-              }`}
-            >
-              {plan.name} Hosting
-            </h3>
-            <p
-              className={`text-xs mt-0.5 ${
-                plan.isPopular ? "text-gray-300" : "text-[#9ba8c0]"
-              }`}
-            >
-              {selectedCycle === "yearly"
-                ? "Billed annually"
-                : selectedCycle === "quarterly"
-                ? "Billed quarterly"
-                : "Billed monthly"}
-            </p>
-          </div>
-          <div
-            className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${
-              plan.isPopular
-                ? "border-white/20 text-white/70"
-                : "border-[#e2eaff] text-[#9ba8c0]"
-            }`}
-          >
-            {selectedCycle}
-          </div>
-        </div>
-        <div className="flex items-baseline gap-1">
-          <span
-            className={`text-[1.6rem] font-bold ${
-              plan.isPopular ? "text-white" : "text-[#031033]"
-            }`}
-          >
-            {formatPrice(price)}
-          </span>
-          <span
-            className={`text-sm ${
-              plan.isPopular ? "text-gray-300" : "text-[#9ba8c0]"
-            }`}
-          >
-            /{selectedCycle === "yearly" ? "yr" : selectedCycle === "quarterly" ? "qtr" : "mo"}
-          </span>
-        </div>
-      </div>
-
-      <ul className="flex flex-col gap-2.5 p-6 flex-1">
-        {features.map((feat) => (
-          <li key={feat} className="flex items-center gap-2.5">
-            <div
-              className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                plan.isPopular
-                  ? "bg-[#e8900a]/20"
-                  : "bg-[#f2f5fc] border border-[#dce4f7]"
-              }`}
-            >
-              <Check
-                className={`w-2.5 h-2.5 ${
-                  plan.isPopular ? "text-[#e8900a]" : "text-[#031033]"
-                }`}
-                strokeWidth={2.5}
-              />
-            </div>
-            <span
-              className={`text-sm ${
-                plan.isPopular ? "text-gray-200" : "text-[#5a6a85]"
-              }`}
-            >
-              {feat}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="p-6 pt-0">
-        <Link
-          id={`hosting-order-${slug}`}
-          href={`/dashboard/hosting/purchase?planId=${plan.id}&billingCycle=${selectedCycle}`}
-          className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold transition-all ${
-            plan.isPopular
-              ? "bg-[#e8900a] text-white hover:bg-[#c97a08]"
-              : "btn-primary"
-          }`}
-        >
-          <ShoppingCart className="w-4 h-4" />
-          Order {plan.name}
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -828,8 +661,6 @@ export default function HostingDashboardPage() {
     isLoading: loadingAccounts,
     isError: accountsError,
   } = useGetHosting();
-  const { data: plans, isLoading: loadingPlans, isError: plansError } =
-    usePlans();
 
   const [statsTarget, setStatsTarget] = useState<{
     id: string;
@@ -838,7 +669,8 @@ export default function HostingDashboardPage() {
   const [renewTarget, setRenewTarget] = useState<HostingAccount | null>(null);
   const [upgradeTarget, setUpgradeTarget] = useState<HostingAccount | null>(null);
 
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("monthly");
+  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Expiring Soon" | "Expired">("All");
+  const [hostingSearch, setHostingSearch] = useState("");
 
   const hasAccounts = accounts && accounts.length > 0;
   const activeCount = accounts?.filter(
@@ -879,191 +711,225 @@ export default function HostingDashboardPage() {
       )}
 
       <div className="flex flex-col gap-7 max-w-6xl mx-auto">
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* Hosting list (Figma design)                                 */}
+        {/* ─────────────────────────────────────────────────────────── */}
+
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
-            <h1 className="text-[1.15rem] font-semibold text-[#031033]">
-              Hosting
-            </h1>
-            <p className="text-[#5a6a85] mt-1 text-sm">
-              Manage your hosting accounts and purchase new plans.
+            <h2
+              className="text-[24px] font-bold"
+              style={{
+                color: "#1d1d1f",
+                fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+                letterSpacing: "-0.4px",
+              }}
+            >
+              Your Hosting
+            </h2>
+            <p className="text-[14px] mt-0.5" style={{ color: "#6e6e73" }}>
+              Manage your hosting services, websites, resources, and subscription details.
             </p>
           </div>
           <Link
             href="/dashboard/hosting/purchase"
-            id="hosting-provision-cta"
-            className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center gap-2 whitespace-nowrap shrink-0"
+            id="hosting-get-cta"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0"
+            style={{ background: "#1787D4" }}
           >
-            <Plus className="w-4 h-4" />
-            Add Hosting
+            Get Hosting
           </Link>
         </div>
 
-        {/* ── Active Hosting Accounts (list) ─────────────────────────────── */}
-        <div className="bg-white border border-[#e2eaff]">
-          <div className="px-5 py-4 border-b border-[#e2eaff] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Server className="w-4 h-4 text-[#9ba8c0]" />
-              <h2 className="text-sm font-semibold text-[#031033]">
-                Your Hosting Accounts
-              </h2>
-              {hasAccounts && (
-                <span className="text-[11px] font-bold bg-[#f2f5fc] text-[#5a6a85] border border-[#e2eaff] px-1.5 py-0.5">
-                  {accounts.length}
-                </span>
-              )}
-              {activeCount > 0 && (
-                <span className="text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 py-0.5">
-                  {activeCount} active
-                </span>
-              )}
-            </div>
-            <Link
-              href="/dashboard/hosting/purchase"
-              id="hosting-add-account"
-              className="text-xs font-semibold text-[#e8900a] hover:underline underline-offset-4 flex items-center gap-1"
-            >
-              <Plus className="w-3 h-3" /> Add
-            </Link>
+        {/* Filter + search row */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            {(["All", "Active", "Expiring Soon", "Expired"] as const).map((f) => {
+              const isActive = f === statusFilter;
+              return (
+                <button
+                  key={f}
+                  id={`hosting-filter-${f.toLowerCase().replace(/\s+/g, "-")}`}
+                  onClick={() => setStatusFilter(f)}
+                  className="px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150"
+                  style={{
+                    background: isActive ? "#1787D4" : "#ffffff",
+                    color: isActive ? "#fff" : "#6e6e73",
+                    border: `1px solid ${isActive ? "#1787D4" : "#e8e8ed"}`,
+                  }}
+                >
+                  {f}
+                </button>
+              );
+            })}
           </div>
+          <div
+            className="flex items-center gap-2 flex-1 max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
+            style={{ background: "#ffffff", border: "1px solid #e8e8ed" }}
+          >
+            <Search className="w-4 h-4 shrink-0" style={{ color: "#aeaeb2" }} />
+            <input
+              id="hosting-search-filter"
+              type="text"
+              placeholder="Search by domain or plan..."
+              value={hostingSearch}
+              onChange={(e) => setHostingSearch(e.target.value)}
+              className="flex-1 text-[13px] outline-none bg-transparent"
+              style={{ color: "#1d1d1f" }}
+            />
+          </div>
+        </div>
+
+        {/* Table card */}
+        <div
+          className="flex flex-col overflow-hidden"
+          style={{
+            background: "#ffffff",
+            border: "1px solid #e8e8ed",
+            borderRadius: "14px",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+          }}
+        >
+          {/* Table header */}
+          <div
+            className="grid items-center px-6 py-3 text-[12px] font-semibold"
+            style={{
+              gridTemplateColumns: "1fr 180px 120px 160px 100px",
+              borderBottom: "1px solid #e8e8ed",
+              background: "#f5f5f7",
+              color: "#6e6e73",
+            }}
+          >
+            <span>Hosting Plan</span>
+            <span>Website</span>
+            <span>Status</span>
+            <span>Renewal Date</span>
+            <span className="text-right">Action</span>
+          </div>
+
+          {/* Loading */}
+          {loadingAccounts && (
+            <>{[...Array(2)].map((_, i) => <AccountRowSkeleton key={i} />)}</>
+          )}
 
           {/* Error */}
           {accountsError && (
-            <div className="flex items-center gap-2 p-5">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <p className="text-sm text-red-500">
-                Could not load your hosting accounts. Please refresh the page.
-              </p>
+            <div className="flex items-center gap-3 px-6 py-8">
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+              <p className="text-[13px] text-red-500">Could not load your hosting accounts. Please refresh.</p>
             </div>
           )}
 
-          {/* Loading */}
-          {loadingAccounts &&
-            [...Array(2)].map((_, i) => <AccountRowSkeleton key={i} />)}
-
           {/* Empty */}
           {!loadingAccounts && !accountsError && !hasAccounts && (
-            <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-              <div className="w-12 h-12 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center mb-3">
-                <Server className="w-5 h-5 text-[#9ba8c0]" />
-              </div>
-              <p className="text-sm text-[#5a6a85] max-w-xs mb-4">
-                You currently do not have any hosting services. Purchase a plan
-                below to get started.
+            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+              <Server className="w-8 h-8 mb-3" style={{ color: "#aeaeb2" }} />
+              <p className="text-[15px] font-semibold" style={{ color: "#1d1d1f" }}>No hosting accounts yet</p>
+              <p className="text-[13px] mt-1 mb-4" style={{ color: "#6e6e73" }}>
+                Purchase a plan below to get started.
               </p>
               <Link
                 href="/dashboard/hosting/purchase"
                 id="hosting-empty-cta"
-                className="btn-primary text-sm py-2 px-4 flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white"
+                style={{ background: "#1787D4" }}
               >
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-3.5 h-3.5" />
                 Purchase Hosting
               </Link>
             </div>
           )}
 
-          {/* Accounts list */}
-          {hasAccounts && (
-            <div className="flex flex-col">
-              {/* Table header */}
-              <div className="hidden sm:flex items-center gap-4 px-5 py-2 bg-[#f6f9ff] border-b border-[#e2eaff]">
-                <div className="w-2 shrink-0" />
-                <p className="flex-1 text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider">
-                  Domain
-                </p>
-                <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider w-20">
-                  Status
-                </p>
-                <p className="text-[11px] font-bold text-[#9ba8c0] uppercase tracking-wider w-28">
-                  Expiry
-                </p>
-                <div className="w-16" />
-                <div className="w-16" />
-              </div>
+          {/* Rows */}
+          {hasAccounts && (() => {
+            const filtered = accounts!.filter((a) => {
+              const matchSearch =
+                a.domain.toLowerCase().includes(hostingSearch.toLowerCase()) ||
+                (a.plan?.name ?? "").toLowerCase().includes(hostingSearch.toLowerCase());
+              if (!matchSearch) return false;
+              if (statusFilter === "All") return true;
+              const days = a.expiresAt
+                ? (new Date(a.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                : 999;
+              const isExp = days < 0 || (a.status ?? "").toUpperCase() === "SUSPENDED" || (a.status ?? "").toUpperCase() === "TERMINATED";
+              const isExpiring = !isExp && days <= 14;
+              if (statusFilter === "Active") return !isExp && !isExpiring && (a.status ?? "").toUpperCase() === "ACTIVE";
+              if (statusFilter === "Expiring Soon") return isExpiring;
+              if (statusFilter === "Expired") return isExp;
+              return true;
+            });
 
-              {accounts.map((account) => (
-                <HostingAccountRow
+            if (filtered.length === 0) {
+              return (
+                <div className="flex flex-col items-center justify-center py-14 text-center px-6">
+                  <Server className="w-8 h-8 mb-3" style={{ color: "#aeaeb2" }} />
+                  <p className="text-[14px]" style={{ color: "#6e6e73" }}>No accounts match your filter.</p>
+                </div>
+              );
+            }
+
+            return filtered.map((account) => {
+              const days = account.expiresAt
+                ? (new Date(account.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                : 999;
+              const statusUp = (account.status ?? "").toUpperCase();
+              const isActive = statusUp === "ACTIVE" && days >= 0;
+              const isExpiring = isActive && days <= 14;
+              const isExpired = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
+
+              return (
+                <div
                   key={account.id}
-                  account={account}
-                  onViewStats={(id, domain) => setStatsTarget({ id, domain })}
-                  onRenew={(acc) => setRenewTarget(acc)}
-                  onUpgrade={(acc) => setUpgradeTarget(acc)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── Available Plans ─────────────────────────────────────────────── */}
-        <div id="plans" className="scroll-mt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-            <div>
-              <h2 className="text-base font-semibold text-[#031033] mb-1">
-                Available Plans
-              </h2>
-              <p className="text-xs text-[#9ba8c0]">
-                All plans include free SSL, daily backups, and 99.9% uptime
-                guarantee.
-              </p>
-            </div>
-            
-            {/* Billing Cycle Selector Tabs */}
-            <div className="inline-flex items-center bg-[#f2f5fc] border border-[#e2eaff] p-1 rounded-xl shrink-0 self-start sm:self-auto">
-              {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
-                <button
-                  key={cycle}
-                  type="button"
-                  onClick={() => setBillingCycle(cycle)}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    billingCycle === cycle
-                      ? "bg-[#031033] text-white shadow-sm"
-                      : "text-[#5a6a85] hover:text-[#031033]"
-                  }`}
+                  className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                  style={{
+                    gridTemplateColumns: "1fr 180px 120px 160px 100px",
+                    borderTop: "1px solid #e8e8ed",
+                  }}
                 >
-                  {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
-                </button>
-              ))}
-            </div>
-          </div>
+                  {/* Plan name */}
+                  <span className="text-[14px] font-semibold truncate" style={{ color: "#1d1d1f" }}>
+                    {account.plan?.name ?? "Hosting"}
+                  </span>
 
-          {plansError && (
-            <p className="text-sm text-red-500 mb-4">
-              Could not load plans. Please try refreshing the page.
-            </p>
-          )}
+                  {/* Website */}
+                  <span className="text-[13px] truncate" style={{ color: "#6e6e73" }}>
+                    {account.domain}
+                  </span>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-            {loadingPlans
-              ? [...Array(3)].map((_, i) => <PlanCardSkeleton key={i} />)
-              : plans?.map((plan) => (
-                  <HostingPlanCard
-                    key={plan.id}
-                    plan={plan}
-                    selectedCycle={billingCycle}
-                  />
-                ))}
-          </div>
+                  {/* Status pill */}
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
+                    style={{
+                      background: isExpired ? "#fef2f2" : isExpiring ? "#fffbeb" : "#ecfdf5",
+                      color: isExpired ? "#dc2626" : isExpiring ? "#d97706" : "#059669",
+                    }}
+                  >
+                    {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
+                  </span>
+
+                  {/* Renewal date */}
+                  <span className="text-[13px]" style={{ color: "#6e6e73" }}>
+                    {account.expiresAt ? new Date(account.expiresAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}
+                  </span>
+
+                  {/* Action */}
+                  <div className="flex justify-end">
+                    <Link
+                      href={`/dashboard/hosting/${account.id}`}
+                      id={`hosting-manage-${account.id}`}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                      style={{ background: "#1787D4" }}
+                    >
+                      Manage
+                    </Link>
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
 
-        {/* ── Help CTA ───────────────────────────────────────────────────── */}
-        <div className="bg-[#f2f5fc] border border-[#e2eaff] p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-[#031033]">
-              Not sure which plan to pick?
-            </p>
-            <p className="text-xs text-[#5a6a85] mt-0.5">
-              Our team can help you choose the right hosting plan for your
-              business.
-            </p>
-          </div>
-          <Link
-            href="/dashboard/tickets"
-            id="hosting-contact-support"
-            className="text-sm font-semibold text-[#e8900a] hover:underline underline-offset-4 whitespace-nowrap inline-flex items-center gap-1"
-          >
-            Talk to Support <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
       </div>
     </>
   );

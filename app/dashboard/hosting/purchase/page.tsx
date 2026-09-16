@@ -107,9 +107,9 @@ function HostingPurchaseContent() {
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Hosting Dashboard
         </Link>
-        <h1 className="text-[1.15rem] font-semibold text-[#031033]">
+        <h2 className="text-[1.15rem] font-semibold text-[#031033]">
           Purchase Web Hosting
-        </h1>
+        </h2>
         <p className="text-[#5a6a85] mt-1 text-sm">
           Select your hosting plan and primary domain to proceed to instant Paystack checkout.
         </p>

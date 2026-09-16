@@ -317,7 +317,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: Mail,
     label: "Create Email",
     description: "Set up customised business mailboxes",
-    href: "/dashboard/hosting",
+    href: "/dashboard/email/create",
     accentColor: T.emerald,
     accentBg: T.emeraldLight,
   },
@@ -534,7 +534,7 @@ export default function DashboardOverview() {
             </>
           ) : (
             <>
-              <h1
+              <h2
                 className="flex items-center gap-2.5 text-[1.75rem] font-semibold leading-tight"
                 style={{
                   color: T.ink,
@@ -544,7 +544,7 @@ export default function DashboardOverview() {
               >
                 {greeting}, {firstName || "there"}
                 <GreetIcon className="w-6 h-6 shrink-0" style={{ color: T.orange }} />
-              </h1>
+              </h2>
               <p className="mt-1 text-[14px]" style={{ color: T.inkMuted }}>
                 Here&apos;s an overview of your domains, hosting, email, and other services.
               </p>
@@ -669,7 +669,7 @@ export default function DashboardOverview() {
           label="Private Email"
           value={privateEmailCount}
           sublabel="Mailboxes"
-          href="/dashboard/hosting"
+          href="/dashboard/email"
           accentColor={T.emerald}
           accentBg={T.emeraldLight}
           loading={isLoading}

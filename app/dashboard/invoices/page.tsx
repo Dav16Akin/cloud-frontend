@@ -190,9 +190,9 @@ export default function InvoicesPage() {
     <div className="flex flex-col gap-7 max-w-5xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-[1.15rem] font-semibold text-[#031033]">
+        <h2 className="text-[1.15rem] font-semibold text-[#031033]">
           Invoices
-        </h1>
+        </h2>
         <p className="text-[#5a6a85] mt-1 text-sm">
           Your billing history synced from WHMCS.
         </p>

@@ -35,6 +35,8 @@ import {
   Zap,
   Check,
   Sparkles,
+  Info,
+  RefreshCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePlans } from "@/hooks/usePlans";
@@ -120,39 +122,17 @@ function StatusBadge({ status }: { status: HostingStatus }) {
   );
 }
 
-// ── Tab pill ─────────────────────────────────────────────────────────────────
+// ── Tab type ─────────────────────────────────────────────────────────────────
 
 type Tab = "overview" | "emails" | "forwarders" | "databases" | "dns";
 
-function TabPill({
-  tab,
-  active,
-  label,
-  icon: Icon,
-  onClick,
-}: {
-  tab: Tab;
-  active: Tab;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  onClick: () => void;
-}) {
-  const isActive = tab === active;
-  return (
-    <button
-      id={`hosting-tab-${tab}`}
-      onClick={onClick}
-      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-        isActive
-          ? "border-[#e8900a] text-[#031033]"
-          : "border-transparent text-[#5a6a85] hover:text-[#031033] hover:border-[#e2eaff]"
-      }`}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      {label}
-    </button>
-  );
-}
+const HOSTING_TABS: { id: Tab; label: string }[] = [
+  { id: "overview",    label: "Overview"    },
+  { id: "emails",      label: "Website"     },
+  { id: "forwarders",  label: "Files"       },
+  { id: "databases",   label: "Databases"   },
+];
+
 
 // ── Confirm modal ─────────────────────────────────────────────────────────────
 
@@ -192,7 +172,7 @@ function ConfirmModal({
             className={`px-4 py-2 text-sm font-semibold flex items-center gap-2 disabled:opacity-60 transition-colors ${
               danger
                 ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-[#e8900a] text-white hover:bg-[#c97a08]"
+                : "bg-[#1787D4] text-white hover:bg-[#1371B5]"
             }`}
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -204,137 +184,97 @@ function ConfirmModal({
   );
 }
 
-// ── Overview Tab ─────────────────────────────────────────────────────────────
+// ── Overview Tab (Figma style) ─────────────────────────────────────────────────
 
-function OverviewTab({ hostingId }: { hostingId: string }) {
-  const { data: stats, isLoading, isError } = useGetHostingStats(hostingId);
+function OverviewTab({
+  hostingId,
+  account,
+  onRenew,
+  onOpenCpanel,
+  fetchingCpanel,
+}: {
+  hostingId: string;
+  account: any;
+  onRenew: () => void;
+  onOpenCpanel: () => void;
+  fetchingCpanel: boolean;
+}) {
+  const { data: stats } = useGetHostingStats(hostingId);
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-pulse">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white border border-[#e2eaff] p-4 flex flex-col gap-3">
-            <div className="w-9 h-9 bg-[#e8edf8] rounded" />
-            <div className="h-4 w-16 bg-[#e8edf8] rounded" />
-            <div className="h-6 w-12 bg-[#e8edf8] rounded" />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const formatDate = (iso: string) =>
+    iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
-  if (isError || !stats) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 gap-2 text-center bg-white border border-[#e2eaff]">
-        <AlertCircle className="w-8 h-8 text-[#9ba8c0]" />
-        <p className="text-sm text-[#5a6a85]">
-          Could not load hosting stats. The server may be busy — try again
-          shortly.
-        </p>
-      </div>
-    );
-  }
-
-  // Top 4 primary metric tiles
-  const primaryTiles = [
-    {
-      icon: HardDrive,
-      label: "Disk Used",
-      value: stats.diskUsed,
-      sub: `of ${stats.diskLimit}`,
-      color: "text-blue-500",
-      bg: "bg-blue-50",
-    },
-    {
-      icon: Layers,
-      label: "Inodes Used",
-      value: String(stats.inodesUsed),
-      sub: `limit: ${stats.inodesLimit}`,
-      color: "text-purple-500",
-      bg: "bg-purple-50",
-    },
-    {
-      icon: Mail,
-      label: "Max Emails",
-      value: stats.maxEmails,
-      sub: `${stats.maxEmailQuotaMB} MB quota each`,
-      color: "text-[#e8900a]",
-      bg: "bg-[#fff8ee]",
-    },
-    {
-      icon: Database,
-      label: "Max Databases",
-      value: stats.maxDatabases,
-      sub: `${stats.maxFTP} FTP accounts`,
-      color: "text-emerald-500",
-      bg: "bg-emerald-50",
-    },
-  ];
-
-  // Secondary detail rows
-  const details = [
-    { label: "Plan", value: stats.plan },
-    { label: "Server IP", value: stats.ip },
-    { label: "Max Subdomains", value: stats.maxSubdomains },
-    { label: "Max Addon Domains", value: stats.maxAddonDomains },
-    { label: "Max Emails / Hour", value: stats.maxEmailPerHour },
-    { label: "Account Created", value: stats.startDate },
-    { label: "Suspend Reason", value: stats.suspendReason },
-    { label: "Server Status", value: stats.status },
+  const infoCards = [
+    { label: "Website",      value: account?.domain ?? "—"                       },
+    { label: "Hosting Plan", value: account?.plan?.name ?? "—"                   },
+    { label: "Renewal Date", value: formatDate(account?.expiresAt)               },
+    { label: "Status",       value: (account?.status ?? "—"), isStatus: true     },
+    { label: "Storage",      value: stats?.diskUsed ? `${stats.diskUsed} used` : "—" },
+    { label: "Bandwidth",    value: stats ? `${stats.inodesUsed ?? "—"} this month` : "—" },
   ];
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Primary tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {primaryTiles.map(({ icon: Icon, label, value, sub, color, bg }) => (
-          <div
-            key={label}
-            className="bg-white border border-[#e2eaff] p-4 flex flex-col gap-2"
-          >
-            <div className={`w-9 h-9 flex items-center justify-center ${bg}`}>
-              <Icon className={`w-4.5 h-4.5 ${color}`} />
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
-                {label}
-              </p>
-              <p className="text-[1.05rem] font-semibold text-[#031033] mt-0.5 leading-none">
-                {value}
-              </p>
-              <p className="text-[11px] text-[#9ba8c0] mt-1">{sub}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Detail grid */}
-      <div className="bg-white border border-[#e2eaff]">
-        <div className="px-5 py-3 border-b border-[#e2eaff] flex items-center gap-2">
-          <Network className="w-4 h-4 text-[#9ba8c0]" />
-          <h3 className="text-sm font-semibold text-[#031033]">Account Details</h3>
-        </div>
-        <div className="divide-y divide-[#e2eaff]">
-          {details.map(({ label, value }) => (
+    <div className="flex gap-6 items-start">
+      {/* Left — info cards grid */}
+      <div className="flex-1 flex flex-col gap-4">
+        <h3 className="text-[15px] font-bold" style={{ color: "#1d1d1f" }}>Hosting Overview</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {infoCards.map(({ label, value, isStatus }) => (
             <div
               key={label}
-              className="flex items-center justify-between px-5 py-2.5"
+              className="flex flex-col gap-1 p-4 rounded-xl"
+              style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
-              <span className="text-xs text-[#9ba8c0] font-medium">{label}</span>
-              <span
-                className={`text-xs font-semibold ${
-                  label === "Server Status"
-                    ? value === "ACTIVE"
-                      ? "text-emerald-600"
-                      : "text-red-500"
-                    : "text-[#031033]"
-                }`}
+              <p className="text-[12px] font-medium" style={{ color: "#6e6e73" }}>{label}</p>
+              <p
+                className="text-[15px] font-semibold"
+                style={{
+                  color: isStatus
+                    ? (value ?? "").toUpperCase() === "ACTIVE" ? "#059669" : "#dc2626"
+                    : "#1d1d1f",
+                }}
               >
                 {value}
-              </span>
+              </p>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Right — Quick Operations sidebar */}
+      <div
+        className="w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
+        style={{ border: "1px solid #e8e8ed", background: "#fff" }}
+      >
+        <h3 className="text-[14px] font-bold" style={{ color: "#1d1d1f" }}>Quick Operations</h3>
+        <button
+          id="hosting-quick-renew"
+          onClick={onRenew}
+          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "#1787D4" }}
+        >
+          Renew Subscription
+        </button>
+        <button
+          id="hosting-quick-cpanel"
+          onClick={onOpenCpanel}
+          disabled={fetchingCpanel}
+          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7] disabled:opacity-50"
+          style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
+        >
+          {fetchingCpanel ? "Opening..." : "Access cPanel"}
+        </button>
+        <button
+          id="hosting-quick-backups"
+          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
+          style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
+        >
+          Manage Backups
+        </button>
+        <p className="text-[11.5px] flex items-center gap-1.5 pt-1" style={{ color: "#aeaeb2" }}>
+          <Info className="w-3.5 h-3.5 shrink-0" />
+          Renewal pricing is subject to standard plan registry fees.
+        </p>
       </div>
     </div>
   );
@@ -1999,212 +1939,145 @@ export default function ManageHostingPage() {
         <Link
           href="/dashboard/hosting"
           id="manage-back"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5a6a85] hover:text-[#031033] transition-colors"
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors"
+          style={{ color: "#1787D4" }}
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Hosting
         </Link>
 
-        {/* Hero card */}
-        <div className="bg-white border border-[#e2eaff]">
-          <div className="px-5 py-5 flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Icon */}
-            <div className="w-12 h-12 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center shrink-0">
-              <Globe className="w-6 h-6 text-[#031033]" />
-            </div>
-
-            {/* Main info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-[1.05rem] font-semibold text-[#031033]">
-                  {account.domain}
-                </h1>
-                <StatusBadge status={status} />
-                {expiring && (
-                  <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 font-semibold">
-                    Expiring soon
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#5a6a85]">
-                <span className="flex items-center gap-1">
-                  <Server className="w-3.5 h-3.5 text-[#9ba8c0]" />
-                  {planName} Plan
+        {/* Domain heading */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2
+              className="text-[26px] font-bold"
+              style={{ color: "#1d1d1f", letterSpacing: "-0.4px" }}
+            >
+              {account.domain}
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              <StatusBadge status={status} />
+              {expiring && (
+                <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 font-semibold">
+                  Expiring soon
                 </span>
-                {account.cpanelUsername && (
-                  <span className="flex items-center gap-1">
-                    <span className="text-[#9ba8c0]">User:</span>
-                    <code className="text-[#031033] font-mono">
-                      {account.cpanelUsername}
-                    </code>
-                    <button
-                      onClick={() =>
-                        copyText(account.cpanelUsername!, "Username")
-                      }
-                      className="text-[#9ba8c0] hover:text-[#031033]"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {account.expiresAt && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-[#9ba8c0]" />
-                    Expires {formatDate(account.expiresAt)}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-wrap gap-2 shrink-0">
-              {!isTerminated && (
-                <button
-                  id="manage-renew"
-                  onClick={() => setShowRenewModal(true)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 transition-colors border ${
-                    expiring || isSuspended
-                      ? "bg-[#e8900a] text-white border-[#e8900a] hover:bg-[#c97a08]"
-                      : "border-[#e2eaff] text-[#031033] hover:bg-[#f2f5fc]"
-                  }`}
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Renew
-                </button>
               )}
-
-              {!isTerminated && (
-                <button
-                  id="manage-upgrade"
-                  onClick={() => setShowUpgradeModal(true)}
-                  className="flex items-center gap-1.5 text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-2 transition-colors"
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  Upgrade Plan
-                </button>
-              )}
-
-              {/* Open cPanel — uses a session link generated server-side */}
-              <button
-                id="manage-cpanel-link"
-                onClick={handleOpenCpanel}
-                disabled={fetchingCpanel || isTerminated}
-                className="flex items-center gap-1.5 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] px-3 py-2 transition-colors disabled:opacity-60"
-              >
-                {fetchingCpanel ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <ExternalLink className="w-3.5 h-3.5" />
-                )}
-                {fetchingCpanel ? "Opening..." : "Open cPanel"}
-              </button>
-
-              {isActive && !isTerminated && (
-                <button
-                  id="manage-suspend"
-                  onClick={() => suspend(id)}
-                  disabled={suspending}
-                  className="flex items-center gap-1.5 text-xs font-semibold border border-red-200 text-red-500 hover:bg-red-50 px-3 py-2 transition-colors disabled:opacity-60"
-                >
-                  {suspending ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <PauseCircle className="w-3.5 h-3.5" />
-                  )}
-                  Suspend
-                </button>
-              )}
-
-              {isSuspended && (
-                <button
-                  id="manage-unsuspend"
-                  onClick={() => unsuspend(id)}
-                  disabled={unsuspending}
-                  className="flex items-center gap-1.5 text-xs font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 px-3 py-2 transition-colors disabled:opacity-60"
-                >
-                  {unsuspending ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <PlayCircle className="w-3.5 h-3.5" />
-                  )}
-                  Unsuspend
-                </button>
-              )}
-
-              {!isTerminated && (
-                <button
-                  id="manage-terminate"
-                  onClick={() => setShowTerminateModal(true)}
-                  className="flex items-center gap-1.5 text-xs font-semibold border border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500 px-3 py-2 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Terminate
-                </button>
+              {account.expiresAt && (
+                <span className="text-[12px]" style={{ color: "#6e6e73" }}>
+                  Expires {formatDate(account.expiresAt)}
+                </span>
               )}
             </div>
           </div>
 
-          {/* Status banner */}
-          {isSuspended && (
-            <div className="mx-5 mb-4 bg-red-50 border border-red-200 px-4 py-2.5 flex items-center gap-2">
-              <PauseCircle className="w-4 h-4 text-red-500 shrink-0" />
-              <p className="text-xs text-red-600">
-                This hosting account is currently suspended. Unsuspend to
-                restore access.
-              </p>
-            </div>
-          )}
-          {isTerminated && (
-            <div className="mx-5 mb-4 bg-gray-100 border border-gray-200 px-4 py-2.5 flex items-center gap-2">
-              <XCircle className="w-4 h-4 text-gray-500 shrink-0" />
-              <p className="text-xs text-gray-600">
-                This hosting account has been terminated.
-              </p>
-            </div>
-          )}
+          {/* Secondary admin actions */}
+          <div className="flex flex-wrap gap-2">
+            {!isTerminated && (
+              <button
+                id="manage-upgrade"
+                onClick={() => setShowUpgradeModal(true)}
+                className="flex items-center gap-1.5 text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-2 transition-colors rounded-lg"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                Upgrade Plan
+              </button>
+            )}
+            {isActive && !isTerminated && (
+              <button
+                id="manage-suspend"
+                onClick={() => suspend(id)}
+                disabled={suspending}
+                className="flex items-center gap-1.5 text-xs font-semibold border border-red-200 text-red-500 hover:bg-red-50 px-3 py-2 transition-colors rounded-lg disabled:opacity-60"
+              >
+                {suspending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <PauseCircle className="w-3.5 h-3.5" />
+                )}
+                Suspend
+              </button>
+            )}
+            {isSuspended && (
+              <button
+                id="manage-unsuspend"
+                onClick={() => unsuspend(id)}
+                disabled={unsuspending}
+                className="flex items-center gap-1.5 text-xs font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 px-3 py-2 transition-colors rounded-lg disabled:opacity-60"
+              >
+                {unsuspending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <PlayCircle className="w-3.5 h-3.5" />
+                )}
+                Unsuspend
+              </button>
+            )}
+            {!isTerminated && (
+              <button
+                id="manage-terminate"
+                onClick={() => setShowTerminateModal(true)}
+                className="flex items-center gap-1.5 text-xs font-semibold border border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500 px-3 py-2 transition-colors rounded-lg"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Terminate
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* Status banners */}
+        {isSuspended && (
+          <div className="bg-red-50 border border-red-200 px-4 py-2.5 flex items-center gap-2 rounded-lg">
+            <PauseCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <p className="text-xs text-red-600">
+              This hosting account is currently suspended. Unsuspend to restore access.
+            </p>
+          </div>
+        )}
+        {isTerminated && (
+          <div className="bg-gray-100 border border-gray-200 px-4 py-2.5 flex items-center gap-2 rounded-lg">
+            <XCircle className="w-4 h-4 text-gray-500 shrink-0" />
+            <p className="text-xs text-gray-600">
+              This hosting account has been terminated.
+            </p>
+          </div>
+        )}
+
         {/* Tabs */}
-        <div className="border-b border-[#e2eaff] flex gap-0 overflow-x-auto">
-          <TabPill
-            tab="overview"
-            active={activeTab}
-            label="Overview"
-            icon={BarChart2}
-            onClick={() => setActiveTab("overview")}
-          />
-          <TabPill
-            tab="emails"
-            active={activeTab}
-            label="Emails"
-            icon={Mail}
-            onClick={() => setActiveTab("emails")}
-          />
-          <TabPill
-            tab="forwarders"
-            active={activeTab}
-            label="Forwarders"
-            icon={Send}
-            onClick={() => setActiveTab("forwarders")}
-          />
-          <TabPill
-            tab="databases"
-            active={activeTab}
-            label="Databases"
-            icon={Database}
-            onClick={() => setActiveTab("databases")}
-          />
-          <TabPill
-            tab="dns"
-            active={activeTab}
-            label="DNS"
-            icon={ShieldCheck}
-            onClick={() => setActiveTab("dns")}
-          />
+        <div
+          className="flex gap-0 overflow-x-auto"
+          style={{ borderBottom: "2px solid #e8e8ed" }}
+        >
+          {HOSTING_TABS.map((tab) => {
+            const isActive = tab.id === activeTab;
+            return (
+              <button
+                key={tab.id}
+                id={`hosting-tab-${tab.id}`}
+                onClick={() => setActiveTab(tab.id)}
+                className="px-4 py-3 text-[13.5px] font-medium whitespace-nowrap transition-colors -mb-[2px] border-b-2"
+                style={{
+                  color: isActive ? "#1787D4" : "#6e6e73",
+                  borderBottomColor: isActive ? "#1787D4" : "transparent",
+                  fontWeight: isActive ? 600 : 400,
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Tab content */}
-        {activeTab === "overview" && <OverviewTab hostingId={id} />}
+        {activeTab === "overview" && (
+          <OverviewTab
+            hostingId={id}
+            account={account}
+            onRenew={() => setShowRenewModal(true)}
+            onOpenCpanel={handleOpenCpanel}
+            fetchingCpanel={fetchingCpanel}
+          />
+        )}
         {activeTab === "emails" && <EmailsTab hostingId={id} />}
         {activeTab === "forwarders" && <ForwardersTab hostingId={id} />}
         {activeTab === "databases" && <DatabasesTab hostingId={id} />}

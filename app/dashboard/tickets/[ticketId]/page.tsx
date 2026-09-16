@@ -324,9 +324,9 @@ export default function TicketDetailPage() {
           <div className="bg-white border border-[#e2eaff]">
             <div className="px-5 py-4 border-b border-[#e2eaff] flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-[#e8900a]" />
-              <h1 className="text-base font-extrabold text-[#031033] truncate">
+              <h2 className="text-base font-extrabold text-[#031033] truncate">
                 {ticket.subject}
-              </h1>
+              </h2>
             </div>
 
             <div className="px-5 py-4 flex flex-wrap items-center gap-x-6 gap-y-2">

@@ -1,14 +1,10 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   Search,
   ShoppingCart,
-  ChevronDown,
-  LogOut,
-  LayoutDashboard,
-  ExternalLink,
   Menu,
   BookOpen,
   Globe,
@@ -16,10 +12,7 @@ import {
   Shield,
   Mail,
 } from "lucide-react";
-import { useGetMe } from "@/hooks/useUser";
-import { useLogout } from "@/hooks/useAuth";
 import { useCartStore } from "@/store/cartStore";
-import { FluidOrb } from "@/components/ui/fluid-orb";
 import { usePathname } from "next/navigation";
 
 const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -40,15 +33,15 @@ type NavService = {
   id: string;
   label: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   badge?: string;
 };
 
 const NAV_SERVICES: NavService[] = [
-  { id: "nav-domains",  label: "Domains",   href: "/dashboard/domains",  icon: Globe  },
+  { id: "nav-domains",  label: "Domains",   href: "/dashboard/domains",  icon: Globe },
   { id: "nav-hosting",  label: "Hosting",   href: "/dashboard/hosting",  icon: Server },
   { id: "nav-security", label: "Security",  href: "/dashboard/ssl",      icon: Shield },
-  { id: "nav-email",    label: "Email",     href: "/dashboard/hosting",  icon: Mail,  badge: "NEW" },
+  { id: "nav-email",    label: "Email",     href: "/dashboard/email",    icon: Mail,  badge: "NEW" },
 ];
 
 type DashboardNavbarProps = {
@@ -58,17 +51,6 @@ type DashboardNavbarProps = {
 
 export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: DashboardNavbarProps) {
   const pathname = usePathname();
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileRef = useRef<HTMLDivElement>(null);
-
-  const { data: me } = useGetMe();
-  const { mutate: logout, isPending: isLoggingOut } = useLogout();
-
-  const firstName  = me?.data?.firstName ?? "";
-  const lastName   = me?.data?.lastName  ?? "";
-  const email      = me?.data?.email     ?? "";
-  const initials   = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "U";
-
   const { itemCount, toggleDrawer } = useCartStore();
   const [cartCount, setCartCount] = useState(0);
   const [shortcut, setShortcut] = useState("⌘ K");
@@ -78,15 +60,6 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
     if (typeof window !== "undefined") {
       setShortcut(navigator.userAgent.toLowerCase().includes("mac") ? "⌘ K" : "Ctrl K");
     }
-  }, []);
-
-  useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node))
-        setProfileOpen(false);
-    };
-    document.addEventListener("mousedown", fn);
-    return () => document.removeEventListener("mousedown", fn);
   }, []);
 
   return (
@@ -116,11 +89,11 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
         className="flex items-center shrink-0 mr-4"
       >
         <Image
-          src="/images/nupat-cloud-logo-whitebg.png"
+          src="/nupat_cloud_logo-nav.png"
           alt="Nupat Cloud"
-          width={124}
-          height={34}
-          className="h-auto w-auto object-contain"
+          width={130}
+          height={32}
+          className="h-7 sm:h-8 w-auto object-contain cursor-pointer"
           priority
         />
       </Link>
@@ -219,105 +192,6 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
             </span>
           )}
         </button>
-
-        {/* Hairline divider */}
-        <div className="w-px h-5 shrink-0" style={{ background: N.hairline }} />
-
-        {/* Profile */}
-        <div className="relative" ref={profileRef}>
-          <button
-            id="dashboard-nav-profile"
-            onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
-            style={{ color: N.ink }}
-          >
-            {/* Avatar */}
-            <div className="relative flex w-7 h-7 rounded-full overflow-hidden items-center justify-center shrink-0">
-              <FluidOrb size={28} color="#1787D4" className="absolute inset-0 w-full h-full pointer-events-none" />
-              <span className="relative z-10 text-white text-[10px] font-bold select-none">{initials}</span>
-            </div>
-            {/* Name */}
-            <div className="hidden sm:block text-left min-w-0">
-              <p className="text-[12px] font-semibold truncate max-w-[88px]" style={{ color: N.ink }}>
-                {firstName} {lastName}
-              </p>
-              <p className="text-[10px] truncate max-w-[88px]" style={{ color: N.inkSubtle }}>{email}</p>
-            </div>
-            <ChevronDown
-              className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`}
-              style={{ color: N.inkSubtle }}
-            />
-          </button>
-
-          {/* Dropdown */}
-          {profileOpen && (
-            <div
-              className="absolute right-0 top-full mt-2 w-52 py-1 z-50"
-              style={{
-                background: N.bg,
-                border: `1px solid ${N.hairline}`,
-                borderRadius: "12px",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
-              }}
-            >
-              {/* User info */}
-              <div className="px-4 py-3" style={{ borderBottom: `1px solid ${N.hairline}` }}>
-                <p className="text-[12px] font-semibold truncate" style={{ color: N.ink }}>
-                  {firstName} {lastName}
-                </p>
-                <p className="text-[11px] truncate mt-0.5" style={{ color: N.inkMuted }}>{email}</p>
-              </div>
-
-              <div className="p-1">
-                <Link
-                  href="/dashboard"
-                  id="dashboard-nav-overview-link"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-                  style={{ color: N.ink }}
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" style={{ color: N.inkMuted }} />
-                  Client Area Overview
-                </Link>
-                <Link
-                  href="/"
-                  id="dashboard-nav-goto-main"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-                  style={{ color: N.ink }}
-                >
-                  <ExternalLink className="w-3.5 h-3.5" style={{ color: N.inkMuted }} />
-                  Visit Main Site
-                </Link>
-                <a
-                  href={DOCS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id="dashboard-nav-goto-docs"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-                  style={{ color: N.ink }}
-                >
-                  <BookOpen className="w-3.5 h-3.5" style={{ color: N.orange }} />
-                  Help &amp; Documentation ↗
-                </a>
-
-                <div className="my-1 h-px mx-1" style={{ background: N.hairline }} />
-
-                <button
-                  id="dashboard-nav-logout"
-                  onClick={() => { logout(); setProfileOpen(false); }}
-                  disabled={isLoggingOut}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors hover:bg-red-50 disabled:opacity-50"
-                  style={{ color: "#dc2626" }}
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  {isLoggingOut ? "Logging out…" : "Logout"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </header>
   );

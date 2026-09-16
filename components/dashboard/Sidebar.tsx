@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
@@ -8,9 +8,15 @@ import {
   LogOut,
   X,
   ChevronRight,
+  Settings,
+  LayoutDashboard,
+  ExternalLink,
+  BookOpen,
 } from "lucide-react";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
+
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
 // ── Sidebar design tokens — dark teal, matching screenshot ───────────────────
 const S = {
@@ -37,21 +43,19 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",        href: "/dashboard",            exact: true },
-  { label: "Domain List",      href: "/dashboard/domains",    subItems: [
-      { label: "Register / Search",  href: "/dashboard/domains?tab=register"  },
-      { label: "Registered Domains", href: "/dashboard/domains?tab=registered"},
-      { label: "Hosted Domains",     href: "/dashboard/domains?tab=hosted"    },
-      { label: "Domain Transfer",    href: "/dashboard/domain-transfer"       },
-  ]},
-  { label: "Hosting List",     href: "/dashboard/hosting"    },
-  { label: "Private Email",    href: "/dashboard/hosting"    },
-  { label: "SSL Certificates", href: "/dashboard/ssl"        },
-  { label: "Orders",           href: "/dashboard/orders"     },
-  { label: "Invoices",         href: "/dashboard/invoices"   },
-  { label: "Support Tickets",  href: "/dashboard/tickets"    },
-  { label: "Profile",          href: "/dashboard/settings"   },
+  { label: "Dashboard",        href: "/dashboard",                   exact: true },
+  { label: "Domain List",      href: "/dashboard/domains"                        },
+  { label: "Hosting List",     href: "/dashboard/hosting"                        },
+  { label: "Private Email",    href: "/dashboard/email"                          },
+  { label: "SSL Certificates", href: "/dashboard/ssl"                            },
+  { label: "Orders",           href: "/dashboard/orders"                         },
+  { label: "Invoices",         href: "/dashboard/invoices"                       },
+  { label: "Expired Services", href: "/dashboard/expired-services"               },
+  { label: "Support Tickets",  href: "/dashboard/tickets"                        },
+  { label: "Profile",          href: "/dashboard/settings"                       },
+  { label: "Tools",            href: "/dashboard/tools"                          },
 ];
+
 
 // ── Sub-items (Domains expand) ─────────────────────────────────────────────
 function SubItems({
@@ -109,19 +113,23 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const { data: me, isLoading } = useGetMe();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
   const firstName = me?.data?.firstName ?? "";
   const lastName  = me?.data?.lastName  ?? "";
+  const email     = me?.data?.email     ?? "";
   const username  = [firstName, lastName].filter(Boolean).join(" ") || "Account";
 
-  const isDomainsActive =
-    pathname.startsWith("/dashboard/domains") ||
-    pathname.startsWith("/dashboard/domain-transfer");
-
-  const [domainsOpen, setDomainsOpen] = useState(isDomainsActive);
-
   useEffect(() => {
-    if (isDomainsActive) setDomainsOpen(true);
-  }, [pathname, isDomainsActive]);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <aside
@@ -145,10 +153,13 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         </div>
       )}
 
-      {/* ── User chip ─────────────────────────────────────────── */}
-      <div className="px-3 pt-4 pb-2 shrink-0">
-        <div
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg w-full cursor-default"
+      {/* ── User chip & Dropdown ─────────────────────────────────── */}
+      <div className="relative px-3 pt-4 pb-2 shrink-0" ref={userMenuRef}>
+        <button
+          type="button"
+          id="sidebar-user-chip"
+          onClick={() => setUserMenuOpen((prev) => !prev)}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg w-full cursor-pointer text-left transition-colors hover:bg-white/10"
           style={{ background: S.bgUser }}
         >
           {/* Avatar icon */}
@@ -174,8 +185,119 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             </span>
           )}
 
-          <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: S.textMuted }} />
-        </div>
+          <ChevronDown
+            className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+              userMenuOpen ? "rotate-180" : ""
+            }`}
+            style={{ color: S.textMuted }}
+          />
+        </button>
+
+        {/* User Dropdown Popover */}
+        {userMenuOpen && (
+          <div
+            className="absolute left-3 right-3 top-full mt-1.5 py-1 z-50 rounded-xl shadow-2xl overflow-hidden"
+            style={{
+              background: "#01283d",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            {/* User Info Header */}
+            <div
+              className="px-3.5 py-2.5 border-b"
+              style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
+            >
+              <p
+                className="text-[12.5px] font-semibold truncate"
+                style={{ color: S.textPrimary }}
+              >
+                {username}
+              </p>
+              {email && (
+                <p
+                  className="text-[11px] truncate mt-0.5"
+                  style={{ color: S.textMuted }}
+                >
+                  {email}
+                </p>
+              )}
+            </div>
+
+            {/* Menu Links */}
+            <div className="p-1 flex flex-col gap-0.5">
+              <Link
+                href="/dashboard/settings"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
+                style={{ color: S.textPrimary }}
+              >
+                <Settings className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                Profile Settings
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
+                style={{ color: S.textPrimary }}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                Client Area Overview
+              </Link>
+              <Link
+                href="/"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
+                style={{ color: S.textPrimary }}
+              >
+                <ExternalLink className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                Visit Main Site
+              </Link>
+              <a
+                href={DOCS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
+                style={{ color: S.textPrimary }}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                Help &amp; Docs ↗
+              </a>
+
+              <div
+                className="my-1 h-px mx-1"
+                style={{ background: "rgba(255, 255, 255, 0.08)" }}
+              />
+
+              <button
+                type="button"
+                id="sidebar-dropdown-logout"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  logout();
+                }}
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-red-400 hover:bg-red-500/15 transition-colors disabled:opacity-50 text-left cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                {isLoggingOut ? "Logging out…" : "Logout"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Nav list ──────────────────────────────────────────── */}
@@ -183,60 +305,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         {NAV_ITEMS.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
-            : pathname.startsWith(item.href.split("?")[0]) &&
-              // Prevent "Hosting List" from being active on /dashboard/hosting/... when "Private Email" is also /dashboard/hosting
-              // Both map to same route — just highlight Hosting List
-              !(item.label === "Private Email" && pathname.startsWith("/dashboard/hosting"));
-
-          // Domain List with sub-items
-          if (item.subItems) {
-            const domainActive =
-              pathname.startsWith("/dashboard/domains") ||
-              pathname.startsWith("/dashboard/domain-transfer");
-
-            return (
-              <div key={item.href}>
-                <div
-                  className="flex items-center justify-between rounded-lg transition-colors duration-150"
-                  style={{ background: domainActive ? S.bgActive : "transparent" }}
-                >
-                  <Link
-                    href={item.href}
-                    id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    onClick={onClose}
-                    className="flex-1 px-3 py-2 text-[13.5px] transition-colors duration-150"
-                    style={{
-                      color: domainActive ? S.textPrimary : S.textInactive,
-                      fontWeight: domainActive ? 500 : 400,
-                      letterSpacing: "-0.1px",
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                  <button
-                    onClick={() => setDomainsOpen((v) => !v)}
-                    className="px-2 py-2 transition-colors"
-                    style={{ color: domainActive ? S.textPrimary : S.textMuted }}
-                    aria-label="Toggle domain sub-menu"
-                  >
-                    <ChevronRight
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${domainsOpen ? "rotate-90" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {domainsOpen && (
-                  <Suspense fallback={null}>
-                    <SubItems
-                      items={item.subItems}
-                      onClose={onClose}
-                      pathname={pathname}
-                    />
-                  </Suspense>
-                )}
-              </div>
-            );
-          }
+            : pathname.startsWith(item.href.split("?")[0]);
 
           // Regular item
           return (

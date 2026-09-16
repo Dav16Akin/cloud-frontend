@@ -189,9 +189,9 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[1.15rem] font-semibold text-[#031033]">
+          <h2 className="text-[1.15rem] font-semibold text-[#031033]">
             Orders
-          </h1>
+          </h2>
           <p className="text-[#5a6a85] mt-1 text-sm">
             View your payment history. Services are provisioned automatically
             after payment.

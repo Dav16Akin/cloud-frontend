@@ -151,7 +151,7 @@ function SSLDashboardContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-[1.15rem] font-semibold text-[#031033]">SSL Certificates</h1>
+          <h2 className="text-[1.15rem] font-semibold text-[#031033]">SSL Certificates</h2>
           <p className="text-[#5a6a85] text-sm mt-0.5">
             Manage your SSL security certificates or secure new domain names instantly.
           </p>

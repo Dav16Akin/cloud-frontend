@@ -590,7 +590,7 @@ export default function SettingsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[1.15rem] font-semibold text-[#031033]">Account Settings</h1>
+          <h2 className="text-[1.15rem] font-semibold text-[#031033]">Account Settings</h2>
           <p className="text-[#5a6a85] text-sm mt-1">
             Manage your profile, contact details and password.
           </p>

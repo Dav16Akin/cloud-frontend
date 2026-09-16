@@ -337,9 +337,9 @@ export default function TicketsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[1.15rem] font-semibold text-[#031033]">
+          <h2 className="text-[1.15rem] font-semibold text-[#031033]">
             Support Tickets
-          </h1>
+          </h2>
           <p className="text-[#5a6a85] mt-1 text-sm">
             Get help from our support team. Create a ticket or check existing
             ones.

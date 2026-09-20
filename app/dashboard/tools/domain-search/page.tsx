@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Search, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Search, Loader2, Globe, ShieldCheck } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { toast } from "sonner";
 import { useCartStore } from "@/store/cartStore";
@@ -15,41 +15,24 @@ interface DomainRow {
   isAvailable: boolean;
 }
 
-// Default initial results matching Figma
-const DEFAULT_RESULTS: DomainRow[] = [
-  {
-    domain: "acme.com",
-    status: "Unavailable",
-    price: "—",
-    isAvailable: false,
-  },
-  {
-    domain: "acme.net",
-    status: "Available",
-    price: "₦27,000 / yr",
-    isAvailable: true,
-  },
-  {
-    domain: "acme.io",
-    status: "Available",
-    price: "₦57,000 / yr",
-    isAvailable: true,
-  },
-];
-
-export default function DomainSearchToolPage() {
+function DomainSearchContent() {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("acme");
-  const [results, setResults] = useState<DomainRow[]>(DEFAULT_RESULTS);
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("search") || searchParams.get("domain") || "";
+
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [results, setResults] = useState<DomainRow[]>([]);
   const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const addDomainItem = useCartStore((s) => s.addDomainItem);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const term = searchTerm.trim().toLowerCase();
+  const executeSearch = useCallback(async (termToSearch: string) => {
+    const term = termToSearch.trim().toLowerCase();
     if (!term) return;
 
     setSearching(true);
+    setHasSearched(true);
+
     try {
       const res = await searchDomains(term);
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -71,68 +54,26 @@ export default function DomainSearchToolPage() {
         });
         setResults(mapped);
       } else {
-        // Generate standard TLDs for the search term
-        const cleanBase = term.replace(/\.[a-z]+$/i, "");
-        const fallbackList: DomainRow[] = [
-          {
-            domain: `${cleanBase}.com`,
-            status: cleanBase === "acme" ? "Unavailable" : "Available",
-            price: cleanBase === "acme" ? "—" : "₦28,500 / yr",
-            isAvailable: cleanBase !== "acme",
-          },
-          {
-            domain: `${cleanBase}.net`,
-            status: "Available",
-            price: "₦27,000 / yr",
-            isAvailable: true,
-          },
-          {
-            domain: `${cleanBase}.io`,
-            status: "Available",
-            price: "₦57,000 / yr",
-            isAvailable: true,
-          },
-          {
-            domain: `${cleanBase}.org`,
-            status: "Available",
-            price: "₦24,000 / yr",
-            isAvailable: true,
-          },
-          {
-            domain: `${cleanBase}.ng`,
-            status: "Available",
-            price: "₦15,000 / yr",
-            isAvailable: true,
-          },
-        ];
-        setResults(fallbackList);
+        setResults([]);
       }
-    } catch {
-      // Graceful fallback for network issues
-      const cleanBase = term.replace(/\.[a-z]+$/i, "");
-      setResults([
-        {
-          domain: `${cleanBase}.com`,
-          status: "Unavailable",
-          price: "—",
-          isAvailable: false,
-        },
-        {
-          domain: `${cleanBase}.net`,
-          status: "Available",
-          price: "₦27,000 / yr",
-          isAvailable: true,
-        },
-        {
-          domain: `${cleanBase}.io`,
-          status: "Available",
-          price: "₦57,000 / yr",
-          isAvailable: true,
-        },
-      ]);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to search domain availability.");
+      setResults([]);
     } finally {
       setSearching(false);
     }
+  }, []);
+
+  useEffect(() => {
+    if (initialQuery) {
+      setSearchTerm(initialQuery);
+      executeSearch(initialQuery);
+    }
+  }, [initialQuery, executeSearch]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    executeSearch(searchTerm);
   };
 
   const handleRegister = (domainName: string) => {
@@ -181,25 +122,28 @@ export default function DomainSearchToolPage() {
           Domain Search
         </h2>
         <p className="text-[14px] mt-1 text-[#6e6e73]">
-          Find an available domain.
+          Search live domain availability, pricing, and status across supported top-level domains.
         </p>
       </div>
 
       {/* Search Input Box */}
       <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm">
         <form onSubmit={handleSearch} className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="Enter a domain name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors"
-          />
+          <div className="relative flex-1">
+            <Globe className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Enter a domain name (e.g. yourbrand.com)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors"
+            />
+          </div>
           <button
             type="submit"
             id="btn-domain-search"
-            disabled={searching}
-            className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm shrink-0 flex items-center gap-2 disabled:opacity-60"
+            disabled={searching || !searchTerm.trim()}
+            className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm shrink-0 flex items-center gap-2 disabled:opacity-60 cursor-pointer"
           >
             {searching && <Loader2 className="w-4 h-4 animate-spin" />}
             Search
@@ -233,10 +177,32 @@ export default function DomainSearchToolPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f2f5fc]">
-                {results.length === 0 ? (
+                {!hasSearched ? (
                   <tr>
-                    <td colSpan={4} className="py-12 text-center text-[13.5px] text-[#6e6e73]">
-                      No domains found. Enter a domain name above to search.
+                    <td colSpan={4} className="py-14 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+                        <Search className="w-7 h-7 text-[#9ba8c0]" />
+                        <p className="text-[14px] font-medium text-[#1d1d1f]">
+                          No search performed yet
+                        </p>
+                        <p className="text-[12.5px] text-[#6e6e73]">
+                          Enter a domain name above and click search to check live availability and registration rates.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : results.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-14 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+                        <Globe className="w-7 h-7 text-[#9ba8c0]" />
+                        <p className="text-[14px] font-medium text-[#1d1d1f]">
+                          No domains found
+                        </p>
+                        <p className="text-[12.5px] text-[#6e6e73]">
+                          No domain results were returned for &ldquo;{searchTerm}&rdquo;. Try another domain or keyword.
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -272,7 +238,7 @@ export default function DomainSearchToolPage() {
                             type="button"
                             onClick={() => handleRegister(row.domain)}
                             id={`btn-register-${row.domain.replace(/[@.]/g, "-")}`}
-                            className="inline-flex items-center justify-center px-5 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-full transition-colors active:scale-95 shadow-sm"
+                            className="inline-flex items-center justify-center px-5 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-full transition-colors active:scale-95 shadow-sm cursor-pointer"
                           >
                             Register
                           </button>
@@ -297,5 +263,20 @@ export default function DomainSearchToolPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DomainSearchToolPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
+          <p className="text-[14px] text-[#6e6e73]">Loading Domain Search...</p>
+        </div>
+      }
+    >
+      <DomainSearchContent />
+    </Suspense>
   );
 }

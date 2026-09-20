@@ -1436,3 +1436,78 @@ export const replyToTicket = (
     },
   ).then(handleResponse);
 
+// ── Tools ─────────────────────────────────────────────────────────────────────
+
+export interface DnsRecordSOA {
+  nsname: string;
+  hostmaster: string;
+  serial: number;
+  refresh: number;
+  retry: number;
+  expire: number;
+  minttl: number;
+}
+
+export interface DnsRecordMX {
+  exchange: string;
+  priority: number;
+  type?: string;
+}
+
+export interface DnsRecordsData {
+  domainName: string;
+  records: {
+    A: string[];
+    AAAA: string[];
+    MX: DnsRecordMX[];
+    TXT: Array<string[] | string>;
+    NS: string[];
+    CNAME: string[];
+    SOA: DnsRecordSOA | null;
+  };
+}
+
+export interface DnsLookupResponse {
+  success: boolean;
+  message: string;
+  data: DnsRecordsData | null;
+  error?: string[] | string | null;
+}
+
+/** POST /tools/dnslookup — Query DNS records for a domain */
+export const lookupDns = (
+  domainName: string,
+): Promise<DnsLookupResponse> =>
+  fetch(`${BASE_URL}/tools/dnslookup`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ domainName }),
+  }).then(handleResponse);
+
+export interface WhoisServerResult {
+  server: string;
+  data: Record<string, any>;
+}
+
+export interface WhoisData {
+  domain: string;
+  results: Record<string, any> | WhoisServerResult[];
+}
+
+export interface WhoisResponse {
+  success: boolean;
+  message: string;
+  data: WhoisData | null;
+  error?: string[] | string | null;
+}
+
+/** POST /tools/whois — WHOIS record lookup for a domain */
+export const lookupWhois = (
+  domainName: string,
+): Promise<WhoisResponse> =>
+  fetch(`${BASE_URL}/tools/whois`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ domainName }),
+  }).then(handleResponse);
+

@@ -15,6 +15,12 @@ import {
   Clock,
 } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/useOrders";
+import {
+  useGetHosting,
+  getRecentHostingPurchase,
+  clearRecentHostingPurchase,
+} from "@/hooks/useHosting";
+import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningCard";
 import type { OrderItem } from "@/lib/api";
 
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
@@ -63,14 +69,45 @@ function HostingVerifyContent() {
     isManualChecking,
   } = useVerifyPayment(reference || null);
 
-  const [countdown, setCountdown] = useState(5);
+  const recent = getRecentHostingPurchase();
+  const hostingItem = data?.items?.find((i) => i.type === "HOSTING");
+  const targetDomain =
+    hostingItem?.domainName ||
+    (hostingItem as any)?.domain ||
+    recent?.domain ||
+    "yourdomain.com";
+  const targetPlanName =
+    hostingItem?.plan?.name || recent?.planName || "Cloud Hosting Plan";
+
+  const {
+    data: accounts,
+    refetch: refetchHosting,
+    isFetching: fetchingHosting,
+  } = useGetHosting({
+    refetchInterval: isPaid ? 5000 : false,
+  });
+
+  const matchedAccount = accounts?.find(
+    (a) => a.domain?.toLowerCase() === targetDomain.toLowerCase()
+  );
+  const isProvisioned =
+    matchedAccount &&
+    (matchedAccount.status || "").toUpperCase() === "ACTIVE";
+
+  const [countdown, setCountdown] = useState(8);
 
   useEffect(() => {
-    if (!isPaid) return;
+    if (!isProvisioned) return;
+
+    clearRecentHostingPurchase();
 
     const timer = setTimeout(() => {
-      router.replace("/dashboard/hosting");
-    }, 5000);
+      router.replace(
+        matchedAccount?.id
+          ? `/dashboard/hosting/${matchedAccount.id}`
+          : "/dashboard/hosting"
+      );
+    }, 8000);
 
     const interval = setInterval(() => {
       setCountdown((c) => Math.max(0, c - 1));
@@ -80,7 +117,7 @@ function HostingVerifyContent() {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, [isPaid, router]);
+  }, [isProvisioned, router, matchedAccount]);
 
   // ── No reference ─────────────────────────────────────────────────────────────
   if (!reference) {
@@ -239,31 +276,32 @@ function HostingVerifyContent() {
   const displayCountdown = Math.max(0, countdown);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-6 max-w-md mx-auto">
-      <div className="relative">
-        <div className="w-20 h-20 bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
-          <CheckCircle2 className="w-9 h-9 text-emerald-500" />
-        </div>
-        <span className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-[#e8900a] flex items-center justify-center text-white text-[10px] font-extrabold">
-          ✓
-        </span>
-      </div>
-
-      <div>
-        <h2 className="text-[1.15rem] font-semibold text-[#031033]">
-          Hosting Account Purchased!
-        </h2>
-        <p className="text-[#5a6a85] mt-2 text-sm leading-relaxed">
-          Your hosting account is being set up! You&apos;ll receive an email with your cPanel details shortly.
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 max-w-2xl mx-auto py-6">
+      {/* Hosting Provisioning Card */}
+      <HostingProvisioningCard
+        domain={targetDomain}
+        planName={targetPlanName}
+        status={isProvisioned ? "ACTIVE" : "PENDING"}
+        isReady={isProvisioned}
+        hostingId={matchedAccount?.id}
+        cpanelUsername={matchedAccount?.cpanelUsername}
+        serverIp={matchedAccount?.serverIp}
+        onRefresh={() => refetchHosting()}
+        isRefreshing={fetchingHosting}
+      />
 
       {/* Summary box */}
-      <div className="w-full bg-[#f6f9ff] border border-[#e2eaff] text-left">
+      <div className="w-full bg-white rounded-2xl border border-[#e2eaff] overflow-hidden text-left shadow-xs">
+        <div className="px-5 py-3 border-b border-[#f0f4fc] bg-[#fbfcfe]">
+          <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wide">
+            Payment & Order Summary
+          </p>
+        </div>
+
         {data?.items?.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-3 px-4 py-3 border-b border-[#e2eaff] last:border-b-0"
+            className="flex items-center gap-3 px-5 py-3.5 border-b border-[#f0f4fc] last:border-b-0"
           >
             <ItemTypeIcon type={item.type} />
             <div className="flex-1 min-w-0">
@@ -280,7 +318,7 @@ function HostingVerifyContent() {
           </div>
         ))}
 
-        <div className="flex items-center justify-between px-4 py-3 bg-white">
+        <div className="flex items-center justify-between px-5 py-3 bg-[#f8faff] border-t border-[#f0f4fc]">
           <span className="text-xs font-bold text-[#9ba8c0] uppercase tracking-wide">
             Total Paid
           </span>
@@ -289,9 +327,9 @@ function HostingVerifyContent() {
           </span>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e2eaff]">
+        <div className="flex items-center justify-between px-5 py-2.5 border-t border-[#f0f4fc]">
           <span className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
-            Reference
+            Paystack Reference
           </span>
           <span className="text-xs font-mono text-[#5a6a85]">
             {data?.reference ?? reference}
@@ -299,29 +337,42 @@ function HostingVerifyContent() {
         </div>
       </div>
 
-      {/* Auto-redirect countdown & CTA */}
-      <div className="flex flex-col items-center gap-3 w-full">
-        <p className="text-xs text-[#9ba8c0]">
-          Redirecting to your hosting dashboard in{" "}
-          <span className="font-bold text-[#e8900a]">{displayCountdown}s</span>
-          …
-        </p>
+      {/* Actions & Redirect info */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#e2eaff] shadow-xs">
+        <div>
+          {isProvisioned ? (
+            <p className="text-xs text-emerald-700 font-semibold">
+              ✓ Server setup complete. Redirecting to control panel in{" "}
+              <span className="font-bold">{displayCountdown}s</span>…
+            </p>
+          ) : (
+            <p className="text-xs text-[#5a6a85]">
+              You can safely navigate away. cPanel credentials will also be sent to your email.
+            </p>
+          )}
+        </div>
 
-        <Link
-          href="/dashboard/hosting"
-          id="hosting-verify-done-cta"
-          className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
-        >
-          Go to Hosting Dashboard
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <Link
+            href={
+              matchedAccount?.id
+                ? `/dashboard/hosting/${matchedAccount.id}`
+                : "/dashboard/hosting"
+            }
+            id="hosting-verify-done-cta"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-95 transition-all shadow-xs"
+          >
+            <span>{isProvisioned ? "Open Control Panel" : "Go to Hosting"}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
 
-        <Link
-          href="/dashboard/orders"
-          className="text-xs font-semibold text-[#9ba8c0] hover:text-[#5a6a85] transition-colors"
-        >
-          View My Orders
-        </Link>
+          <Link
+            href="/dashboard/orders"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#5a6a85] hover:text-[#031033] bg-[#f8faff] hover:bg-[#eff4fb] border border-[#e2eaff] transition-all"
+          >
+            Orders
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -12,10 +12,13 @@ import {
   AlertCircle,
   LayoutDashboard,
   Search,
+  Server,
 } from "lucide-react";
-import { verifyPayment } from "@/lib/api";
+import { verifyPayment, type HostingAccount } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import { HostingProvisioningCard } from "@/components/dashboard/HostingProvisioningCard";
+import { useGetHosting, getRecentHostingPurchase } from "@/hooks/useHosting";
 
 type VerifyState = "loading" | "pending" | "success" | "failed" | "error";
 
@@ -140,6 +143,52 @@ function CartSuccessContent() {
 
   const domainCount =
     orderData?.items?.filter((item) => item.type === "DOMAIN").length ?? 0;
+
+  // Hosting provisioning tracking
+  const recentPurchase = typeof window !== "undefined" ? getRecentHostingPurchase() : null;
+  const hasHostingItem =
+    orderData?.items?.some((item) => item.type === "HOSTING") ||
+    !!recentPurchase;
+
+  const {
+    data: hostingData,
+    refetch: refetchHosting,
+    isRefetching: isRefetchingHosting,
+  } = useGetHosting({
+    refetchInterval: (query: any) => {
+      if (verifyState !== "success" || !hasHostingItem) return false;
+      const items = (query.state.data as HostingAccount[] | undefined) ?? [];
+      const hasPending = items.some((h) => h.status === "PENDING");
+      return hasPending || !!recentPurchase ? 5000 : false;
+    },
+  });
+
+  const hostingList: HostingAccount[] = hostingData ?? [];
+  const pendingHosting = hostingList.find((h) => h.status === "PENDING");
+  const matchingActiveHosting = recentPurchase?.domain
+    ? hostingList.find((h) => h.domain === recentPurchase.domain && h.status === "ACTIVE")
+    : undefined;
+
+  const hostingDomain =
+    pendingHosting?.domain ??
+    matchingActiveHosting?.domain ??
+    recentPurchase?.domain ??
+    orderData?.items?.find((i) => i.type === "HOSTING")?.domainName;
+
+  const hostingPlanName =
+    pendingHosting?.plan?.name ??
+    matchingActiveHosting?.plan?.name ??
+    recentPurchase?.planName ??
+    orderData?.items?.find((i) => i.type === "HOSTING")?.plan?.name ??
+    "Web Hosting";
+
+  const hostingStatus: "PENDING" | "ACTIVE" = matchingActiveHosting
+    ? "ACTIVE"
+    : pendingHosting
+    ? (pendingHosting.status as "PENDING" | "ACTIVE")
+    : recentPurchase
+    ? "PENDING"
+    : "PENDING";
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
@@ -269,21 +318,40 @@ function CartSuccessContent() {
                   </div>
                   <div className="divide-y divide-[#f0f4fc]">
                     {orderData!.items.map((item) => {
+                      const isHosting = item.type === "HOSTING";
                       const label =
-                        item.type === "HOSTING"
+                        isHosting
                           ? `${item.plan?.name ?? "Hosting"} Plan`
                           : item.type === "DOMAIN"
                           ? item.domainName
                           : `SSL — ${item.domainName}`;
                       return (
                         <div key={item.id} className="flex items-center gap-3 px-5 py-3">
-                          <Globe className="w-4 h-4 text-[#1787D4] shrink-0" />
+                          {isHosting ? (
+                            <Server className="w-4 h-4 text-[#1787D4] shrink-0" />
+                          ) : (
+                            <Globe className="w-4 h-4 text-[#1787D4] shrink-0" />
+                          )}
                           <span className="text-[#031033] font-semibold text-sm">{label}</span>
                           <CheckCircle className="w-3.5 h-3.5 text-green-500 ml-auto shrink-0" />
                         </div>
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Hosting Provisioning Progress Tracker */}
+              {hasHostingItem && (
+                <div className="text-left my-2">
+                  <HostingProvisioningCard
+                    domain={hostingDomain}
+                    planName={hostingPlanName}
+                    status={hostingStatus}
+                    createdAt={pendingHosting?.createdAt}
+                    onRefetch={refetchHosting}
+                    isRefetching={isRefetchingHosting}
+                  />
                 </div>
               )}
 
@@ -296,10 +364,12 @@ function CartSuccessContent() {
                 </div>
                 <div className="divide-y divide-[#f0f4fc]">
                   {[
-                    { icon: CheckCircle, text: "Your payment has been received and processed." },
-                    { icon: Globe, text: "DNS propagation begins immediately (up to 24–48 hrs globally)." },
+                    { icon: CheckCircle, text: "Your payment has been received and confirmed." },
+                    hasHostingItem
+                      ? { icon: Server, text: "Your hosting server node and cPanel account are being provisioned in real time." }
+                      : { icon: Globe, text: "DNS propagation begins immediately (up to 24–48 hrs globally)." },
                     { icon: Shield, text: "SSL certificate will be issued and activated automatically." },
-                    { icon: LayoutDashboard, text: "Manage your domains from the dashboard at any time." },
+                    { icon: LayoutDashboard, text: "Manage your services anytime from your dashboard." },
                   ].map(({ icon: Icon, text }) => (
                     <div key={text} className="flex items-start gap-3 px-5 py-3 text-sm text-[#5a6a85]">
                       <Icon className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
@@ -311,14 +381,35 @@ function CartSuccessContent() {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link
-                  href="/dashboard/domains"
-                  id="success-go-dashboard"
-                  className="btn-primary py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2 shadow-xs"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Go to Dashboard
-                </Link>
+                {hasHostingItem ? (
+                  <Link
+                    href="/dashboard/hosting"
+                    id="success-go-hosting"
+                    className="btn-primary py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2 shadow-xs"
+                  >
+                    <Server className="w-4 h-4" />
+                    Go to Hosting Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    href="/dashboard/domains"
+                    id="success-go-dashboard"
+                    className="btn-primary py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2 shadow-xs"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Go to Dashboard
+                  </Link>
+                )}
+                {domainCount > 0 && hasHostingItem && (
+                  <Link
+                    href="/dashboard/domains"
+                    id="success-go-domains"
+                    className="btn-outline py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2"
+                  >
+                    <Globe className="w-4 h-4" />
+                    My Domains
+                  </Link>
+                )}
                 <Link
                   href="/domains"
                   id="success-search-more"

@@ -34,7 +34,10 @@ import {
   useGetHostingStats,
   useRenewHosting,
   useUpgradeHosting,
+  getRecentHostingPurchase,
+  clearRecentHostingPurchase,
 } from "@/hooks/useHosting";
+import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningCard";
 import type { Plan, HostingAccount, HostingStatus } from "@/lib/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -66,31 +69,35 @@ export function StatusBadge({ status }: { status: HostingStatus }) {
           icon: CheckCircle2,
           label: "Active",
           cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
+          spin: false,
         }
       : s === "SUSPENDED"
       ? {
           icon: PauseCircle,
           label: "Suspended",
           cls: "bg-red-50 text-red-500 border-red-200",
+          spin: false,
         }
       : s === "TERMINATED"
       ? {
           icon: XCircle,
           label: "Terminated",
           cls: "bg-gray-100 text-gray-500 border-gray-200",
+          spin: false,
         }
       : {
-          icon: Clock,
-          label: "Pending",
-          cls: "bg-amber-50 text-amber-600 border-amber-200",
+          icon: Loader2,
+          label: "Provisioning",
+          cls: "bg-amber-50 text-amber-700 border-amber-200 animate-pulse",
+          spin: true,
         };
 
   const Icon = cfg.icon;
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 border ${cfg.cls}`}
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}
     >
-      <Icon className="w-3 h-3" />
+      <Icon className={`w-3 h-3 ${cfg.spin ? "animate-spin text-amber-600" : ""}`} />
       {cfg.label}
     </span>
   );
@@ -528,6 +535,7 @@ function HostingAccountRow({
   const expiring = account.expiresAt ? isExpiringSoon(account.expiresAt) : false;
   const planName = account.plan?.name ?? "—";
   const status = (account.status?.toUpperCase() ?? "PENDING") as HostingStatus;
+  const isPending = status === "PENDING";
 
   return (
     <div className="flex items-center gap-3 sm:gap-4 px-5 py-3.5 hover:bg-[#f6f9ff] transition-colors group border-b border-[#e2eaff] last:border-b-0">
@@ -540,7 +548,7 @@ function HostingAccountRow({
             ? "bg-red-500"
             : status === "TERMINATED"
             ? "bg-gray-400"
-            : "bg-amber-400"
+            : "bg-amber-400 animate-pulse"
         }`}
       />
 
@@ -550,6 +558,11 @@ function HostingAccountRow({
           {account.domain}
         </p>
         <p className="text-xs text-[#9ba8c0]">{planName} Plan</p>
+        {isPending && (
+          <span className="text-[11px] text-amber-600 font-medium block mt-0.5">
+            Cloud provisioning in progress…
+          </span>
+        )}
       </div>
 
       {/* Badge */}
@@ -573,21 +586,23 @@ function HostingAccountRow({
       </div>
 
       {/* Stats button */}
-      <button
-        id={`hosting-stats-${account.id}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onViewStats(account.id, account.domain);
-        }}
-        className="hidden md:flex items-center gap-1 text-xs font-semibold text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] px-2.5 py-1.5 border border-[#e2eaff] transition-colors shrink-0"
-        aria-label={`View stats for ${account.domain}`}
-      >
-        <BarChart2 className="w-3.5 h-3.5" />
-        Stats
-      </button>
+      {!isPending && (
+        <button
+          id={`hosting-stats-${account.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onViewStats(account.id, account.domain);
+          }}
+          className="hidden md:flex items-center gap-1 text-xs font-semibold text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] px-2.5 py-1.5 border border-[#e2eaff] transition-colors shrink-0"
+          aria-label={`View stats for ${account.domain}`}
+        >
+          <BarChart2 className="w-3.5 h-3.5" />
+          Stats
+        </button>
+      )}
 
       {/* Quick Renew button */}
-      {status !== "TERMINATED" && (
+      {status !== "TERMINATED" && !isPending && (
         <button
           id={`hosting-renew-${account.id}`}
           onClick={(e) => {
@@ -606,7 +621,7 @@ function HostingAccountRow({
       )}
 
       {/* Quick Upgrade button */}
-      {status !== "TERMINATED" && (
+      {status !== "TERMINATED" && !isPending && (
         <button
           id={`hosting-upgrade-${account.id}`}
           onClick={(e) => {
@@ -620,11 +635,18 @@ function HostingAccountRow({
         </button>
       )}
 
+      {isPending && (
+        <span className="hidden sm:inline-flex items-center gap-1 text-[11.5px] font-medium text-amber-700 bg-amber-50 px-2.5 py-1 border border-amber-200 rounded-lg shrink-0">
+          <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+          Setting up…
+        </span>
+      )}
+
       {/* Manage arrow */}
       <Link
         href={`/dashboard/hosting/${account.id}`}
         id={`hosting-manage-${account.id}`}
-        className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2 shrink-0"
+        className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2 shrink-0"
       >
         Manage
         <ChevronRight className="w-3.5 h-3.5" />
@@ -656,11 +678,28 @@ function AccountRowSkeleton() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function HostingDashboardPage() {
+  const recentPurchase =
+    typeof window !== "undefined" ? getRecentHostingPurchase() : null;
+
   const {
     data: accounts,
     isLoading: loadingAccounts,
     isError: accountsError,
-  } = useGetHosting();
+    refetch: refetchAccounts,
+    isFetching: fetchingAccounts,
+  } = useGetHosting({
+    refetchInterval: (query) => {
+      const list = query.state.data?.data || query.state.data;
+      const hasPending =
+        Array.isArray(list) &&
+        list.some((a: any) => (a.status || "").toUpperCase() === "PENDING");
+      const hasRecent =
+        typeof window !== "undefined"
+          ? !!sessionStorage.getItem("recent_hosting_purchase")
+          : false;
+      return hasPending || hasRecent ? 6000 : false;
+    },
+  });
 
   const [statsTarget, setStatsTarget] = useState<{
     id: string;
@@ -669,13 +708,52 @@ export default function HostingDashboardPage() {
   const [renewTarget, setRenewTarget] = useState<HostingAccount | null>(null);
   const [upgradeTarget, setUpgradeTarget] = useState<HostingAccount | null>(null);
 
-  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Expiring Soon" | "Expired">("All");
+  const [statusFilter, setStatusFilter] = useState<
+    "All" | "Active" | "Provisioning" | "Expiring Soon" | "Expired"
+  >("All");
   const [hostingSearch, setHostingSearch] = useState("");
 
+  const pendingAccounts = (accounts || []).filter(
+    (a) => (a.status || "").toUpperCase() === "PENDING"
+  );
+
+  const hasRecentPurchase =
+    !!recentPurchase &&
+    (!recentPurchase.domain ||
+      !accounts?.some(
+        (a) =>
+          a.domain?.toLowerCase() === recentPurchase.domain?.toLowerCase() &&
+          (a.status || "").toUpperCase() === "ACTIVE"
+      ));
+
+  // If recent purchase matches an active account, clear it and show celebration toast
+  useEffect(() => {
+    if (!recentPurchase || !accounts || !recentPurchase.domain) return;
+    const matchingActive = accounts.find(
+      (a) =>
+        a.domain?.toLowerCase() === recentPurchase.domain?.toLowerCase() &&
+        (a.status || "").toUpperCase() === "ACTIVE"
+    );
+    if (matchingActive) {
+      clearRecentHostingPurchase();
+      toast.success(
+        `🎉 Hosting for ${matchingActive.domain} is now active and ready!`
+      );
+    }
+  }, [accounts, recentPurchase]);
+
   const hasAccounts = accounts && accounts.length > 0;
-  const activeCount = accounts?.filter(
-    (a) => (a.status as string).toUpperCase() === "ACTIVE"
-  ).length ?? 0;
+  const activeCount =
+    accounts?.filter((a) => (a.status as string).toUpperCase() === "ACTIVE")
+      .length ?? 0;
+  const provisioningCount =
+    pendingAccounts.length +
+    (hasRecentPurchase &&
+    !pendingAccounts.some(
+      (a) => a.domain?.toLowerCase() === recentPurchase?.domain?.toLowerCase()
+    )
+      ? 1
+      : 0);
 
   return (
     <>
@@ -742,24 +820,70 @@ export default function HostingDashboardPage() {
           </Link>
         </div>
 
+        {/* Provisioning In-Progress Banners */}
+        {pendingAccounts.map((acc) => (
+          <HostingProvisioningCard
+            key={acc.id}
+            domain={acc.domain}
+            planName={acc.plan?.name || "Cloud Hosting Plan"}
+            status={acc.status}
+            createdAt={acc.createdAt}
+            cpanelUsername={acc.cpanelUsername}
+            serverIp={acc.serverIp}
+            hostingId={acc.id}
+            onRefresh={() => refetchAccounts()}
+            isRefreshing={fetchingAccounts}
+          />
+        ))}
+
+        {hasRecentPurchase &&
+          !pendingAccounts.some(
+            (a) => a.domain?.toLowerCase() === recentPurchase?.domain?.toLowerCase()
+          ) && (
+            <HostingProvisioningCard
+              domain={recentPurchase!.domain}
+              planName={recentPurchase!.planName || "Cloud Hosting Plan"}
+              status="PENDING"
+              createdAt={recentPurchase!.timestamp}
+              onRefresh={() => refetchAccounts()}
+              isRefreshing={fetchingAccounts}
+              showDismiss
+              onDismiss={() => {
+                clearRecentHostingPurchase();
+                refetchAccounts();
+              }}
+            />
+          )}
+
         {/* Filter + search row */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {(["All", "Active", "Expiring Soon", "Expired"] as const).map((f) => {
+            {(
+              [
+                "All",
+                "Active",
+                ...(provisioningCount > 0 ? (["Provisioning"] as const) : []),
+                "Expiring Soon",
+                "Expired",
+              ] as const
+            ).map((f) => {
               const isActive = f === statusFilter;
               return (
                 <button
                   key={f}
                   id={`hosting-filter-${f.toLowerCase().replace(/\s+/g, "-")}`}
-                  onClick={() => setStatusFilter(f)}
-                  className="px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150"
+                  onClick={() => setStatusFilter(f as any)}
+                  className="px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 flex items-center gap-1.5"
                   style={{
                     background: isActive ? "#1787D4" : "#ffffff",
                     color: isActive ? "#fff" : "#6e6e73",
                     border: `1px solid ${isActive ? "#1787D4" : "#e8e8ed"}`,
                   }}
                 >
-                  {f}
+                  <span>{f}</span>
+                  {f === "Provisioning" && (
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  )}
                 </button>
               );
             })}
@@ -795,7 +919,7 @@ export default function HostingDashboardPage() {
           <div
             className="grid items-center px-6 py-3 text-[12px] font-semibold"
             style={{
-              gridTemplateColumns: "1fr 180px 120px 160px 100px",
+              gridTemplateColumns: "1fr 180px 140px 160px 100px",
               borderBottom: "1px solid #e8e8ed",
               background: "#f5f5f7",
               color: "#6e6e73",
@@ -822,7 +946,7 @@ export default function HostingDashboardPage() {
           )}
 
           {/* Empty */}
-          {!loadingAccounts && !accountsError && !hasAccounts && (
+          {!loadingAccounts && !accountsError && !hasAccounts && !hasRecentPurchase && (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
               <Server className="w-8 h-8 mb-3" style={{ color: "#aeaeb2" }} />
               <p className="text-[15px] font-semibold" style={{ color: "#1d1d1f" }}>No hosting accounts yet</p>
@@ -849,12 +973,14 @@ export default function HostingDashboardPage() {
                 (a.plan?.name ?? "").toLowerCase().includes(hostingSearch.toLowerCase());
               if (!matchSearch) return false;
               if (statusFilter === "All") return true;
+              const statusUp = (a.status ?? "").toUpperCase();
+              if (statusFilter === "Provisioning") return statusUp === "PENDING";
               const days = a.expiresAt
                 ? (new Date(a.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
                 : 999;
-              const isExp = days < 0 || (a.status ?? "").toUpperCase() === "SUSPENDED" || (a.status ?? "").toUpperCase() === "TERMINATED";
+              const isExp = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
               const isExpiring = !isExp && days <= 14;
-              if (statusFilter === "Active") return !isExp && !isExpiring && (a.status ?? "").toUpperCase() === "ACTIVE";
+              if (statusFilter === "Active") return !isExp && !isExpiring && statusUp === "ACTIVE";
               if (statusFilter === "Expiring Soon") return isExpiring;
               if (statusFilter === "Expired") return isExp;
               return true;
@@ -874,6 +1000,7 @@ export default function HostingDashboardPage() {
                 ? (new Date(account.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
                 : 999;
               const statusUp = (account.status ?? "").toUpperCase();
+              const isPending = statusUp === "PENDING";
               const isActive = statusUp === "ACTIVE" && days >= 0;
               const isExpiring = isActive && days <= 14;
               const isExpired = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
@@ -883,7 +1010,7 @@ export default function HostingDashboardPage() {
                   key={account.id}
                   className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
                   style={{
-                    gridTemplateColumns: "1fr 180px 120px 160px 100px",
+                    gridTemplateColumns: "1fr 180px 140px 160px 100px",
                     borderTop: "1px solid #e8e8ed",
                   }}
                 >
@@ -898,15 +1025,22 @@ export default function HostingDashboardPage() {
                   </span>
 
                   {/* Status pill */}
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
-                    style={{
-                      background: isExpired ? "#fef2f2" : isExpiring ? "#fffbeb" : "#ecfdf5",
-                      color: isExpired ? "#dc2626" : isExpiring ? "#d97706" : "#059669",
-                    }}
-                  >
-                    {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
-                  </span>
+                  {isPending ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                      <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+                      Provisioning…
+                    </span>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
+                      style={{
+                        background: isExpired ? "#fef2f2" : isExpiring ? "#fffbeb" : "#ecfdf5",
+                        color: isExpired ? "#dc2626" : isExpiring ? "#d97706" : "#059669",
+                      }}
+                    >
+                      {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
+                    </span>
+                  )}
 
                   {/* Renewal date */}
                   <span className="text-[13px]" style={{ color: "#6e6e73" }}>
@@ -921,7 +1055,7 @@ export default function HostingDashboardPage() {
                       className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
                       style={{ background: "#1787D4" }}
                     >
-                      Manage
+                      {isPending ? "View Status" : "Manage"}
                     </Link>
                   </div>
                 </div>

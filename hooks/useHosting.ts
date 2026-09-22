@@ -51,31 +51,86 @@ export const usePurchaseHosting = () => {
   });
 };
 
+// ── Recent hosting purchase session tracking ──────────────────────────────────
+
+export interface RecentHostingPurchase {
+  domain?: string;
+  planName?: string;
+  planId?: string;
+  reference?: string;
+  timestamp: number;
+}
+
+export function getRecentHostingPurchase(): RecentHostingPurchase | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem("recent_hosting_purchase");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp > 15 * 60 * 1000) {
+      sessionStorage.removeItem("recent_hosting_purchase");
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function setRecentHostingPurchase(data: Omit<RecentHostingPurchase, "timestamp">) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(
+      "recent_hosting_purchase",
+      JSON.stringify({
+        ...data,
+        timestamp: Date.now(),
+      })
+    );
+  } catch {}
+}
+
+export function clearRecentHostingPurchase() {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem("recent_hosting_purchase");
+  } catch {}
+}
+
 // ── List all hosting accounts ─────────────────────────────────────────────────
 
-export const useGetHosting = () => {
+export const useGetHosting = (options?: {
+  refetchInterval?: number | false | ((query: any) => number | false);
+}) => {
   const token = useAuthStore((s) => s.token);
 
   return useQuery({
     queryKey: ["hosting"],
     queryFn: () => getHosting(token!),
     enabled: !!token,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 30 * 1000,
     select: (res) => res.data,
+    refetchInterval: options?.refetchInterval,
   });
 };
 
 // ── Get a single hosting account ─────────────────────────────────────────────
 
-export const useGetHostingById = (id: string) => {
+export const useGetHostingById = (
+  id: string,
+  options?: {
+    refetchInterval?: number | false | ((query: any) => number | false);
+  }
+) => {
   const token = useAuthStore((s) => s.token);
 
   return useQuery({
     queryKey: ["hosting", id],
     queryFn: () => getHostingById(token!, id),
     enabled: !!token && !!id,
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
     select: (res) => res.data,
+    refetchInterval: options?.refetchInterval,
   });
 };
 

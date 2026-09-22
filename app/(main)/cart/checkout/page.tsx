@@ -21,6 +21,7 @@ import { useAuthStore } from "@/store/authStore";
 import { initializeCartPayment } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "@/lib/api";
+import { setRecentHostingPurchase } from "@/hooks/useHosting";
 import { toast } from "sonner";
 
 function formatCurrency(amount: number, currency = "USD") {
@@ -87,6 +88,20 @@ export default function CheckoutPage() {
 
       if (res?.data?.paymentUrl) {
         sessionStorage.setItem("cart_order_ref", res.data.reference);
+
+        // If cart has hosting, record it for provisioning UI
+        const hostingItem = items.find((i) => i.type === "HOSTING");
+        if (hostingItem && hostingItem.type === "HOSTING") {
+          const domainItem = items.find((i) => i.type === "DOMAIN");
+          setRecentHostingPurchase({
+            domain: domainItem && domainItem.type === "DOMAIN"
+              ? `${domainItem.domainName}.${domainItem.extension}`
+              : undefined,
+            planName: hostingItem.planName,
+            reference: res.data.reference,
+          });
+        }
+
         window.location.href = res.data.paymentUrl;
         // Keep isProcessing as true while the browser navigates to Paystack
       } else {

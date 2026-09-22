@@ -43,15 +43,23 @@ function InvoicesContent() {
   const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
 
-  const { data: invoices = [], isLoading, isError, error, refetch, isFetching } =
-    useGetInvoices();
+  const {
+    data: invoices = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useGetInvoices();
   const { mutate: payInvoice, isPending: isPaying } = usePayInvoice();
   const { mutate: viewInvoice, isPending: isViewing } = useViewInvoice();
 
   const [activePayingId, setActivePayingId] = useState<string | null>(null);
   const [activeViewingId, setActiveViewingId] = useState<string | null>(null);
   const [revalidatingId, setRevalidatingId] = useState<string | null>(null);
-  const [takenInvoices, setTakenInvoices] = useState<Record<string, string>>({});
+  const [takenInvoices, setTakenInvoices] = useState<Record<string, string>>(
+    {},
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "PAID" | "PENDING" | "FAILED" | "REFUNDED"
@@ -71,7 +79,9 @@ function InvoicesContent() {
         if (!isMounted) return;
 
         if (res.success || res.data?.status === "PAID") {
-          toast.success("Payment verified! Your invoice has been marked as paid.");
+          toast.success(
+            "Payment verified! Your invoice has been marked as paid.",
+          );
         } else {
           toast.info(res.message || "Payment status received from Paystack.");
         }
@@ -110,7 +120,7 @@ function InvoicesContent() {
     // 2. If already verified as taken
     if (takenInvoices[invoice.id]) {
       toast.error(
-        `The domain "${takenInvoices[invoice.id]}" has already been taken by someone else and cannot be registered.`
+        `The domain "${takenInvoices[invoice.id]}" has already been taken by someone else and cannot be registered.`,
       );
       return;
     }
@@ -133,17 +143,20 @@ function InvoicesContent() {
           setTakenInvoices((prev) => ({ ...prev, [invoice.id]: domainName }));
           toast.error(
             `Domain "${domainName}" is no longer available. It has already been taken by someone else.`,
-            { duration: 6000 }
+            { duration: 6000 },
           );
           setRevalidatingId(null);
           return;
         }
 
-        toast.success(`Domain "${domainName}" is available! Initializing payment…`);
+        toast.success(
+          `Domain "${domainName}" is available! Initializing payment…`,
+        );
       } catch (err: any) {
         console.error("Domain revalidation error:", err);
         toast.error(
-          err?.message || "Failed to verify domain availability. Please try again."
+          err?.message ||
+            "Failed to verify domain availability. Please try again.",
         );
         setRevalidatingId(null);
         return;
@@ -175,10 +188,12 @@ function InvoicesContent() {
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !q ||
-        (invoice.description && invoice.description.toLowerCase().includes(q)) ||
+        (invoice.description &&
+          invoice.description.toLowerCase().includes(q)) ||
         invoice.id.toLowerCase().includes(q) ||
         String(invoice.amount).toLowerCase().includes(q) ||
-        (invoice.whmcsInvoiceId && String(invoice.whmcsInvoiceId).includes(q)) ||
+        (invoice.whmcsInvoiceId &&
+          String(invoice.whmcsInvoiceId).includes(q)) ||
         (invoice.paystackRef && invoice.paystackRef.toLowerCase().includes(q));
 
       return matchesFilter && matchesSearch;
@@ -239,14 +254,16 @@ function InvoicesContent() {
           <h2
             className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
             style={{
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+              fontFamily:
+                "SF Pro Display, system-ui, -apple-system, sans-serif",
               letterSpacing: "-0.4px",
             }}
           >
             Invoices
           </h2>
           <p className="text-[14px] mt-1 text-[#6e6e73]">
-            Track billing statements, complete payments, and download official receipts.
+            Track billing statements, complete payments, and download official
+            receipts.
           </p>
         </div>
 
@@ -342,9 +359,7 @@ function InvoicesContent() {
                       : "text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc]"
                   }`}
                 >
-                  <span>
-                    {tab.charAt(0) + tab.slice(1).toLowerCase()}
-                  </span>
+                  <span>{tab.charAt(0) + tab.slice(1).toLowerCase()}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                       active
@@ -356,7 +371,7 @@ function InvoicesContent() {
                   </span>
                 </button>
               );
-            }
+            },
           )}
         </div>
 
@@ -489,18 +504,18 @@ function InvoicesContent() {
                     const isDomain = isDomainInvoice(invoice);
                     const domainName = extractDomainFromInvoice(invoice);
                     const isPendingOrFailed =
-                      invoice.status === "PENDING" || invoice.status === "FAILED";
+                      invoice.status === "PENDING" ||
+                      invoice.status === "FAILED";
                     const isPaid = invoice.status === "PAID" || invoice.isPaid;
                     const isThisPaying =
                       isPaying && activePayingId === invoice.id;
-                    const isThisRevalidating =
-                      revalidatingId === invoice.id;
+                    const isThisRevalidating = revalidatingId === invoice.id;
                     const isThisTaken = !!takenInvoices[invoice.id];
                     const isThisViewing =
                       isViewing && activeViewingId === invoice.id;
 
                     const formattedAmount = `₦${Number(
-                      invoice.amount || 0
+                      invoice.amount || 0,
                     ).toLocaleString("en-NG", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -513,7 +528,7 @@ function InvoicesContent() {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                          }
+                          },
                         )
                       : "—";
 
@@ -525,39 +540,11 @@ function InvoicesContent() {
                         {/* Description */}
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
-                                isDomain
-                                  ? "bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]"
-                                  : isHosting
-                                  ? "bg-purple-50 border-purple-200 text-purple-700"
-                                  : "bg-[#f2f5fc] border-[#dce5f5] text-[#1787D4]"
-                              }`}
-                            >
-                              {isDomain ? (
-                                <Globe className="w-4 h-4" />
-                              ) : isHosting ? (
-                                <Server className="w-4 h-4" />
-                              ) : (
-                                <FileText className="w-4 h-4" />
-                              )}
-                            </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
                                 <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate max-w-xs sm:max-w-sm">
                                   {invoice.description || "Nupat Cloud Invoice"}
                                 </span>
-                                {isDomain ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8]">
-                                    <Globe className="w-2.5 h-2.5" />
-                                    Domain
-                                  </span>
-                                ) : isHosting ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                    <Server className="w-2.5 h-2.5" />
-                                    Hosting
-                                  </span>
-                                ) : null}
                               </div>
                               {isThisTaken ? (
                                 <span className="text-[11px] font-semibold text-rose-600 block mt-0.5">

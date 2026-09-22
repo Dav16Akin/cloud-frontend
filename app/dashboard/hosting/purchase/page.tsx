@@ -17,7 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { usePlans } from "@/hooks/usePlans";
-import { usePurchaseHosting } from "@/hooks/useHosting";
+import { usePurchaseHosting, setRecentHostingPurchase } from "@/hooks/useHosting";
 import type { Plan } from "@/lib/api";
 
 function formatNGN(n: number) {
@@ -83,6 +83,12 @@ function HostingPurchaseContent() {
       {
         onSuccess: (res) => {
           if (res.data?.paymentUrl) {
+            setRecentHostingPurchase({
+              domain: trimmed,
+              planName: selectedPlan.name,
+              planId: selectedPlan.id,
+              reference: res.data.reference,
+            });
             window.location.href = res.data.paymentUrl;
           } else {
             setErrorMsg("No payment URL returned from server.");

@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePlans } from "@/hooks/usePlans";
+import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningCard";
 import {
   useGetHostingById,
   useSuspendHosting,
@@ -106,17 +107,17 @@ function StatusBadge({ status }: { status: HostingStatus }) {
   const s = (status ?? "").toUpperCase() as HostingStatus;
   const cfg =
     s === "ACTIVE"
-      ? { icon: CheckCircle2, label: "Active", cls: "bg-emerald-50 text-emerald-600 border-emerald-200" }
+      ? { icon: CheckCircle2, label: "Active", cls: "bg-emerald-50 text-emerald-600 border-emerald-200", spin: false }
       : s === "SUSPENDED"
-      ? { icon: PauseCircle, label: "Suspended", cls: "bg-red-50 text-red-500 border-red-200" }
+      ? { icon: PauseCircle, label: "Suspended", cls: "bg-red-50 text-red-500 border-red-200", spin: false }
       : s === "TERMINATED"
-      ? { icon: XCircle, label: "Terminated", cls: "bg-gray-100 text-gray-500 border-gray-200" }
-      : { icon: Clock, label: "Pending", cls: "bg-amber-50 text-amber-600 border-amber-200" };
+      ? { icon: XCircle, label: "Terminated", cls: "bg-gray-100 text-gray-500 border-gray-200", spin: false }
+      : { icon: Loader2, label: "Provisioning", cls: "bg-amber-50 text-amber-700 border-amber-200 animate-pulse", spin: true };
 
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 border ${cfg.cls}`}>
-      <Icon className="w-3 h-3" />
+    <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}>
+      <Icon className={`w-3 h-3 ${cfg.spin ? "animate-spin text-amber-600" : ""}`} />
       {cfg.label}
     </span>
   );
@@ -258,12 +259,17 @@ function OverviewTab({
         <button
           id="hosting-quick-cpanel"
           onClick={onOpenCpanel}
-          disabled={fetchingCpanel}
-          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7] disabled:opacity-50"
+          disabled={fetchingCpanel || (account?.status ?? "").toUpperCase() === "PENDING"}
+          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7] disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
         >
           {fetchingCpanel ? "Opening..." : "Access cPanel"}
         </button>
+        {(account?.status ?? "").toUpperCase() === "PENDING" && (
+          <p className="text-[11.5px] text-amber-600 font-medium leading-snug">
+            cPanel access unlocks once automated provisioning completes.
+          </p>
+        )}
         <button
           id="hosting-quick-backups"
           className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
@@ -1828,7 +1834,22 @@ export default function ManageHostingPage() {
   const router = useRouter();
   const id = (params?.id as string) ?? "";
 
-  const { data: account, isLoading, isError } = useGetHostingById(id);
+  const {
+    data: account,
+    isLoading,
+    isError,
+    refetch: refetchAccount,
+    isFetching: fetchingAccount,
+  } = useGetHostingById(id, {
+    refetchInterval: (query) => {
+      const s = (
+        query.state.data?.data?.status ||
+        query.state.data?.status ||
+        ""
+      ).toUpperCase();
+      return s === "PENDING" ? 6000 : false;
+    },
+  });
   const { mutate: suspend, isPending: suspending } = useSuspendHosting();
   const { mutate: unsuspend, isPending: unsuspending } = useUnsuspendHosting();
   const { mutate: terminate, isPending: terminating } = useDeleteHosting();
@@ -2026,6 +2047,19 @@ export default function ManageHostingPage() {
         </div>
 
         {/* Status banners */}
+        {status === "PENDING" && (
+          <HostingProvisioningCard
+            domain={account.domain}
+            planName={account.plan?.name || "Cloud Hosting Plan"}
+            status={account.status}
+            createdAt={account.createdAt}
+            cpanelUsername={account.cpanelUsername}
+            serverIp={account.serverIp}
+            hostingId={account.id}
+            onRefresh={() => refetchAccount()}
+            isRefreshing={fetchingAccount}
+          />
+        )}
         {isSuspended && (
           <div className="bg-red-50 border border-red-200 px-4 py-2.5 flex items-center gap-2 rounded-lg">
             <PauseCircle className="w-4 h-4 text-red-500 shrink-0" />

@@ -50,6 +50,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
+            refetchOnWindowFocus: false, // Prevents request flood when switching between IDE and browser
+            refetchOnReconnect: false,
             retry: (failureCount, error) => {
               // Never automatically retry on 401, 403, 404, or 429
               if (error instanceof ApiError) {

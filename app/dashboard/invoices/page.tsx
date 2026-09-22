@@ -1,122 +1,239 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Receipt,
+  Search,
+  RefreshCw,
+  AlertCircle,
+  Loader2,
+  FileText,
+  CreditCard,
+  ShoppingCart,
+  ExternalLink,
   CheckCircle2,
   Clock,
   XCircle,
-  AlertCircle,
-  RefreshCw,
-  Wallet,
-  FileText,
-  TrendingUp,
-  Search,
-  Loader2,
-  ArrowRight,
+  RotateCcw,
+  Globe,
+  Server,
+  AlertTriangle,
 } from "lucide-react";
-import { useGetBillingOverview } from "@/hooks/useBilling";
-import type { WhmcsInvoice } from "@/lib/api";
+import { toast } from "sonner";
+import {
+  useGetInvoices,
+  usePayInvoice,
+  useViewInvoice,
+  isHostingInvoice,
+  isDomainInvoice,
+  extractDomainFromInvoice,
+} from "@/hooks/useInvoices";
+import { verifyPayment, searchDomains } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
+import InvoiceCard from "@/components/dashboard/InvoiceCard";
+import EmptyState from "@/components/dashboard/EmptyState";
+import type { Invoice } from "@/lib/api";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+function InvoicesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const token = useAuthStore((s) => s.token);
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+  const { data: invoices = [], isLoading, isError, error, refetch, isFetching } =
+    useGetInvoices();
+  const { mutate: payInvoice, isPending: isPaying } = usePayInvoice();
+  const { mutate: viewInvoice, isPending: isViewing } = useViewInvoice();
 
-function formatAmount(total: string | number, currency: string) {
-  const num = typeof total === "string" ? parseFloat(total) : total;
-  if (isNaN(num)) return String(total);
-  return `${currency ?? "₦"} ${num.toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`.trim();
-}
-
-// ── Status Badge ──────────────────────────────────────────────────────────────
-
-type InvoiceStatus = WhmcsInvoice["status"];
-
-function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
-  if (status === "Paid") {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-        <CheckCircle2 className="w-3 h-3" />
-        Paid
-      </span>
-    );
-  }
-  if (status === "Unpaid") {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
-        <Clock className="w-3 h-3" />
-        Unpaid
-      </span>
-    );
-  }
-  if (status === "Cancelled") {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
-        <XCircle className="w-3 h-3" />
-        Cancelled
-      </span>
-    );
-  }
-  if (status === "Refunded") {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-blue-50 text-blue-600 border border-blue-200">
-        <RefreshCw className="w-3 h-3" />
-        Refunded
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-gray-50 text-gray-600 border border-gray-200">
-      <FileText className="w-3 h-3" />
-      {status}
-    </span>
-  );
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-export default function InvoicesPage() {
-  const { data: billing, isLoading, isError, refetch } = useGetBillingOverview();
-
-  const [statusFilter, setStatusFilter] = useState<
-    "All" | "Paid" | "Unpaid" | "Cancelled"
-  >("All");
+  const [activePayingId, setActivePayingId] = useState<string | null>(null);
+  const [activeViewingId, setActiveViewingId] = useState<string | null>(null);
+  const [revalidatingId, setRevalidatingId] = useState<string | null>(null);
+  const [takenInvoices, setTakenInvoices] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "PAID" | "PENDING" | "FAILED" | "REFUNDED"
+  >("ALL");
 
-  const invoices = billing?.invoices ?? [];
-  const hasInvoices = invoices.length > 0;
-  const paidCount = invoices.filter((i) => i.status === "Paid").length;
-  const currency = billing?.currency ?? "₦";
-  const creditBalance = billing?.creditBalance ?? 0;
+  // ── Handle return from Paystack redirect ──────────────────────────────────
+  const reference = searchParams.get("reference") || searchParams.get("trxref");
 
+  useEffect(() => {
+    if (!reference) return;
+
+    let isMounted = true;
+    const verify = async () => {
+      try {
+        toast.info("Verifying invoice payment with Paystack…");
+        const res = await verifyPayment(token, reference);
+        if (!isMounted) return;
+
+        if (res.success || res.data?.status === "PAID") {
+          toast.success("Payment verified! Your invoice has been marked as paid.");
+        } else {
+          toast.info(res.message || "Payment status received from Paystack.");
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        toast.error(err?.message || "Failed to verify payment with Paystack.");
+      } finally {
+        if (isMounted) {
+          queryClient.invalidateQueries({ queryKey: ["invoices"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
+          queryClient.invalidateQueries({ queryKey: ["hosting"] });
+          queryClient.invalidateQueries({ queryKey: ["registered-domains"] });
+          queryClient.invalidateQueries({ queryKey: ["expiry-warnings"] });
+          router.replace("/dashboard/invoices");
+        }
+      }
+    };
+
+    verify();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [reference, token, queryClient, router]);
+
+  // ── Action Handlers ───────────────────────────────────────────────────────
+  const handlePay = async (invoice: Invoice) => {
+    // 1. Hosting plan invoices do not allow direct "Pay now"
+    if (isHostingInvoice(invoice) || !isDomainInvoice(invoice)) {
+      toast.error("Online checkout is only available for domain invoices.");
+      return;
+    }
+
+    const domainName = extractDomainFromInvoice(invoice);
+
+    // 2. If already verified as taken
+    if (takenInvoices[invoice.id]) {
+      toast.error(
+        `The domain "${takenInvoices[invoice.id]}" has already been taken by someone else and cannot be registered.`
+      );
+      return;
+    }
+
+    // 3. Revalidate domain availability before proceeding with payment
+    if (domainName) {
+      setRevalidatingId(invoice.id);
+      try {
+        toast.info(`Checking availability for ${domainName}…`);
+        const res = await searchDomains(domainName);
+        const results = res?.data || [];
+
+        const target = domainName.toLowerCase();
+        const match =
+          results.find((r) => r.domain?.toLowerCase() === target) ||
+          results.find((r) => r.domain?.toLowerCase().startsWith(target)) ||
+          results[0];
+
+        if (match && match.available === false) {
+          setTakenInvoices((prev) => ({ ...prev, [invoice.id]: domainName }));
+          toast.error(
+            `Domain "${domainName}" is no longer available. It has already been taken by someone else.`,
+            { duration: 6000 }
+          );
+          setRevalidatingId(null);
+          return;
+        }
+
+        toast.success(`Domain "${domainName}" is available! Initializing payment…`);
+      } catch (err: any) {
+        console.error("Domain revalidation error:", err);
+        toast.error(
+          err?.message || "Failed to verify domain availability. Please try again."
+        );
+        setRevalidatingId(null);
+        return;
+      } finally {
+        setRevalidatingId(null);
+      }
+    }
+
+    // 4. Trigger Paystack checkout
+    setActivePayingId(invoice.id);
+    payInvoice(invoice.id, {
+      onSettled: () => setActivePayingId(null),
+    });
+  };
+
+  const handleViewInvoice = (invoiceId: string) => {
+    setActiveViewingId(invoiceId);
+    viewInvoice(invoiceId, {
+      onSettled: () => setActiveViewingId(null),
+    });
+  };
+
+  // ── Filtering & Searching ─────────────────────────────────────────────────
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
       const matchesFilter =
-        statusFilter === "All" || invoice.status === statusFilter;
+        statusFilter === "ALL" || invoice.status === statusFilter;
+
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !q ||
+        (invoice.description && invoice.description.toLowerCase().includes(q)) ||
         invoice.id.toLowerCase().includes(q) ||
-        String(invoice.total).toLowerCase().includes(q);
+        String(invoice.amount).toLowerCase().includes(q) ||
+        (invoice.whmcsInvoiceId && String(invoice.whmcsInvoiceId).includes(q)) ||
+        (invoice.paystackRef && invoice.paystackRef.toLowerCase().includes(q));
 
       return matchesFilter && matchesSearch;
     });
   }, [invoices, statusFilter, searchQuery]);
 
+  const stats = useMemo(() => {
+    const total = invoices.length;
+    const paid = invoices.filter((i) => i.status === "PAID" || i.isPaid).length;
+    const pending = invoices.filter((i) => i.status === "PENDING").length;
+    const failed = invoices.filter((i) => i.status === "FAILED").length;
+    const totalAmount = invoices
+      .filter((i) => i.status === "PAID" || i.isPaid)
+      .reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
+
+    return { total, paid, pending, failed, totalAmount };
+  }, [invoices]);
+
+  const renderStatusBadge = (status: Invoice["status"]) => {
+    switch (status) {
+      case "PAID":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            Paid
+          </span>
+        );
+      case "PENDING":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="w-3 h-3 text-amber-600" />
+            Pending
+          </span>
+        );
+      case "FAILED":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+            <XCircle className="w-3 h-3 text-rose-600" />
+            Failed
+          </span>
+        );
+      case "REFUNDED":
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <RotateCcw className="w-3 h-3 text-slate-500" />
+            Refunded
+          </span>
+        );
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
-      {/* Header */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2
@@ -129,244 +246,479 @@ export default function InvoicesPage() {
             Invoices
           </h2>
           <p className="text-[14px] mt-1 text-[#6e6e73]">
-            Access and download your billing statements and payment receipts.
+            Track billing statements, complete payments, and download official receipts.
           </p>
         </div>
 
-        <Link
-          href="/dashboard/orders"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-all shadow-sm self-start sm:self-auto"
-        >
-          <Receipt className="w-4 h-4 text-[#1787D4]" />
-          View Payment Orders
-        </Link>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold text-[#031033] bg-white border border-[#e2eaff] hover:bg-[#f2f5fc] transition-all cursor-pointer shadow-xs disabled:opacity-60"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 text-[#1787D4] ${
+                isFetching ? "animate-spin" : ""
+              }`}
+            />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
-      {/* Top 3 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Total Invoices */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
+      {/* Summary Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs">
+          <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
             Total Invoices
           </span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : (
-              billing?.totalInvoices ?? invoices.length
-            )}
-          </div>
+          <span className="text-2xl font-extrabold text-[#031033]">
+            {stats.total}
+          </span>
+          <span className="text-[12px] text-[#5a6a85] block mt-1">
+            Lifetime orders
+          </span>
         </div>
 
-        {/* Paid Invoices */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
-            Settled (Paid)
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs">
+          <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
+            Paid Invoices
           </span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : (
-              paidCount
-            )}
-          </div>
+          <span className="text-2xl font-extrabold text-emerald-600">
+            {stats.paid}
+          </span>
+          <span className="text-[12px] text-[#5a6a85] block mt-1">
+            Settled & active
+          </span>
         </div>
 
-        {/* Credit Balance */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
-            Available Credit Balance
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs">
+          <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
+            Pending Payment
           </span>
-          <div className="text-[28px] font-bold text-[#1787D4] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : creditBalance !== undefined && creditBalance !== null ? (
-              formatAmount(creditBalance, currency)
-            ) : (
-              "₦ 0.00"
-            )}
-          </div>
+          <span className="text-2xl font-extrabold text-amber-600">
+            {stats.pending}
+          </span>
+          <span className="text-[12px] text-[#5a6a85] block mt-1">
+            Awaiting checkout
+          </span>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs">
+          <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
+            Total Settled
+          </span>
+          <span className="text-2xl font-extrabold text-[#031033]">
+            ₦{stats.totalAmount.toLocaleString("en-NG")}
+          </span>
+          <span className="text-[12px] text-[#5a6a85] block mt-1">
+            Processed via Paystack
+          </span>
         </div>
       </div>
 
-      {/* Filter Row: Pills + Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {(
-            [
-              { label: "All", val: "All" },
-              { label: "Paid", val: "Paid" },
-              { label: "Unpaid", val: "Unpaid" },
-              { label: "Cancelled", val: "Cancelled" },
-            ] as const
-          ).map(({ label, val }) => {
-            const isActive = statusFilter === val;
-            return (
-              <button
-                key={val}
-                onClick={() => setStatusFilter(val as any)}
-                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 cursor-pointer ${
-                  isActive
-                    ? "bg-[#1787D4] text-white shadow-xs"
-                    : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:bg-[#f8fafc]"
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+      {/* Filter Tabs & Search Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-[#e2eaff] p-2.5 shadow-xs">
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          {(["ALL", "PAID", "PENDING", "FAILED", "REFUNDED"] as const).map(
+            (tab) => {
+              const active = statusFilter === tab;
+              const count =
+                tab === "ALL"
+                  ? invoices.length
+                  : invoices.filter((i) => i.status === tab).length;
+
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  id={`filter-tab-${tab.toLowerCase()}`}
+                  onClick={() => setStatusFilter(tab)}
+                  className={`px-3.5 py-1.5 rounded-xl text-[12.5px] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                    active
+                      ? "bg-[#1787D4] text-white shadow-xs"
+                      : "text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc]"
+                  }`}
+                >
+                  <span>
+                    {tab.charAt(0) + tab.slice(1).toLowerCase()}
+                  </span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      active
+                        ? "bg-white/20 text-white"
+                        : "bg-[#f2f5fc] text-[#8a9bb2]"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            }
+          )}
         </div>
 
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Search Box */}
+        <div className="relative sm:w-64">
+          <Search className="w-4 h-4 text-[#8a9bb2] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search invoice #…"
+            placeholder="Search invoices by desc, ref…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
+            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[#e2eaff] bg-[#fbfcfe] text-[13px] text-[#031033] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
           />
         </div>
       </div>
 
-      {/* Invoice Table Container */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
-        <div className="px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
+      {/* Invoices List Container */}
+      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+        {/* Table Header Bar */}
+        <div className="px-5 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Receipt className="w-4 h-4 text-[#1787D4]" />
             <h3 className="text-[14.5px] font-bold text-[#1d1d1f]">
-              Billing Statements
+              Invoices List
             </h3>
-            {hasInvoices && (
+            {invoices.length > 0 && (
               <span className="text-[11px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8] px-2 py-0.5 rounded-full">
-                {invoices.length}
+                {filteredInvoices.length} of {invoices.length}
               </span>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isLoading}
-            id="invoices-refresh"
-            className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
-          >
-            <RefreshCw
-              className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </button>
         </div>
 
-        {/* Table Body */}
+        {/* List Content */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2">
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="w-6 h-6 text-[#1787D4] animate-spin" />
-            <p className="text-[13px] text-[#6e6e73]">Loading your invoices…</p>
+            <p className="text-[13px] text-[#6e6e73]">Loading invoices…</p>
           </div>
         ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center gap-2">
-            <AlertCircle className="w-8 h-8 text-red-400" />
-            <p className="text-[14px] font-semibold text-red-600">
-              Could not load billing data.
+          <div className="p-8 text-center max-w-md mx-auto">
+            <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-[#031033]">
+              Unable to load invoices
+            </h3>
+            <p className="text-xs text-[#5a6a85] mt-1 mb-4 leading-relaxed">
+              {error instanceof Error
+                ? error.message
+                : "A network error occurred while contacting the billing server."}
             </p>
             <button
+              type="button"
               onClick={() => refetch()}
-              id="invoices-retry"
-              className="mt-2 text-xs font-semibold text-[#1787D4] hover:underline"
+              className="btn-primary text-xs py-2 px-5 rounded-xl font-semibold inline-flex items-center gap-2 cursor-pointer"
             >
-              Try Again
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Try Again</span>
             </button>
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
-              <TrendingUp className="w-6 h-6 stroke-[2]" />
-            </div>
-            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
-              No invoices found
-            </p>
-            <p className="text-[12.5px] text-[#6e6e73] max-w-sm mt-0.5">
-              {searchQuery || statusFilter !== "All"
-                ? "No invoices match your current search filters."
-                : "Invoices will be automatically created and stored here whenever you purchase or renew services."}
-            </p>
+          <div className="p-8">
+            <EmptyState
+              icon={Receipt}
+              title={
+                invoices.length === 0
+                  ? "No invoices found"
+                  : "No matching invoices"
+              }
+              description={
+                invoices.length === 0
+                  ? "You haven't generated any invoices yet. When you register a domain or order cloud hosting, your billing history will appear here."
+                  : "No invoices matched your selected filter or search keyword. Try clearing filters to view all records."
+              }
+              action={
+                invoices.length === 0 ? (
+                  <Link
+                    href="/dashboard/hosting"
+                    className="btn-primary text-xs py-2.5 px-5 rounded-xl font-semibold flex items-center gap-2 shadow-xs"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>Browse Hosting</span>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("ALL");
+                      setSearchQuery("");
+                    }}
+                    className="text-xs font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                  >
+                    Clear all filters
+                  </button>
+                )
+              }
+            />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Invoice #
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Due Date
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Issue Date
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Total Amount
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#f2f5fc]">
-                {filteredInvoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="hover:bg-[#fbfcfe] transition-colors"
-                  >
-                    <td className="py-4.5 px-6">
-                      <span className="text-[13.5px] font-bold text-[#1d1d1f]">
-                        Invoice #{invoice.id}
-                      </span>
-                    </td>
-                    <td className="py-4.5 px-6 text-[13px] text-[#6e6e73]">
-                      {formatDate(invoice.duedate)}
-                    </td>
-                    <td className="py-4.5 px-6 text-[13px] text-[#6e6e73]">
-                      {formatDate(invoice.date)}
-                    </td>
-                    <td className="py-4.5 px-6">
-                      <span className="text-[13.5px] font-bold text-[#1d1d1f]">
-                        {formatAmount(invoice.total, currency)}
-                      </span>
-                    </td>
-                    <td className="py-4.5 px-6 text-right">
-                      <InvoiceStatusBadge status={invoice.status} />
-                    </td>
+          <>
+            {/* Desktop Table List (hidden on small screens) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider">
+                      Reference / ID
+                    </th>
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="py-3.5 px-5 text-[12px] font-semibold text-[#5a6a85] uppercase tracking-wider text-right">
+                      Action
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-[#f2f5fc]">
+                  {filteredInvoices.map((invoice) => {
+                    const isHosting = isHostingInvoice(invoice);
+                    const isDomain = isDomainInvoice(invoice);
+                    const domainName = extractDomainFromInvoice(invoice);
+                    const isPendingOrFailed =
+                      invoice.status === "PENDING" || invoice.status === "FAILED";
+                    const isPaid = invoice.status === "PAID" || invoice.isPaid;
+                    const isThisPaying =
+                      isPaying && activePayingId === invoice.id;
+                    const isThisRevalidating =
+                      revalidatingId === invoice.id;
+                    const isThisTaken = !!takenInvoices[invoice.id];
+                    const isThisViewing =
+                      isViewing && activeViewingId === invoice.id;
+
+                    const formattedAmount = `₦${Number(
+                      invoice.amount || 0
+                    ).toLocaleString("en-NG", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`;
+
+                    const formattedDate = invoice.createdAt
+                      ? new Date(invoice.createdAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )
+                      : "—";
+
+                    return (
+                      <tr
+                        key={invoice.id}
+                        className="hover:bg-[#fbfcfe] transition-colors"
+                      >
+                        {/* Description */}
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                                isDomain
+                                  ? "bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]"
+                                  : isHosting
+                                  ? "bg-purple-50 border-purple-200 text-purple-700"
+                                  : "bg-[#f2f5fc] border-[#dce5f5] text-[#1787D4]"
+                              }`}
+                            >
+                              {isDomain ? (
+                                <Globe className="w-4 h-4" />
+                              ) : isHosting ? (
+                                <Server className="w-4 h-4" />
+                              ) : (
+                                <FileText className="w-4 h-4" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate max-w-xs sm:max-w-sm">
+                                  {invoice.description || "Nupat Cloud Invoice"}
+                                </span>
+                                {isDomain ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8]">
+                                    <Globe className="w-2.5 h-2.5" />
+                                    Domain
+                                  </span>
+                                ) : isHosting ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                    <Server className="w-2.5 h-2.5" />
+                                    Hosting
+                                  </span>
+                                ) : null}
+                              </div>
+                              {isThisTaken ? (
+                                <span className="text-[11px] font-semibold text-rose-600 block mt-0.5">
+                                  ⚠️ Domain already taken by another party
+                                </span>
+                              ) : domainName && isDomain ? (
+                                <span className="text-[11.5px] font-mono text-[#1787D4] block mt-0.5">
+                                  {domainName}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Reference / ID */}
+                        <td className="py-4 px-5">
+                          <div className="flex flex-col">
+                            {invoice.whmcsInvoiceId ? (
+                              <span className="text-[12.5px] font-mono font-medium text-[#1d1d1f]">
+                                #{invoice.whmcsInvoiceId}
+                              </span>
+                            ) : null}
+                            <span className="text-[11px] font-mono text-[#8a9bb2] truncate max-w-[140px]">
+                              {invoice.paystackRef || invoice.id.slice(0, 12)}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Date */}
+                        <td className="py-4 px-5">
+                          <span className="text-[12.5px] text-[#5a6a85]">
+                            {formattedDate}
+                          </span>
+                        </td>
+
+                        {/* Amount */}
+                        <td className="py-4 px-5">
+                          <span className="text-[13.5px] font-extrabold text-[#1d1d1f]">
+                            {formattedAmount}
+                          </span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-4 px-5">
+                          {renderStatusBadge(invoice.status)}
+                        </td>
+
+                        {/* Action */}
+                        <td className="py-4 px-5 text-right">
+                          {/* Domain invoice: Pay now ONLY for domains when PENDING or FAILED */}
+                          {isPendingOrFailed && isDomain && (
+                            <>
+                              {isThisTaken ? (
+                                <span
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11.5px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"
+                                  title="This domain is unavailable and cannot be purchased."
+                                >
+                                  <AlertTriangle className="w-3 h-3 text-rose-600" />
+                                  <span>Domain Taken</span>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  id={`table-btn-pay-${invoice.id}`}
+                                  onClick={() => handlePay(invoice)}
+                                  disabled={isThisPaying || isThisRevalidating}
+                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] transition-all shadow-xs disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                                >
+                                  {isThisRevalidating ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                      <span>Checking…</span>
+                                    </>
+                                  ) : isThisPaying ? (
+                                    <>
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                      <span>Processing…</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CreditCard className="w-3 h-3" />
+                                      <span>Pay now</span>
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </>
+                          )}
+
+                          {/* Hosting plan invoice: Remove "Pay now", provide Manage Hosting link */}
+                          {isPendingOrFailed && isHosting && (
+                            <Link
+                              href="/dashboard/hosting"
+                              className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1787D4] hover:text-[#1370B5] hover:underline whitespace-nowrap px-2 py-1"
+                            >
+                              <span>Hosting plans →</span>
+                            </Link>
+                          )}
+
+                          {/* Paid invoice: View invoice button */}
+                          {isPaid && (
+                            <button
+                              type="button"
+                              id={`table-btn-view-${invoice.id}`}
+                              onClick={() => handleViewInvoice(invoice.id)}
+                              disabled={isThisViewing}
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold text-[#031033] bg-[#f2f5fc] hover:bg-[#e4ebf8] border border-[#dce5f5] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                            >
+                              {isThisViewing ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  <span>Loading…</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>View invoice</span>
+                                  <ExternalLink className="w-3 h-3 text-[#5a6a85]" />
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Stacked List (shown on smaller screens) */}
+            <div className="md:hidden flex flex-col divide-y divide-[#f2f5fc] p-3 gap-2">
+              {filteredInvoices.map((invoice) => (
+                <InvoiceCard
+                  key={invoice.id}
+                  invoice={invoice}
+                  onPay={handlePay}
+                  onViewInvoice={handleViewInvoice}
+                  isPaying={isPaying && activePayingId === invoice.id}
+                  isRevalidating={revalidatingId === invoice.id}
+                  isTaken={!!takenInvoices[invoice.id]}
+                  isViewing={isViewing && activeViewingId === invoice.id}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
-
-      {/* Help / Support Strip */}
-      <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h4 className="text-[14px] font-bold text-[#1d1d1f]">
-            Questions about your invoices?
-          </h4>
-          <p className="text-[12.5px] text-[#4b5563] mt-0.5">
-            Need adjustments, tax exempt receipts, or billing clarification? Our
-            finance team is available 24/7.
-          </p>
-        </div>
-        <Link
-          href="/dashboard/tickets"
-          className="text-[13px] font-semibold text-[#1787D4] hover:text-[#1371B5] whitespace-nowrap inline-flex items-center gap-1 shrink-0"
-        >
-          Billing Support <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
     </div>
+  );
+}
+
+export default function InvoicesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
+        </div>
+      }
+    >
+      <InvoicesContent />
+    </Suspense>
   );
 }

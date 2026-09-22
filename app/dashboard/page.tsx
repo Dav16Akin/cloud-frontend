@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -24,10 +25,15 @@ import {
   Eye,
   Plus,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetMe } from "@/hooks/useUser";
 import { useGetHosting } from "@/hooks/useHosting";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetSslCertificates } from "@/hooks/useSsl";
+import { verifyPayment } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
+import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -621,8 +627,13 @@ function QuickActions() {
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-export default function DashboardOverview() {
+// ─── Main page content ────────────────────────────────────────────────────────
+function DashboardOverviewContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const token = useAuthStore((s) => s.token);
+
   const { data: me, isLoading } = useGetMe();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
   const { data: registeredDomains, isLoading: loadingDomains } =
@@ -631,6 +642,46 @@ export default function DashboardOverview() {
 
   const firstName = me?.data?.firstName ?? "";
   const lastName = me?.data?.lastName ?? "";
+
+  // ── Handle return from Paystack renewal / order ───────────────────────────
+  const reference = searchParams?.get("reference") || searchParams?.get("trxref");
+
+  useEffect(() => {
+    if (!reference) return;
+
+    let isMounted = true;
+    const verify = async () => {
+      try {
+        toast.info("Verifying payment with Paystack…");
+        const res = await verifyPayment(token, reference);
+        if (!isMounted) return;
+
+        if (res.success || res.data?.status === "PAID") {
+          toast.success("Payment verified! Your service has been updated.");
+        } else {
+          toast.info(res.message || "Payment status received from Paystack.");
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        toast.error(err?.message || "Failed to verify payment with Paystack.");
+      } finally {
+        if (isMounted) {
+          queryClient.invalidateQueries({ queryKey: ["invoices"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
+          queryClient.invalidateQueries({ queryKey: ["hosting"] });
+          queryClient.invalidateQueries({ queryKey: ["registered-domains"] });
+          queryClient.invalidateQueries({ queryKey: ["expiry-warnings"] });
+          router.replace("/dashboard");
+        }
+      }
+    };
+
+    verify();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [reference, token, queryClient, router]);
 
   // ── Last login ──────────────────────────────────────────────────────────────
   const [lastLogin, setLastLogin] = useState<string | null>(null);
@@ -883,6 +934,9 @@ export default function DashboardOverview() {
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+      {/* ── Expiry Warnings Banner ────────────────────────────────────────── */}
+      <ExpiryBanner />
+
       {/* ── Welcome header ───────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -1118,5 +1172,13 @@ export default function DashboardOverview() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardOverview() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardOverviewContent />
+    </Suspense>
   );
 }

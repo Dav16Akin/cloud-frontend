@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { usePathname } from "next/navigation";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
 const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
@@ -174,6 +175,9 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
           <BookOpen className="w-3.5 h-3.5" />
           <span className="hidden lg:inline">Docs</span>
         </a>
+
+        {/* Expiry Notification Bell */}
+        <NotificationBell />
 
         {/* Cart */}
         <button

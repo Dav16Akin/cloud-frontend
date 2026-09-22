@@ -12,6 +12,7 @@ import {
   getTransfers,
   getTransferStatus,
   getDomainAuthCode,
+  renewDomain,
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -232,6 +233,21 @@ export const useGetDomainAuthCode = (domainId: string) => {
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to retrieve authorization code.");
+    },
+  });
+};
+
+export const useRenewDomain = () => {
+  return useMutation({
+    mutationFn: (id: string) => renewDomain(id),
+    onSuccess: (res) => {
+      if (res.data?.paymentUrl) {
+        toast.success("Redirecting to payment gateway...");
+        window.location.href = res.data.paymentUrl;
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to initialize domain renewal.");
     },
   });
 };

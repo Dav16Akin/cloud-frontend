@@ -1511,3 +1511,91 @@ export const lookupWhois = (
     body: JSON.stringify({ domainName }),
   }).then(handleResponse);
 
+// ── Invoices ───────────────────────────────────────────────────────────────────
+
+export interface Invoice {
+  id: string;
+  amount: number;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  isPaid: boolean;
+  whmcsInvoiceId: number | null;
+  paystackRef: string;
+  createdAt: string;
+  description: string;
+}
+
+/** GET /invoices — fetch all invoices for authenticated user */
+export const getInvoices = (): Promise<{ success: boolean; data: Invoice[]; message?: string }> =>
+  fetchWithRefresh(`${BASE_URL}/invoices`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export interface PayOrderResponse {
+  paymentUrl: string;
+  reference: string;
+  orderId: string;
+  amount: number;
+}
+
+/** POST /orders/:orderId/pay — initialize payment for pending or failed order/invoice */
+export const payOrder = (
+  orderId: string,
+): Promise<{ success: boolean; data: PayOrderResponse; message?: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders/${encodeURIComponent(orderId)}/pay`, {
+    method: "POST",
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export interface OrderInvoiceResponse {
+  url?: string;
+  redirectUrl?: string;
+}
+
+/** GET /orders/:orderId/invoice — get PDF/view URL for paid invoice */
+export const getOrderInvoice = (
+  orderId: string,
+): Promise<{ success: boolean; data?: OrderInvoiceResponse; url?: string; redirectUrl?: string; message?: string }> =>
+  fetchWithRefresh(`${BASE_URL}/orders/${encodeURIComponent(orderId)}/invoice`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Expiry Warnings & Notifications ──────────────────────────────────────────
+
+export interface ExpiryWarning {
+  type: "HOSTING" | "DOMAIN";
+  id: string;
+  label: string;
+  status: string;
+  expiresAt: string | null;
+  daysLeft: number | null;
+  isExpired: boolean;
+}
+
+export interface ExpiryWarningsResponse {
+  count: number;
+  warnings: ExpiryWarning[];
+}
+
+/** GET /notifications/expiry-warnings — fetch expiry warnings for domains and hosting */
+export const getExpiryWarnings = (): Promise<{ success: boolean; data: ExpiryWarningsResponse } | ExpiryWarningsResponse> =>
+  fetchWithRefresh(`${BASE_URL}/notifications/expiry-warnings`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+// ── Domain Renewal ─────────────────────────────────────────────────────────────
+
+export interface RenewDomainResponse {
+  paymentUrl: string;
+  reference: string;
+  total: number;
+}
+
+/** POST /domains/:id/renew — initialize renewal payment for a registered domain */
+export const renewDomain = (
+  id: string,
+): Promise<{ success: boolean; data: RenewDomainResponse; message?: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}/renew`, {
+    method: "POST",
+    headers: getHeaders(),
+  }).then(handleResponse);
+

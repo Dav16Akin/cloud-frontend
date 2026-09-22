@@ -88,7 +88,7 @@ const footerLinks = {
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
     { label: "Security", href: "/security" },
-    { label: "Cookie Policy", href: "/cookies" },
+    { label: "Cookie Preferences", href: "#", isCookieTrigger: true },
   ],
 };
 
@@ -126,22 +126,36 @@ export default function Footer() {
               <ul className="flex flex-col space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      target={
-                        "isExternal" in link && link.isExternal
-                          ? "_blank"
-                          : undefined
-                      }
-                      rel={
-                        "isExternal" in link && link.isExternal
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-white/75 hover:text-white transition-colors text-sm inline-block"
-                    >
-                      {link.label}
-                    </Link>
+                    {"isCookieTrigger" in link && link.isCookieTrigger ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.dispatchEvent(
+                            new CustomEvent("nupat_open_cookie_consent")
+                          );
+                        }}
+                        className="text-white/75 hover:text-white transition-colors text-sm inline-block cursor-pointer text-left"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        target={
+                          "isExternal" in link && link.isExternal
+                            ? "_blank"
+                            : undefined
+                        }
+                        rel={
+                          "isExternal" in link && link.isExternal
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                        className="text-white/75 hover:text-white transition-colors text-sm inline-block"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

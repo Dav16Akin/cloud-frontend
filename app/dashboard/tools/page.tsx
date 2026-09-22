@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Search,
   Globe,
@@ -11,7 +10,6 @@ import {
   FileSearch,
   ArrowRight,
   Network,
-  Radio,
 } from "lucide-react";
 
 interface ToolItem {
@@ -73,35 +71,23 @@ const TOOLS_LIST: ToolItem[] = [
 ];
 
 export default function ToolsDashboardPage() {
-  const router = useRouter();
-  const [quickDnsDomain, setQuickDnsDomain] = useState("");
-  const [quickWhoisDomain, setQuickWhoisDomain] = useState("");
+  const [activeToolId, setActiveToolId] = useState<string>("domain-search");
 
-  const handleQuickDnsLookup = (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = quickDnsDomain
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//i, "")
-      .replace(/\/.*$/, "");
-    if (clean) {
-      router.push(`/dashboard/tools/dns-lookup?domain=${encodeURIComponent(clean)}`);
-    } else {
-      router.push("/dashboard/tools/dns-lookup");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("active_tool_id");
+      if (saved && TOOLS_LIST.some((t) => t.id === saved)) {
+        setActiveToolId(saved);
+      }
     }
-  };
+  }, []);
 
-  const handleQuickWhoisLookup = (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = quickWhoisDomain
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//i, "")
-      .replace(/\/.*$/, "");
-    if (clean) {
-      router.push(`/dashboard/tools/whois-lookup?domain=${encodeURIComponent(clean)}`);
-    } else {
-      router.push("/dashboard/tools/whois-lookup");
+  const handleToolSelect = (id: string) => {
+    setActiveToolId(id);
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem("active_tool_id", id);
+      } catch {}
     }
   };
 
@@ -167,13 +153,18 @@ export default function ToolsDashboardPage() {
       {/* Tools Grid (2 rows x 3 columns) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-1">
         {TOOLS_LIST.map((tool) => {
+          const isActive = activeToolId === tool.id;
+
           return (
-            <div
+            <Link
               key={tool.id}
-              className={`bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between transition-all duration-200 hover:shadow-md ${
-                tool.popular
-                  ? "border-2 border-[#1787D4]"
-                  : "border border-[#e2eaff]"
+              href={tool.href}
+              id={`tool-card-${tool.id}`}
+              onClick={() => handleToolSelect(tool.id)}
+              className={`group bg-white rounded-2xl p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? "border-2 border-[#1787D4] shadow-md ring-2 ring-[#1787D4]/10"
+                  : "border border-[#e2eaff] hover:border-[#1787D4]/60 hover:shadow-md"
               }`}
             >
               <div>
@@ -197,7 +188,7 @@ export default function ToolsDashboardPage() {
                 </div>
 
                 {/* Tool Title */}
-                <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-1">
+                <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-1.5 group-hover:text-[#1787D4] transition-colors">
                   {tool.title}
                 </h3>
 
@@ -205,61 +196,19 @@ export default function ToolsDashboardPage() {
                 <p className="text-[13px] text-[#6e6e73] leading-relaxed">
                   {tool.description}
                 </p>
-
-                {/* Extra inline quick input for DNS Lookup */}
-                {tool.id === "dns-lookup" && (
-                  <form onSubmit={handleQuickDnsLookup} className="mt-4 flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. dcdatalab.com"
-                      value={quickDnsDomain}
-                      onChange={(e) => setQuickDnsDomain(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-1.5 bg-[#fbfcfe] border border-[#e2eaff] rounded-xl text-[12px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4]"
-                    />
-                    <button
-                      type="submit"
-                      className="px-3 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
-                    >
-                      Lookup
-                    </button>
-                  </form>
-                )}
-
-                {/* Extra inline quick input for WHOIS Lookup */}
-                {tool.id === "whois-lookup" && (
-                  <form onSubmit={handleQuickWhoisLookup} className="mt-4 flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. dcdatalab.com"
-                      value={quickWhoisDomain}
-                      onChange={(e) => setQuickWhoisDomain(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-1.5 bg-[#fbfcfe] border border-[#e2eaff] rounded-xl text-[12px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4]"
-                    />
-                    <button
-                      type="submit"
-                      className="px-3 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
-                    >
-                      Lookup
-                    </button>
-                  </form>
-                )}
               </div>
 
-              {/* Action Button */}
-              <div className="mt-5 pt-2 border-t border-[#f2f5fc] flex items-center justify-between">
-                <Link
-                  href={tool.href}
-                  id={`btn-open-${tool.id}`}
-                  className="inline-flex items-center gap-1.5 text-[#1787D4] hover:text-[#1371B5] text-[13px] font-semibold transition-colors"
-                >
+              {/* Action Link Footer */}
+              <div className="mt-6 pt-3 border-t border-[#f2f5fc] flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-[#1787D4] group-hover:text-[#1371B5] text-[13px] font-semibold transition-colors">
                   <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                </span>
                 <span className="text-[11px] text-[#8a9bb2] font-mono">
                   {tool.id}
                 </span>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

@@ -216,30 +216,26 @@ function InvoicesContent() {
     switch (status) {
       case "PAID":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          <span className="text-[12px] font-semibold text-[#1787D4]">
             Paid
           </span>
         );
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            <Clock className="w-3 h-3 text-amber-600" />
+          <span className="text-[12px] font-semibold text-orange-600">
             Pending
           </span>
         );
       case "FAILED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            <XCircle className="w-3 h-3 text-rose-600" />
+          <span className="text-[12px] font-semibold text-red-600">
             Failed
           </span>
         );
       case "REFUNDED":
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-            <RotateCcw className="w-3 h-3 text-slate-500" />
+          <span className="text-[12px] font-medium text-slate-500">
             Refunded
           </span>
         );
@@ -302,7 +298,7 @@ function InvoicesContent() {
           <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
             Paid Invoices
           </span>
-          <span className="text-2xl font-extrabold text-emerald-600">
+          <span className="text-2xl font-extrabold text-[#031033]">
             {stats.paid}
           </span>
           <span className="text-[12px] text-[#5a6a85] block mt-1">
@@ -314,7 +310,7 @@ function InvoicesContent() {
           <span className="text-[11px] font-bold text-[#8a9bb2] uppercase tracking-wider block mb-1">
             Pending Payment
           </span>
-          <span className="text-2xl font-extrabold text-amber-600">
+          <span className="text-2xl font-extrabold text-orange-600">
             {stats.pending}
           </span>
           <span className="text-[12px] text-[#5a6a85] block mt-1">

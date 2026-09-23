@@ -27,7 +27,6 @@ const N = {
   inkSubtle: "#aeaeb2",
   blue: "#1787D4",
   blueLight: "#e8f4fc",
-  orange: "#e8900a",
 };
 
 type NavService = {

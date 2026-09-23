@@ -18,21 +18,10 @@ import { useVerifyPayment } from "@/hooks/useOrders";
 import type { OrderItem } from "@/lib/api";
 
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
-  if (type === "HOSTING")
-    return (
-      <div className="w-8 h-8 bg-[#fff8ee] border border-[#f5d99e] flex items-center justify-center shrink-0">
-        <Server className="w-3.5 h-3.5 text-[#e8900a]" />
-      </div>
-    );
-  if (type === "DOMAIN")
-    return (
-      <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-        <Globe className="w-3.5 h-3.5 text-[#031033]" />
-      </div>
-    );
+  const Icon = type === "HOSTING" ? Server : type === "DOMAIN" ? Globe : Shield;
   return (
-    <div className="w-8 h-8 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-      <Shield className="w-3.5 h-3.5 text-emerald-500" />
+    <div className="w-8 h-8 rounded-lg bg-[#eff6fb] border border-[#d6e4ff] flex items-center justify-center shrink-0 text-[#1787D4]">
+      <Icon className="w-3.5 h-3.5" />
     </div>
   );
 }
@@ -123,7 +112,7 @@ function OrderVerifyContent() {
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
         <div className="relative">
           <div className="w-16 h-16 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center">
-            <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
           </div>
         </div>
         <div>
@@ -170,7 +159,7 @@ function OrderVerifyContent() {
           ref: {reference}
         </p>
 
-        <div className="p-3.5 bg-amber-50/60 border border-amber-200/70 rounded-xl text-xs text-amber-800 text-left w-full">
+        <div className="p-3.5 bg-orange-50/50 rounded-xl text-xs text-orange-700 text-left w-full">
           <p className="font-semibold mb-0.5">No need to wait here</p>
           <p>
             You can safely navigate away. You will receive an email confirmation as soon as Paystack confirms the transaction.
@@ -261,7 +250,7 @@ function OrderVerifyContent() {
         <div className="w-20 h-20 bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
           <CheckCircle2 className="w-9 h-9 text-emerald-500" />
         </div>
-        <span className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-[#e8900a] flex items-center justify-center text-white text-[10px] font-extrabold">
+        <span className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-[#1787D4] flex items-center justify-center text-white text-[10px] font-extrabold rounded-full">
           ✓
         </span>
       </div>
@@ -321,7 +310,7 @@ function OrderVerifyContent() {
       <div className="flex flex-col items-center gap-3 w-full">
         <p className="text-xs text-[#9ba8c0]">
           Redirecting to your orders in{" "}
-          <span className="font-bold text-[#e8900a]">{displayCountdown}s</span>
+          <span className="font-bold text-[#1787D4]">{displayCountdown}s</span>
           …
         </p>
 
@@ -349,7 +338,7 @@ export default function OrderVerifyPage() {
   return (
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
-        <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+        <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
         <p className="text-sm text-[#5a6a85]">Loading verification details...</p>
       </div>
     }>

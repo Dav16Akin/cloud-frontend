@@ -92,41 +92,45 @@ export default function ToolsDashboardPage() {
   };
 
   const renderToolIcon = (iconType: ToolItem["iconType"]) => {
+    const iconClass = "w-5 h-5 text-[#1787D4]";
+    const iconBoxClass =
+      "w-10 h-10 rounded-xl border border-[#d6e4ff] flex items-center justify-center bg-[#eff6ff] text-[#1787D4]";
+
     switch (iconType) {
       case "domain-search":
         return (
-          <div className="w-10 h-10 rounded-xl border border-pink-200 flex items-center justify-center bg-pink-50 text-pink-600">
-            <Search className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <Search className={iconClass} />
           </div>
         );
       case "dns":
         return (
-          <div className="w-10 h-10 rounded-xl border border-[#d6e4ff] flex items-center justify-center bg-[#eff6ff] text-[#1787D4]">
-            <Network className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <Network className={iconClass} />
           </div>
         );
       case "whois":
         return (
-          <div className="w-10 h-10 rounded-xl border border-indigo-200 flex items-center justify-center bg-indigo-50 text-indigo-600">
-            <FileSearch className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <FileSearch className={iconClass} />
           </div>
         );
       case "ssl":
         return (
-          <div className="w-10 h-10 rounded-xl border border-emerald-200 flex items-center justify-center bg-emerald-50 text-emerald-600">
-            <ShieldCheck className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <ShieldCheck className={iconClass} />
           </div>
         );
       case "migration":
         return (
-          <div className="w-10 h-10 rounded-xl border border-amber-200 flex items-center justify-center bg-amber-50 text-amber-700">
-            <Server className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <Server className={iconClass} />
           </div>
         );
       case "ip":
         return (
-          <div className="w-10 h-10 rounded-xl border border-cyan-200 flex items-center justify-center bg-cyan-50 text-cyan-700">
-            <Globe className="w-5 h-5" />
+          <div className={iconBoxClass}>
+            <Globe className={iconClass} />
           </div>
         );
     }
@@ -175,7 +179,7 @@ export default function ToolsDashboardPage() {
                   {/* Badges */}
                   <div className="flex items-center gap-1.5">
                     {tool.badge && (
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold tracking-wider uppercase">
+                      <span className="px-2 py-0.5 rounded-md bg-[#eff6fb] text-[#1787D4] text-[10px] font-bold tracking-wider uppercase">
                         {tool.badge}
                       </span>
                     )}

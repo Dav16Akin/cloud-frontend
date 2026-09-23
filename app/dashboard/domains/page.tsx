@@ -71,32 +71,20 @@ function StatusPill({ status, expiryDate }: { status: string; expiryDate?: strin
 
   if (isExpired) {
     return (
-      <span
-        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold"
-        style={{ background: T.redLight, color: T.red }}
-      >
-        <XCircle className="w-3 h-3" />
+      <span className="text-[12px] font-semibold text-red-600">
         Expired
       </span>
     );
   }
   if (isExpiring) {
     return (
-      <span
-        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold"
-        style={{ background: T.amberLight, color: T.amber }}
-      >
-        <AlertTriangle className="w-3 h-3" />
+      <span className="text-[12px] font-semibold text-orange-600">
         Expiring Soon
       </span>
     );
   }
   return (
-    <span
-      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold"
-      style={{ background: T.emeraldLight, color: T.emerald }}
-    >
-      <CheckCircle className="w-3 h-3" />
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
       Active
     </span>
   );
@@ -316,10 +304,10 @@ function DomainsDashboardPageContent() {
                 color: T.inkMuted,
               }}
             >
-              <span className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Service</span>
+              <span>Service</span>
               <span>Status</span>
               <span>Auto-Renew</span>
-              <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Expiry Date</span>
+              <span>Expiry Date</span>
               <span className="text-right">Action</span>
             </div>
 

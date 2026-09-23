@@ -573,23 +573,22 @@ function DomainTransferPageContent() {
                       </td>
                       <td className="py-5 px-6">
                         {transfer.status === "COMPLETED" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
                             Completed
                           </span>
                         )}
                         {isProcessing && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
-                            <Loader2 className="w-3 h-3 animate-spin" />
+                          <span className="text-[12px] font-semibold text-orange-600">
                             {transfer.status}
                           </span>
                         )}
                         {transfer.status === "FAILED" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
+                          <span className="text-[12px] font-semibold text-red-600">
                             Failed
                           </span>
                         )}
                         {transfer.status === "CANCELLED" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                          <span className="text-[12px] font-medium text-slate-500">
                             Cancelled
                           </span>
                         )}

@@ -2,15 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  AlertTriangle,
-  X,
-  RefreshCw,
-  Server,
-  Globe,
-  Loader2,
-  ExternalLink,
-} from "lucide-react";
+import { usePathname } from "next/navigation";
+import { X, Loader2 } from "lucide-react";
 import {
   useGetExpiryWarnings,
   useDismissedWarnings,
@@ -20,19 +13,24 @@ import { useRenewDomain } from "@/hooks/useDomains";
 import type { ExpiryWarning } from "@/lib/api";
 
 export default function ExpiryBanner() {
+  const pathname = usePathname();
   const { data, isLoading } = useGetExpiryWarnings();
   const { isDismissed, dismissWarning } = useDismissedWarnings();
-  const { mutate: renewHosting, isPending: isRenewingHosting } = useRenewHosting();
+  const { mutate: renewHosting, isPending: isRenewingHosting } =
+    useRenewHosting();
   const { mutate: renewDomain, isPending: isRenewingDomain } = useRenewDomain();
 
   const [renewingId, setRenewingId] = useState<string | null>(null);
 
+  // Show exclusively on the main dashboard page
+  if (pathname !== "/dashboard") {
+    return null;
+  }
+
   const warnings = data?.warnings || [];
 
   // Filter out session-dismissed warnings
-  const visibleWarnings = warnings.filter(
-    (w) => !isDismissed(w.type, w.id)
-  );
+  const visibleWarnings = warnings.filter((w) => !isDismissed(w.type, w.id));
 
   if (isLoading || visibleWarnings.length === 0) {
     return null;
@@ -43,7 +41,7 @@ export default function ExpiryBanner() {
     if (warning.type === "HOSTING") {
       renewHosting(
         { id: warning.id },
-        { onSettled: () => setRenewingId(null) }
+        { onSettled: () => setRenewingId(null) },
       );
     } else {
       renewDomain(warning.id, {
@@ -59,14 +57,16 @@ export default function ExpiryBanner() {
   };
 
   return (
-    <div className="flex flex-col gap-2.5 w-full">
+    <div className="w-full shrink-0 flex flex-col z-20">
       {visibleWarnings.map((warning) => {
         const isExpired =
-          warning.isExpired || (warning.daysLeft !== null && warning.daysLeft < 0);
+          warning.isExpired ||
+          (warning.daysLeft !== null && warning.daysLeft < 0);
         const isProcessing =
           (isRenewingHosting || isRenewingDomain) && renewingId === warning.id;
         const serviceName =
-          warning.label || (warning.type === "HOSTING" ? "Hosting Plan" : "Domain Name");
+          warning.label ||
+          (warning.type === "HOSTING" ? "Hosting Plan" : "Domain Name");
         const typeStr = warning.type === "HOSTING" ? "Hosting" : "Domain";
 
         let statusText = "expiring soon";
@@ -84,97 +84,62 @@ export default function ExpiryBanner() {
           <div
             key={`${warning.type}:${warning.id}`}
             id={`expiry-banner-${warning.type.toLowerCase()}-${warning.id}`}
-            className={`relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border transition-all animate-in fade-in slide-in-from-top-2 duration-200 ${
-              isExpired
-                ? "bg-rose-50/90 border-rose-200/90 text-rose-950"
-                : "bg-amber-50/90 border-amber-200/90 text-amber-950"
-            }`}
+            className="w-full bg-[#0a0f1d] border-b border-white/10 px-4 sm:px-6 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-all text-white text-[12.5px]"
           >
             {/* Left Content */}
-            <div className="flex items-start sm:items-center gap-3 pr-8 sm:pr-0">
-              <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
-                  isExpired
-                    ? "bg-rose-100 text-rose-700"
-                    : "bg-amber-100 text-amber-800"
+            <div className="flex items-center gap-2 flex-wrap min-w-0 pr-2">
+              <span
+                className={`font-bold tracking-tight text-[11px] uppercase ${
+                  isExpired ? "text-red-400" : "text-orange-400"
                 }`}
               >
-                {warning.type === "HOSTING" ? (
-                  <Server className="w-4.5 h-4.5" />
-                ) : (
-                  <Globe className="w-4.5 h-4.5" />
-                )}
-              </div>
-
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-[13.5px] leading-snug">
-                    {serviceName}
-                  </span>
-                  <span
-                    className={`inline-block text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                      isExpired
-                        ? "bg-rose-200 text-rose-900"
-                        : "bg-amber-200 text-amber-900"
-                    }`}
-                  >
-                    {isExpired ? "Service Expired" : `${typeStr} Expiring`}
-                  </span>
-                </div>
-                <p className="text-[12px] opacity-85 mt-0.5">
-                  Your {typeStr.toLowerCase()} {statusText}. Renew now to avoid service interruption or loss of data.
-                </p>
-              </div>
+                {isExpired ? "Expired" : "Expiring Soon"}
+              </span>
+              <span className="text-white/30">•</span>
+              <span className="font-semibold text-white truncate max-w-[200px] sm:max-w-sm">
+                {serviceName}
+              </span>
+              <span className="text-white/30 hidden md:inline">•</span>
+              <span className="text-slate-300 text-[12px] hidden md:inline">
+                Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
+              </span>
             </div>
 
             {/* Actions & Dismiss */}
-            <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto shrink-0 mt-1 sm:mt-0">
-              {/* Service details link */}
+            <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
               <Link
                 href={getServiceLink(warning)}
-                className={`inline-flex items-center gap-1 text-[12px] font-semibold underline underline-offset-2 transition-opacity hover:opacity-75 mr-1 ${
-                  isExpired ? "text-rose-900" : "text-amber-900"
-                }`}
+                className="text-[11.5px] font-medium text-slate-400 hover:text-white transition-colors"
               >
-                <span>Details</span>
-                <ExternalLink className="w-3 h-3" />
+                Details
               </Link>
 
-              {/* Renew now button */}
               <button
                 type="button"
                 id={`btn-renew-${warning.id}`}
                 onClick={() => handleRenew(warning)}
                 disabled={isProcessing}
-                className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12.5px] font-bold text-white shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer ${
-                  isExpired
-                    ? "bg-rose-600 hover:bg-rose-700"
-                    : "bg-[#e8900a] hover:bg-[#c97a08]"
-                }`}
+                className="inline-flex items-center justify-center px-3 py-1 rounded-md text-[11.5px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
                     <span>Renewing…</span>
                   </>
                 ) : (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Renew now</span>
-                  </>
+                  <span>Renew now</span>
                 )}
               </button>
 
-              {/* Session-only Dismiss Button */}
               <button
                 type="button"
                 id={`btn-dismiss-${warning.type.toLowerCase()}-${warning.id}`}
                 onClick={() => dismissWarning(warning.type, warning.id)}
                 title="Dismiss for this session"
                 aria-label="Dismiss warning for this session"
-                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-black/5 transition-colors cursor-pointer"
+                className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

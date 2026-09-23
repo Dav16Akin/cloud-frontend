@@ -105,22 +105,16 @@ function copyText(text: string, label: string) {
 
 function StatusBadge({ status }: { status: HostingStatus }) {
   const s = (status ?? "").toUpperCase() as HostingStatus;
-  const cfg =
-    s === "ACTIVE"
-      ? { icon: CheckCircle2, label: "Active", cls: "bg-emerald-50 text-emerald-600 border-emerald-200", spin: false }
-      : s === "SUSPENDED"
-      ? { icon: PauseCircle, label: "Suspended", cls: "bg-red-50 text-red-500 border-red-200", spin: false }
-      : s === "TERMINATED"
-      ? { icon: XCircle, label: "Terminated", cls: "bg-gray-100 text-gray-500 border-gray-200", spin: false }
-      : { icon: Loader2, label: "Provisioning", cls: "bg-amber-50 text-amber-700 border-amber-200 animate-pulse", spin: true };
-
-  const Icon = cfg.icon;
-  return (
-    <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}>
-      <Icon className={`w-3 h-3 ${cfg.spin ? "animate-spin text-amber-600" : ""}`} />
-      {cfg.label}
-    </span>
-  );
+  if (s === "ACTIVE") {
+    return <span className="text-[11.5px] font-semibold text-[#1787D4]">Active</span>;
+  }
+  if (s === "SUSPENDED") {
+    return <span className="text-[11.5px] font-semibold text-red-600">Suspended</span>;
+  }
+  if (s === "TERMINATED") {
+    return <span className="text-[11.5px] font-semibold text-gray-500">Terminated</span>;
+  }
+  return <span className="text-[11.5px] font-semibold text-orange-600">Provisioning</span>;
 }
 
 // ── Tab type ─────────────────────────────────────────────────────────────────
@@ -352,7 +346,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
           <button
             id="hosting-email-add"
             onClick={() => setShowCreate((p) => !p)}
-            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+            className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
           >
             <Plus className="w-3.5 h-3.5" />
             New Email
@@ -374,7 +368,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="username (e.g. hello)"
-                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
               />
               <div className="relative flex-1">
                 <input
@@ -383,7 +377,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
                   value={newPass}
                   onChange={(e) => setNewPass(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-white border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="w-full bg-white border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
                 <button
                   type="button"
@@ -416,7 +410,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
         {/* Email list */}
         {isLoading && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
           </div>
         )}
         {isError && (
@@ -440,8 +434,8 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
                 key={em.email}
                 className="flex items-center gap-3 px-5 py-3 hover:bg-[#f6f9ff] transition-colors"
               >
-                <div className="w-7 h-7 bg-[#fff8ee] flex items-center justify-center shrink-0">
-                  <Mail className="w-3.5 h-3.5 text-[#e8900a]" />
+                <div className="w-7 h-7 bg-[#eff6fb] flex items-center justify-center shrink-0">
+                  <Mail className="w-3.5 h-3.5 text-[#1787D4]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#031033] truncate">
@@ -482,7 +476,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-[#031033]">
               Change password for{" "}
-              <span className="text-[#e8900a]">{changeTarget}</span>
+              <span className="text-[#1787D4]">{changeTarget}</span>
             </p>
             <button
               onClick={() => setChangeTarget(null)}
@@ -499,7 +493,7 @@ function EmailsTab({ hostingId }: { hostingId: string }) {
                 value={changePassVal}
                 onChange={(e) => setChangePassVal(e.target.value)}
                 placeholder="New password"
-                className="w-full bg-[#f6f9ff] border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                className="w-full bg-[#f6f9ff] border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
               />
               <button
                 type="button"
@@ -586,7 +580,7 @@ function ForwardersTab({ hostingId }: { hostingId: string }) {
           <button
             id="hosting-forwarder-add"
             onClick={() => setShowCreate((p) => !p)}
-            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+            className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
           >
             <Plus className="w-3.5 h-3.5" />
             New Forwarder
@@ -608,7 +602,7 @@ function ForwardersTab({ hostingId }: { hostingId: string }) {
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
                 placeholder="Source address (e.g. info@domain.com)"
-                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
               />
               <Send className="w-4 h-4 text-[#9ba8c0] shrink-0 hidden sm:block" />
               <input
@@ -617,7 +611,7 @@ function ForwardersTab({ hostingId }: { hostingId: string }) {
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="Destination address"
-                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
               />
               <button
                 type="submit"
@@ -637,7 +631,7 @@ function ForwardersTab({ hostingId }: { hostingId: string }) {
 
         {isLoading && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
           </div>
         )}
         {isError && (
@@ -790,7 +784,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
           <button
             id="hosting-db-add"
             onClick={() => setShowCreateDb((p) => !p)}
-            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+            className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
           >
             <Plus className="w-3.5 h-3.5" />
             New Database
@@ -839,7 +833,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
 
         {loadingDbs && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
           </div>
         )}
         {errorDbs && (
@@ -908,7 +902,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
           <button
             id="hosting-dbuser-add"
             onClick={() => setShowCreateUser((p) => !p)}
-            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+            className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
           >
             <Plus className="w-3.5 h-3.5" />
             New User
@@ -946,7 +940,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
                   value={userPass}
                   onChange={(e) => setUserPass(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-white border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="w-full bg-white border border-[#e2eaff] px-3 py-2 pr-9 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
                 <button
                   type="button"
@@ -978,7 +972,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
 
         {loadingUsers && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
           </div>
         )}
         {errorUsers && (
@@ -1040,7 +1034,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
                 id="hosting-assign-user-select"
                 value={assignUserVal}
                 onChange={(e) => setAssignUserVal(e.target.value)}
-                className="w-full bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                className="w-full bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 required
               >
                 <option value="">Select a user...</option>
@@ -1059,7 +1053,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
                 id="hosting-assign-db-select"
                 value={assignDb}
                 onChange={(e) => setAssignDb(e.target.value)}
-                className="w-full bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                className="w-full bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 required
               >
                 <option value="">Select a database...</option>
@@ -1128,15 +1122,15 @@ const DNS_RECORD_TYPES: DNSRecordType[] = [
 ];
 
 const TYPE_COLORS: Record<string, string> = {
-  A:     "bg-blue-50   text-blue-600   border-blue-200",
-  AAAA:  "bg-indigo-50 text-indigo-600 border-indigo-200",
-  CNAME: "bg-purple-50 text-purple-600 border-purple-200",
-  MX:    "bg-[#fff8ee] text-[#e8900a]  border-amber-200",
-  TXT:   "bg-emerald-50 text-emerald-600 border-emerald-200",
-  NS:    "bg-teal-50   text-teal-600   border-teal-200",
-  PTR:   "bg-pink-50   text-pink-600   border-pink-200",
-  SRV:   "bg-cyan-50   text-cyan-600   border-cyan-200",
-  CAA:   "bg-red-50    text-red-500    border-red-200",
+  A:     "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  AAAA:  "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  CNAME: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  MX:    "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  TXT:   "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  NS:    "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  PTR:   "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  SRV:   "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  CAA:   "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
 };
 
 const BLANK_FORM = {
@@ -1230,7 +1224,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
           <button
             id="hosting-dns-add"
             onClick={() => { setShowCreate((p) => !p); setEditTarget(null); }}
-            className="flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline underline-offset-2"
+            className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Record
@@ -1252,7 +1246,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   id="dns-create-type"
                   value={form.type}
                   onChange={(e) => patch("type", e.target.value)}
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 >
                   {DNS_RECORD_TYPES.map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -1269,7 +1263,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   onChange={(e) => patch("name", e.target.value)}
                   placeholder="@ or subdomain"
                   required
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               {/* Address */}
@@ -1284,7 +1278,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   onChange={(e) => patch("address", e.target.value)}
                   placeholder={form.type === "TXT" ? "v=spf1 ..." : form.type === "CNAME" ? "target.domain.com." : "1.2.3.4"}
                   required
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               {/* TTL */}
@@ -1296,7 +1290,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   min={300}
                   value={form.ttl}
                   onChange={(e) => patch("ttl", e.target.value)}
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               {/* Priority (MX / SRV only) */}
@@ -1310,7 +1304,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                     value={form.priority}
                     onChange={(e) => patch("priority", e.target.value)}
                     placeholder="10"
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                   />
                 </div>
               )}
@@ -1339,11 +1333,11 @@ function DNSTab({ hostingId }: { hostingId: string }) {
         {editTarget && (
           <form
             onSubmit={handleUpdate}
-            className="px-5 py-4 border-b border-[#e2eaff] bg-[#fff8ee] flex flex-col gap-3"
+            className="px-5 py-4 border-b border-[#e2eaff] bg-[#eff6fb] flex flex-col gap-3"
           >
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold text-[#031033]">
-                Edit Record — <span className="text-[#e8900a] font-mono">{editTarget.name}</span>
+                Edit Record — <span className="text-[#1787D4] font-mono">{editTarget.name}</span>
               </p>
               <button type="button" onClick={() => setEditTarget(null)} className="text-[#9ba8c0] hover:text-[#031033]">
                 <X className="w-4 h-4" />
@@ -1356,7 +1350,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   id="dns-edit-type"
                   value={editForm.type}
                   onChange={(e) => patchEdit("type", e.target.value)}
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 >
                   {DNS_RECORD_TYPES.map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -1371,7 +1365,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   value={editForm.name}
                   onChange={(e) => patchEdit("name", e.target.value)}
                   required
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -1382,7 +1376,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   value={editForm.address}
                   onChange={(e) => patchEdit("address", e.target.value)}
                   required
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -1393,7 +1387,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                   min={300}
                   value={editForm.ttl}
                   onChange={(e) => patchEdit("ttl", e.target.value)}
-                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#e8900a] transition-colors"
+                  className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
                 />
               </div>
               {needsPriority(editForm.type) && (
@@ -1405,7 +1399,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
                     min={0}
                     value={editForm.priority}
                     onChange={(e) => patchEdit("priority", e.target.value)}
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#e8900a] transition-colors"
+                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
                   />
                 </div>
               )}
@@ -1433,7 +1427,7 @@ function DNSTab({ hostingId }: { hostingId: string }) {
         {/* ── Records list ── */}
         {isLoading && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
           </div>
         )}
         {isError && (
@@ -1571,8 +1565,8 @@ function RenewHostingModal({
       <div className="relative bg-white border border-[#e2eaff] w-full max-w-md shadow-2xl p-6 flex flex-col gap-5">
         <div className="flex items-center justify-between border-b border-[#e2eaff] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-50 border border-amber-100 flex items-center justify-center">
-              <RefreshCw className="w-4 h-4 text-[#e8900a]" />
+            <div className="w-8 h-8 bg-[#eff6fb] border border-[#d6e4ff] flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 text-[#1787D4]" />
             </div>
             <div>
               <h3 className="text-base font-bold text-[#031033]">Renew Hosting</h3>
@@ -1608,7 +1602,7 @@ function RenewHostingModal({
                 className={`py-2 px-3 text-xs font-semibold border transition-all ${
                   billingCycle === cycle
                     ? "bg-[#031033] text-white border-[#031033] shadow-sm"
-                    : "bg-white text-[#5a6a85] border-[#e2eaff] hover:border-[#e8900a]"
+                    : "bg-white text-[#5a6a85] border-[#e2eaff] hover:border-[#1787D4]"
                 }`}
               >
                 {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
@@ -1739,7 +1733,7 @@ function UpgradeHostingModal({
           <label className="text-xs font-semibold text-[#031033]">Select Upgrade Plan</label>
           {loadingPlans && (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
             </div>
           )}
           {plans?.map((plan) => {
@@ -1762,15 +1756,15 @@ function UpgradeHostingModal({
                   isCurrent
                     ? "bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed"
                     : isSelected
-                    ? "bg-[#fff8ee] border-[#e8900a] shadow-sm"
-                    : "bg-white border-[#e2eaff] hover:border-[#e8900a]"
+                    ? "bg-[#eff6fb] border-[#1787D4] shadow-sm"
+                    : "bg-white border-[#e2eaff] hover:border-[#1787D4]"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                       isSelected
-                        ? "border-[#e8900a] bg-[#e8900a]"
+                        ? "border-[#1787D4] bg-[#1787D4]"
                         : "border-[#c0cad8] bg-white"
                     }`}
                   >
@@ -1885,7 +1879,7 @@ export default function ManageHostingPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-6 h-6 animate-spin text-[#e8900a]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
       </div>
     );
   }
@@ -1899,7 +1893,7 @@ export default function ManageHostingPage() {
         </p>
         <Link
           href="/dashboard/hosting"
-          className="text-sm font-semibold text-[#e8900a] hover:underline underline-offset-2"
+          className="text-sm font-semibold text-[#1787D4] hover:underline underline-offset-2"
         >
           ← Back to Hosting
         </Link>
@@ -1979,7 +1973,7 @@ export default function ManageHostingPage() {
             <div className="flex items-center gap-2 mt-1">
               <StatusBadge status={status} />
               {expiring && (
-                <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 font-semibold">
+                <span className="text-[10.5px] text-orange-600 font-bold uppercase tracking-wider">
                   Expiring soon
                 </span>
               )}
@@ -2023,7 +2017,7 @@ export default function ManageHostingPage() {
                 id="manage-unsuspend"
                 onClick={() => unsuspend(id)}
                 disabled={unsuspending}
-                className="flex items-center gap-1.5 text-xs font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 px-3 py-2 transition-colors rounded-lg disabled:opacity-60"
+                className="flex items-center gap-1.5 text-xs font-semibold border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-2 transition-colors rounded-lg disabled:opacity-60"
               >
                 {unsuspending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

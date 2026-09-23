@@ -36,49 +36,25 @@ function formatDateTime(dateStr: string) {
 function TicketStatusBadge({ status }: { status: string }) {
   const normalized = status?.toLowerCase() ?? "";
 
-  const cfg = normalized.includes("open")
-    ? {
-        icon: AlertCircle,
-        label: "Open",
-        cls: "bg-blue-50 text-blue-600 border-blue-200",
-      }
-    : normalized.includes("answered")
-    ? {
-        icon: CheckCircle2,
-        label: "Answered",
-        cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
-      }
-    : normalized.includes("customer")
-    ? {
-        icon: Clock,
-        label: "Customer Reply",
-        cls: "bg-amber-50 text-amber-600 border-amber-200",
-      }
-    : normalized.includes("closed")
-    ? {
-        icon: CheckCircle2,
-        label: "Closed",
-        cls: "bg-gray-50 text-gray-500 border-gray-200",
-      }
-    : normalized.includes("in progress")
-    ? {
-        icon: Clock,
-        label: "In Progress",
-        cls: "bg-purple-50 text-purple-600 border-purple-200",
-      }
-    : {
-        icon: Clock,
-        label: status || "Unknown",
-        cls: "bg-gray-50 text-gray-500 border-gray-200",
-      };
+  if (normalized.includes("open")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">Open</span>;
+  }
+  if (normalized.includes("answered")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">Answered</span>;
+  }
+  if (normalized.includes("customer")) {
+    return <span className="text-[12px] font-semibold text-orange-600 whitespace-nowrap">Customer Reply</span>;
+  }
+  if (normalized.includes("closed")) {
+    return <span className="text-[12px] font-medium text-slate-500 whitespace-nowrap">Closed</span>;
+  }
+  if (normalized.includes("in progress")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">In Progress</span>;
+  }
 
-  const Icon = cfg.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 border whitespace-nowrap ${cfg.cls}`}
-    >
-      <Icon className="w-3 h-3" />
-      {cfg.label}
+    <span className="text-[12px] font-medium text-slate-500 whitespace-nowrap">
+      {status || "Unknown"}
     </span>
   );
 }
@@ -89,14 +65,14 @@ function PriorityBadge({ priority }: { priority: string }) {
   const p = priority?.toLowerCase() ?? "";
   const cls =
     p === "high"
-      ? "bg-red-50 text-red-500 border-red-200"
+      ? "text-red-600 font-semibold"
       : p === "medium"
-      ? "bg-amber-50 text-amber-500 border-amber-200"
-      : "bg-gray-50 text-[#9ba8c0] border-gray-200";
+      ? "text-orange-600 font-semibold"
+      : "text-slate-500 font-medium";
 
   return (
     <span
-      className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 border uppercase tracking-wide ${cls}`}
+      className={`text-[11px] uppercase tracking-wide ${cls}`}
     >
       {priority || "—"}
     </span>
@@ -114,25 +90,25 @@ function ReplyBubble({ reply }: { reply: TicketReply }) {
     >
       {/* Avatar */}
       <div
-        className={`w-8 h-8 shrink-0 flex items-center justify-center border ${
+        className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center border ${
           isStaff
-            ? "bg-[#f2f5fc] border-[#e2eaff]"
-            : "bg-[#fff8f0] border-[#e8900a]/20"
+            ? "bg-[#f2f5fc] border-[#e2eaff] text-[#5a6a85]"
+            : "bg-[#eff6fb] border-[#d6e4ff] text-[#1787D4]"
         }`}
       >
         {isStaff ? (
-          <Headphones className="w-3.5 h-3.5 text-[#5a6a85]" />
+          <Headphones className="w-3.5 h-3.5" />
         ) : (
-          <User className="w-3.5 h-3.5 text-[#e8900a]" />
+          <User className="w-3.5 h-3.5" />
         )}
       </div>
 
       {/* Content */}
       <div
-        className={`flex-1 max-w-[80%] border p-4 ${
+        className={`flex-1 max-w-[80%] rounded-xl border p-4 ${
           isStaff
             ? "bg-[#f6f9ff] border-[#e2eaff]"
-            : "bg-[#fffaf5] border-[#e8900a]/15"
+            : "bg-[#f8faff] border-[#d6e4ff]"
         }`}
       >
         {/* Header */}
@@ -220,7 +196,7 @@ function ReplyForm({
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type your reply…"
           rows={4}
-          className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#e8900a] transition-colors placeholder:text-[#c8d0e0] resize-none"
+          className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#1787D4] transition-colors placeholder:text-[#c8d0e0] resize-none"
         />
       </div>
 
@@ -290,7 +266,7 @@ export default function TicketDetailPage() {
       <Link
         href="/dashboard/tickets"
         id="ticket-detail-back"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5a6a85] hover:text-[#e8900a] transition-colors w-fit"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5a6a85] hover:text-[#1787D4] transition-colors w-fit"
       >
         <ArrowLeft className="w-4 h-4" />
         All Tickets
@@ -306,7 +282,7 @@ export default function TicketDetailPage() {
           <button
             onClick={() => refetch()}
             id="ticket-detail-retry"
-            className="text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
           >
             <RefreshCw className="w-3 h-3" />
             Try again
@@ -323,7 +299,7 @@ export default function TicketDetailPage() {
           {/* Ticket header */}
           <div className="bg-white border border-[#e2eaff]">
             <div className="px-5 py-4 border-b border-[#e2eaff] flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#e8900a]" />
+              <MessageSquare className="w-4 h-4 text-[#1787D4]" />
               <h2 className="text-base font-extrabold text-[#031033] truncate">
                 {ticket.subject}
               </h2>
@@ -400,7 +376,7 @@ export default function TicketDetailPage() {
               </span>
               <button
                 onClick={() => refetch()}
-                className="ml-auto text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1"
+                className="ml-auto text-xs font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
                 id="ticket-detail-refresh"
               >
                 <RefreshCw className="w-3 h-3" />

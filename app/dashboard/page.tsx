@@ -33,7 +33,6 @@ import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetSslCertificates } from "@/hooks/useSsl";
 import { verifyPayment } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -202,36 +201,9 @@ function daysUntil(dateStr?: string | null): number | null {
 type ServiceType = "Domain" | "Hosting" | "SSL";
 
 function ServiceTypeBadge({ type }: { type: ServiceType }) {
-  const cfg = {
-    Domain: {
-      icon: Globe,
-      label: "Domain",
-      bg: "#eff6fb",
-      color: "#1787D4",
-    },
-    Hosting: {
-      icon: Server,
-      label: "Hosting",
-      bg: "#fff8ee",
-      color: "#e8900a",
-    },
-    SSL: {
-      icon: Shield,
-      label: "SSL",
-      bg: "#f5f3ff",
-      color: "#7c3aed",
-    },
-  }[type];
-
-  const Icon = cfg.icon;
-
   return (
-    <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold shrink-0"
-      style={{ background: cfg.bg, color: cfg.color }}
-    >
-      <Icon className="w-3 h-3" />
-      {cfg.label}
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold shrink-0 bg-[#eff6fb] text-[#1787D4]">
+      {type}
     </span>
   );
 }
@@ -243,28 +215,22 @@ function AlertBadge({ severity }: { severity: AlertSeverity }) {
   const cfg = {
     expired: {
       label: "Expired",
-      bg: T.redLight,
-      color: T.red,
-      border: "1px solid #fee2e2",
+      color: "#dc2626", // Red text, no outline
     },
     expiring: {
       label: "Expiring Soon",
-      bg: "#fff7ed",
-      color: "#ea580c",
-      border: "1px solid #ffedd5",
+      color: "#ea580c", // Orange text, no outline
     },
     renewal: {
       label: "Renewal Due",
-      bg: T.amberLight,
-      color: T.amber,
-      border: "1px solid #fef3c7",
+      color: "#ea580c", // Orange text, no outline
     },
   }[severity];
 
   return (
     <span
-      className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold shrink-0"
-      style={{ background: cfg.bg, color: cfg.color, border: cfg.border }}
+      className="inline-flex items-center text-[11.5px] font-semibold shrink-0"
+      style={{ color: cfg.color }}
     >
       {cfg.label}
     </span>
@@ -311,20 +277,12 @@ function AttentionRequired({
         style={{ borderBottom: `1px solid ${T.hairline}` }}
       >
         <div className="flex items-center gap-2.5">
-          <span
-            className="flex items-center justify-center w-7 h-7 rounded-lg"
-            style={{ background: expiredCount > 0 ? T.redLight : T.orangeMid }}
-          >
-            <AlertTriangle
-              className="w-3.5 h-3.5"
-              style={{ color: expiredCount > 0 ? T.red : T.orange }}
-            />
-          </span>
           <h3
             className="text-[15px] font-semibold"
             style={{
               color: T.ink,
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+              fontFamily:
+                "SF Pro Display, system-ui, -apple-system, sans-serif",
               letterSpacing: "-0.2px",
             }}
           >
@@ -332,13 +290,11 @@ function AttentionRequired({
           </h3>
           {!loading && items.length > 0 && (
             <span
-              className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
-              style={{
-                background: expiredCount > 0 ? T.redLight : T.amberLight,
-                color: expiredCount > 0 ? T.red : T.amber,
-              }}
+              className={`text-[12px] font-bold ${
+                expiredCount > 0 ? "text-[#dc2626]" : "text-[#ea580c]"
+              }`}
             >
-              {items.length} {items.length === 1 ? "service" : "services"}
+              · {items.length} {items.length === 1 ? "service" : "services"}
             </span>
           )}
         </div>
@@ -377,9 +333,9 @@ function AttentionRequired({
         <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
           <span
             className="flex items-center justify-center w-10 h-10 rounded-full mb-3"
-            style={{ background: T.emeraldLight }}
+            style={{ background: T.blueLight }}
           >
-            <CheckCircle2 className="w-5 h-5" style={{ color: T.emerald }} />
+            <CheckCircle2 className="w-5 h-5" style={{ color: T.blue }} />
           </span>
           <p className="text-[14px] font-semibold" style={{ color: T.ink }}>
             All services look good
@@ -419,10 +375,9 @@ function AttentionRequired({
                 </div>
                 <Link
                   href={item.primaryAction.href}
-                  className="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
+                  className="shrink-0 flex items-center px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
                   style={{ background: isExpired ? T.red : T.blue }}
                 >
-                  <ActionIcon className="w-3.5 h-3.5" />
                   {item.primaryAction.label}
                 </Link>
               </div>
@@ -486,8 +441,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Buy Hosting",
     description: "High-performance secure servers",
     href: "/dashboard/hosting",
-    accentColor: T.orange,
-    accentBg: T.orangeMid,
+    accentColor: T.blue,
+    accentBg: T.blueLight,
   },
   {
     id: "qa-email",
@@ -495,8 +450,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Create Email",
     description: "Set up customised business mailboxes",
     href: "/dashboard/email/create",
-    accentColor: T.emerald,
-    accentBg: T.emeraldLight,
+    accentColor: T.blue,
+    accentBg: T.blueLight,
     disabled: true,
   },
   {
@@ -505,8 +460,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Get SSL Certificate",
     description: "Add instant website lock protection",
     href: "/dashboard/ssl",
-    accentColor: "#7c3aed",
-    accentBg: "#f5f3ff",
+    accentColor: T.blue,
+    accentBg: T.blueLight,
   },
 ];
 
@@ -523,15 +478,9 @@ function QuickActions() {
     >
       {/* Header */}
       <div
-        className="flex items-center gap-2.5 px-5 py-4"
+        className="flex items-center justify-between px-5 py-4"
         style={{ borderBottom: `1px solid ${T.hairline}` }}
       >
-        <span
-          className="flex items-center justify-center w-7 h-7 rounded-lg"
-          style={{ background: T.blueLight }}
-        >
-          <Plus className="w-3.5 h-3.5" style={{ color: T.blue }} />
-        </span>
         <h3
           className="text-[15px] font-semibold"
           style={{
@@ -547,7 +496,7 @@ function QuickActions() {
       {/* Actions */}
       <div className="flex flex-col">
         {QUICK_ACTIONS.map((action, i) => {
-          const Icon = action.icon;
+          // const Icon = action.icon;
           if ((action as any).disabled) {
             return (
               <div
@@ -558,7 +507,7 @@ function QuickActions() {
                   borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
                 }}
               >
-                <span
+                {/* <span
                   className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
                   style={{ background: action.accentBg }}
                 >
@@ -566,16 +515,16 @@ function QuickActions() {
                     className="w-4 h-4"
                     style={{ color: action.accentColor }}
                   />
-                </span>
+                </span> */}
                 <div className="flex-1 min-w-0">
                   <p
                     className="text-[13px] font-semibold flex items-center gap-2"
                     style={{ color: T.ink, letterSpacing: "-0.1px" }}
                   >
                     {action.label}
-                    <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
+                    {/* <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
                       Soon
-                    </span>
+                    </span> */}
                   </p>
                   <p className="text-[12px]" style={{ color: T.inkMuted }}>
                     {action.description}
@@ -595,7 +544,7 @@ function QuickActions() {
                 borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
               }}
             >
-              <span
+              {/* <span
                 className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-transform group-hover:scale-105"
                 style={{ background: action.accentBg }}
               >
@@ -603,7 +552,7 @@ function QuickActions() {
                   className="w-4 h-4"
                   style={{ color: action.accentColor }}
                 />
-              </span>
+              </span> */}
               <div className="flex-1 min-w-0">
                 <p
                   className="text-[13px] font-semibold"
@@ -644,7 +593,8 @@ function DashboardOverviewContent() {
   const lastName = me?.data?.lastName ?? "";
 
   // ── Handle return from Paystack renewal / order ───────────────────────────
-  const reference = searchParams?.get("reference") || searchParams?.get("trxref");
+  const reference =
+    searchParams?.get("reference") || searchParams?.get("trxref");
 
   useEffect(() => {
     if (!reference) return;
@@ -726,7 +676,8 @@ function DashboardOverviewContent() {
 
   const activeHosting = (hostingAccounts ?? []).filter((a) => {
     const statusUpper = (a.status ?? "").toUpperCase();
-    if (statusUpper === "TERMINATED" || statusUpper === "SUSPENDED") return false;
+    if (statusUpper === "TERMINATED" || statusUpper === "SUSPENDED")
+      return false;
     const exp = a.expiresAt ?? (a as any).expiryDate;
     const days = daysUntil(exp);
     if (days !== null && days < 0) return false;
@@ -749,7 +700,12 @@ function DashboardOverviewContent() {
 
   const activeSsl = (sslCerts ?? []).filter((c: any) => {
     const statusUpper = (c.status ?? "").toUpperCase();
-    if (statusUpper === "EXPIRED" || statusUpper === "CANCELLED" || statusUpper === "FAILED") return false;
+    if (
+      statusUpper === "EXPIRED" ||
+      statusUpper === "CANCELLED" ||
+      statusUpper === "FAILED"
+    )
+      return false;
     const exp = c.expiresAt ?? c.expiryDate;
     const days = daysUntil(exp);
     if (days !== null && days < 0) return false;
@@ -813,7 +769,9 @@ function DashboardOverviewContent() {
   // 2. Hosting accounts: expired or expiring in <= 30 days
   (hostingAccounts ?? []).forEach((account, idx) => {
     const exp =
-      account.expiresAt ?? (account as any).expiryDate ?? (account as any).expiry_date;
+      account.expiresAt ??
+      (account as any).expiryDate ??
+      (account as any).expiry_date;
     const days = daysUntil(exp);
     const hostingName =
       account.domain || (account as any).username || `Hosting #${idx + 1}`;
@@ -934,9 +892,6 @@ function DashboardOverviewContent() {
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
-      {/* ── Expiry Warnings Banner ────────────────────────────────────────── */}
-      <ExpiryBanner />
-
       {/* ── Welcome header ───────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -948,19 +903,14 @@ function DashboardOverviewContent() {
           ) : (
             <>
               <h2
-                className="flex items-center gap-2.5 text-[1.75rem] font-semibold leading-tight"
+                className="text-[1.75rem] font-semibold leading-tight text-[#101828]"
                 style={{
-                  color: T.ink,
                   fontFamily:
                     "SF Pro Display, system-ui, -apple-system, sans-serif",
                   letterSpacing: "-0.03em",
                 }}
               >
                 {greeting}, {firstName || "there"}
-                <GreetIcon
-                  className="w-6 h-6 shrink-0"
-                  style={{ color: T.orange }}
-                />
               </h2>
               <p className="mt-1 text-[14px]" style={{ color: T.inkMuted }}>
                 Here&apos;s an overview of your domains, hosting, email, and
@@ -969,17 +919,13 @@ function DashboardOverviewContent() {
               {lastLogin && (
                 <div className="flex items-center gap-1.5 mt-2">
                   <span
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium"
+                    className="inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-medium"
                     style={{
                       color: T.inkMuted,
                       background: T.parchment,
                       border: `1px solid ${T.hairline}`,
                     }}
                   >
-                    <Clock
-                      className="w-3 h-3 shrink-0"
-                      style={{ color: T.orange }}
-                    />
                     Last login: {lastLogin}
                   </span>
                 </div>
@@ -1084,7 +1030,7 @@ function DashboardOverviewContent() {
           sublabel="Active"
           href="/dashboard/hosting"
           actionText="View Hosting"
-          iconBg="bg-[#fef6ee]"
+          iconBg="bg-[#eff6fb]"
           loading={isLoading || loadingHosting}
         />
         <StatCard
@@ -1094,7 +1040,7 @@ function DashboardOverviewContent() {
           sublabel="Mailboxes"
           href="/dashboard/email"
           actionText="Temporarily Disabled"
-          iconBg="bg-[#fef6ee]"
+          iconBg="bg-[#eff6fb]"
           disabled={true}
           loading={isLoading}
         />
@@ -1105,17 +1051,14 @@ function DashboardOverviewContent() {
           sublabel="Active"
           href="/dashboard/ssl"
           actionText="View Certificates"
-          iconBg="bg-[#fef6ee]"
+          iconBg="bg-[#eff6fb]"
           loading={isLoading || loadingSsl}
         />
       </div>
 
       {/* ── Two-column lower section ──────────────────────────────────────── */}
       <div className="grid md:grid-cols-2 gap-4">
-        <AttentionRequired
-          items={attentionItems}
-          loading={loadingAttention}
-        />
+        <AttentionRequired items={attentionItems} loading={loadingAttention} />
         <QuickActions />
       </div>
 
@@ -1151,9 +1094,8 @@ function DashboardOverviewContent() {
             rel="noopener noreferrer"
             id="dashboard-knowledge-base"
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-            style={{ background: T.orange }}
+            style={{ background: T.blue }}
           >
-            <BookOpen className="w-3.5 h-3.5" />
             Knowledge Base ↗
           </a>
           <Link

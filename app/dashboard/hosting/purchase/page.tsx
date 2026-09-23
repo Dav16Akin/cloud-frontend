@@ -176,14 +176,14 @@ function HostingPurchaseContent() {
                       onClick={() => setSelectedPlanId(plan.id)}
                       className={`flex items-center gap-4 p-4 border cursor-pointer transition-all ${
                         isSelected
-                          ? "border-[#e8900a] bg-[#fff8ee] shadow-sm"
+                          ? "border-[#1787D4] bg-[#eff6fb] shadow-sm"
                           : "border-[#e2eaff] hover:border-[#dce4f7] bg-white"
                       }`}
                     >
                       <div className="flex items-center justify-center shrink-0">
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            isSelected ? "border-[#e8900a] bg-[#e8900a]" : "border-[#c5cedf]"
+                            isSelected ? "border-[#1787D4] bg-[#1787D4]" : "border-[#c5cedf]"
                           }`}
                         >
                           {isSelected && <Check className="w-3 h-3 text-white stroke-3" />}
@@ -194,7 +194,7 @@ function HostingPurchaseContent() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-bold text-[#031033]">{plan.name} Hosting</p>
                           {plan.isPopular && (
-                            <span className="text-[10px] bg-[#e8900a] text-white font-extrabold px-1.5 py-0.5">
+                            <span className="text-[10px] bg-[#1787D4] text-white font-extrabold px-1.5 py-0.5 rounded-full">
                               POPULAR
                             </span>
                           )}
@@ -240,7 +240,7 @@ function HostingPurchaseContent() {
                 >
                   Domain Name
                 </label>
-                <div className="flex items-center bg-white border border-[#dce4f7] focus-within:border-[#e8900a] transition-all overflow-hidden">
+                <div className="flex items-center bg-white border border-[#dce4f7] focus-within:border-[#1787D4] transition-all overflow-hidden">
                   <div className="pl-3.5 shrink-0">
                     <Globe className="w-4 h-4 text-[#9ba8c0]" />
                   </div>
@@ -334,7 +334,7 @@ function HostingPurchaseContent() {
               { icon: Server, text: "99.9% Uptime Guarantee" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-2 text-xs text-[#5a6a85]">
-                <Icon className="w-3.5 h-3.5 text-[#e8900a] shrink-0" />
+                <Icon className="w-3.5 h-3.5 text-[#1787D4] shrink-0" />
                 <span>{text}</span>
               </div>
             ))}
@@ -350,7 +350,7 @@ export default function HostingPurchasePage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-4">
-          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
           <p className="text-sm text-[#5a6a85]">Loading purchase page...</p>
         </div>
       }

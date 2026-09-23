@@ -52,8 +52,8 @@ function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
   if (type === "HOSTING")
     return <Server className="w-3.5 h-3.5 text-[#1787D4]" />;
   if (type === "DOMAIN")
-    return <Globe className="w-3.5 h-3.5 text-[#0284c7]" />;
-  return <Shield className="w-3.5 h-3.5 text-[#12a150]" />;
+    return <Globe className="w-3.5 h-3.5 text-[#1787D4]" />;
+  return <Shield className="w-3.5 h-3.5 text-[#1787D4]" />;
 }
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
@@ -61,23 +61,20 @@ function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   if (status === "PAID") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-        <CheckCircle2 className="w-3 h-3" />
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
         Paid
       </span>
     );
   }
   if (status === "PENDING") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
-        <Clock className="w-3 h-3" />
+      <span className="text-[12px] font-semibold text-orange-600">
         Pending
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
-      <XCircle className="w-3 h-3" />
+    <span className="text-[12px] font-semibold text-red-600">
       Failed
     </span>
   );

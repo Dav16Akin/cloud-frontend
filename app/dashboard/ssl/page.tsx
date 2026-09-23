@@ -286,22 +286,22 @@ export default function SslCertificatesPage() {
                       </td>
                       <td className="py-5 px-6">
                         {cert.status === "Active" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
                             Active
                           </span>
                         )}
                         {cert.status === "Expiring Soon" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef5e7] text-[#e8900a] border border-[#fde1b0]">
+                          <span className="text-[12px] font-semibold text-orange-600">
                             Expiring Soon
                           </span>
                         )}
                         {cert.status === "Expired" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#fef0f0] text-[#f56c6c] border border-[#fde2e2]">
+                          <span className="text-[12px] font-semibold text-red-600">
                             Expired
                           </span>
                         )}
                         {cert.status === "Pending" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                          <span className="text-[12px] font-medium text-slate-500">
                             Pending
                           </span>
                         )}

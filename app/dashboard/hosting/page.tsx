@@ -63,44 +63,16 @@ function isExpiringSoon(iso: string) {
 
 export function StatusBadge({ status }: { status: HostingStatus }) {
   const s = status?.toUpperCase() as HostingStatus;
-  const cfg =
-    s === "ACTIVE"
-      ? {
-          icon: CheckCircle2,
-          label: "Active",
-          cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
-          spin: false,
-        }
-      : s === "SUSPENDED"
-      ? {
-          icon: PauseCircle,
-          label: "Suspended",
-          cls: "bg-red-50 text-red-500 border-red-200",
-          spin: false,
-        }
-      : s === "TERMINATED"
-      ? {
-          icon: XCircle,
-          label: "Terminated",
-          cls: "bg-gray-100 text-gray-500 border-gray-200",
-          spin: false,
-        }
-      : {
-          icon: Loader2,
-          label: "Provisioning",
-          cls: "bg-amber-50 text-amber-700 border-amber-200 animate-pulse",
-          spin: true,
-        };
-
-  const Icon = cfg.icon;
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${cfg.cls}`}
-    >
-      <Icon className={`w-3 h-3 ${cfg.spin ? "animate-spin text-amber-600" : ""}`} />
-      {cfg.label}
-    </span>
-  );
+  if (s === "ACTIVE") {
+    return <span className="text-[11.5px] font-semibold text-[#1787D4]">Active</span>;
+  }
+  if (s === "SUSPENDED") {
+    return <span className="text-[11.5px] font-semibold text-red-600">Suspended</span>;
+  }
+  if (s === "TERMINATED") {
+    return <span className="text-[11.5px] font-semibold text-gray-500">Terminated</span>;
+  }
+  return <span className="text-[11.5px] font-semibold text-orange-600">Provisioning</span>;
 }
 
 // ── Stats Modal ───────────────────────────────────────────────────────────────
@@ -156,7 +128,7 @@ function StatsModal({
         <div className="p-5">
           {isLoading && (
             <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-6 h-6 animate-spin text-[#e8900a]" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
             </div>
           )}
           {isError && (
@@ -174,29 +146,29 @@ function StatsModal({
                   icon: HardDrive,
                   label: "Disk Used",
                   value: `${stats.diskUsed} / ${stats.diskLimit}`,
-                  color: "text-blue-500",
-                  bg: "bg-blue-50",
+                  color: "text-[#1787D4]",
+                  bg: "bg-[#eff6fb]",
                 },
                 {
                   icon: Database,
                   label: "Max Databases",
                   value: stats.maxDatabases,
-                  color: "text-purple-500",
-                  bg: "bg-purple-50",
+                  color: "text-[#1787D4]",
+                  bg: "bg-[#eff6fb]",
                 },
                 {
                   icon: Mail,
                   label: "Max Emails",
                   value: stats.maxEmails,
-                  color: "text-[#e8900a]",
-                  bg: "bg-[#fff8ee]",
+                  color: "text-[#1787D4]",
+                  bg: "bg-[#eff6fb]",
                 },
                 {
                   icon: Globe,
                   label: "Max Subdomains",
                   value: stats.maxSubdomains,
-                  color: "text-emerald-500",
-                  bg: "bg-emerald-50",
+                  color: "text-[#1787D4]",
+                  bg: "bg-[#eff6fb]",
                 },
               ].map(({ icon: Icon, label, value, color, bg }) => (
                 <div
@@ -263,8 +235,8 @@ function RenewHostingModal({
       <div className="relative bg-white border border-[#e2eaff] w-full max-w-md shadow-2xl p-6 flex flex-col gap-5">
         <div className="flex items-center justify-between border-b border-[#e2eaff] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-50 border border-amber-100 flex items-center justify-center">
-              <RefreshCw className="w-4 h-4 text-[#e8900a]" />
+            <div className="w-8 h-8 bg-[#eff6fb] border border-[#d6e4ff] flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 text-[#1787D4]" />
             </div>
             <div>
               <h3 className="text-base font-bold text-[#031033]">Renew Hosting</h3>
@@ -300,7 +272,7 @@ function RenewHostingModal({
                 className={`py-2 px-3 text-xs font-semibold border transition-all ${
                   billingCycle === cycle
                     ? "bg-[#031033] text-white border-[#031033] shadow-sm"
-                    : "bg-white text-[#5a6a85] border-[#e2eaff] hover:border-[#e8900a]"
+                    : "bg-white text-[#5a6a85] border-[#e2eaff] hover:border-[#1787D4]"
                 }`}
               >
                 {cycle === "monthly" ? "Monthly" : cycle === "quarterly" ? "Quarterly" : "Yearly"}
@@ -431,7 +403,7 @@ function UpgradeHostingModal({
           <label className="text-xs font-semibold text-[#031033]">Select Upgrade Plan</label>
           {loadingPlans && (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="w-5 h-5 animate-spin text-[#e8900a]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
             </div>
           )}
           {plans?.map((plan) => {
@@ -454,15 +426,15 @@ function UpgradeHostingModal({
                   isCurrent
                     ? "bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed"
                     : isSelected
-                    ? "bg-[#fff8ee] border-[#e8900a] shadow-sm"
-                    : "bg-white border-[#e2eaff] hover:border-[#e8900a]"
+                    ? "bg-[#eff6fb] border-[#1787D4] shadow-sm"
+                    : "bg-white border-[#e2eaff] hover:border-[#1787D4]"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                       isSelected
-                        ? "border-[#e8900a] bg-[#e8900a]"
+                        ? "border-[#1787D4] bg-[#1787D4]"
                         : "border-[#c0cad8] bg-white"
                     }`}
                   >
@@ -579,7 +551,7 @@ function HostingAccountRow({
           {account.expiresAt ? formatDate(account.expiresAt) : "—"}
         </span>
         {expiring && (
-          <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-1.5 py-0.5 font-semibold">
+          <span className="text-[10.5px] text-orange-600 font-bold uppercase tracking-wider">
             Soon
           </span>
         )}
@@ -611,7 +583,7 @@ function HostingAccountRow({
           }}
           className={`hidden sm:flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 border transition-colors shrink-0 ${
             expiring || status === "SUSPENDED"
-              ? "bg-[#e8900a] text-white border-[#e8900a] hover:bg-[#c97a08]"
+              ? "bg-[#1787D4] text-white border-[#1787D4] hover:bg-[#1371B5]"
               : "text-[#031033] border-[#e2eaff] hover:bg-[#f2f5fc]"
           }`}
         >
@@ -636,8 +608,7 @@ function HostingAccountRow({
       )}
 
       {isPending && (
-        <span className="hidden sm:inline-flex items-center gap-1 text-[11.5px] font-medium text-amber-700 bg-amber-50 px-2.5 py-1 border border-amber-200 rounded-lg shrink-0">
-          <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+        <span className="hidden sm:inline-flex items-center text-[11.5px] font-medium text-orange-600 shrink-0">
           Setting up…
         </span>
       )}
@@ -1026,17 +997,18 @@ export default function HostingDashboardPage() {
 
                   {/* Status pill */}
                   {isPending ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
-                      <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+                    <span className="text-[12px] font-semibold text-orange-600">
                       Provisioning…
                     </span>
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
-                      style={{
-                        background: isExpired ? "#fef2f2" : isExpiring ? "#fffbeb" : "#ecfdf5",
-                        color: isExpired ? "#dc2626" : isExpiring ? "#d97706" : "#059669",
-                      }}
+                      className={`text-[12px] font-semibold ${
+                        isExpired
+                          ? "text-red-600"
+                          : isExpiring
+                          ? "text-orange-600"
+                          : "text-[#1787D4]"
+                      }`}
                     >
                       {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
                     </span>

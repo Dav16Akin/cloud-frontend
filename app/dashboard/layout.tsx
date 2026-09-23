@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
 import CartDrawer from "@/components/layout/CartDrawer";
 import SearchModal from "@/components/dashboard/SearchModal";
 import { refresh } from "@/lib/api";
@@ -41,7 +42,10 @@ export default function DashboardLayout({
     refresh()
       .then((res) => {
         const newToken: string =
-          res?.accessToken ?? res?.data?.accessToken ?? res?.token ?? res?.data?.token;
+          res?.accessToken ??
+          res?.data?.accessToken ??
+          res?.token ??
+          res?.data?.token;
         if (newToken) {
           setToken(newToken);
           setAuthStatus("authenticated");
@@ -82,8 +86,11 @@ export default function DashboardLayout({
   // Show spinner while we're determining auth state
   if (authStatus === "loading") {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ background: "#f5f5f7" }}>
-        <Loader2 className="w-6 h-6 animate-spin text-[#e8900a]" />
+      <div
+        className="flex h-screen items-center justify-center"
+        style={{ background: "#f5f5f7" }}
+      >
+        <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
       </div>
     );
   }
@@ -93,8 +100,10 @@ export default function DashboardLayout({
 
   return (
     <>
-      <div className="flex h-screen overflow-hidden" style={{ background: "#f5f5f7" }}>
-
+      <div
+        className="flex h-screen overflow-hidden"
+        style={{ background: "#f5f5f7" }}
+      >
         {/* ── Desktop sidebar ─────────────────────────────────────────── */}
         <div className="hidden md:flex h-full">
           <Sidebar />
@@ -121,13 +130,17 @@ export default function DashboardLayout({
             onSearchOpen={() => setIsSearchOpen(true)}
           />
 
-          <main className="flex-1 overflow-y-auto p-6 md:p-8">
-            {children}
-          </main>
+          {/* Full-width thin dark expiry banner directly under navbar */}
+          <ExpiryBanner />
+
+          <main className="flex-1 overflow-y-auto px-6 md:p-8">{children}</main>
         </div>
       </div>
       <CartDrawer />
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 }

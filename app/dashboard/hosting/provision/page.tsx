@@ -13,7 +13,7 @@ export default function HostingProvisionRedirectPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-4">
-      <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+      <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
       <p className="text-sm text-[#5a6a85]">Redirecting to hosting purchase...</p>
     </div>
   );

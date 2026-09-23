@@ -47,49 +47,25 @@ type TicketStatus = string;
 function TicketStatusBadge({ status }: { status: TicketStatus }) {
   const normalized = status?.toLowerCase() ?? "";
 
-  const cfg = normalized.includes("open")
-    ? {
-        icon: AlertCircle,
-        label: "Open",
-        cls: "bg-blue-50 text-blue-600 border-blue-200",
-      }
-    : normalized.includes("answered")
-    ? {
-        icon: CheckCircle2,
-        label: "Answered",
-        cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
-      }
-    : normalized.includes("customer")
-    ? {
-        icon: Clock,
-        label: "Customer Reply",
-        cls: "bg-amber-50 text-amber-600 border-amber-200",
-      }
-    : normalized.includes("closed")
-    ? {
-        icon: CheckCircle2,
-        label: "Closed",
-        cls: "bg-gray-50 text-gray-500 border-gray-200",
-      }
-    : normalized.includes("in progress")
-    ? {
-        icon: Clock,
-        label: "In Progress",
-        cls: "bg-purple-50 text-purple-600 border-purple-200",
-      }
-    : {
-        icon: Clock,
-        label: status || "Unknown",
-        cls: "bg-gray-50 text-gray-500 border-gray-200",
-      };
+  if (normalized.includes("open")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">Open</span>;
+  }
+  if (normalized.includes("answered")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">Answered</span>;
+  }
+  if (normalized.includes("customer")) {
+    return <span className="text-[12px] font-semibold text-orange-600 whitespace-nowrap">Customer Reply</span>;
+  }
+  if (normalized.includes("closed")) {
+    return <span className="text-[12px] font-medium text-slate-500 whitespace-nowrap">Closed</span>;
+  }
+  if (normalized.includes("in progress")) {
+    return <span className="text-[12px] font-semibold text-[#1787D4] whitespace-nowrap">In Progress</span>;
+  }
 
-  const Icon = cfg.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 border whitespace-nowrap ${cfg.cls}`}
-    >
-      <Icon className="w-3 h-3" />
-      {cfg.label}
+    <span className="text-[12px] font-medium text-slate-500 whitespace-nowrap">
+      {status || "Unknown"}
     </span>
   );
 }
@@ -99,13 +75,13 @@ function TicketStatusBadge({ status }: { status: TicketStatus }) {
 function PriorityBadge({ priority }: { priority: string }) {
   const p = priority?.toLowerCase() ?? "";
   const cls = p === "high"
-    ? "text-red-500"
+    ? "text-red-600 font-semibold"
     : p === "medium"
-    ? "text-amber-500"
-    : "text-[#9ba8c0]";
+    ? "text-orange-600 font-semibold"
+    : "text-slate-500 font-medium";
 
   return (
-    <span className={`text-[11px] font-semibold uppercase tracking-wide ${cls}`}>
+    <span className={`text-[11px] uppercase tracking-wide ${cls}`}>
       {priority || "—"}
     </span>
   );
@@ -121,13 +97,13 @@ function TicketRow({ ticket }: { ticket: SupportTicketSummary }) {
       className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#f6f9ff] transition-colors border-b border-[#e2eaff] last:border-b-0 cursor-pointer group"
     >
       {/* Icon */}
-      <div className="w-8 h-8 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center shrink-0">
-        <MessageSquare className="w-3.5 h-3.5 text-[#9ba8c0]" />
+      <div className="w-8 h-8 rounded-lg bg-[#eff6fb] text-[#1787D4] flex items-center justify-center shrink-0">
+        <MessageSquare className="w-3.5 h-3.5" />
       </div>
 
       {/* Subject + ticket number */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#031033] truncate group-hover:text-[#e8900a] transition-colors">
+        <p className="text-sm font-semibold text-[#031033] truncate group-hover:text-[#1787D4] transition-colors">
           {ticket.subject}
         </p>
         <p className="text-xs text-[#9ba8c0] truncate">
@@ -149,7 +125,7 @@ function TicketRow({ ticket }: { ticket: SupportTicketSummary }) {
       </p>
 
       {/* Chevron */}
-      <ChevronRight className="w-4 h-4 text-[#c8d0e0] shrink-0 group-hover:text-[#e8900a] transition-colors" />
+      <ChevronRight className="w-4 h-4 text-[#c8d0e0] shrink-0 group-hover:text-[#1787D4] transition-colors" />
     </Link>
   );
 }
@@ -209,7 +185,7 @@ function CreateTicketModal({ onClose }: { onClose: () => void }) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#e2eaff]">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-[#e8900a]" />
+            <MessageSquare className="w-4 h-4 text-[#1787D4]" />
             <h2 className="text-sm font-semibold text-[#031033]">
               New Support Ticket
             </h2>
@@ -239,7 +215,7 @@ function CreateTicketModal({ onClose }: { onClose: () => void }) {
               value={deptId}
               onChange={(e) => setDeptId(e.target.value)}
               disabled={deptsLoading}
-              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#e8900a] transition-colors disabled:opacity-50"
+              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#1787D4] transition-colors disabled:opacity-50"
             >
               <option value="">
                 {deptsLoading ? "Loading…" : "Select department"}
@@ -266,7 +242,7 @@ function CreateTicketModal({ onClose }: { onClose: () => void }) {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Brief description of your issue"
-              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#e8900a] transition-colors placeholder:text-[#c8d0e0]"
+              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#1787D4] transition-colors placeholder:text-[#c8d0e0]"
             />
           </div>
 
@@ -284,7 +260,7 @@ function CreateTicketModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Describe your issue in detail…"
               rows={5}
-              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#e8900a] transition-colors placeholder:text-[#c8d0e0] resize-none"
+              className="w-full border border-[#e2eaff] bg-white text-sm text-[#031033] px-3 py-2 focus:outline-none focus:border-[#1787D4] transition-colors placeholder:text-[#c8d0e0] resize-none"
             />
           </div>
         </div>
@@ -401,7 +377,7 @@ export default function TicketsPage() {
             {/* Mobile new ticket button */}
             <button
               onClick={() => setShowCreate(true)}
-              className="sm:hidden text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1"
+              className="sm:hidden text-xs font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
               id="tickets-new-ticket-mobile"
             >
               <Plus className="w-3 h-3" />
@@ -410,7 +386,7 @@ export default function TicketsPage() {
             {(isError || hasTickets) && (
               <button
                 onClick={() => refetch()}
-                className="text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
                 id="tickets-refresh"
               >
                 <RefreshCw className="w-3 h-3" />
@@ -450,7 +426,7 @@ export default function TicketsPage() {
             <button
               onClick={() => refetch()}
               id="tickets-retry"
-              className="text-xs font-semibold text-[#e8900a] hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
             >
               <RefreshCw className="w-3 h-3" />
               Try again

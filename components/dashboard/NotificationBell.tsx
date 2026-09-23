@@ -91,7 +91,7 @@ export default function NotificationBell() {
         {count > 0 && (
           <span
             id="notification-bell-badge"
-            className="absolute top-1 right-1 min-w-[17px] h-[17px] px-1 bg-[#e8900a] text-white text-[9.5px] font-extrabold flex items-center justify-center rounded-full shadow-xs ring-2 ring-white"
+            className="absolute top-1 right-1 min-w-[17px] h-[17px] px-1 bg-[#1787D4] text-white text-[9.5px] font-extrabold flex items-center justify-center rounded-full shadow-xs ring-2 ring-white"
           >
             {count > 99 ? "99+" : count}
           </span>
@@ -111,8 +111,8 @@ export default function NotificationBell() {
                 Notifications
               </span>
               {count > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                  {count} warning{count === 1 ? "" : "s"}
+                <span className="text-[11px] font-semibold text-orange-600">
+                  ({count} warning{count === 1 ? "" : "s"})
                 </span>
               )}
             </div>
@@ -129,8 +129,8 @@ export default function NotificationBell() {
               </div>
             ) : sortedWarnings.length === 0 ? (
               <div className="py-8 px-6 text-center">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2.5">
-                  <Bell className="w-4 h-4 opacity-50" />
+                <div className="w-10 h-10 rounded-full bg-[#eff6fb] text-[#1787D4] flex items-center justify-center mx-auto mb-2.5">
+                  <Bell className="w-4 h-4 opacity-75" />
                 </div>
                 <p className="text-[13px] font-semibold text-[#031033]">
                   All caught up!
@@ -151,17 +151,9 @@ export default function NotificationBell() {
                     onClick={() => setIsOpen(false)}
                     className="flex items-start gap-3 p-3.5 hover:bg-[#fbfcfe] transition-colors group cursor-pointer"
                   >
-                    {/* Icon */}
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                        isExpired
-                          ? "bg-rose-50 text-rose-600 border border-rose-200"
-                          : "bg-amber-50 text-amber-700 border border-amber-200"
-                      }`}
-                    >
-                      {isExpired ? (
-                        <ShieldAlert className="w-4 h-4" />
-                      ) : warning.type === "HOSTING" ? (
+                    {/* Icon - unified brand blue */}
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-[#eff6fb] text-[#1787D4]">
+                      {warning.type === "HOSTING" ? (
                         <Server className="w-4 h-4" />
                       ) : (
                         <Globe className="w-4 h-4" />
@@ -175,17 +167,15 @@ export default function NotificationBell() {
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span
-                          className={`inline-block px-1.5 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider ${
-                            isExpired
-                              ? "bg-rose-100 text-rose-800"
-                              : "bg-amber-100 text-amber-800"
+                          className={`text-[10.5px] font-bold uppercase tracking-wider ${
+                            isExpired ? "text-red-600" : "text-orange-600"
                           }`}
                         >
                           {isExpired ? "Expired" : "Expiring"}
                         </span>
                         {warning.expiresAt && (
                           <span className="text-[11px] text-[#8a9bb2]">
-                            {new Date(warning.expiresAt).toLocaleDateString(undefined, {
+                            • {new Date(warning.expiresAt).toLocaleDateString(undefined, {
                               month: "short",
                               day: "numeric",
                             })}

@@ -274,7 +274,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
                 style={{ color: S.textPrimary }}
               >
-                <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                <BookOpen className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
                 Help &amp; Docs ↗
               </a>
 

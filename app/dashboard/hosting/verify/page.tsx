@@ -24,21 +24,10 @@ import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningC
 import type { OrderItem } from "@/lib/api";
 
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
-  if (type === "HOSTING")
-    return (
-      <div className="w-8 h-8 bg-[#fff8ee] border border-[#f5d99e] flex items-center justify-center shrink-0">
-        <Server className="w-3.5 h-3.5 text-[#e8900a]" />
-      </div>
-    );
-  if (type === "DOMAIN")
-    return (
-      <div className="w-8 h-8 bg-[#f2f5fc] border border-[#dce4f7] flex items-center justify-center shrink-0">
-        <Globe className="w-3.5 h-3.5 text-[#031033]" />
-      </div>
-    );
+  const Icon = type === "HOSTING" ? Server : type === "DOMAIN" ? Globe : Shield;
   return (
-    <div className="w-8 h-8 bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-      <Shield className="w-3.5 h-3.5 text-emerald-500" />
+    <div className="w-8 h-8 rounded-lg bg-[#eff6fb] border border-[#d6e4ff] flex items-center justify-center shrink-0 text-[#1787D4]">
+      <Icon className="w-3.5 h-3.5" />
     </div>
   );
 }
@@ -148,7 +137,7 @@ function HostingVerifyContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
         <div className="w-16 h-16 bg-[#f2f5fc] border border-[#e2eaff] flex items-center justify-center">
-          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
         </div>
         <div>
           <h2 className="text-[1.05rem] font-semibold text-[#031033]">
@@ -383,7 +372,7 @@ export default function HostingVerifyPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-5">
-          <Loader2 className="w-7 h-7 animate-spin text-[#e8900a]" />
+          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
           <p className="text-sm text-[#5a6a85]">Loading verification details...</p>
         </div>
       }

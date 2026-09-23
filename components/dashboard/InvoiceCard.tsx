@@ -69,30 +69,26 @@ export default function InvoiceCard({
     switch (invoice.status) {
       case "PAID":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          <span className="text-[12px] font-semibold text-[#1787D4]">
             Paid
           </span>
         );
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            <Clock className="w-3 h-3 text-amber-600" />
+          <span className="text-[12px] font-semibold text-orange-600">
             Pending
           </span>
         );
       case "FAILED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            <XCircle className="w-3 h-3 text-rose-600" />
+          <span className="text-[12px] font-semibold text-red-600">
             Failed
           </span>
         );
       case "REFUNDED":
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-            <RotateCcw className="w-3 h-3 text-slate-500" />
+          <span className="text-[12px] font-semibold text-slate-500">
             Refunded
           </span>
         );
@@ -106,15 +102,7 @@ export default function InvoiceCard({
     <div className="bg-white rounded-2xl border border-[#e2eaff] hover:border-[#b8d4fa] p-4 sm:px-5 sm:py-4 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
       {/* Left Column: Icon + Description + Category + Metadata */}
       <div className="flex items-center gap-3.5 min-w-0">
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-            isDomain
-              ? "bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]"
-              : isHosting
-              ? "bg-purple-50 border-purple-200 text-purple-700"
-              : "bg-[#f2f5fc] border-[#dce5f5] text-[#1787D4]"
-          }`}
-        >
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]">
           {isDomain ? (
             <Globe className="w-5 h-5" />
           ) : isHosting ? (
@@ -131,23 +119,20 @@ export default function InvoiceCard({
             </h4>
 
             {isDomain ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8]">
-                <Globe className="w-2.5 h-2.5" />
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#eff6fc] text-[#1787D4]">
                 Domain
               </span>
             ) : isHosting ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                <Server className="w-2.5 h-2.5" />
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#eff6fc] text-[#1787D4]">
                 Hosting Plan
               </span>
             ) : null}
           </div>
 
           {isTaken && (
-            <div className="mt-1 inline-flex items-center gap-1 text-[11.5px] font-medium text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-              <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
-              <span>Domain already taken by another party</span>
-            </div>
+            <p className="mt-1 text-[12px] font-semibold text-red-600">
+              Domain already taken by another party
+            </p>
           )}
 
           <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[12px] text-[#5a6a85]">
@@ -195,11 +180,10 @@ export default function InvoiceCard({
             <>
               {isTaken ? (
                 <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold text-rose-700 bg-rose-50 border border-rose-200"
+                  className="text-[12px] font-semibold text-red-600 px-2 py-1"
                   title="This domain is unavailable and cannot be purchased."
                 >
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Domain Taken</span>
+                  Domain Taken
                 </span>
               ) : (
                 <button

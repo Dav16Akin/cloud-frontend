@@ -85,7 +85,7 @@ export default function HeroSection() {
           {/* Apple Pill CTA Buttons */}
           <div className="flex flex-wrap items-center gap-3.5">
             <Link
-              href="/domains"
+              href="/register"
               id="hero-get-started"
               className="btn-white !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-semibold cursor-pointer"
             >

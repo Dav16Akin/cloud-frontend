@@ -103,11 +103,16 @@ function TicketRow({ ticket }: { ticket: SupportTicketSummary }) {
 
       {/* Subject + ticket number */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#031033] truncate group-hover:text-[#1787D4] transition-colors">
-          {ticket.subject}
-        </p>
-        <p className="text-xs text-[#9ba8c0] truncate">
-          #{ticket.tid} · {ticket.deptname}
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-[#031033] truncate group-hover:text-[#1787D4] transition-colors">
+            {ticket.subject}
+          </p>
+          <span className="sm:hidden shrink-0">
+            <PriorityBadge priority={ticket.priority} />
+          </span>
+        </div>
+        <p className="text-xs text-[#9ba8c0] truncate mt-0.5">
+          #{ticket.tid} · {ticket.deptname} · <span className="md:hidden">{formatDate(ticket.lastreply)}</span>
         </p>
       </div>
 
@@ -324,7 +329,7 @@ export default function TicketsPage() {
         <button
           onClick={() => setShowCreate(true)}
           id="tickets-new-ticket"
-          className="hidden sm:flex btn-primary text-sm py-2 px-4 items-center gap-2 whitespace-nowrap shrink-0"
+          className="inline-flex btn-primary text-sm py-2 px-3.5 sm:px-4 items-center gap-2 whitespace-nowrap shrink-0 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           New Ticket

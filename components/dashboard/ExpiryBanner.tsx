@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, AlertTriangle, AlertCircle } from "lucide-react";
 import {
   useGetExpiryWarnings,
   useDismissedWarnings,
@@ -84,63 +84,134 @@ export default function ExpiryBanner() {
           <div
             key={`${warning.type}:${warning.id}`}
             id={`expiry-banner-${warning.type.toLowerCase()}-${warning.id}`}
-            className="w-full bg-[#0a0f1d] border-b border-white/10 px-4 sm:px-6 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-all text-white text-[12.5px]"
+            className="w-full bg-[#0a0f1d] border-b border-white/10 px-4 sm:px-6 py-2.5 transition-all text-white text-[12.5px]"
           >
-            {/* Left Content */}
-            <div className="flex items-center gap-2 flex-wrap min-w-0 pr-2">
-              <span
-                className={`font-bold tracking-tight text-[11px] uppercase ${
-                  isExpired ? "text-red-400" : "text-orange-400"
-                }`}
-              >
-                {isExpired ? "Expired" : "Expiring Soon"}
-              </span>
-              <span className="text-white/30">•</span>
-              <span className="font-semibold text-white truncate max-w-[200px] sm:max-w-sm">
-                {serviceName}
-              </span>
-              <span className="text-white/30 hidden md:inline">•</span>
-              <span className="text-slate-300 text-[12px] hidden md:inline">
-                Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
-              </span>
+            {/* Desktop Row: Single horizontal strip */}
+            <div className="hidden sm:flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {isExpired ? (
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                )}
+                <span
+                  className={`font-bold tracking-tight text-[11px] uppercase shrink-0 ${
+                    isExpired ? "text-red-400" : "text-amber-400"
+                  }`}
+                >
+                  {isExpired ? "Expired" : "Expiring Soon"}
+                </span>
+                <span className="text-white/30 shrink-0">•</span>
+                <span className="font-semibold text-white truncate max-w-[200px] md:max-w-xs">
+                  {serviceName}
+                </span>
+                <span className="text-white/30 hidden md:inline shrink-0">•</span>
+                <span className="text-slate-300 text-[12px] hidden md:inline truncate">
+                  Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <Link
+                  href={getServiceLink(warning)}
+                  className="text-[12px] font-medium text-slate-400 hover:text-white transition-colors"
+                >
+                  Details
+                </Link>
+
+                <button
+                  type="button"
+                  id={`btn-renew-${warning.id}`}
+                  onClick={() => handleRenew(warning)}
+                  disabled={isProcessing}
+                  className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                      <span>Renewing…</span>
+                    </>
+                  ) : (
+                    <span>Renew now</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  id={`btn-dismiss-${warning.type.toLowerCase()}-${warning.id}`}
+                  onClick={() => dismissWarning(warning.type, warning.id)}
+                  title="Dismiss for this session"
+                  aria-label="Dismiss warning for this session"
+                  className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Actions & Dismiss */}
-            <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
-              <Link
-                href={getServiceLink(warning)}
-                className="text-[11.5px] font-medium text-slate-400 hover:text-white transition-colors"
-              >
-                Details
-              </Link>
+            {/* Mobile View: Clean, touch-friendly card layout */}
+            <div className="flex sm:hidden flex-col gap-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  {isExpired ? (
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  )}
+                  <span
+                    className={`font-bold text-[10.5px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                      isExpired
+                        ? "bg-red-500/20 text-red-300"
+                        : "bg-amber-500/20 text-amber-300"
+                    }`}
+                  >
+                    {isExpired ? "Expired" : "Expiring Soon"}
+                  </span>
+                  <span className="font-semibold text-white text-[13px] truncate">
+                    {serviceName}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  id={`btn-dismiss-mobile-${warning.type.toLowerCase()}-${warning.id}`}
+                  onClick={() => dismissWarning(warning.type, warning.id)}
+                  title="Dismiss"
+                  aria-label="Dismiss warning"
+                  className="p-1 -mr-1 rounded text-slate-400 hover:text-white transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-              <button
-                type="button"
-                id={`btn-renew-${warning.id}`}
-                onClick={() => handleRenew(warning)}
-                disabled={isProcessing}
-                className="inline-flex items-center justify-center px-3 py-1 rounded-md text-[11.5px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                    <span>Renewing…</span>
-                  </>
-                ) : (
-                  <span>Renew now</span>
-                )}
-              </button>
+              <p className="text-[12px] text-slate-300">
+                Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
+              </p>
 
-              <button
-                type="button"
-                id={`btn-dismiss-${warning.type.toLowerCase()}-${warning.id}`}
-                onClick={() => dismissWarning(warning.type, warning.id)}
-                title="Dismiss for this session"
-                aria-label="Dismiss warning for this session"
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  href={getServiceLink(warning)}
+                  className="flex-1 text-center py-2 px-3 rounded-lg text-[12px] font-medium text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                >
+                  Details
+                </Link>
+
+                <button
+                  type="button"
+                  id={`btn-renew-mobile-${warning.id}`}
+                  onClick={() => handleRenew(warning)}
+                  disabled={isProcessing}
+                  className="flex-1 inline-flex items-center justify-center py-2 px-3 rounded-lg text-[12px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                      <span>Renewing…</span>
+                    </>
+                  ) : (
+                    <span>Renew now</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         );

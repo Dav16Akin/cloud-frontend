@@ -12,6 +12,16 @@ import {
   Shield,
   Smartphone,
   Laptop,
+  Building2,
+  MapPin,
+  Mail,
+  Phone,
+  Hash,
+  CheckCircle2,
+  Calendar,
+  Globe,
+  ShieldCheck,
+  Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useGetMe, useUpdateProfile, useChangePassword } from "@/hooks/useUser";
@@ -23,26 +33,88 @@ export default function ProfilePage() {
   const { mutate: changePassword, isPending: changingPassword } = useChangePassword();
   const { mutate: logout } = useLogout();
 
-  // User fields from API with sensible fallbacks
+  // User fields from API
   const user = me?.data;
-  const firstName = user?.firstName || "Alex";
-  const lastName = user?.lastName || "Prokhorov";
-  const email = user?.email || "alex.prokhorov@example.com";
-  const phoneNumber = user?.phoneNumber || "+1234908765432";
 
   // Form state for Edit Profile modal
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editFirstName, setEditFirstName] = useState(firstName);
-  const [editLastName, setEditLastName] = useState(lastName);
-  const [editPhone, setEditPhone] = useState(phoneNumber);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editCompanyName, setEditCompanyName] = useState("");
+  const [editHouseNumber, setEditHouseNumber] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editState, setEditState] = useState("");
+  const [editCountry, setEditCountry] = useState("");
+  const [editPostcode, setEditPostcode] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (user) {
       setEditFirstName(user.firstName || "");
       setEditLastName(user.lastName || "");
       setEditPhone(user.phoneNumber || "");
+      setEditCompanyName(user.companyName || "");
+      setEditHouseNumber(user.houseNumber || "");
+      setEditAddress(user.address || "");
+      setEditCity(user.city || "");
+      setEditState(user.state || "");
+      setEditCountry(user.country || "");
+      setEditPostcode(user.postcode || "");
     }
   }, [user]);
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (editFirstName.trim() && editFirstName.trim().length < 2) {
+      errors.firstName = "First name must be at least 2 characters.";
+    }
+    if (editLastName.trim() && editLastName.trim().length < 2) {
+      errors.lastName = "Last name must be at least 2 characters.";
+    }
+    if (!editPhone.trim()) {
+      errors.phoneNumber = "Phone number is required.";
+    } else if (editPhone.trim().replace(/\s+/g, "").length < 10) {
+      errors.phoneNumber = "Phone number must be at least 10 characters.";
+    }
+    if (!editCompanyName.trim()) {
+      errors.companyName = "Company or organization name is required.";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      toast.error("Please fix the highlighted errors before saving.");
+      return;
+    }
+
+    updateProfile(
+      {
+        firstName: editFirstName.trim() || undefined,
+        lastName: editLastName.trim() || undefined,
+        phoneNumber: editPhone.trim(),
+        companyName: editCompanyName.trim(),
+        houseNumber: editHouseNumber.trim() || undefined,
+        address: editAddress.trim() || undefined,
+        city: editCity.trim() || undefined,
+        state: editState.trim() || undefined,
+        country: editCountry.trim() || undefined,
+        postcode: editPostcode.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          setShowEditModal(false);
+          setFormErrors({});
+        },
+      }
+    );
+  };
 
   // Notification settings state
   const [notifications, setNotifications] = useState({
@@ -74,26 +146,6 @@ export default function ProfilePage() {
   const [showSessionsModal, setShowSessionsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editFirstName.trim() || !editLastName.trim()) {
-      toast.error("First and last name are required.");
-      return;
-    }
-    updateProfile(
-      {
-        firstName: editFirstName.trim(),
-        lastName: editLastName.trim(),
-        phoneNumber: editPhone.trim(),
-      },
-      {
-        onSuccess: () => {
-          setShowEditModal(false);
-        },
-      }
-    );
-  };
-
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (!oldPassword || !newPassword) {
@@ -121,92 +173,319 @@ export default function ProfilePage() {
     );
   };
 
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+  const initials =
+    `${user?.firstName?.[0] || ""}${user?.lastName?.[0] || ""}`.toUpperCase() ||
+    (user?.email?.[0] || "U").toUpperCase();
+
+  const formattedJoinedDate = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "—";
+
+  const fullAddressString = [
+    user?.houseNumber ? `#${user.houseNumber}` : null,
+    user?.address,
+    user?.city,
+    user?.state,
+    user?.postcode,
+    user?.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
-      {/* Header */}
-      <div>
-        <h2
-          className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-          style={{
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          Profile
-        </h2>
-        <p className="text-[14px] mt-1 text-[#6e6e73]">
-          Manage your account information and preferences.
-        </p>
+      {/* Header Banner Card */}
+      <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-white" /> : initials}
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2
+                className="text-[22px] font-bold tracking-tight text-[#1d1d1f]"
+                style={{
+                  fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+                  letterSpacing: "-0.3px",
+                }}
+              >
+                {isLoading ? "Loading profile..." : fullName || "Account Details"}
+              </h2>
+
+              {user?.role && (
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-blue-50 text-[#1787D4] border border-blue-200">
+                  {user.role}
+                </span>
+              )}
+
+              {user?.verified !== undefined && (
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium border ${
+                    user.verified
+                      ? "bg-[#e6f9ed] text-[#12a150] border-[#b7eed0]"
+                      : "bg-amber-50 text-amber-700 border-amber-200"
+                  }`}
+                >
+                  {user.verified ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Verified
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      Unverified
+                    </>
+                  )}
+                </span>
+              )}
+            </div>
+
+            <p className="text-[13.5px] text-[#6e6e73] mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>{isLoading ? "—" : user?.email}</span>
+              {user?.companyName && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span className="font-medium text-[#1d1d1f]">{user.companyName}</span>
+                </>
+              )}
+              {user?.createdAt && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span>Joined {formattedJoinedDate}</span>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            id="btn-edit-profile"
+            onClick={() => setShowEditModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            Edit Profile
+          </button>
+        </div>
       </div>
 
       {/* Main Grid: 2 Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-1">
-        {/* Left Column (8 cols): Personal Info + Notification Settings */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (8 cols): Personal Info + Address Info + Notification Settings */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          {/* Card 1: Personal Information */}
+          {/* Card 1: Personal & Organization Information */}
           <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
-                Personal Information
-              </h3>
+            <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-[15.5px] font-bold text-[#1d1d1f]">
+                    Personal &amp; Organization Information
+                  </h3>
+                  <p className="text-[12px] text-[#6e6e73]">
+                    Your identity and organization credentials.
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
-                id="btn-edit-profile"
                 onClick={() => setShowEditModal(true)}
-                className="px-3.5 py-1.5 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1d1d1f] text-[12.5px] font-semibold rounded-xl transition-colors shadow-sm"
+                className="text-[12.5px] font-semibold text-[#1787D4] hover:underline"
               >
-                Edit Profile
+                Edit
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
               {/* First Name */}
               <div>
-                <span className="text-[12px] font-medium text-[#6e6e73] block">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
                   First Name
                 </span>
-                <span className="text-[14.5px] font-bold text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : firstName}
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.firstName || "—"}
                 </span>
               </div>
 
               {/* Last Name */}
               <div>
-                <span className="text-[12px] font-medium text-[#6e6e73] block">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
                   Last Name
                 </span>
-                <span className="text-[14.5px] font-bold text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : lastName}
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.lastName || "—"}
                 </span>
               </div>
 
               {/* Email Address */}
               <div>
-                <span className="text-[12px] font-medium text-[#6e6e73] block">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
                   Email Address
                 </span>
-                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : email}
-                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[14px] font-medium text-[#1d1d1f]">
+                    {isLoading ? "—" : user?.email || "—"}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
+                    <Lock className="w-2.5 h-2.5" />
+                    Primary
+                  </span>
+                </div>
               </div>
 
               {/* Phone Number */}
               <div>
-                <span className="text-[12px] font-medium text-[#6e6e73] block">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
                   Phone Number
                 </span>
                 <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : phoneNumber || "—"}
+                  {isLoading ? "—" : user?.phoneNumber || "—"}
+                </span>
+              </div>
+
+              {/* Company / Organization Name */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  Company / Organization
+                </span>
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.companyName || "—"}
+                </span>
+              </div>
+
+              {/* Role */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  Account Role
+                </span>
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.role || "USER"}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Notification Settings */}
+          {/* Card 2: Address & Location Details */}
           <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
-            <h3 className="text-[16px] font-bold text-[#1d1d1f] mb-4">
+            <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-[15.5px] font-bold text-[#1d1d1f]">
+                    Address &amp; Location Information
+                  </h3>
+                  <p className="text-[12px] text-[#6e6e73]">
+                    Billing and service location associated with your account.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(true)}
+                className="text-[12.5px] font-semibold text-[#1787D4] hover:underline"
+              >
+                Edit
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-6">
+              {/* House Number */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  House / Unit No.
+                </span>
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.houseNumber || "—"}
+                </span>
+              </div>
+
+              {/* Street Address */}
+              <div className="sm:col-span-2">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  Street Address
+                </span>
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block truncate">
+                  {isLoading ? "—" : user?.address || "—"}
+                </span>
+              </div>
+
+              {/* City */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  City
+                </span>
+                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.city || "—"}
+                </span>
+              </div>
+
+              {/* State */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  State / Province
+                </span>
+                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.state || "—"}
+                </span>
+              </div>
+
+              {/* Postal Code */}
+              <div>
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  Postal Code
+                </span>
+                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.postcode || "—"}
+                </span>
+              </div>
+
+              {/* Country */}
+              <div className="sm:col-span-3">
+                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                  Country
+                </span>
+                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                  {isLoading ? "—" : user?.country || "—"}
+                </span>
+              </div>
+            </div>
+
+            {/* Address Summary Preview */}
+            {fullAddressString && (
+              <div className="mt-5 p-3.5 bg-[#f8faff] rounded-xl border border-[#e2eaff] flex items-start gap-2.5">
+                <Globe className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#1787D4] block">
+                    Full Formatted Address
+                  </span>
+                  <p className="text-[13px] text-[#1d1d1f] font-medium mt-0.5">
+                    {fullAddressString}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Card 3: Notification Settings */}
+          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
+            <h3 className="text-[15.5px] font-bold text-[#1d1d1f] mb-1">
               Notification Settings
             </h3>
+            <p className="text-[12px] text-[#6e6e73] mb-4">
+              Choose which emails and notifications you wish to receive.
+            </p>
             <div className="border-t border-[#eef2f8] pt-4 flex flex-col gap-3.5">
               {/* Renewal reminders */}
               <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -217,7 +496,7 @@ export default function ProfilePage() {
                   className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
                 />
                 <span className="text-[13.5px] font-medium text-[#1d1d1f]">
-                  Renewal reminders
+                  Renewal reminders (Domain &amp; hosting expiry warnings)
                 </span>
               </label>
 
@@ -230,7 +509,7 @@ export default function ProfilePage() {
                   className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
                 />
                 <span className="text-[13.5px] font-medium text-[#1d1d1f]">
-                  Product updates
+                  Product updates &amp; service maintenance alerts
                 </span>
               </label>
 
@@ -243,7 +522,7 @@ export default function ProfilePage() {
                   className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
                 />
                 <span className="text-[13.5px] font-medium text-[#1d1d1f]">
-                  Security alerts
+                  Security alerts &amp; new sign-in notifications
                 </span>
               </label>
 
@@ -256,16 +535,49 @@ export default function ProfilePage() {
                   className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
                 />
                 <span className="text-[13.5px] font-medium text-[#1d1d1f]">
-                  Marketing emails
+                  Promotional offers &amp; newsletters
                 </span>
               </label>
             </div>
           </div>
         </div>
 
-        {/* Right Column (4 cols): Security & Credentials + Account Details */}
+        {/* Right Column (4 cols): Security & Credentials + Account Overview */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          {/* Card 3: Security & Credentials */}
+          {/* Card 4: Account Details */}
+          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+            <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+              Account Overview
+            </h3>
+
+            <div className="flex flex-col gap-3.5 text-[13px]">
+              {/* Joined Date */}
+              <div className="flex items-center justify-between">
+                <span className="text-[#6e6e73]">Member Since</span>
+                <span className="font-semibold text-[#1d1d1f]">
+                  {isLoading ? "—" : formattedJoinedDate}
+                </span>
+              </div>
+
+              {/* Account Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-[#6e6e73]">Account Status</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                  Active
+                </span>
+              </div>
+
+              {/* Verification */}
+              <div className="flex items-center justify-between">
+                <span className="text-[#6e6e73]">Email Status</span>
+                <span className="font-semibold text-[#1d1d1f]">
+                  {user?.verified ? "Verified" : "Pending Verification"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Security & Credentials */}
           <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
             <h3 className="text-[15px] font-bold text-[#1d1d1f] mb-1">
               Security &amp; Credentials
@@ -301,42 +613,10 @@ export default function ProfilePage() {
               Active Sessions
             </button>
           </div>
-
-          {/* Card 4: Account Details */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
-            <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-              Account Details
-            </h3>
-
-            <div className="flex flex-col gap-3 text-[13px]">
-              <div className="flex items-center justify-between">
-                <span className="text-[#6e6e73]">Created Date</span>
-                <span className="font-bold text-[#1d1d1f]">September 2026</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#6e6e73]">Account Status</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-                  Active
-                </span>
-              </div>
-            </div>
-
-            {/* Delete Account */}
-            <div className="pt-2 border-t border-[#eef2f8]">
-              <button
-                type="button"
-                id="btn-delete-account"
-                onClick={() => setShowDeleteModal(true)}
-                className="w-full py-2.5 px-4 bg-white hover:bg-red-50 border border-red-200 text-red-600 text-[13px] font-semibold rounded-xl transition-colors text-center"
-              >
-                Delete Account
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* ── Edit Profile Modal (matches updateUserSchema) ───────────────────── */}
       {showEditModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -347,62 +627,266 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowEditModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#1d1d1f]">
-              Edit Personal Information
-            </h3>
+          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-2xl shadow-2xl p-6 sm:p-7 flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="pb-4 border-b border-[#eef2f8]">
+              <h3 className="text-lg font-bold text-[#1d1d1f]">
+                Edit Profile Information
+              </h3>
+              <p className="text-xs text-[#6e6e73] mt-0.5">
+                Update your personal info, organization name, and billing address.
+              </p>
+            </div>
 
-            <form onSubmit={handleSaveProfile} className="flex flex-col gap-3.5">
+            <form
+              onSubmit={handleSaveProfile}
+              className="flex-1 overflow-y-auto py-5 pr-1 flex flex-col gap-6"
+            >
+              {/* Section 1: Personal & Organization */}
               <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  value={editFirstName}
-                  onChange={(e) => setEditFirstName(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
-                  required
-                />
+                <h4 className="text-[13px] font-bold text-[#1787D4] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  Personal &amp; Organization
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* First Name */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editFirstName}
+                      onChange={(e) => {
+                        setEditFirstName(e.target.value);
+                        if (formErrors.firstName) {
+                          setFormErrors((prev) => ({ ...prev, firstName: "" }));
+                        }
+                      }}
+                      placeholder="e.g. Akinloluwa"
+                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                        formErrors.firstName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                      }`}
+                    />
+                    {formErrors.firstName && (
+                      <span className="text-[11px] text-red-500 mt-1 block">
+                        {formErrors.firstName}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Last Name */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editLastName}
+                      onChange={(e) => {
+                        setEditLastName(e.target.value);
+                        if (formErrors.lastName) {
+                          setFormErrors((prev) => ({ ...prev, lastName: "" }));
+                        }
+                      }}
+                      placeholder="e.g. Oluwaleye"
+                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                        formErrors.lastName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                      }`}
+                    />
+                    {formErrors.lastName && (
+                      <span className="text-[11px] text-red-500 mt-1 block">
+                        {formErrors.lastName}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Email (Read-only) */}
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Email Address (Read-only)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={user?.email || ""}
+                        disabled
+                        className="w-full px-3.5 py-2 bg-gray-50 border border-[#e2eaff] rounded-xl text-sm text-gray-500 cursor-not-allowed"
+                      />
+                      <Lock className="w-3.5 h-3.5 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                    <span className="text-[11px] text-[#6e6e73] mt-1 block">
+                      Email address cannot be changed from profile settings.
+                    </span>
+                  </div>
+
+                  {/* Phone Number */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      value={editPhone}
+                      onChange={(e) => {
+                        setEditPhone(e.target.value);
+                        if (formErrors.phoneNumber) {
+                          setFormErrors((prev) => ({ ...prev, phoneNumber: "" }));
+                        }
+                      }}
+                      placeholder="e.g. 08140397106"
+                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                        formErrors.phoneNumber ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                      }`}
+                      required
+                    />
+                    {formErrors.phoneNumber && (
+                      <span className="text-[11px] text-red-500 mt-1 block">
+                        {formErrors.phoneNumber}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Company Name */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Company / Organization *
+                    </label>
+                    <input
+                      type="text"
+                      value={editCompanyName}
+                      onChange={(e) => {
+                        setEditCompanyName(e.target.value);
+                        if (formErrors.companyName) {
+                          setFormErrors((prev) => ({ ...prev, companyName: "" }));
+                        }
+                      }}
+                      placeholder="e.g. DevSimplified"
+                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                        formErrors.companyName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                      }`}
+                      required
+                    />
+                    {formErrors.companyName && (
+                      <span className="text-[11px] text-red-500 mt-1 block">
+                        {formErrors.companyName}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  Last Name *
-                </label>
-                <input
-                  type="text"
-                  value={editLastName}
-                  onChange={(e) => setEditLastName(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
-                  required
-                />
+              {/* Section 2: Address & Location */}
+              <div className="pt-2 border-t border-[#eef2f8]">
+                <h4 className="text-[13px] font-bold text-[#1787D4] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  Address &amp; Location
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* House Number */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      House / Unit No.
+                    </label>
+                    <input
+                      type="text"
+                      value={editHouseNumber}
+                      onChange={(e) => setEditHouseNumber(e.target.value)}
+                      placeholder="e.g. 40"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+
+                  {/* Street Address */}
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Street Address
+                    </label>
+                    <input
+                      type="text"
+                      value={editAddress}
+                      onChange={(e) => setEditAddress(e.target.value)}
+                      placeholder="e.g. Ayodele Fanoiki Street"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={editCity}
+                      onChange={(e) => setEditCity(e.target.value)}
+                      placeholder="e.g. Magodo G.R.A"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      State / Province
+                    </label>
+                    <input
+                      type="text"
+                      value={editState}
+                      onChange={(e) => setEditState(e.target.value)}
+                      placeholder="e.g. Lagos"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+
+                  {/* Postal Code */}
+                  <div>
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Postal Code
+                    </label>
+                    <input
+                      type="text"
+                      value={editPostcode}
+                      onChange={(e) => setEditPostcode(e.target.value)}
+                      placeholder="e.g. 100248"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div className="sm:col-span-3">
+                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      value={editCountry}
+                      onChange={(e) => setEditCountry(e.target.value)}
+                      placeholder="e.g. Nigeria"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
-                />
-              </div>
-
-              <div className="flex gap-2 justify-end mt-2">
+              {/* Action Buttons */}
+              <div className="flex gap-2 justify-end pt-4 border-t border-[#eef2f8] mt-2">
                 <button
                   type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setFormErrors({});
+                  }}
+                  className="px-4 py-2.5 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={updating}
-                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-5 py-2.5 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Save Changes

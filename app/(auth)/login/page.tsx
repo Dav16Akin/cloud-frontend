@@ -53,28 +53,31 @@ function LoginForm() {
       {/* Left Panel: Solid Nupat Brand Blue with Stacked White & Yellow Logo */}
       <AuthLeftPanel />
 
-      {/* Right Panel: Clean Form Container (Scrolls independently) */}
-      <div className="flex-1 flex items-center justify-center bg-white px-6 sm:px-12 lg:px-16 py-8 h-screen overflow-y-auto">
-        <div className="w-full max-w-[420px] my-auto">
-          {/* Mobile Back & Brand Header (hidden on desktop) */}
-          <div className="lg:hidden flex items-center justify-between mb-8">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Home
-            </Link>
-            <div className="relative w-28 h-7">
-              <Image
-                src="/nupat_cloud_logo-nav.png"
-                alt="Nupat Cloud"
-                fill
-                priority
-                className="object-contain"
-              />
-            </div>
-          </div>
+      {/* Right Panel */}
+      <div className="flex-1 flex flex-col min-h-screen lg:h-screen bg-white">
+        {/* Mobile Back & Brand Header (pinned to top) */}
+        <div className="lg:hidden w-full px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0 bg-white">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Home
+          </Link>
+          <Link href="/" className="relative w-28 h-7">
+            <Image
+              src="/nupat_cloud_logo-nav.png"
+              alt="Nupat Cloud"
+              fill
+              priority
+              className="object-contain"
+            />
+          </Link>
+        </div>
+
+        {/* Form Container (Scrolls independently) */}
+        <div className="flex-1 flex items-center justify-center bg-white px-6 sm:px-12 lg:px-16 py-8 overflow-y-auto">
+          <div className="w-full max-w-[420px] my-auto">
 
           {/* Header */}
           <div className="text-center mb-7">
@@ -225,6 +228,7 @@ function LoginForm() {
         </div>
       </div>
     </div>
+  </div>
   );
 }
 

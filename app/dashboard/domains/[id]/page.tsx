@@ -414,7 +414,7 @@ export default function ManageDomainPage() {
         !loadingDomain &&
         !errorDomain &&
         domain && (
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-start">
             {/* Left — info cards grid */}
             <div className="flex-1 flex flex-col gap-4">
               <h2 className="text-[15px] font-bold text-[#031033]">
@@ -495,7 +495,7 @@ export default function ManageDomainPage() {
 
             {/* Right — Quick Operations sidebar */}
             <div
-              className="w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
+              className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
               style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
               <h3

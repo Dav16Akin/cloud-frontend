@@ -166,15 +166,15 @@ export default function InvoiceCard({
       </div>
 
       {/* Right Column: Amount, Status Badge & Action */}
-      <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#f2f5fc]">
-        <div className="text-left sm:text-right">
+      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#f2f5fc] flex-wrap sm:flex-nowrap">
+        <div className="text-left sm:text-right shrink-0">
           <span className="text-[14.5px] font-extrabold text-[#031033] block tracking-tight">
             {formattedAmount}
           </span>
           <div className="mt-1">{renderStatusBadge()}</div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Pay now ONLY for domain invoices when PENDING or FAILED */}
           {isPendingOrFailed && isDomain && (
             <>

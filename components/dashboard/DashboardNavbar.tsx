@@ -140,7 +140,7 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
         <button
           id="dashboard-search-trigger"
           onClick={onSearchOpen}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] transition-all duration-150 cursor-pointer"
+          className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-lg text-[13px] transition-all duration-150 cursor-pointer"
           style={{
             color: N.inkSubtle,
             border: `1px solid ${N.hairline}`,
@@ -148,8 +148,8 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
           }}
           aria-label="Search"
         >
-          <Search className="w-3.5 h-3.5 shrink-0" style={{ color: N.blue }} />
-          <span className="hidden lg:inline select-none">Search...</span>
+          <Search className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" style={{ color: N.blue }} />
+          <span className="hidden sm:inline select-none">Search...</span>
           <kbd
             className="hidden lg:inline-flex items-center rounded px-1.5 py-px text-[10px] font-mono ml-1"
             style={{

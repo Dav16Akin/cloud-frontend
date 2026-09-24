@@ -3,10 +3,47 @@ import { getMe, updateProfile, changePassword } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 
+export interface UserProfile {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  phoneNumber?: string;
+  role?: string;
+  companyName?: string;
+  houseNumber?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postcode?: string;
+  verified?: boolean;
+  createdAt?: string;
+}
+
+export interface MeResponse {
+  success: boolean;
+  message?: string;
+  data: UserProfile;
+}
+
+export interface UpdateUserPayload {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  companyName?: string;
+  address?: string;
+  country?: string;
+  city?: string;
+  state?: string;
+  houseNumber?: string;
+  postcode?: string;
+}
+
 export const useGetMe = () => {
   const token = useAuthStore((s) => s.token);
 
-  return useQuery({
+  return useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: () => getMe(),
     enabled: !!token,
@@ -19,18 +56,7 @@ export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
-      firstName?: string;
-      lastName?: string;
-      phoneNumber?: string;
-      companyName?: string;
-      address?: string;
-      houseNumber?: string;
-      country?: string;
-      city?: string;
-      state?: string;
-      postcode?: string;
-    }) => updateProfile(token!, data),
+    mutationFn: (data: UpdateUserPayload) => updateProfile(token!, data),
     onSuccess: () => {
       toast.success("Profile updated successfully.");
       queryClient.invalidateQueries({ queryKey: ["me"] });

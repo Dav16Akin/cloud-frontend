@@ -237,36 +237,37 @@
 
 /* ============================================================
    HEADING ELEMENT DEFAULTS
-   Defined OUTSIDE @layer so plain CSS wins over Tailwind's
-   preflight reset (which sets font-size: inherit in @layer base).
-   Any heading with no extra Tailwind text-* class will use these.
+   Using @layer base and :where so default typography applies
+   cleanly without overriding Tailwind utility classes (text-*).
    ============================================================ */
-body h1 {
-  font-family: var(--font-apple-display);
-  font-size: var(--fs-h1);
-  line-height: var(--lh-h1);
-  font-weight: 600;
-  letter-spacing: var(--ls-h1);
-}
-body h2 {
-  font-family: var(--font-apple-display);
-  font-size: var(--fs-h2);
-  line-height: var(--lh-h2);
-  font-weight: 600;
-  letter-spacing: var(--ls-h2);
-}
-body h3 {
-  font-family: var(--font-apple-display);
-  font-size: var(--fs-h3);
-  line-height: var(--lh-h3);
-  font-weight: 600;
-  letter-spacing: var(--ls-h3);
-}
-body h4 {
-  font-family: var(--font-apple-text);
-  font-size: var(--fs-h4);
-  line-height: var(--lh-h4);
-  font-weight: 600;
+@layer base {
+  body :where(h1:not([class*="text-"])) {
+    font-family: var(--font-apple-display);
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    font-weight: 600;
+    letter-spacing: var(--ls-h1);
+  }
+  body :where(h2:not([class*="text-"])) {
+    font-family: var(--font-apple-display);
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    font-weight: 600;
+    letter-spacing: var(--ls-h2);
+  }
+  body :where(h3:not([class*="text-"])) {
+    font-family: var(--font-apple-display);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    font-weight: 600;
+    letter-spacing: var(--ls-h3);
+  }
+  body :where(h4:not([class*="text-"])) {
+    font-family: var(--font-apple-text);
+    font-size: var(--fs-h4);
+    line-height: var(--lh-h4);
+    font-weight: 600;
+  }
 }
 
 /* Authoritative body defaults */

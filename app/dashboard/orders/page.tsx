@@ -306,100 +306,176 @@ export default function OrdersPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Items
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Reference
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Amount
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Status
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Date
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
-                    Invoice
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#f2f5fc]">
-                {filteredOrders.map((order) => {
-                  const summary = orderSummary(order.items);
-                  const itemTypes = [
-                    ...new Set(order.items?.map((i) => i.type) || []),
-                  ];
-                  const canDownload =
-                    order.status === "PAID" && !!order.whmcsInvoiceId;
+          <>
+            {/* Mobile View: Touch-Friendly Cards */}
+            <div className="md:hidden divide-y divide-[#f2f5fc]">
+              {filteredOrders.map((order) => {
+                const summary = orderSummary(order.items);
+                const itemTypes = [
+                  ...new Set(order.items?.map((i) => i.type) || []),
+                ];
+                const canDownload =
+                  order.status === "PAID" && !!order.whmcsInvoiceId;
 
-                  return (
-                    <tr
-                      key={order.id}
-                      className="hover:bg-[#fbfcfe] transition-colors"
-                    >
-                      <td className="py-4.5 px-6">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 shrink-0">
-                            {itemTypes.map((t) => (
-                              <ItemTypeIcon key={t} type={t} />
-                            ))}
-                          </div>
-                          <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate max-w-xs">
-                            {summary}
-                          </span>
+                return (
+                  <div key={order.id} className="p-4 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-1 shrink-0">
+                          {itemTypes.map((t) => (
+                            <ItemTypeIcon key={t} type={t} />
+                          ))}
                         </div>
-                      </td>
-                      <td className="py-4.5 px-6">
-                        <span className="text-[12px] font-mono text-[#6e6e73]">
-                          {order.paystackRef || "—"}
+                        <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate">
+                          {summary}
                         </span>
-                      </td>
-                      <td className="py-4.5 px-6">
-                        <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                      </div>
+                      <OrderStatusBadge status={order.status} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[12px] bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                      <div>
+                        <span className="text-[#6e6e73] block text-[11px]">Amount</span>
+                        <span className="font-bold text-[#1d1d1f] text-[13px]">
                           {formatPrice(order.amount)}
                         </span>
-                      </td>
-                      <td className="py-4.5 px-6">
-                        <OrderStatusBadge status={order.status} />
-                      </td>
-                      <td className="py-4.5 px-6 text-[12.5px] text-[#6e6e73]">
-                        {formatDate(order.createdAt)}
-                      </td>
-                      <td className="py-4.5 px-6 text-right">
-                        {canDownload ? (
-                          <button
-                            id={`order-view-invoice-${order.id}`}
-                            onClick={() => openInvoice(order.id)}
-                            disabled={
-                              isDownloading && downloadingId === order.id
-                            }
-                            title="View Invoice"
-                            className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                          >
-                            {isDownloading && downloadingId === order.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <ExternalLink className="w-3 h-3" />
-                            )}
-                            Invoice
-                          </button>
-                        ) : (
-                          <span className="text-[12px] text-[#9ba8c0]">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <div>
+                        <span className="text-[#6e6e73] block text-[11px]">Date</span>
+                        <span className="text-[#1d1d1f]">{formatDate(order.createdAt)}</span>
+                      </div>
+                      {order.paystackRef && (
+                        <div className="col-span-2 pt-1.5 border-t border-[#eef2f8] flex items-center justify-between gap-2">
+                          <span className="text-[#6e6e73] text-[11px] shrink-0">Ref:</span>
+                          <span className="font-mono text-[#6e6e73] text-[11px] truncate">
+                            {order.paystackRef}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center">
+                      {canDownload ? (
+                        <button
+                          id={`order-view-invoice-mobile-${order.id}`}
+                          onClick={() => openInvoice(order.id)}
+                          disabled={
+                            isDownloading && downloadingId === order.id
+                          }
+                          className="w-full inline-flex items-center justify-center gap-1.5 text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {isDownloading && downloadingId === order.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          )}
+                          View Invoice
+                        </button>
+                      ) : (
+                        <span className="text-[11.5px] text-[#9ba8c0] italic">No invoice available</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[640px]">
+                <thead>
+                  <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                      Items
+                    </th>
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                      Reference
+                    </th>
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                      Amount
+                    </th>
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                      Status
+                    </th>
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                      Date
+                    </th>
+                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
+                      Invoice
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#f2f5fc]">
+                  {filteredOrders.map((order) => {
+                    const summary = orderSummary(order.items);
+                    const itemTypes = [
+                      ...new Set(order.items?.map((i) => i.type) || []),
+                    ];
+                    const canDownload =
+                      order.status === "PAID" && !!order.whmcsInvoiceId;
+
+                    return (
+                      <tr
+                        key={order.id}
+                        className="hover:bg-[#fbfcfe] transition-colors"
+                      >
+                        <td className="py-4.5 px-6">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 shrink-0">
+                              {itemTypes.map((t) => (
+                                <ItemTypeIcon key={t} type={t} />
+                              ))}
+                            </div>
+                            <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate max-w-xs">
+                              {summary}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4.5 px-6">
+                          <span className="text-[12px] font-mono text-[#6e6e73]">
+                            {order.paystackRef || "—"}
+                          </span>
+                        </td>
+                        <td className="py-4.5 px-6">
+                          <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                            {formatPrice(order.amount)}
+                          </span>
+                        </td>
+                        <td className="py-4.5 px-6">
+                          <OrderStatusBadge status={order.status} />
+                        </td>
+                        <td className="py-4.5 px-6 text-[12.5px] text-[#6e6e73]">
+                          {formatDate(order.createdAt)}
+                        </td>
+                        <td className="py-4.5 px-6 text-right">
+                          {canDownload ? (
+                            <button
+                              id={`order-view-invoice-${order.id}`}
+                              onClick={() => openInvoice(order.id)}
+                              disabled={
+                                isDownloading && downloadingId === order.id
+                              }
+                              title="View Invoice"
+                              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                              {isDownloading && downloadingId === order.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <ExternalLink className="w-3 h-3" />
+                              )}
+                              Invoice
+                            </button>
+                          ) : (
+                            <span className="text-[12px] text-[#9ba8c0]">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

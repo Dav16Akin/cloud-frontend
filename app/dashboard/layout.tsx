@@ -133,7 +133,7 @@ export default function DashboardLayout({
           {/* Full-width thin dark expiry banner directly under navbar */}
           <ExpiryBanner />
 
-          <main className="flex-1 overflow-y-auto px-6 md:p-8">{children}</main>
+          <main className="flex-1 overflow-y-auto p-4 sm:px-6 md:p-8">{children}</main>
         </div>
       </div>
       <CartDrawer />

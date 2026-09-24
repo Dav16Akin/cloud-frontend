@@ -109,9 +109,6 @@ function StatCard({
               <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#98a2b3]">
                 {label}
               </span>
-              <span className="text-[9.5px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60">
-                Soon
-              </span>
             </div>
           </div>
 
@@ -937,7 +934,7 @@ function DashboardOverviewContent() {
         <Link
           href="/dashboard/hosting"
           id="dashboard-new-order-btn"
-          className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 whitespace-nowrap"
+          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[12.5px] sm:text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 whitespace-nowrap self-start sm:self-auto"
           style={{
             background: T.blue,
             boxShadow: "0 2px 8px rgba(23,135,212,0.35)",

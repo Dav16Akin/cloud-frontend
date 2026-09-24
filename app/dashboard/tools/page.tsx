@@ -17,8 +17,6 @@ interface ToolItem {
   title: string;
   description: string;
   href: string;
-  popular?: boolean;
-  badge?: string;
   iconType: "domain-search" | "dns" | "whois" | "ssl" | "migration" | "ip";
 }
 
@@ -28,7 +26,6 @@ const TOOLS_LIST: ToolItem[] = [
     title: "Domain Search",
     description: "Find and register an available custom domain name.",
     href: "/dashboard/tools/domain-search",
-    popular: true,
     iconType: "domain-search",
   },
   {
@@ -36,7 +33,6 @@ const TOOLS_LIST: ToolItem[] = [
     title: "DNS Lookup",
     description: "Check live authoritative DNS records, NS, MX, and SOA.",
     href: "/dashboard/tools/dns-lookup",
-    badge: "NEW",
     iconType: "dns",
   },
   {
@@ -44,7 +40,6 @@ const TOOLS_LIST: ToolItem[] = [
     title: "WHOIS Lookup",
     description: "View domain registration details, registrar, and dates.",
     href: "/dashboard/tools/whois-lookup",
-    badge: "NEW",
     iconType: "whois",
   },
   {
@@ -172,23 +167,9 @@ export default function ToolsDashboardPage() {
               }`}
             >
               <div>
-                {/* Icon and Optional Badge Row */}
-                <div className="flex items-center justify-between mb-4">
+                {/* Icon */}
+                <div className="mb-4">
                   {renderToolIcon(tool.iconType)}
-
-                  {/* Badges */}
-                  <div className="flex items-center gap-1.5">
-                    {tool.badge && (
-                      <span className="px-2 py-0.5 rounded-md bg-[#eff6fb] text-[#1787D4] text-[10px] font-bold tracking-wider uppercase">
-                        {tool.badge}
-                      </span>
-                    )}
-                    {tool.popular && (
-                      <span className="px-2.5 py-0.5 rounded-md bg-[#1787D4] text-white text-[10px] font-bold uppercase tracking-wider">
-                        POPULAR
-                      </span>
-                    )}
-                  </div>
                 </div>
 
                 {/* Tool Title */}

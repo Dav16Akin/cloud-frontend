@@ -42,6 +42,7 @@ import { toast } from "sonner";
 import { usePlans } from "@/hooks/usePlans";
 import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningCard";
 import {
+  useGetHosting,
   useGetHostingById,
   useSuspendHosting,
   useUnsuspendHosting,
@@ -184,24 +185,36 @@ function ConfirmModal({
 function OverviewTab({
   hostingId,
   account,
+  resolvedPlanName,
   onRenew,
   onOpenCpanel,
   fetchingCpanel,
 }: {
   hostingId: string;
   account: any;
+  resolvedPlanName?: string;
   onRenew: () => void;
   onOpenCpanel: () => void;
   fetchingCpanel: boolean;
 }) {
   const { data: stats } = useGetHostingStats(hostingId);
+  const { data: plans } = usePlans();
 
   const formatDate = (iso: string) =>
     iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
+  const planValue =
+    resolvedPlanName ||
+    account?.plan?.name ||
+    (typeof account?.plan === "string" ? account.plan : null) ||
+    account?.planName ||
+    plans?.find((p) => p.id === account?.planId)?.name ||
+    stats?.plan ||
+    "Cloud Hosting";
+
   const infoCards = [
     { label: "Website",      value: account?.domain ?? "—"                       },
-    { label: "Hosting Plan", value: account?.plan?.name ?? "—"                   },
+    { label: "Hosting Plan", value: planValue                                    },
     { label: "Renewal Date", value: formatDate(account?.expiresAt)               },
     { label: "Status",       value: (account?.status ?? "—"), isStatus: true     },
     { label: "Storage",      value: stats?.diskUsed ? `${stats.diskUsed} used` : "—" },
@@ -209,7 +222,7 @@ function OverviewTab({
   ];
 
   return (
-    <div className="flex gap-6 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-start">
       {/* Left — info cards grid */}
       <div className="flex-1 flex flex-col gap-4">
         <h3 className="text-[15px] font-bold" style={{ color: "#1d1d1f" }}>Hosting Overview</h3>
@@ -238,7 +251,7 @@ function OverviewTab({
 
       {/* Right — Quick Operations sidebar */}
       <div
-        className="w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
+        className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
         style={{ border: "1px solid #e8e8ed", background: "#fff" }}
       >
         <h3 className="text-[14px] font-bold" style={{ color: "#1d1d1f" }}>Quick Operations</h3>
@@ -1854,6 +1867,10 @@ export default function ManageHostingPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { mutate: fetchCpanelLink, isPending: fetchingCpanel } = useGetCpanelLoginLink();
 
+  const { data: plans } = usePlans();
+  const { data: allHosting } = useGetHosting();
+  const { data: stats } = useGetHostingStats(id);
+
   const handleOpenCpanel = () => {
     // Open a blank tab immediately while still inside the synchronous click
     // handler — this is required so browsers don't treat window.open as a
@@ -1906,7 +1923,41 @@ export default function ManageHostingPage() {
   const isSuspended = status === "SUSPENDED";
   const isTerminated = status === "TERMINATED";
   const expiring = account.expiresAt ? isExpiringSoon(account.expiresAt) : false;
-  const planName = account.plan?.name ?? "—";
+
+  const matchedFromList = allHosting?.find((h) => h.id === id);
+  const matchedPlanFromPlans = plans?.find(
+    (p) =>
+      p.id === account?.planId ||
+      p.id === matchedFromList?.planId ||
+      p.id === (account?.plan as any)?.id ||
+      (stats?.plan && p.name.toLowerCase() === stats.plan.toLowerCase())
+  );
+
+  const resolvedPlan =
+    account?.plan && typeof account.plan === "object" && account.plan.name
+      ? account.plan
+      : matchedFromList?.plan && typeof matchedFromList.plan === "object" && matchedFromList.plan.name
+      ? matchedFromList.plan
+      : matchedPlanFromPlans
+      ? {
+          id: matchedPlanFromPlans.id,
+          name: matchedPlanFromPlans.name,
+          price: matchedPlanFromPlans.price,
+          monthlyPrice: matchedPlanFromPlans.monthlyPrice,
+          quarterlyPrice: matchedPlanFromPlans.quarterlyPrice,
+          billingCycle: (account as any)?.billingCycle ?? "yearly",
+        }
+      : undefined;
+
+  const resolvedPlanName =
+    resolvedPlan?.name ||
+    (typeof account?.plan === "string" ? account.plan : null) ||
+    (account as any)?.planName ||
+    (matchedFromList as any)?.planName ||
+    stats?.plan ||
+    (account as any)?.package ||
+    (account as any)?.packageName ||
+    "Cloud Hosting";
 
   return (
     <>
@@ -1933,7 +1984,7 @@ export default function ManageHostingPage() {
         <RenewHostingModal
           hostingId={id}
           domain={account.domain}
-          currentPlan={account.plan}
+          currentPlan={resolvedPlan}
           expiresAt={account.expiresAt}
           onClose={() => setShowRenewModal(false)}
         />
@@ -1943,8 +1994,8 @@ export default function ManageHostingPage() {
         <UpgradeHostingModal
           hostingId={id}
           domain={account.domain}
-          currentPlanId={account.planId}
-          currentPlanName={account.plan?.name}
+          currentPlanId={account.planId || resolvedPlan?.id}
+          currentPlanName={resolvedPlanName}
           onClose={() => setShowUpgradeModal(false)}
         />
       )}
@@ -1970,8 +2021,11 @@ export default function ManageHostingPage() {
             >
               {account.domain}
             </h2>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <StatusBadge status={status} />
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#eef6fc] text-[#1787D4] border border-[#d6eaf8]">
+                {resolvedPlanName}
+              </span>
               {expiring && (
                 <span className="text-[10.5px] text-orange-600 font-bold uppercase tracking-wider">
                   Expiring soon
@@ -2044,7 +2098,7 @@ export default function ManageHostingPage() {
         {status === "PENDING" && (
           <HostingProvisioningCard
             domain={account.domain}
-            planName={account.plan?.name || "Cloud Hosting Plan"}
+            planName={resolvedPlanName}
             status={account.status}
             createdAt={account.createdAt}
             cpanelUsername={account.cpanelUsername}
@@ -2101,6 +2155,7 @@ export default function ManageHostingPage() {
           <OverviewTab
             hostingId={id}
             account={account}
+            resolvedPlanName={resolvedPlanName}
             onRenew={() => setShowRenewModal(true)}
             onOpenCpanel={handleOpenCpanel}
             fetchingCpanel={fetchingCpanel}

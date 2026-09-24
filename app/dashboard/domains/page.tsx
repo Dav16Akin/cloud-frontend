@@ -20,6 +20,7 @@ import {
   Calendar,
   AlertTriangle,
   ArrowRightLeft,
+  ChevronRight,
 } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
@@ -221,11 +222,11 @@ function DomainsDashboardPageContent() {
                 Manage your domains, renewals, DNS settings, and domain details from one place.
               </p>
             </div>
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
               <Link
                 href="/dashboard/domain-transfer"
                 id="domains-transfer-in"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1d1d1f] bg-white border border-[#e2eaff] hover:bg-[#f8fafc] transition-all duration-150 active:scale-95 shrink-0 shadow-xs"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1d1d1f] bg-white border border-[#e2eaff] hover:bg-[#f8fafc] transition-all duration-150 active:scale-95 shrink-0 shadow-xs"
               >
                 <ArrowRightLeft className="w-4 h-4 text-[#1787D4]" />
                 Transfer In
@@ -233,7 +234,7 @@ function DomainsDashboardPageContent() {
               <button
                 id="domains-register-new"
                 onClick={() => handleTabChange("register")}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 shadow-xs"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 shadow-xs"
                 style={{ background: T.blue }}
               >
                 <Plus className="w-4 h-4" />
@@ -268,7 +269,7 @@ function DomainsDashboardPageContent() {
 
             {/* Domain search */}
             <div
-              className="flex items-center gap-2 flex-1 max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
+              className="flex items-center gap-2 w-full sm:w-auto sm:max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
               style={{ background: T.canvas, border: `1px solid ${T.hairline}` }}
             >
               <Search className="w-4 h-4 shrink-0" style={{ color: T.inkSubtle }} />
@@ -339,53 +340,105 @@ function DomainsDashboardPageContent() {
                 )}
               </div>
             ) : (
-              filteredDomains.map((domain) => (
-                <div
-                  key={domain.id}
-                  className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
-                  style={{
-                    gridTemplateColumns: "1fr 160px 100px 140px 100px",
-                    borderTop: `1px solid ${T.hairline}`,
-                  }}
-                >
-                  {/* Domain name */}
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
-                      style={{ background: T.parchment }}
-                    >
-                      <Globe className="w-3.5 h-3.5" style={{ color: T.inkMuted }} />
-                    </span>
-                    <span className="text-[14px] font-semibold truncate" style={{ color: T.ink }}>
-                      {domain.domain}
-                    </span>
-                  </div>
+              <>
+                {/* Desktop / Tablet Table View */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <div className="min-w-[580px]">
+                    {filteredDomains.map((domain) => (
+                      <div
+                        key={domain.id}
+                        className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                        style={{
+                          gridTemplateColumns: "1fr 160px 100px 140px 100px",
+                          borderTop: `1px solid ${T.hairline}`,
+                        }}
+                      >
+                        {/* Domain name */}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
+                            style={{ background: T.parchment }}
+                          >
+                            <Globe className="w-3.5 h-3.5" style={{ color: T.inkMuted }} />
+                          </span>
+                          <span className="text-[14px] font-semibold truncate" style={{ color: T.ink }}>
+                            {domain.domain}
+                          </span>
+                        </div>
 
-                  {/* Status */}
-                  <StatusPill status={domain.status} expiryDate={domain.expiryDate} />
+                        {/* Status */}
+                        <StatusPill status={domain.status} expiryDate={domain.expiryDate} />
 
-                  {/* Auto-Renew */}
-                  <span className="text-[13px]" style={{ color: T.inkMuted }}>
-                    {domain.autoRenew ? "On" : "Off"}
-                  </span>
+                        {/* Auto-Renew */}
+                        <span className="text-[13px]" style={{ color: T.inkMuted }}>
+                          {domain.autoRenew ? "On" : "Off"}
+                        </span>
 
-                  {/* Expiry date */}
-                  <span className="text-[13px]" style={{ color: T.inkMuted }}>
-                    {formatDate(domain.expiryDate)}
-                  </span>
+                        {/* Expiry date */}
+                        <span className="text-[13px]" style={{ color: T.inkMuted }}>
+                          {formatDate(domain.expiryDate)}
+                        </span>
 
-                  {/* Action */}
-                  <div className="flex justify-end">
-                    <Link
-                      href={`/dashboard/domains/${domain.id}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                      style={{ background: T.blue }}
-                    >
-                      Manage
-                    </Link>
+                        {/* Action */}
+                        <div className="flex justify-end">
+                          <Link
+                            href={`/dashboard/domains/${domain.id}`}
+                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
+                            style={{ background: T.blue }}
+                          >
+                            Manage
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))
+
+                {/* Mobile Card View (Cards stack nicely, buttons fully accessible) */}
+                <div className="md:hidden flex flex-col divide-y divide-[#f2f5fc]">
+                  {filteredDomains.map((domain) => (
+                    <div
+                      key={`mobile-${domain.id}`}
+                      className="p-4 flex flex-col gap-3 hover:bg-[#fafafa] transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
+                            style={{ background: T.parchment }}
+                          >
+                            <Globe className="w-3.5 h-3.5" style={{ color: T.inkMuted }} />
+                          </span>
+                          <span className="text-[14.5px] font-bold truncate" style={{ color: T.ink }}>
+                            {domain.domain}
+                          </span>
+                        </div>
+                        <StatusPill status={domain.status} expiryDate={domain.expiryDate} />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs py-1 px-2.5 rounded-lg bg-[#fbfcfe] border border-[#eef2f8]">
+                        <div>
+                          <span className="text-[#8a9bb2] block text-[10.5px] uppercase font-semibold">Auto-Renew</span>
+                          <span className="font-medium text-[#1d1d1f]">{domain.autoRenew ? "Enabled" : "Disabled"}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#8a9bb2] block text-[10.5px] uppercase font-semibold">Expiry Date</span>
+                          <span className="font-medium text-[#1d1d1f]">{formatDate(domain.expiryDate)}</span>
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/dashboard/domains/${domain.id}`}
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
+                        style={{ background: T.blue }}
+                      >
+                        Manage Domain
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
@@ -477,44 +530,95 @@ function DomainsDashboardPageContent() {
                 </Link>
               </div>
             ) : (
-              hostingAccounts.map((account) => (
-                <div
-                  key={account.id}
-                  className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
-                  style={{
-                    gridTemplateColumns: "1fr 180px 160px 120px 120px",
-                    borderTop: `1px solid ${T.hairline}`,
-                  }}
-                >
-                  <span className="text-[14px] font-semibold truncate" style={{ color: T.ink }}>
-                    {account.domain}
-                  </span>
-                  <span className="text-[13px]" style={{ color: T.inkMuted }}>
-                    {account.plan?.name ?? "Hosting"} Plan
-                  </span>
-                  <code className="text-[12px] font-mono" style={{ color: T.inkMuted }}>
-                    {account.cpanelUsername ?? "—"}
-                  </code>
-                  <span
-                    className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
-                    style={{
-                      background: account.status === "ACTIVE" ? T.emeraldLight : T.redLight,
-                      color: account.status === "ACTIVE" ? T.emerald : T.red,
-                    }}
-                  >
-                    {account.status === "ACTIVE" ? "Active" : account.status}
-                  </span>
-                  <div className="flex justify-end">
-                    <Link
-                      href={`/dashboard/hosting/${account.id}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                      style={{ background: T.blue }}
-                    >
-                      Manage
-                    </Link>
+              <>
+                {/* Desktop / Tablet Table View */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <div className="min-w-[580px]">
+                    {hostingAccounts.map((account) => (
+                      <div
+                        key={account.id}
+                        className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                        style={{
+                          gridTemplateColumns: "1fr 180px 160px 120px 120px",
+                          borderTop: `1px solid ${T.hairline}`,
+                        }}
+                      >
+                        <span className="text-[14px] font-semibold truncate" style={{ color: T.ink }}>
+                          {account.domain}
+                        </span>
+                        <span className="text-[13px]" style={{ color: T.inkMuted }}>
+                          {account.plan?.name ?? "Hosting"} Plan
+                        </span>
+                        <code className="text-[12px] font-mono" style={{ color: T.inkMuted }}>
+                          {account.cpanelUsername ?? "—"}
+                        </code>
+                        <span
+                          className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
+                          style={{
+                            background: account.status === "ACTIVE" ? T.emeraldLight : T.redLight,
+                            color: account.status === "ACTIVE" ? T.emerald : T.red,
+                          }}
+                        >
+                          {account.status === "ACTIVE" ? "Active" : account.status}
+                        </span>
+                        <div className="flex justify-end">
+                          <Link
+                            href={`/dashboard/hosting/${account.id}`}
+                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
+                            style={{ background: T.blue }}
+                          >
+                            Manage
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))
+
+                {/* Mobile Card View */}
+                <div className="md:hidden flex flex-col divide-y divide-[#f2f5fc]">
+                  {hostingAccounts.map((account) => (
+                    <div
+                      key={`mobile-hosted-${account.id}`}
+                      className="p-4 flex flex-col gap-3 hover:bg-[#fafafa] transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="min-w-0">
+                          <span className="text-[14.5px] font-bold text-[#1d1d1f] block truncate">
+                            {account.domain}
+                          </span>
+                          <span className="text-xs text-[#6e6e73] mt-0.5 block">
+                            {account.plan?.name ?? "Hosting"} Plan
+                          </span>
+                        </div>
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold shrink-0"
+                          style={{
+                            background: account.status === "ACTIVE" ? T.emeraldLight : T.redLight,
+                            color: account.status === "ACTIVE" ? T.emerald : T.red,
+                          }}
+                        >
+                          {account.status === "ACTIVE" ? "Active" : account.status}
+                        </span>
+                      </div>
+
+                      <div className="text-xs bg-[#fbfcfe] border border-[#eef2f8] p-2.5 rounded-lg flex items-center justify-between">
+                        <span className="text-[#8a9bb2] text-[11px]">cPanel Username:</span>
+                        <code className="font-mono text-[#1d1d1f] font-semibold">{account.cpanelUsername ?? "—"}</code>
+                      </div>
+
+                      <Link
+                        href={`/dashboard/hosting/${account.id}`}
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
+                        style={{ background: T.blue }}
+                      >
+                        Manage Hosting
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </>

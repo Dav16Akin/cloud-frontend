@@ -349,7 +349,7 @@ export default function HostingPage() {
             Reliable hosting for your next website or business.
           </p>
           <Link
-            href="/pricing"
+            href="/register"
             id="cta-get-started-btn"
             className="btn-white !rounded-full px-8 py-3 text-[15px] font-semibold shadow-md cursor-pointer"
           >

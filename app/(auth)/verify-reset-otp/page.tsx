@@ -1,9 +1,12 @@
 "use client";
+
 import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, ShieldCheck } from "lucide-react";
 import { useVerifyResetOTP, useForgotPassword } from "@/hooks/useAuth";
+import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 function VerifyResetOTPContent() {
   const searchParams = useSearchParams();
@@ -38,7 +41,7 @@ function VerifyResetOTPContent() {
   const handleResend = () => {
     resend({ email });
     setResendCooldown(20);
-    setCode(["", "", "", "", "", ""]); // clear inputs for fresh entry
+    setCode(["", "", "", "", "", ""]);
     inputRefs.current[0]?.focus();
   };
 
@@ -80,38 +83,29 @@ function VerifyResetOTPContent() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-8 border-none shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-      {/* Logo */}
-      <div className="flex flex-col items-center gap-3 mb-6">
-        <Image
-          src="/images/nupat-cloud-logo-whitebg.png"
-          alt="Nupat Cloud Logo"
-          width={140}
-          height={40}
-          className="object-contain h-auto w-auto mb-1"
-        />
-        <div className="w-14 h-14 rounded-full bg-[#fffaf0] border border-[#fde8c0] flex items-center justify-center">
-          <ShieldCheck className="w-7 h-7 text-[#fd9f09]" />
+    <div className="w-full max-w-[380px] my-auto">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-2.5 shadow-2xs">
+          <ShieldCheck className="w-4.5 h-4.5" />
         </div>
-        <div className="text-center">
-          <h1 className="text-2xl font-extrabold text-[#031033]">
-            Enter Reset Code
-          </h1>
-          <p className="text-[#5a6a85] text-sm mt-1 max-w-xs">
-            We sent a 6-digit code to{" "}
-            <span className="font-semibold text-[#031033]">{email}</span>. Enter
-            it below to continue.
-          </p>
-        </div>
+        <h1 className="text-[17px] sm:text-[19px] font-bold text-[#031033] tracking-tight leading-snug mb-1">
+          Enter Reset Code
+        </h1>
+        <p className="text-[12.5px] sm:text-[13px] text-slate-500 font-normal leading-relaxed max-w-[270px] sm:max-w-xs mx-auto">
+          We sent a 6-digit code to{" "}
+          <span className="font-semibold text-[#031033]">{email || "your email"}</span>.
+          Enter it below to continue.
+        </p>
       </div>
 
       <form
         id="verify-reset-otp-form"
         onSubmit={handleSubmit}
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-5"
       >
         {/* OTP inputs */}
-        <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+        <div className="flex gap-2 sm:gap-2.5 justify-center" onPaste={handlePaste}>
           {code.map((digit, i) => (
             <input
               key={i}
@@ -125,7 +119,7 @@ function VerifyResetOTPContent() {
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className="w-12 h-14 text-center text-xl font-bold bg-[#f2f5fc] border border-[#dce4f7] focus:border-[#fd9f09] focus:bg-white rounded-xl text-[#031033] outline-none transition-colors"
+              className="w-10 sm:w-11 h-12 sm:h-13 text-center text-lg font-bold bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl text-[#031033] outline-none transition-all"
             />
           ))}
         </div>
@@ -134,30 +128,30 @@ function VerifyResetOTPContent() {
           id="verify-reset-submit"
           type="submit"
           disabled={isPending || code.join("").length < 6}
-          className="btn-primary w-full py-3.5 rounded-xl text-base font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full h-10.5 sm:h-11 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-xl text-[13px] sm:text-[13.5px] transition-all duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Verifying…
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Verifying…</span>
             </>
           ) : (
             <>
-              Verify Code
-              <ArrowRight className="w-4 h-4" />
+              <span>Verify Code</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </>
           )}
         </button>
       </form>
 
-      <p className="text-center text-sm text-[#5a6a85] mt-6">
+      <p className="text-center text-[12.5px] text-slate-500 mt-5">
         Didn&apos;t receive the code?{" "}
         <button
           id="reset-otp-resend"
           type="button"
           disabled={isResending || resendCooldown > 0}
           onClick={handleResend}
-          className="text-[#fd9f09] font-semibold hover:underline underline-offset-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-[#1787D4] font-semibold hover:underline underline-offset-4 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isResending
             ? "Sending…"
@@ -172,18 +166,44 @@ function VerifyResetOTPContent() {
 
 export default function VerifyResetOTPPage() {
   return (
-    <div className="flex-1 flex items-center justify-center min-h-screen relative overflow-hidden py-24 px-4 section-navy-tint">
-      <div className="absolute inset-0 grid-bg pointer-events-none" />
-      <div className="w-full max-w-md relative z-10">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-40">
-              <Loader2 className="w-6 h-6 animate-spin text-[#fd9f09]" />
-            </div>
-          }
-        >
-          <VerifyResetOTPContent />
-        </Suspense>
+    <div className="min-h-screen lg:h-screen w-full bg-white flex flex-col lg:flex-row lg:overflow-hidden">
+      {/* Left Panel: Solid Nupat Brand Blue */}
+      <AuthLeftPanel />
+
+      {/* Right Panel */}
+      <div className="flex-1 flex flex-col min-h-screen lg:h-screen bg-white">
+        {/* Mobile Header: Pinned at the TOP */}
+        <div className="lg:hidden w-full px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0 bg-white">
+          <Link
+            href="/forgot-password"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </Link>
+          <Link href="/" className="relative w-24 h-6">
+            <Image
+              src="/nupat_cloud_logo-nav.png"
+              alt="Nupat Cloud"
+              fill
+              priority
+              className="object-contain"
+            />
+          </Link>
+        </div>
+
+        {/* Center Form Container */}
+        <div className="flex-1 flex items-center justify-center px-5 sm:px-10 lg:px-16 py-8 overflow-y-auto">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+              </div>
+            }
+          >
+            <VerifyResetOTPContent />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

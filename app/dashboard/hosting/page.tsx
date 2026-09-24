@@ -678,6 +678,7 @@ export default function HostingDashboardPage() {
   } | null>(null);
   const [renewTarget, setRenewTarget] = useState<HostingAccount | null>(null);
   const [upgradeTarget, setUpgradeTarget] = useState<HostingAccount | null>(null);
+  const { data: plans } = usePlans();
 
   const [statusFilter, setStatusFilter] = useState<
     "All" | "Active" | "Provisioning" | "Expiring Soon" | "Expired"
@@ -860,7 +861,7 @@ export default function HostingDashboardPage() {
             })}
           </div>
           <div
-            className="flex items-center gap-2 flex-1 max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
+            className="flex items-center gap-2 w-full sm:w-auto sm:max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
             style={{ background: "#ffffff", border: "1px solid #e8e8ed" }}
           >
             <Search className="w-4 h-4 shrink-0" style={{ color: "#aeaeb2" }} />
@@ -966,73 +967,169 @@ export default function HostingDashboardPage() {
               );
             }
 
-            return filtered.map((account) => {
-              const days = account.expiresAt
-                ? (new Date(account.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                : 999;
-              const statusUp = (account.status ?? "").toUpperCase();
-              const isPending = statusUp === "PENDING";
-              const isActive = statusUp === "ACTIVE" && days >= 0;
-              const isExpiring = isActive && days <= 14;
-              const isExpired = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
+            return (
+              <>
+                {/* Desktop / Tablet Table View */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <div className="min-w-[640px]">
+                    {filtered.map((account) => {
+                      const days = account.expiresAt
+                        ? (new Date(account.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                        : 999;
+                      const statusUp = (account.status ?? "").toUpperCase();
+                      const isPending = statusUp === "PENDING";
+                      const isActive = statusUp === "ACTIVE" && days >= 0;
+                      const isExpiring = isActive && days <= 14;
+                      const isExpired = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
+                      const planName =
+                        account.plan?.name ||
+                        plans?.find((p) => p.id === account.planId)?.name ||
+                        (account as any)?.planName ||
+                        "Cloud Hosting";
 
-              return (
-                <div
-                  key={account.id}
-                  className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
-                  style={{
-                    gridTemplateColumns: "1fr 180px 140px 160px 100px",
-                    borderTop: "1px solid #e8e8ed",
-                  }}
-                >
-                  {/* Plan name */}
-                  <span className="text-[14px] font-semibold truncate" style={{ color: "#1d1d1f" }}>
-                    {account.plan?.name ?? "Hosting"}
-                  </span>
+                      return (
+                        <div
+                          key={account.id}
+                          className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                          style={{
+                            gridTemplateColumns: "1fr 180px 140px 160px 100px",
+                            borderTop: "1px solid #e8e8ed",
+                          }}
+                        >
+                          {/* Plan name */}
+                          <span className="text-[14px] font-semibold truncate" style={{ color: "#1d1d1f" }}>
+                            {planName}
+                          </span>
 
-                  {/* Website */}
-                  <span className="text-[13px] truncate" style={{ color: "#6e6e73" }}>
-                    {account.domain}
-                  </span>
+                          {/* Website */}
+                          <span className="text-[13px] truncate" style={{ color: "#6e6e73" }}>
+                            {account.domain}
+                          </span>
 
-                  {/* Status pill */}
-                  {isPending ? (
-                    <span className="text-[12px] font-semibold text-orange-600">
-                      Provisioning…
-                    </span>
-                  ) : (
-                    <span
-                      className={`text-[12px] font-semibold ${
-                        isExpired
-                          ? "text-red-600"
-                          : isExpiring
-                          ? "text-orange-600"
-                          : "text-[#1787D4]"
-                      }`}
-                    >
-                      {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
-                    </span>
-                  )}
+                          {/* Status pill */}
+                          {isPending ? (
+                            <span className="text-[12px] font-semibold text-orange-600">
+                              Provisioning…
+                            </span>
+                          ) : (
+                            <span
+                              className={`text-[12px] font-semibold ${
+                                isExpired
+                                  ? "text-red-600"
+                                  : isExpiring
+                                  ? "text-orange-600"
+                                  : "text-[#1787D4]"
+                              }`}
+                            >
+                              {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
+                            </span>
+                          )}
 
-                  {/* Renewal date */}
-                  <span className="text-[13px]" style={{ color: "#6e6e73" }}>
-                    {account.expiresAt ? new Date(account.expiresAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}
-                  </span>
+                          {/* Renewal date */}
+                          <span className="text-[13px]" style={{ color: "#6e6e73" }}>
+                            {account.expiresAt ? new Date(account.expiresAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}
+                          </span>
 
-                  {/* Action */}
-                  <div className="flex justify-end">
-                    <Link
-                      href={`/dashboard/hosting/${account.id}`}
-                      id={`hosting-manage-${account.id}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                      style={{ background: "#1787D4" }}
-                    >
-                      {isPending ? "View Status" : "Manage"}
-                    </Link>
+                          {/* Action */}
+                          <div className="flex justify-end">
+                            <Link
+                              href={`/dashboard/hosting/${account.id}`}
+                              id={`hosting-manage-${account.id}`}
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95 shrink-0"
+                              style={{ background: "#1787D4" }}
+                            >
+                              {isPending ? "View Status" : "Manage"}
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            });
+
+                {/* Mobile Card View (Cards stack nicely, action buttons fully accessible) */}
+                <div className="md:hidden flex flex-col divide-y divide-[#e8e8ed]">
+                  {filtered.map((account) => {
+                    const days = account.expiresAt
+                      ? (new Date(account.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                      : 999;
+                    const statusUp = (account.status ?? "").toUpperCase();
+                    const isPending = statusUp === "PENDING";
+                    const isActive = statusUp === "ACTIVE" && days >= 0;
+                    const isExpiring = isActive && days <= 14;
+                    const isExpired = days < 0 || statusUp === "SUSPENDED" || statusUp === "TERMINATED";
+                    const planName =
+                      account.plan?.name ||
+                      plans?.find((p) => p.id === account.planId)?.name ||
+                      (account as any)?.planName ||
+                      "Cloud Hosting";
+
+                    return (
+                      <div
+                        key={`mobile-${account.id}`}
+                        className="p-4 flex flex-col gap-3 hover:bg-[#fafafa] transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2.5">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[14.5px] font-bold text-[#1d1d1f] truncate">
+                                {account.domain}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#eef6fc] text-[#1787D4] border border-[#d6eaf8]">
+                                {planName}
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#6e6e73] mt-1 flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-[#9ba8c0]" />
+                              <span>
+                                Renewal:{" "}
+                                {account.expiresAt
+                                  ? new Date(account.expiresAt).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "2-digit",
+                                      year: "numeric",
+                                    })
+                                  : "—"}
+                              </span>
+                            </p>
+                          </div>
+
+                          {isPending ? (
+                            <span className="text-[11.5px] font-semibold text-orange-600 shrink-0 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
+                              Provisioning…
+                            </span>
+                          ) : (
+                            <span
+                              className={`text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 border ${
+                                isExpired
+                                  ? "text-red-600 bg-red-50 border-red-200"
+                                  : isExpiring
+                                  ? "text-orange-600 bg-orange-50 border-orange-200"
+                                  : "text-[#1787D4] bg-[#eff6fc] border-[#d6eaf8]"
+                              }`}
+                            >
+                              {isExpired ? "Expired" : isExpiring ? "Expiring Soon" : "Active"}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="pt-1">
+                          <Link
+                            href={`/dashboard/hosting/${account.id}`}
+                            id={`hosting-manage-mobile-${account.id}`}
+                            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
+                            style={{ background: "#1787D4" }}
+                          >
+                            {isPending ? "View Provisioning Status" : "Manage Hosting"}
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
           })()}
         </div>
 

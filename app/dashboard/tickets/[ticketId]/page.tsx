@@ -105,7 +105,7 @@ function ReplyBubble({ reply }: { reply: TicketReply }) {
 
       {/* Content */}
       <div
-        className={`flex-1 max-w-[80%] rounded-xl border p-4 ${
+        className={`flex-1 max-w-[92%] sm:max-w-[80%] rounded-xl border p-4 ${
           isStaff
             ? "bg-[#f6f9ff] border-[#e2eaff]"
             : "bg-[#f8faff] border-[#d6e4ff]"

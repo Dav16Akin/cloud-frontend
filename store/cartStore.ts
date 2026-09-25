@@ -25,6 +25,8 @@ export type CartSslItem = {
   domainName: string; // full domain: "example.com.ng"
   price: number;      // NGN retail price
   productId?: number;  // OpenProvider product ID
+  period?: number;     // duration in years
+  productName?: string;
 };
 
 export type CartDomainTransferItem = {
@@ -70,7 +72,7 @@ type CartStore = {
     | { type: "HOSTING"; planId: string }
     | { type: "DOMAIN"; domainName: string; extension: string }
     | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
-    | { type: "SSL"; domainName: string; productId?: number }
+    | { type: "SSL"; domainName: string; productId?: number; period?: number }
   >;
 };
 
@@ -151,6 +153,7 @@ export const useCartStore = create<CartStore>()(
             type: "SSL" as const,
             domainName: item.domainName,
             productId: item.productId,
+            period: item.period,
           };
         }),
     }),

@@ -81,7 +81,12 @@ export default function CheckoutPage() {
             extension: item.extension,
             authCode: item.authCode,
           };
-        return { type: "SSL" as const, domainName: item.domainName, productId: item.productId };
+        return {
+          type: "SSL" as const,
+          domainName: item.domainName,
+          productId: item.productId,
+          period: item.period,
+        };
       });
 
       const res = await initializeCartPayment({ items: backendItems });

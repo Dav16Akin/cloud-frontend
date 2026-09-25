@@ -842,7 +842,7 @@ export type BackendCartItem =
   | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
   | { type: "DOMAIN"; domainName: string; extension: string }
   | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
-  | { type: "SSL"; domainName: string };
+  | { type: "SSL"; domainName: string; productId?: number; period?: number };
 
 export type Order = {
   id: string;
@@ -1282,9 +1282,32 @@ export const getSSLStatus = (
     headers: getHeaders(),
   }).then(handleResponse);
 
+export type SslProductPrice = {
+  period: number;
+  price: number;
+  currency: string;
+  wholesalePrice: number;
+  wholesaleCurrency: string;
+};
+
+export type SslProduct = {
+  id: number;
+  name: string;
+  category: string;
+  validationMethod: string;
+  deliveryTime: string;
+  isWildcard: boolean;
+  maxPeriod: number;
+  price: number;
+  currency: string;
+  wholesalePrice: number;
+  wholesaleCurrency: string;
+  prices: SslProductPrice[];
+};
+
 export const getSSLProducts = (
   token: string,
-): Promise<{ success: boolean; data: any[]; message: string }> =>
+): Promise<{ success: boolean; data: SslProduct[]; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/ssl/products`, {
     headers: getHeaders(),
   }).then(handleResponse);

@@ -53,6 +53,11 @@ function itemTypeLabel(item: CartItem) {
   }
   if (item.type === "DOMAIN") return "Domain Registration";
   if (item.type === "DOMAIN_TRANSFER") return "Domain Transfer";
+  if (item.type === "SSL") {
+    const periodLabel = item.period ? ` (${item.period} ${item.period === 1 ? "Year" : "Years"})` : "";
+    const nameLabel = item.productName ? `${item.productName} • ` : "";
+    return `${nameLabel}SSL Certificate${periodLabel}`;
+  }
   return "SSL Certificate";
 }
 

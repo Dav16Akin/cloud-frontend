@@ -60,7 +60,12 @@ function ItemSubtitle({ item }: { item: CartItem }) {
     return <p className="text-xs text-[#5a6a85] mt-0.5 font-medium">Domain Registration</p>;
   if (item.type === "DOMAIN_TRANSFER")
     return <p className="text-xs text-[#fd9f09] mt-0.5 font-medium">Domain Transfer</p>;
-  return <p className="text-xs text-emerald-600 mt-0.5 font-medium">SSL Certificate</p>;
+  if (item.type === "SSL") {
+    const periodLabel = item.period ? ` (${item.period} ${item.period === 1 ? "Year" : "Years"})` : "";
+    const nameLabel = item.productName ? `${item.productName} • ` : "";
+    return <p className="text-xs text-emerald-600 mt-0.5 font-medium">{nameLabel}SSL Certificate{periodLabel}</p>;
+  }
+  return null;
 }
 
 export default function CartDrawer() {

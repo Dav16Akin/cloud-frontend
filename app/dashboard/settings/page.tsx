@@ -30,7 +30,8 @@ import { useLogout } from "@/hooks/useAuth";
 export default function ProfilePage() {
   const { data: me, isLoading } = useGetMe();
   const { mutate: updateProfile, isPending: updating } = useUpdateProfile();
-  const { mutate: changePassword, isPending: changingPassword } = useChangePassword();
+  const { mutate: changePassword, isPending: changingPassword } =
+    useChangePassword();
   const { mutate: logout } = useLogout();
 
   // User fields from API
@@ -112,7 +113,7 @@ export default function ProfilePage() {
           setShowEditModal(false);
           setFormErrors({});
         },
-      }
+      },
     );
   };
 
@@ -169,7 +170,7 @@ export default function ProfilePage() {
           setNewPassword("");
           setConfirmPassword("");
         },
-      }
+      },
     );
   };
 
@@ -202,19 +203,26 @@ export default function ProfilePage() {
       {/* Header Banner Card */}
       <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
-            {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-white" /> : initials}
+          <div className="w-16 h-16 rounded-2xl bg-lineear-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin text-white" />
+            ) : (
+              initials
+            )}
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
               <h2
                 className="text-[22px] font-bold tracking-tight text-[#1d1d1f]"
                 style={{
-                  fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
+                  fontFamily:
+                    "SF Pro Display, system-ui, -apple-system, sans-serif",
                   letterSpacing: "-0.3px",
                 }}
               >
-                {isLoading ? "Loading profile..." : fullName || "Account Details"}
+                {isLoading
+                  ? "Loading profile..."
+                  : fullName || "Account Details"}
               </h2>
 
               {user?.role && (
@@ -251,7 +259,9 @@ export default function ProfilePage() {
               {user?.companyName && (
                 <>
                   <span className="text-gray-300">•</span>
-                  <span className="font-medium text-[#1d1d1f]">{user.companyName}</span>
+                  <span className="font-medium text-[#1d1d1f]">
+                    {user.companyName}
+                  </span>
                 </>
               )}
               {user?.createdAt && (
@@ -634,7 +644,8 @@ export default function ProfilePage() {
                 Edit Profile Information
               </h3>
               <p className="text-xs text-[#6e6e73] mt-0.5">
-                Update your personal info, organization name, and billing address.
+                Update your personal info, organization name, and billing
+                address.
               </p>
             </div>
 
@@ -666,7 +677,9 @@ export default function ProfilePage() {
                       }}
                       placeholder="e.g. Akinloluwa"
                       className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
-                        formErrors.firstName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                        formErrors.firstName
+                          ? "border-red-400 bg-red-50/20"
+                          : "border-[#e2eaff]"
                       }`}
                     />
                     {formErrors.firstName && (
@@ -692,7 +705,9 @@ export default function ProfilePage() {
                       }}
                       placeholder="e.g. Oluwaleye"
                       className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
-                        formErrors.lastName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                        formErrors.lastName
+                          ? "border-red-400 bg-red-50/20"
+                          : "border-[#e2eaff]"
                       }`}
                     />
                     {formErrors.lastName && (
@@ -732,12 +747,17 @@ export default function ProfilePage() {
                       onChange={(e) => {
                         setEditPhone(e.target.value);
                         if (formErrors.phoneNumber) {
-                          setFormErrors((prev) => ({ ...prev, phoneNumber: "" }));
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            phoneNumber: "",
+                          }));
                         }
                       }}
-                      placeholder="e.g. 08140397106"
+                      placeholder="e.g. 08140300000"
                       className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
-                        formErrors.phoneNumber ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                        formErrors.phoneNumber
+                          ? "border-red-400 bg-red-50/20"
+                          : "border-[#e2eaff]"
                       }`}
                       required
                     />
@@ -759,12 +779,17 @@ export default function ProfilePage() {
                       onChange={(e) => {
                         setEditCompanyName(e.target.value);
                         if (formErrors.companyName) {
-                          setFormErrors((prev) => ({ ...prev, companyName: "" }));
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            companyName: "",
+                          }));
                         }
                       }}
                       placeholder="e.g. DevSimplified"
                       className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
-                        formErrors.companyName ? "border-red-400 bg-red-50/20" : "border-[#e2eaff]"
+                        formErrors.companyName
+                          ? "border-red-400 bg-red-50/20"
+                          : "border-[#e2eaff]"
                       }`}
                       required
                     />
@@ -913,7 +938,10 @@ export default function ProfilePage() {
               Change Password
             </h3>
 
-            <form onSubmit={handleChangePassword} className="flex flex-col gap-3.5">
+            <form
+              onSubmit={handleChangePassword}
+              className="flex flex-col gap-3.5"
+            >
               <div>
                 <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
                   Current Password
@@ -931,7 +959,11 @@ export default function ProfilePage() {
                     onClick={() => setShowOldPass(!showOldPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0]"
                   >
-                    {showOldPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showOldPass ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -953,7 +985,11 @@ export default function ProfilePage() {
                     onClick={() => setShowNewPass(!showNewPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0]"
                   >
-                    {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showNewPass ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -984,7 +1020,9 @@ export default function ProfilePage() {
                   disabled={changingPassword}
                   className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl flex items-center gap-1.5 disabled:opacity-50"
                 >
-                  {changingPassword && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {changingPassword && (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  )}
                   Update Password
                 </button>
               </div>
@@ -1009,14 +1047,17 @@ export default function ProfilePage() {
               Two-Factor Authentication (2FA)
             </h3>
             <p className="text-xs text-[#6e6e73] leading-relaxed">
-              Add an extra layer of security to your Nupat Cloud account using an authenticator app (e.g. Google Authenticator).
+              Add an extra layer of security to your Nupat Cloud account using
+              an authenticator app (e.g. Google Authenticator).
             </p>
 
             <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-[#e2eaff] rounded-xl">
               <div className="flex items-center gap-3">
                 <Smartphone className="w-5 h-5 text-[#1787D4]" />
                 <div>
-                  <div className="text-xs font-semibold text-[#1d1d1f]">Authenticator App</div>
+                  <div className="text-xs font-semibold text-[#1d1d1f]">
+                    Authenticator App
+                  </div>
                   <div className="text-[11px] text-[#6e6e73]">
                     {twoFactorEnabled ? "Enabled" : "Currently disabled"}
                   </div>
@@ -1026,7 +1067,11 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => {
                   setTwoFactorEnabled(!twoFactorEnabled);
-                  toast.success(twoFactorEnabled ? "2FA disabled" : "2FA enabled successfully");
+                  toast.success(
+                    twoFactorEnabled
+                      ? "2FA disabled"
+                      : "2FA enabled successfully",
+                  );
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   twoFactorEnabled
@@ -1129,7 +1174,9 @@ export default function ProfilePage() {
               Delete Account
             </h3>
             <p className="text-xs text-[#6e6e73] leading-relaxed">
-              Are you sure you want to delete your account? This will permanently cancel all your services, domains, and hosting accounts. This action cannot be undone.
+              Are you sure you want to delete your account? This will
+              permanently cancel all your services, domains, and hosting
+              accounts. This action cannot be undone.
             </p>
 
             <div className="flex gap-2 justify-end mt-2">

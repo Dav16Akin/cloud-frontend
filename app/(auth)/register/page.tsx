@@ -37,7 +37,7 @@ const registerSchema = z
       .max(11, "Phone number must be exactly 11 digits")
       .regex(
         /^0\d{10}$/,
-        "Enter a valid 11-digit phone number starting with 0 (e.g. 08140397106)",
+        "Enter a valid 11-digit phone number starting with 0 (e.g. 08140300000)",
       ),
     companyName: z.string().min(1, "Company name is required"),
     address: z.string().min(3, "Street address is required"),
@@ -212,7 +212,8 @@ export default function RegisterPage() {
               Start your cloud journey with Nupat Cloud today
             </p>
             <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-              All fields are required (<span className="text-red-500 font-bold">*</span>)
+              All fields are required (
+              <span className="text-red-500 font-bold">*</span>)
             </p>
           </div>
 
@@ -288,7 +289,7 @@ export default function RegisterPage() {
                   <input
                     id="register-phone"
                     type="tel"
-                    placeholder="08140397106"
+                    placeholder="08140300000"
                     value={form.phoneNumber}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, "");
@@ -313,7 +314,8 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="register-company" className={labelClass}>
-                  Company / Organization Name <span className="text-red-500 ml-0.5">*</span>
+                  Company / Organization Name{" "}
+                  <span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   id="register-company"
@@ -330,7 +332,8 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="sm:col-span-2">
                   <label htmlFor="register-address" className={labelClass}>
-                    Street Address <span className="text-red-500 ml-0.5">*</span>
+                    Street Address{" "}
+                    <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-address"
@@ -345,7 +348,8 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-house-number" className={labelClass}>
-                    Unit / Suite No. <span className="text-red-500 ml-0.5">*</span>
+                    Unit / Suite No.{" "}
+                    <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-house-number"
@@ -382,7 +386,8 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-state" className={labelClass}>
-                    State / Province <span className="text-red-500 ml-0.5">*</span>
+                    State / Province{" "}
+                    <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-state"
@@ -397,7 +402,8 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-postcode" className={labelClass}>
-                    Postal / Zip Code <span className="text-red-500 ml-0.5">*</span>
+                    Postal / Zip Code{" "}
+                    <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-postcode"
@@ -474,7 +480,8 @@ export default function RegisterPage() {
                     htmlFor="register-confirm-password"
                     className={labelClass}
                   >
-                    Confirm Password <span className="text-red-500 ml-0.5">*</span>
+                    Confirm Password{" "}
+                    <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <div className="relative">
                     <input

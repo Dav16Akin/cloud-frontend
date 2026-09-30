@@ -26,6 +26,7 @@ import { searchDomains, type DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetHosting } from "@/hooks/useHosting";
+import { useGetSslProducts } from "@/hooks/useSsl";
 import { toast } from "sonner";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -125,6 +126,13 @@ function DomainsDashboardPageContent() {
   const { data: registeredDomains, isLoading: loadingDomains } = useGetRegisteredDomains();
   const { data: hostingAccounts, isLoading: loadingHosting } = useGetHosting();
   const { addDomainItem, addSslItem, removeItem, hasItem, openDrawer } = useCartStore();
+
+  // Fetch real SSL product pricing — Positive SSL (id:41) 1-year price
+  const { data: sslProducts } = useGetSslProducts();
+  const positiveSslPrice = (() => {
+    const prod = (sslProducts ?? []).find((p: { id: number }) => p.id === 41);
+    return prod?.prices?.find((p: { period: number }) => p.period === 1)?.price ?? prod?.price ?? 15000;
+  })();
 
   useEffect(() => {
     if (tabQuery === "hosted" || tabQuery === "register" || tabQuery === "registered") {
@@ -746,8 +754,8 @@ function DomainsDashboardPageContent() {
                             checked={hasItem(`ssl:${result.domain}`)}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                addSslItem({ type: "SSL", domainName: result.domain, price: 10000 });
-                                toast.success(`SSL for ${result.domain} added!`);
+                                addSslItem({ type: "SSL", domainName: result.domain, price: positiveSslPrice, productId: 41, period: 1, productName: "Positive SSL" });
+                                toast.success(`Positive SSL for ${result.domain} added!`);
                               } else {
                                 removeItem(`ssl:${result.domain}`);
                               }
@@ -756,7 +764,7 @@ function DomainsDashboardPageContent() {
                           />
                           <span className="text-[11px] flex items-center gap-1" style={{ color: T.inkMuted }}>
                             <Shield className="w-3 h-3 text-emerald-500" />
-                            Add SSL (+₦10,000/yr)
+                            Add SSL (+₦{positiveSslPrice.toLocaleString("en-NG")}/yr)
                           </span>
                         </label>
                       )}

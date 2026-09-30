@@ -842,7 +842,7 @@ export type BackendCartItem =
   | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
   | { type: "DOMAIN"; domainName: string; extension: string }
   | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
-  | { type: "SSL"; domainName: string; productId?: number; period?: number };
+  | { type: "SSL"; domainName: string; productId?: number; period?: number; csr?: string; approverEmail?: string };
 
 export type Order = {
   id: string;
@@ -1251,6 +1251,7 @@ export type SslCertificate = {
   certificate?: string | null;
   privateKey?: string | null;
   expiresAt?: string | null;
+  validation?: SslValidationRecord[];
   createdAt: string;
   updatedAt: string;
 };
@@ -1261,6 +1262,20 @@ export const getSSLCertificates = (
   fetchWithRefresh(`${BASE_URL}/ssl`, {
     headers: getHeaders(),
   }).then(handleResponse);
+
+export type SslValidationRecord = {
+  host_name?: string;
+  method?: string; // "dns" | "email" | "http"
+  type?: string;   // e.g. "CNAME" | "TXT"
+  name?: string;   // DNS record host/name
+  value?: string;  // DNS record target value
+  content?: string;
+  record?: string;
+  dns_record?: string;
+  dns_type?: string;
+  dns_value?: string;
+  [key: string]: any;
+};
 
 export const getSSLStatus = (
   token: string,
@@ -1275,6 +1290,7 @@ export const getSSLStatus = (
     productName?: string;
     validationMethod?: string;
     id?: string;
+    validation?: SslValidationRecord[];
   };
   message: string;
 }> =>

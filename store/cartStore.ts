@@ -22,11 +22,13 @@ export type CartDomainItem = {
 
 export type CartSslItem = {
   type: "SSL";
-  domainName: string; // full domain: "example.com.ng"
-  price: number;      // NGN retail price
-  productId?: number;  // OpenProvider product ID
-  period?: number;     // duration in years
+  domainName: string;    // full domain: "example.com.ng"
+  price: number;         // NGN retail price
+  productId?: number;    // OpenProvider product ID (e.g. 41 for Positive SSL)
+  period?: number;       // duration in years
   productName?: string;
+  csr?: string;          // optional: backend auto-generates if omitted
+  approverEmail?: string; // optional: backend auto-selects if omitted
 };
 
 export type CartDomainTransferItem = {
@@ -103,7 +105,13 @@ export const useCartStore = create<CartStore>()(
 
       addSslItem: (item) =>
         set((state) => {
-          if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
+          const key = itemKey(item);
+          const existingIndex = state.items.findIndex((i) => itemKey(i) === key);
+          if (existingIndex >= 0) {
+            const updated = [...state.items];
+            updated[existingIndex] = item;
+            return { items: updated, isDrawerOpen: true };
+          }
           return { items: [...state.items, item], isDrawerOpen: true };
         }),
 
@@ -152,8 +160,10 @@ export const useCartStore = create<CartStore>()(
           return {
             type: "SSL" as const,
             domainName: item.domainName,
-            productId: item.productId,
-            period: item.period,
+            productId: item.productId || 41,
+            period: item.period || 1,
+            ...(item.csr ? { csr: item.csr } : {}),
+            ...(item.approverEmail ? { approverEmail: item.approverEmail } : {}),
           };
         }),
     }),
@@ -163,12 +173,22 @@ export const useCartStore = create<CartStore>()(
       partialize: (state) => ({
         items: state.items.map((item) => {
           if (item.type === "DOMAIN_TRANSFER") {
-            const { authCode, ...rest } = item;
+            const { authCode: _authCode, ...rest } = item;
             return { ...rest, authCode: "" };
           }
           return item;
         }),
       }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        // Keep valid SSL items with a domain name
+        state.items = state.items.filter((item) => {
+          if (item.type === "SSL") {
+            return Boolean(item.domainName);
+          }
+          return true;
+        });
+      },
     },
   ),
 );

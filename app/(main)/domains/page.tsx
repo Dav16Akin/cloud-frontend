@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { searchDomains, DomainResult } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
+import { useGetSslProducts } from "@/hooks/useSsl";
 import { toast } from "sonner";
 
 const extensionInfo: Record<string, { desc: string; popular: boolean }> = {
@@ -48,6 +49,13 @@ export default function DomainsPage() {
 
   const { addDomainItem, addSslItem, removeItem, hasItem, itemCount } = useCartStore();
 
+  // Fetch real SSL pricing — Positive SSL (id:41) 1-year price; hook returns [] when unauthenticated
+  const { data: sslProducts } = useGetSslProducts();
+  const positiveSslPrice = (() => {
+    const prod = (sslProducts ?? []).find((p: { id: number }) => p.id === 41);
+    return prod?.prices?.find((p: { period: number }) => p.period === 1)?.price ?? prod?.price ?? 15000;
+  })();
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -67,8 +75,11 @@ export default function DomainsPage() {
   const handleAddToCart = (result: DomainResult) => {
     if (result.price.price == null) return;
     const dotIdx = result.domain.indexOf(".");
-    const domainName = dotIdx !== -1 ? result.domain.slice(0, dotIdx) : result.domain;
-    const extension = dotIdx !== -1 ? result.domain.slice(dotIdx + 1) : "";
+    // Guard: every domain must have a valid extension for the backend schema
+    if (dotIdx === -1) return;
+    const domainName = result.domain.slice(0, dotIdx);
+    const extension = result.domain.slice(dotIdx + 1);
+    if (!extension) return;
 
     addDomainItem({
       type: "DOMAIN",
@@ -403,7 +414,7 @@ export default function DomainsPage() {
                             </div>
                           )}
 
-                          {/* SSL cross-sell option */}
+                          {/* SSL cross-sell checkbox */}
                           {result.available && hasItem(`domain:${result.domain}`) && (
                             <div className="mt-2 flex items-center">
                               <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
@@ -415,19 +426,22 @@ export default function DomainsPage() {
                                       addSslItem({
                                         type: "SSL",
                                         domainName: result.domain,
-                                        price: 10000,
+                                        price: positiveSslPrice,
+                                        productId: 41,
+                                        period: 1,
+                                        productName: "Positive SSL",
                                       });
-                                      toast.success(`SSL Certificate for ${result.domain} added to cart!`);
+                                      toast.success(`Positive SSL added for ${result.domain}`);
                                     } else {
                                       removeItem(`ssl:${result.domain}`);
-                                      toast.info(`SSL Certificate for ${result.domain} removed.`);
+                                      toast.info(`SSL removed for ${result.domain}`);
                                     }
                                   }}
                                   className="w-3.5 h-3.5 text-[#1787D4] border-[#dce4f7] rounded focus:ring-[#1787D4] accent-[#1787D4]"
                                 />
                                 <span className="text-[11px] text-[#5a6a85] font-medium flex items-center gap-1 hover:text-[#031033] transition-colors">
                                   <Shield className="w-3.5 h-3.5 text-emerald-500" />
-                                  Secure domain with SSL (+₦10,000/yr)
+                                  Add SSL Certificate (+₦{positiveSslPrice.toLocaleString("en-NG")}/yr)
                                 </span>
                               </label>
                             </div>

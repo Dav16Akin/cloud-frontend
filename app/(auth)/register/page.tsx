@@ -41,15 +41,9 @@ const registerSchema = z
       ),
     companyName: z.string().min(1, "Company name is required"),
     address: z.string().min(3, "Street address is required"),
-    houseNumber: z
-      .string()
-      .optional()
-      .refine(
-        (v) => !v || /^\d+$/.test(v),
-        "House / unit number must be a number",
-      ),
+    houseNumber: z.string().min(1, "Unit / suite number is required"),
     city: z.string().min(1, "City is required"),
-    state: z.string().optional(),
+    state: z.string().min(1, "State / Province is required"),
     country: z.string().min(1, "Country is required"),
     postcode: z.string().min(1, "Postcode is required"),
     password: z
@@ -217,6 +211,9 @@ export default function RegisterPage() {
             <p className="text-sm text-slate-500 mt-1">
               Start your cloud journey with Nupat Cloud today
             </p>
+            <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+              All fields are required (<span className="text-red-500 font-bold">*</span>)
+            </p>
           </div>
 
           {/* Form */}
@@ -238,7 +235,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-first-name" className={labelClass}>
-                    First Name
+                    First Name <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-first-name"
@@ -253,7 +250,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-last-name" className={labelClass}>
-                    Last Name
+                    Last Name <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-last-name"
@@ -271,7 +268,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-email" className={labelClass}>
-                    Email Address
+                    Email Address <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-email"
@@ -286,7 +283,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-phone" className={labelClass}>
-                    Phone Number
+                    Phone Number <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-phone"
@@ -316,7 +313,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="register-company" className={labelClass}>
-                  Company / Organization Name
+                  Company / Organization Name <span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   id="register-company"
@@ -333,7 +330,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="sm:col-span-2">
                   <label htmlFor="register-address" className={labelClass}>
-                    Street Address
+                    Street Address <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-address"
@@ -348,7 +345,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-house-number" className={labelClass}>
-                    Unit / Suite No.
+                    Unit / Suite No. <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-house-number"
@@ -370,7 +367,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
                   <label htmlFor="register-city" className={labelClass}>
-                    City
+                    City <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-city"
@@ -385,7 +382,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-state" className={labelClass}>
-                    State / Province
+                    State / Province <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-state"
@@ -400,7 +397,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-postcode" className={labelClass}>
-                    Postal / Zip Code
+                    Postal / Zip Code <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <input
                     id="register-postcode"
@@ -417,7 +414,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="register-country" className={labelClass}>
-                  Country
+                  Country <span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   id="register-country"
@@ -444,7 +441,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label htmlFor="register-password" className={labelClass}>
-                    Password
+                    Password <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -477,7 +474,7 @@ export default function RegisterPage() {
                     htmlFor="register-confirm-password"
                     className={labelClass}
                   >
-                    Confirm Password
+                    Confirm Password <span className="text-red-500 ml-0.5">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -570,7 +567,7 @@ export default function RegisterPage() {
                   >
                     Privacy Policy
                   </Link>
-                  .
+                  . <span className="text-red-500 ml-0.5">*</span>
                 </span>
               </label>
               {submitted && !agreed && (

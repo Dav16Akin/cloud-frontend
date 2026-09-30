@@ -87,8 +87,11 @@ export default function DomainSearchSection() {
   const handleAddToCart = (result: DomainResult) => {
     if (result.price.price == null) return;
     const dotIdx = result.domain.indexOf(".");
-    const domainName = dotIdx !== -1 ? result.domain.slice(0, dotIdx) : result.domain;
-    const extension = dotIdx !== -1 ? result.domain.slice(dotIdx + 1) : "";
+    // Guard: every domain must have a valid extension for the backend schema
+    if (dotIdx === -1) return;
+    const domainName = result.domain.slice(0, dotIdx);
+    const extension = result.domain.slice(dotIdx + 1);
+    if (!extension) return;
 
     addDomainItem({
       type: "DOMAIN",

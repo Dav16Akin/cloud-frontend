@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   ShoppingCart,
@@ -11,10 +12,14 @@ import {
   Package,
   AlertCircle,
   ArrowRightLeft,
+  X,
+  CheckCircle,
 } from "lucide-react";
 import { useCartStore, cartItemLabel, getCartItemKey, type CartItem } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
+import { useGetSslProducts } from "@/hooks/useSsl";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function formatNGN(n: number) {
   return "₦" + n.toLocaleString("en-NG");
@@ -65,6 +70,70 @@ export default function CartPage() {
   const { items, addSslItem, removeItem, clearCart, grandTotal } = useCartStore();
   const token = useAuthStore((s) => s.token);
   const router = useRouter();
+
+  // Fetch real SSL product pricing — Positive SSL (id:41)
+  const { data: sslProducts } = useGetSslProducts();
+  const positiveSslPrice = (() => {
+    const prod = sslProducts?.find?.((p: { id: number }) => p.id === 41);
+    return prod?.prices?.find?.((p: { period: number }) => p.period === 1)?.price ?? prod?.price ?? 15000;
+  })();
+
+  // Cheapest DV SSL options to show on the cart
+  const cheapSslOptions: Array<{ id: number; name: string; price: number }> = useMemo(() => {
+    const source = sslProducts && Array.isArray(sslProducts) && sslProducts.length > 0
+      ? sslProducts
+      : [];
+    const dv = source
+      .filter((p: any) => !p.category || p.category === "domain_validation" || p.category === "dv")
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.prices?.find?.((pr: any) => pr.period === 1)?.price ?? p.price ?? 15000,
+      }))
+      .sort((a: any, b: any) => a.price - b.price)
+      .slice(0, 3);
+
+    return dv.length > 0 ? dv : [{ id: 41, name: "Positive SSL", price: positiveSslPrice }];
+  }, [sslProducts, positiveSslPrice]);
+
+  const [staleWarning, setStaleWarning] = useState<string | null>(null);
+
+  // Auto-purge stale/malformed items from a previous session on first render.
+  // These would cause "Invalid cart" on the backend due to undefined required fields.
+  useEffect(() => {
+    const removed: string[] = [];
+    for (const item of items) {
+      let isInvalid = false;
+      let label = "Unknown item";
+      if (item.type === "HOSTING" && !item.planId) {
+        isInvalid = true; label = "a Hosting item";
+      } else if (item.type === "DOMAIN" && (!item.domainName || !item.extension)) {
+        isInvalid = true; label = item.domainName ? `"${item.domainName}" (missing extension)` : "a Domain item";
+      } else if (item.type === "DOMAIN_TRANSFER" && (!item.domainName || !item.extension || !item.authCode)) {
+        isInvalid = true;
+        label = item.domainName ? `"${item.domainName}" transfer` : "a Domain Transfer item";
+      } else if (item.type === "SSL" && !item.domainName) {
+        isInvalid = true;
+        label = "an SSL item";
+      }
+      if (isInvalid) {
+        // Use getCartItemKey to build the key, same as removeItem expects
+        const key =
+          item.type === "HOSTING" ? `hosting:${item.planId ?? ""}:${(item as any).billingCycle ?? ""}` :
+          item.type === "DOMAIN" ? `domain:${item.domainName ?? ""}.${item.extension ?? ""}` :
+          item.type === "DOMAIN_TRANSFER" ? `domain-transfer:${item.domainName ?? ""}.${item.extension ?? ""}` :
+          `ssl:${item.domainName ?? ""}`;
+        removeItem(key);
+        removed.push(label);
+      }
+    }
+    if (removed.length > 0) {
+      setStaleWarning(
+        `${removed.length === 1 ? `${removed[0]} was` : `${removed.length} items were`} removed from your cart because ${removed.length === 1 ? "it was" : "they were"} no longer valid. Please re-add from the relevant page.`
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCheckout = () => {
     if (!token) {
@@ -156,6 +225,20 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* Left: Cart items */}
             <div className="lg:col-span-2 space-y-3">
+              {/* Stale item warning banner */}
+              {staleWarning && (
+                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3.5 text-sm text-amber-800">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                  <span className="flex-1">{staleWarning}</span>
+                  <button
+                    onClick={() => setStaleWarning(null)}
+                    className="text-amber-400 hover:text-amber-600 transition-colors shrink-0 cursor-pointer"
+                    aria-label="Dismiss"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               {items.map((item) => {
                 const key = getCartItemKey(item);
                 return (
@@ -187,32 +270,67 @@ export default function CartPage() {
                       </button>
                     </div>
 
-                    {/* SSL cross-sell recommendation */}
+                    {/* SSL in-cart options — directly selectable without redirect */}
                     {item.type === "DOMAIN" && !items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
-                      <div className="mt-4 pt-4 border-t border-[#edf2f7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f0f7ff] rounded-xl border border-[#d4e9f7] p-3.5 sm:p-4">
-                        <div className="flex items-start gap-2.5">
-                          <Shield className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-bold text-[#031033]">
-                              Secure your domain name
-                            </p>
-                            <p className="text-[11px] text-[#5a6a85] mt-0.5">
-                              Protect visitor data, boost search engine rankings, and build trust with a PositiveSSL Certificate.
-                            </p>
+                      <div className="mt-4 pt-4 border-t border-[#edf2f7]">
+                        <div className="flex items-center justify-between gap-2 mb-2.5">
+                          <div className="flex items-center gap-1.5">
+                            <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
+                            <span className="text-xs font-bold text-[#031033]">Add SSL Certificate to this domain</span>
                           </div>
+                          <span className="text-[11px] text-[#5a6a85] hidden sm:inline">Automatic Setup (No CSR needed)</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          {cheapSslOptions.map((opt) => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              id={`cart-add-ssl-${opt.id}-${key.replace(/[.:]/g, "-")}`}
+                              onClick={() => {
+                                addSslItem({
+                                  type: "SSL",
+                                  domainName: `${item.domainName}.${item.extension}`,
+                                  price: opt.price,
+                                  productId: opt.id,
+                                  period: 1,
+                                  productName: opt.name,
+                                });
+                                toast.success(`${opt.name} added for ${item.domainName}.${item.extension}`);
+                              }}
+                              className="flex items-center justify-between sm:flex-col sm:items-start p-2.5 rounded-xl border border-[#d4e9f7] bg-[#f0f7ff] hover:bg-[#e1f0fe] hover:border-[#1787D4] transition-all cursor-pointer group text-left"
+                            >
+                              <div>
+                                <span className="text-xs font-bold text-[#031033] group-hover:text-[#1787D4] transition-colors block">
+                                  {opt.name}
+                                </span>
+                                <span className="text-[11px] font-semibold text-[#1787D4] block mt-0.5">
+                                  +{formatNGN(opt.price)}/yr
+                                </span>
+                              </div>
+                              <span className="text-[11px] font-semibold text-white bg-[#1787D4] group-hover:bg-[#1370B5] px-2.5 py-1 rounded-lg transition-colors shadow-2xs sm:mt-2">
+                                + Add
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SSL already added for this domain */}
+                    {item.type === "DOMAIN" && items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
+                      <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between text-xs bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200">
+                        <div className="flex items-center gap-2 text-emerald-800 font-medium">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>
+                            SSL Certificate included for {item.domainName}.{item.extension}
+                          </span>
                         </div>
                         <button
-                          onClick={() => {
-                            addSslItem({
-                              type: "SSL",
-                              domainName: `${item.domainName}.${item.extension}`,
-                              price: 10000,
-                            });
-                          }}
-                          className="shrink-0 text-xs font-bold py-2 px-3.5 bg-[#1787D4] text-white hover:bg-[#1370B5] rounded-xl transition-colors shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                          type="button"
+                          onClick={() => removeItem(`ssl:${item.domainName}.${item.extension}`)}
+                          className="text-xs text-red-500 hover:text-red-700 font-semibold hover:underline cursor-pointer"
                         >
-                          <Shield className="w-3.5 h-3.5" />
-                          Add SSL (+₦10,000/yr)
+                          Remove SSL
                         </button>
                       </div>
                     )}

@@ -53,7 +53,16 @@ export const useGetSslCertificateDetails = (id: string) => {
       }
     },
     enabled: !!token && !!id,
-    staleTime: 30 * 1000,
+    staleTime: 10 * 1000,
+    refetchInterval: (query) => {
+      const data = query.state.data as any;
+      const status = data?.status?.toUpperCase();
+      // Automatically poll status every 8s while processing or pending DNS validation
+      if (status === "PROCESSING" || status === "PENDING") {
+        return 8000;
+      }
+      return false;
+    },
   });
 };
 

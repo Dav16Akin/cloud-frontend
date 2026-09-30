@@ -18,7 +18,10 @@ import {
   type CartItem,
 } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
+import { useGetSslProducts } from "@/hooks/useSsl";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { toast } from "sonner";
 
 function formatNGN(amount: number) {
   return "₦" + amount.toLocaleString("en-NG");
@@ -81,6 +84,13 @@ export default function CartDrawer() {
   const token = useAuthStore((s) => s.token);
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Fetch real SSL product pricing — used for info display only (CSR required to add SSL to cart)
+  const { data: sslProducts } = useGetSslProducts();
+  const positiveSslPrice = (() => {
+    const prod = sslProducts?.find?.((p: { id: number }) => p.id === 41);
+    return prod?.prices?.find?.((p: { period: number }) => p.period === 1)?.price ?? prod?.price ?? 15000;
+  })();
 
   // Close on ESC
   useEffect(() => {
@@ -223,24 +233,30 @@ export default function CartDrawer() {
                       </div>
                     </div>
 
-                    {/* SSL cross-sell recommendation */}
+                    {/* SSL 1-click add option — no redirect */}
                     {item.type === "DOMAIN" && !items.some(i => i.type === "SSL" && i.domainName === `${item.domainName}.${item.extension}`) && (
                       <div className="mt-3 pt-3 border-t border-[#edf2f7] flex items-center justify-between gap-2 bg-[#f0f7ff] p-2.5 rounded-xl border border-[#d4e9f7]">
                         <span className="text-[11px] text-[#031033] flex items-center gap-1.5 font-medium">
                           <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          Add SSL security (+₦10,000/yr)
+                          Add SSL (+{formatNGN(positiveSslPrice)}/yr)
                         </span>
                         <button
+                          type="button"
+                          id={`drawer-add-ssl-${item.domainName}-${item.extension}`}
                           onClick={() => {
                             addSslItem({
                               type: "SSL",
                               domainName: `${item.domainName}.${item.extension}`,
-                              price: 10000,
+                              price: positiveSslPrice,
+                              productId: 41,
+                              period: 1,
+                              productName: "Positive SSL",
                             });
+                            toast.success(`Positive SSL added for ${item.domainName}.${item.extension}`);
                           }}
-                          className="text-[11px] font-bold text-white bg-[#1787D4] hover:bg-[#1370B5] shrink-0 px-3 py-1 rounded-lg transition-colors shadow-xs cursor-pointer"
+                          className="text-[11px] font-bold text-white bg-[#1787D4] hover:bg-[#1370B5] shrink-0 px-3 py-1 rounded-lg transition-colors shadow-2xs cursor-pointer"
                         >
-                          Add
+                          + Add
                         </button>
                       </div>
                     )}

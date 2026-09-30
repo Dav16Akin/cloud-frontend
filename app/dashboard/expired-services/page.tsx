@@ -421,7 +421,7 @@ export default function ExpiredServicesPage() {
           type: "SSL",
           expiredOn: exp || new Date().toISOString(),
           daysAgo: days !== null && days < 0 ? Math.abs(days) : 0,
-          renewHref: "/dashboard/ssl",
+          renewHref: `/dashboard/ssl?tab=order&domain=${encodeURIComponent(cert.domainName ?? cert.domain ?? cert.commonName ?? "")}`,
           renewalPrice: 9.99,
         });
       }

@@ -150,6 +150,9 @@ function CartSuccessContent() {
     orderData?.items?.some((item) => item.type === "HOSTING") ||
     !!recentPurchase;
 
+  const hasSslItem =
+    orderData?.items?.some((item) => item.type === "SSL");
+
   const {
     data: hostingData,
     refetch: refetchHosting,
@@ -308,27 +311,30 @@ function CartSuccessContent() {
                 </div>
               )}
 
-              {/* Registered domains */}
+              {/* Registered domains & services */}
               {(orderData?.items?.length ?? 0) > 0 && (
-                <div className="bg-white border border-[#e2eaff] text-left">
-                  <div className="px-5 py-3 border-b border-[#f0f4fc]">
-                    <p className="text-xs font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                <div className="bg-white border border-[#e2eaff] text-left rounded-2xl overflow-hidden shadow-xs">
+                  <div className="px-5 py-3 border-b border-[#f0f4fc] bg-[#fbfcfe]">
+                    <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wide">
                       Order Items
                     </p>
                   </div>
                   <div className="divide-y divide-[#f0f4fc]">
                     {orderData!.items.map((item) => {
                       const isHosting = item.type === "HOSTING";
+                      const isSsl = item.type === "SSL";
                       const label =
                         isHosting
                           ? `${item.plan?.name ?? "Hosting"} Plan`
-                          : item.type === "DOMAIN"
-                          ? item.domainName
-                          : `SSL — ${item.domainName}`;
+                          : isSsl
+                          ? `SSL — ${item.domainName}`
+                          : item.domainName;
                       return (
-                        <div key={item.id} className="flex items-center gap-3 px-5 py-3">
+                        <div key={item.id} className="flex items-center gap-3 px-5 py-3.5">
                           {isHosting ? (
                             <Server className="w-4 h-4 text-[#1787D4] shrink-0" />
+                          ) : isSsl ? (
+                            <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
                           ) : (
                             <Globe className="w-4 h-4 text-[#1787D4] shrink-0" />
                           )}
@@ -337,6 +343,34 @@ function CartSuccessContent() {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+
+              {/* SSL Activation & DNS Validation Banner */}
+              {hasSslItem && (
+                <div className="bg-[#eff8ff] border border-[#b9e0fd] rounded-2xl p-4 sm:p-5 text-left flex items-start gap-3.5 shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-[#b9e0fd] flex items-center justify-center text-[#1787D4] shrink-0 shadow-2xs">
+                    <Shield className="w-5 h-5 text-[#1787D4]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-[#031033]">
+                      SSL Certificate Activation & DNS Validation
+                    </h3>
+                    <p className="text-xs text-[#5a6a85] mt-1 leading-relaxed">
+                      Your SSL certificate order has been submitted to the Certificate Authority. To complete issuance, check your SSL dashboard to view and add any required DNS verification records.
+                    </p>
+                    <div className="mt-3">
+                      <Link
+                        href="/dashboard/ssl"
+                        id="success-view-ssl-dns"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        Manage SSL & View DNS Records
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
@@ -368,7 +402,12 @@ function CartSuccessContent() {
                     hasHostingItem
                       ? { icon: Server, text: "Your hosting server node and cPanel account are being provisioned in real time." }
                       : { icon: Globe, text: "DNS propagation begins immediately (up to 24–48 hrs globally)." },
-                    { icon: Shield, text: "SSL certificate will be issued and activated automatically." },
+                    {
+                      icon: Shield,
+                      text: hasSslItem
+                        ? "SSL certificate requested. Complete domain DNS validation in your dashboard to activate."
+                        : "SSL certificate will be issued and activated automatically.",
+                    },
                     { icon: LayoutDashboard, text: "Manage your services anytime from your dashboard." },
                   ].map(({ icon: Icon, text }) => (
                     <div key={text} className="flex items-start gap-3 px-5 py-3 text-sm text-[#5a6a85]">
@@ -390,6 +429,15 @@ function CartSuccessContent() {
                     <Server className="w-4 h-4" />
                     Go to Hosting Dashboard
                   </Link>
+                ) : hasSslItem && domainCount === 0 ? (
+                  <Link
+                    href="/dashboard/ssl"
+                    id="success-go-ssl"
+                    className="btn-primary py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2 shadow-xs"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Go to SSL Certificates
+                  </Link>
                 ) : (
                   <Link
                     href="/dashboard/domains"
@@ -398,6 +446,16 @@ function CartSuccessContent() {
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     Go to Dashboard
+                  </Link>
+                )}
+                {hasSslItem && (domainCount > 0 || hasHostingItem) && (
+                  <Link
+                    href="/dashboard/ssl"
+                    id="success-go-ssl-secondary"
+                    className="btn-outline py-3.5 px-8 text-base rounded-xl flex items-center justify-center gap-2"
+                  >
+                    <Shield className="w-4 h-4 text-emerald-500" />
+                    SSL Certificates
                   </Link>
                 )}
                 {domainCount > 0 && hasHostingItem && (

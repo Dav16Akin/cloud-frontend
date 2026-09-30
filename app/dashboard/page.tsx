@@ -456,7 +456,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: Shield,
     label: "Get SSL Certificate",
     description: "Add instant website lock protection",
-    href: "/dashboard/ssl",
+    href: "/dashboard/ssl?tab=order",
     accentColor: T.blue,
     accentBg: T.blueLight,
   },
@@ -843,7 +843,7 @@ function DashboardOverviewContent() {
             : "Certificate expired",
         primaryAction: {
           label: "Renew",
-          href: "/dashboard/ssl",
+          href: `/dashboard/ssl?tab=order&domain=${encodeURIComponent(cert.domainName ?? cert.domain ?? "")}`,
           icon: RefreshCcw,
         },
       });
@@ -860,7 +860,7 @@ function DashboardOverviewContent() {
             : `Expires in ${days} day${days === 1 ? "" : "s"}`,
         primaryAction: {
           label: "Renew",
-          href: "/dashboard/ssl",
+          href: `/dashboard/ssl?tab=order&domain=${encodeURIComponent(cert.domainName ?? cert.domain ?? "")}`,
           icon: Eye,
         },
       });

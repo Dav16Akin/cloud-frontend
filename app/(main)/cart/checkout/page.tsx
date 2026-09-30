@@ -65,6 +65,41 @@ export default function CheckoutPage() {
 
   const handlePay = async () => {
     if (items.length === 0) return;
+
+    // ── Pre-flight validation ──────────────────────────────────────────────────
+    // Catches missing/undefined required string fields BEFORE calling the API,
+    // so users get a clear message instead of the backend's "Invalid cart" error.
+    const cartErrors: string[] = [];
+    for (const item of items) {
+      if (item.type === "HOSTING") {
+        if (!item.planId)
+          cartErrors.push(`Hosting item is missing a plan ID — please remove and re-add it.`);
+      } else if (item.type === "DOMAIN") {
+        if (!item.domainName)
+          cartErrors.push(`A domain item is missing its name — please remove and re-add it.`);
+        if (!item.extension)
+          cartErrors.push(`"${item.domainName || "Unknown domain"}" is missing its extension (.com, .ng…) — please remove and re-add it.`);
+      } else if (item.type === "DOMAIN_TRANSFER") {
+        const label = item.domainName && item.extension
+          ? `${item.domainName}.${item.extension}`
+          : "Unknown domain";
+        if (!item.domainName || !item.extension)
+          cartErrors.push(`Transfer item "${label}" has an incomplete domain — please remove and re-add it.`);
+        if (!item.authCode)
+          cartErrors.push(`Transfer item "${label}" is missing its authorization code — please remove and re-add it.`);
+      } else if (item.type === "SSL") {
+        if (!item.domainName)
+          cartErrors.push(`An SSL item is missing its domain name — please remove and re-add it.`);
+      }
+    }
+    if (cartErrors.length > 0) {
+      const message = cartErrors[0];
+      setError(message);
+      toast.error(message);
+      return;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     setIsProcessing(true);
     setError("");
 
@@ -84,8 +119,10 @@ export default function CheckoutPage() {
         return {
           type: "SSL" as const,
           domainName: item.domainName,
-          productId: item.productId,
-          period: item.period,
+          productId: item.productId || 41,
+          period: item.period || 1,
+          ...(item.csr ? { csr: item.csr } : {}),
+          ...(item.approverEmail ? { approverEmail: item.approverEmail } : {}),
         };
       });
 
@@ -222,6 +259,18 @@ export default function CheckoutPage() {
                   >
                     Edit billing info →
                   </Link>
+
+                  {items.some((i) => i.type === "SSL") && (
+                    <div className="mt-4 p-3 bg-[#f0f7ff] border border-[#d4e9f7] rounded-xl text-xs flex items-start gap-2.5">
+                      <Shield className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-[#031033] block">Automated SSL Setup</span>
+                        <span className="text-[#5a6a85] mt-0.5 block leading-relaxed">
+                          Your SSL certificate will be automatically requested using your profile details above. DNS validation may be required after payment.
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -380,10 +380,23 @@ function SslPageContent() {
   const [buyDomain, setBuyDomain] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<number>(41);
   const [selectedPeriod, setSelectedPeriod] = useState<number>(1);
+  const [buyApproverEmail, setBuyApproverEmail] = useState("");
+  const [buyCsr, setBuyCsr] = useState("");
 
   const { data: liveCerts, isLoading } = useGetSslCertificates();
   const { data: apiProducts } = useGetSslProducts();
   const { addSslItem, openDrawer } = useCartStore();
+
+  // If redirected with domain (e.g. from domain search or ssl details page), prefill and open modal
+  useEffect(() => {
+    const domain = searchParams.get("domain");
+    const product = searchParams.get("product");
+    if (domain) {
+      setBuyDomain(domain);
+      if (product) setSelectedProduct(Number(product));
+      setShowBuyModal(true);
+    }
+  }, [searchParams]);
 
   // Combine API products with fallback list
   const products: SslProduct[] = useMemo(() => {
@@ -510,11 +523,23 @@ function SslPageContent() {
 
   const handleOrderSsl = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!buyDomain.trim()) {
+    const rawClean = buyDomain
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\/.*$/, "");
+
+    if (!rawClean) {
       toast.error("Please enter a domain name");
       return;
     }
-    const cleanDomain = buyDomain.trim().toLowerCase().replace(/^https?:\/\//, "");
+
+    if (!rawClean.includes(".")) {
+      toast.error("Please enter a valid domain name with an extension (e.g. example.com)");
+      return;
+    }
+
+    const cleanDomain = rawClean;
 
     const prod = products.find((p) => p.id === selectedProduct) || activeModalProduct;
     const priceObj = prod?.prices?.find((p) => p.period === selectedPeriod);
@@ -527,11 +552,15 @@ function SslPageContent() {
       productId: prod?.id || selectedProduct,
       period: selectedPeriod,
       productName: prod?.name || "SSL Certificate",
+      ...(buyCsr.trim() ? { csr: buyCsr.trim() } : {}),
+      ...(buyApproverEmail.trim() ? { approverEmail: buyApproverEmail.trim() } : {}),
     });
 
     toast.success(`${prod?.name || "SSL Certificate"} for ${cleanDomain} added to cart`);
     setShowBuyModal(false);
     setBuyDomain("");
+    setBuyApproverEmail("");
+    setBuyCsr("");
     openDrawer();
   };
 
@@ -677,16 +706,21 @@ function SslPageContent() {
         </div>
 
         {/* Quick action button */}
-        {activeTab === "overview" && (
-          <button
-            type="button"
-            onClick={() => setActiveTab("order")}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Order new certificate
-          </button>
-        )}
+        <button
+          type="button"
+          id="btn-header-order-ssl"
+          onClick={() => {
+            if (activeTab === "overview") {
+              setActiveTab("order");
+            } else {
+              handleOpenBuyModal(41, 1);
+            }
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          Order new certificate
+        </button>
       </div>
 
       {/* OpenProvider Style Sidebar Tabs / Sub-Navigation */}
@@ -1111,21 +1145,23 @@ function SslPageContent() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  addSslItem({
-                                    type: "SSL",
-                                    domainName: cert.domain,
-                                    price: 15000,
-                                    productId: 41,
-                                    period: 1,
-                                    productName: "Positive SSL",
-                                  });
-                                  toast.success(`SSL Renewal for ${cert.domain} added to cart`);
-                                  openDrawer();
+                                  setBuyDomain(cert.domain);
+                                  setSelectedProduct(41);
+                                  setSelectedPeriod(1);
+                                  setShowBuyModal(true);
                                 }}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-lg transition-colors shadow-xs"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
                               >
                                 Renew
                               </button>
+                            ) : cert.status === "Pending" ? (
+                              <Link
+                                href={`/dashboard/ssl/${encodeURIComponent(cert.id || cert.domain)}`}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 text-[12.5px] font-bold rounded-lg transition-colors"
+                              >
+                                <Clock className="w-3.5 h-3.5 animate-pulse text-amber-600" />
+                                Verify DNS
+                              </Link>
                             ) : (
                               <Link
                                 href={`/dashboard/ssl/${encodeURIComponent(cert.id || cert.domain)}`}
@@ -1300,11 +1336,53 @@ function SslPageContent() {
                 </div>
               </div>
 
+              {/* Approver Email (Optional) */}
+              <div>
+                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                  Approver Email <span className="font-normal text-[#5a6a85]">(Optional — auto-selected if left blank)</span>
+                </label>
+                <input
+                  type="email"
+                  placeholder="admin@yourdomain.com (optional)"
+                  value={buyApproverEmail}
+                  onChange={(e) => setBuyApproverEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors"
+                />
+                <span className="text-[11px] text-[#6e6e73] mt-1 block">
+                  Leave blank to allow OpenProvider to automatically use the primary administrative address.
+                </span>
+              </div>
+
+              {/* CSR (Optional) */}
+              <div>
+                <label className="text-xs font-semibold text-[#1d1d1f] flex items-center justify-between mb-1">
+                  <span>Certificate Signing Request (CSR) <span className="font-normal text-[#5a6a85]">(Optional)</span></span>
+                  <a
+                    href="https://www.sslshopper.com/article-most-common-openssl-commands.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#1787D4] hover:underline font-normal text-[10px]"
+                  >
+                    How to generate a CSR ↗
+                  </a>
+                </label>
+                <textarea
+                  placeholder="Optional — leave blank to automatically generate CSR using your account profile details."
+                  value={buyCsr}
+                  onChange={(e) => setBuyCsr(e.target.value)}
+                  rows={4}
+                  className="w-full px-3.5 py-2.5 border border-[#e2eaff] rounded-xl text-xs font-mono focus:outline-none focus:border-[#1787D4] transition-colors resize-none"
+                />
+                <span className="text-[11px] text-[#6e6e73] mt-1 block">
+                  Leave blank to auto-generate from your profile, or paste your custom PEM-encoded CSR.
+                </span>
+              </div>
+
               {/* Form Buttons */}
               <div className="flex gap-2 justify-end mt-1">
                 <button
                   type="button"
-                  onClick={() => setShowBuyModal(false)}
+                  onClick={() => { setShowBuyModal(false); setBuyApproverEmail(""); setBuyCsr(""); }}
                   className="px-4 py-2.5 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc] transition-colors"
                 >
                   Cancel

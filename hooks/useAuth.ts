@@ -17,11 +17,14 @@ import { useAuthStore } from "@/store/authStore";
 
 export const useLogin = (redirectTo = "/dashboard") => {
   const setToken = useAuthStore((s) => s.setToken);
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: { email: string; password: string }) => loginUser(data),
     onSuccess: (res) => {
+      // Clear any previous query cache on login to prevent stale data or session cross-talk
+      queryClient.clear();
       // Handle different backend response shapes
       const token = res?.token ?? res?.data?.token ?? res?.accessToken;
       if (token) {
@@ -71,11 +74,13 @@ export const useRegister = () => {
 
 export const useVerifyOTP = () => {
   const setToken = useAuthStore((s) => s.setToken);
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: { email: string; code: string }) => verifyOTP(data),
     onSuccess: (res) => {
+      queryClient.clear();
       if (res?.token) {
         setToken(res.token);
       }

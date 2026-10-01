@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -17,11 +17,23 @@ import {
   Mail,
 } from "lucide-react";
 import { z } from "zod";
+import {
+  parsePhoneNumberFromString,
+  type CountryCode,
+} from "libphonenumber-js";
+import countries from "i18n-iso-countries";
+import en from "i18n-iso-countries/langs/en.json";
 import { toast } from "sonner";
 import { useRegister } from "@/hooks/useAuth";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 // ── Zod Schema ────────────────────────────────────────────────────────────────
+
+countries.registerLocale(en);
+const countryNames = countries.getNames("en");
+const countryOptions = Object.entries(countryNames)
+  .map(([code, name]) => ({ code, name }))
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 const registerSchema = z
   .object({
@@ -31,20 +43,13 @@ const registerSchema = z
       .string()
       .min(1, "Email is required")
       .email("Enter a valid email address"),
-    phoneNumber: z
-      .string()
-      .min(11, "Phone number must be exactly 11 digits")
-      .max(11, "Phone number must be exactly 11 digits")
-      .regex(
-        /^0\d{10}$/,
-        "Enter a valid 11-digit phone number starting with 0 (e.g. 08140300000)",
-      ),
+    phoneNumber: z.string().min(7, "Enter a valid phone number"),
     companyName: z.string().min(1, "Company name is required"),
     address: z.string().min(3, "Street address is required"),
     houseNumber: z.string().min(1, "Unit / suite number is required"),
     city: z.string().min(1, "City is required"),
     state: z.string().min(1, "State / Province is required"),
-    country: z.string().min(1, "Country is required"),
+    country: z.string().regex(/^[A-Z]{2}$/, "Select a country"),
     postcode: z.string().min(1, "Postcode is required"),
     password: z
       .string()
@@ -52,6 +57,19 @@ const registerSchema = z
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[0-9]/, "Password must contain at least one number"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .superRefine((data, ctx) => {
+    const parsed = parsePhoneNumberFromString(
+      data.phoneNumber,
+      data.country as CountryCode,
+    );
+    if (!parsed || !parsed.isValid()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["phoneNumber"],
+        message: "Enter a valid phone number for the selected country",
+      });
+    }
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Passwords do not match",
@@ -113,6 +131,10 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [addressSuggestions, setAddressSuggestions] = useState<
+    Array<{ display_name: string; address?: Record<string, string> }>
+  >([]);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -124,7 +146,7 @@ export default function RegisterPage() {
     houseNumber: "",
     city: "",
     state: "",
-    country: "Nigeria",
+    country: "NG",
     postcode: "",
     password: "",
     confirmPassword: "",
@@ -132,8 +154,67 @@ export default function RegisterPage() {
 
   const { mutate: register, isPending } = useRegister();
 
+  const countryName = useMemo(
+    () =>
+      countryOptions.find((country) => country.code === form.country)?.name ??
+      form.country,
+    [form.country],
+  );
+
+  useEffect(() => {
+    const query = [form.address, form.city, form.state, countryName]
+      .filter(Boolean)
+      .join(", ");
+
+    if (form.address.trim().length < 3) return;
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setAddressLoading(true);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`,
+          { signal: controller.signal, headers: { "Accept-Language": "en" } },
+        );
+        if (response.ok) setAddressSuggestions(await response.json());
+      } catch {
+        if (!controller.signal.aborted) setAddressSuggestions([]);
+      } finally {
+        if (!controller.signal.aborted) setAddressLoading(false);
+      }
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [countryName, form.address, form.city, form.state]);
+
+  const selectAddress = (suggestion: (typeof addressSuggestions)[number]) => {
+    const address = suggestion.address ?? {};
+    const selectedCountry = (address.country_code ?? form.country).toUpperCase();
+    setForm((previous) => ({
+      ...previous,
+      address: address.road ?? suggestion.display_name,
+      houseNumber: address.house_number ?? previous.houseNumber,
+      city:
+        address.city ??
+        address.town ??
+        address.village ??
+        address.municipality ??
+        previous.city,
+      state: address.state ?? previous.state,
+      postcode: address.postcode ?? previous.postcode,
+      country: selectedCountry,
+    }));
+    setAddressSuggestions([]);
+  };
+
   const set = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    if (key === "address" && value.trim().length < 3) {
+      setAddressSuggestions([]);
+    }
     if (submitted && errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
@@ -289,11 +370,10 @@ export default function RegisterPage() {
                   <input
                     id="register-phone"
                     type="tel"
-                    placeholder="08140300000"
+                    placeholder="+1 443 985 5830"
                     value={form.phoneNumber}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      set("phoneNumber", val);
+                      set("phoneNumber", e.target.value);
                     }}
                     onBlur={() => validateField("phoneNumber")}
                     className={inputClass(errors.phoneNumber)}
@@ -344,6 +424,31 @@ export default function RegisterPage() {
                     onBlur={() => validateField("address")}
                     className={inputClass(errors.address)}
                   />
+                  {(addressLoading || addressSuggestions.length > 0) && (
+                    <div className="relative z-20">
+                      <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                        {addressLoading && (
+                          <p className="px-3 py-2 text-xs text-slate-500">
+                            Searching addresses...
+                          </p>
+                        )}
+                        {addressSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.display_name}
+                            type="button"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => selectAddress(suggestion)}
+                            className="block w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                          >
+                            {suggestion.display_name}
+                          </button>
+                        ))}
+                        <p className="border-t border-slate-100 px-3 py-1.5 text-[10px] text-slate-400">
+                          Address data © OpenStreetMap contributors
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <FieldError msg={errors.address} />
                 </div>
                 <div>
@@ -422,15 +527,21 @@ export default function RegisterPage() {
                 <label htmlFor="register-country" className={labelClass}>
                   Country <span className="text-red-500 ml-0.5">*</span>
                 </label>
-                <input
+                <select
                   id="register-country"
-                  type="text"
-                  placeholder="Nigeria"
+                  aria-label="Country"
                   value={form.country}
                   onChange={(e) => set("country", e.target.value)}
                   onBlur={() => validateField("country")}
                   className={inputClass(errors.country)}
-                />
+                >
+                  <option value="">Select a country</option>
+                  {countryOptions.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
                 <FieldError msg={errors.country} />
               </div>
             </div>

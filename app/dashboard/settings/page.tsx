@@ -24,8 +24,32 @@ import {
   Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
+import countries from "i18n-iso-countries";
+import en from "i18n-iso-countries/langs/en.json";
 import { useGetMe, useUpdateProfile, useChangePassword } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
+
+countries.registerLocale(en);
+const countryNames = countries.getNames("en");
+const countryOptions = Object.entries(countryNames)
+  .map(([code, name]) => ({ code, name }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const getCountryName = (codeOrName?: string) => {
+  if (!codeOrName) return "—";
+  if (codeOrName.length === 2) {
+    return countries.getName(codeOrName.toUpperCase(), "en") || codeOrName;
+  }
+  return codeOrName;
+};
+
+const getCountryCode = (codeOrName?: string) => {
+  if (!codeOrName) return "";
+  if (codeOrName.length === 2) {
+    return codeOrName.toUpperCase();
+  }
+  return countries.getAlpha2Code(codeOrName, "en") || codeOrName;
+};
 
 export default function ProfilePage() {
   const { data: me, isLoading } = useGetMe();
@@ -61,7 +85,7 @@ export default function ProfilePage() {
       setEditAddress(user.address || "");
       setEditCity(user.city || "");
       setEditState(user.state || "");
-      setEditCountry(user.country || "");
+      setEditCountry(getCountryCode(user.country) || user.country || "");
       setEditPostcode(user.postcode || "");
     }
   }, [user]);
@@ -193,7 +217,7 @@ export default function ProfilePage() {
     user?.city,
     user?.state,
     user?.postcode,
-    user?.country,
+    user?.country ? getCountryName(user.country) : null,
   ]
     .filter(Boolean)
     .join(", ");
@@ -467,7 +491,7 @@ export default function ProfilePage() {
                   Country
                 </span>
                 <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : user?.country || "—"}
+                  {isLoading ? "—" : getCountryName(user?.country)}
                 </span>
               </div>
             </div>
@@ -885,13 +909,18 @@ export default function ProfilePage() {
                     <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
                       Country
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={editCountry}
                       onChange={(e) => setEditCountry(e.target.value)}
-                      placeholder="e.g. Nigeria"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
-                    />
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4] bg-white transition-colors"
+                    >
+                      <option value="">Select a country</option>
+                      {countryOptions.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

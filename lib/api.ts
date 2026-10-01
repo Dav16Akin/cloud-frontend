@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
+import { clearQueryCache } from "@/lib/queryClient";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
@@ -193,6 +194,7 @@ const fetchWithRefresh = async (
         const authErr = new UnauthorizedError("Session expired. Please log in again.");
         processQueue(authErr, null);
         useAuthStore.getState().logout();
+        clearQueryCache();
         if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
           window.location.href = "/login?session_expired=true";
         }
@@ -200,6 +202,7 @@ const fetchWithRefresh = async (
     } catch (err) {
       processQueue(err, null);
       useAuthStore.getState().logout();
+      clearQueryCache();
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
         window.location.href = "/login?session_expired=true";
       }

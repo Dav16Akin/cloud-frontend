@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
@@ -17,6 +18,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
   const setToken = useAuthStore((s) => s.setToken);
@@ -50,26 +52,29 @@ export default function DashboardLayout({
           setToken(newToken);
           setAuthStatus("authenticated");
         } else {
+          queryClient.clear();
           logout();
           setAuthStatus("unauthenticated");
         }
       })
       .catch(() => {
         // Refresh token expired or missing — redirect to login
+        queryClient.clear();
         logout();
         setAuthStatus("unauthenticated");
       });
     // Re-run whenever hydration completes; token changes mid-session are handled
     // by fetchWithRefresh in api.ts which updates the store directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHydrated]);
+  }, [hasHydrated, queryClient]);
 
   // If the token is cleared mid-session (e.g. both tokens expired), redirect.
   useEffect(() => {
     if (authStatus === "unauthenticated") {
+      queryClient.clear();
       router.replace("/login");
     }
-  }, [authStatus, router]);
+  }, [authStatus, router, queryClient]);
 
   // Global keydown listener for Cmd+K / Ctrl+K search toggle
   useEffect(() => {

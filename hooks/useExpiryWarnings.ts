@@ -24,8 +24,23 @@ export const useGetExpiryWarnings = () => {
         payload = res as ExpiryWarningsResponse;
       }
 
-      const warnings = Array.isArray(payload.warnings) ? payload.warnings : [];
-      const count = typeof payload.count === "number" ? payload.count : warnings.length;
+      const allWarnings = Array.isArray(payload.warnings) ? payload.warnings : [];
+      // Only include warnings that are already expired or within 10 days of expiry
+      const warnings = allWarnings.filter((w) => {
+        const isExpired =
+          w.isExpired ||
+          (w.daysLeft !== null && w.daysLeft < 0);
+        if (isExpired) return true;
+        if (w.daysLeft !== null) return w.daysLeft <= 10;
+        if (w.expiresAt) {
+          const diffDays = Math.ceil(
+            (new Date(w.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+          );
+          return diffDays <= 10;
+        }
+        return false;
+      });
+      const count = warnings.length;
 
       return { count, warnings };
     },

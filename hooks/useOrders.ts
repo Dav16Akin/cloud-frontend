@@ -10,6 +10,7 @@ import {
   type BackendCartItem,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 
 // ── List all orders ───────────────────────────────────────────────────────────
 
@@ -107,6 +108,13 @@ export const useVerifyPayment = (
   const isFailed = rawStatus === "FAILED" || rawStatus === "CANCELLED";
   const isPendingStatus = rawStatus === "PENDING" || (!isPaid && !isFailed && !query.isError && !!query.data);
   const isExhausted = !isPaid && !isFailed && pollCount >= maxPolls;
+
+  // Clear cart whenever payment is verified as successful
+  useEffect(() => {
+    if (isPaid) {
+      useCartStore.getState().clearCart();
+    }
+  }, [isPaid]);
 
   const checkStatusNow = async () => {
     if (isManualChecking) return;

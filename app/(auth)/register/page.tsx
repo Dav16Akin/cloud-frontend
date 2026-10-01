@@ -192,7 +192,9 @@ export default function RegisterPage() {
 
   const selectAddress = (suggestion: (typeof addressSuggestions)[number]) => {
     const address = suggestion.address ?? {};
-    const selectedCountry = (address.country_code ?? form.country).toUpperCase();
+    const selectedCountry = (
+      address.country_code ?? form.country
+    ).toUpperCase();
     setForm((previous) => ({
       ...previous,
       address: address.road ?? suggestion.display_name,

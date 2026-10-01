@@ -32,6 +32,7 @@ import {
 } from "@/hooks/useInvoices";
 import { verifyPayment, searchDomains } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { useQueryClient } from "@tanstack/react-query";
 import InvoiceCard from "@/components/dashboard/InvoiceCard";
 import EmptyState from "@/components/dashboard/EmptyState";
@@ -82,6 +83,7 @@ function InvoicesContent() {
           toast.success(
             "Payment verified! Your invoice has been marked as paid.",
           );
+          useCartStore.getState().clearCart();
         } else {
           toast.info(res.message || "Payment status received from Paystack.");
         }

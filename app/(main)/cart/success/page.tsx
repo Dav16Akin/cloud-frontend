@@ -141,6 +141,13 @@ function CartSuccessContent() {
     return () => clearTimeout(timer);
   }, [verifyState, pollCount]);
 
+  // Ensure cart is cleared as soon as verifyState becomes success
+  useEffect(() => {
+    if (verifyState === "success") {
+      useCartStore.getState().clearCart();
+    }
+  }, [verifyState]);
+
   const domainCount =
     orderData?.items?.filter((item) => item.type === "DOMAIN").length ?? 0;
 

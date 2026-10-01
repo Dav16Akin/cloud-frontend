@@ -33,6 +33,7 @@ import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetSslCertificates } from "@/hooks/useSsl";
 import { verifyPayment } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -605,6 +606,7 @@ function DashboardOverviewContent() {
 
         if (res.success || res.data?.status === "PAID") {
           toast.success("Payment verified! Your service has been updated.");
+          useCartStore.getState().clearCart();
         } else {
           toast.info(res.message || "Payment status received from Paystack.");
         }
@@ -717,7 +719,7 @@ function DashboardOverviewContent() {
   // ── Attention Required items ────────────────────────────────────────────────
   const attentionItems: AttentionItem[] = [];
 
-  // 1. Domains: expired or expiring in <= 30 days
+  // 1. Domains: expired or expiring in <= 10 days
   (registeredDomains ?? []).forEach((domain, idx) => {
     const exp = domain.expiryDate ?? (domain as any).expiresAt;
     const days = daysUntil(exp);
@@ -743,12 +745,12 @@ function DashboardOverviewContent() {
           icon: RefreshCcw,
         },
       });
-    } else if (days !== null && days <= 30 && days >= 0) {
+    } else if (days !== null && days <= 10 && days >= 0) {
       attentionItems.push({
         id: `dom-renewal-${domain.id || idx}`,
         name: domainName,
         serviceType: "Domain",
-        severity: days <= 7 ? "expiring" : "renewal",
+        severity: days <= 5 ? "expiring" : "renewal",
         daysRemaining: days,
         subtitle:
           days === 0
@@ -763,7 +765,7 @@ function DashboardOverviewContent() {
     }
   });
 
-  // 2. Hosting accounts: expired or expiring in <= 30 days
+  // 2. Hosting accounts: expired or expiring in <= 10 days
   (hostingAccounts ?? []).forEach((account, idx) => {
     const exp =
       account.expiresAt ??
@@ -796,12 +798,12 @@ function DashboardOverviewContent() {
           icon: RefreshCcw,
         },
       });
-    } else if (days !== null && days <= 30 && days >= 0) {
+    } else if (days !== null && days <= 10 && days >= 0) {
       attentionItems.push({
         id: `hosting-renewal-${account.id || idx}`,
         name: hostingName,
         serviceType: "Hosting",
-        severity: days <= 7 ? "expiring" : "renewal",
+        severity: days <= 5 ? "expiring" : "renewal",
         daysRemaining: days,
         subtitle:
           days === 0
@@ -816,7 +818,7 @@ function DashboardOverviewContent() {
     }
   });
 
-  // 3. SSL Certificates: expired or expiring in <= 30 days
+  // 3. SSL Certificates: expired or expiring in <= 10 days
   (sslCerts ?? []).forEach((cert: any, idx: number) => {
     const exp = cert.expiresAt ?? cert.expiryDate;
     const days = daysUntil(exp);
@@ -847,12 +849,12 @@ function DashboardOverviewContent() {
           icon: RefreshCcw,
         },
       });
-    } else if (days !== null && days <= 30 && days >= 0) {
+    } else if (days !== null && days <= 10 && days >= 0) {
       attentionItems.push({
         id: `ssl-renewal-${cert.id || idx}`,
         name: certName,
         serviceType: "SSL",
-        severity: days <= 7 ? "expiring" : "renewal",
+        severity: days <= 5 ? "expiring" : "renewal",
         daysRemaining: days,
         subtitle:
           days === 0

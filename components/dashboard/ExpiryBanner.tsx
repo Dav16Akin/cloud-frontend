@@ -29,8 +29,22 @@ export default function ExpiryBanner() {
 
   const warnings = data?.warnings || [];
 
-  // Filter out session-dismissed warnings
-  const visibleWarnings = warnings.filter((w) => !isDismissed(w.type, w.id));
+  // Filter out session-dismissed warnings and show only if expired or <= 10 days to expiry
+  const visibleWarnings = warnings.filter((w) => {
+    if (isDismissed(w.type, w.id)) return false;
+    const isExpired =
+      w.isExpired ||
+      (w.daysLeft !== null && w.daysLeft < 0);
+    if (isExpired) return true;
+    if (w.daysLeft !== null) return w.daysLeft <= 10;
+    if (w.expiresAt) {
+      const diffDays = Math.ceil(
+        (new Date(w.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      );
+      return diffDays <= 10;
+    }
+    return false;
+  });
 
   if (isLoading || visibleWarnings.length === 0) {
     return null;

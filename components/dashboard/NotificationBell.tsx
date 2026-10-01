@@ -19,8 +19,26 @@ export default function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data, isLoading } = useGetExpiryWarnings();
 
-  const count = data?.count ?? 0;
-  const warnings = data?.warnings ?? [];
+  const rawWarnings = data?.warnings ?? [];
+
+  // Ensure notification bell only shows services that have expired or have <= 10 days remaining
+  const warnings = useMemo(() => {
+    return rawWarnings.filter((w) => {
+      const isExpired =
+        w.isExpired || (w.daysLeft !== null && w.daysLeft < 0);
+      if (isExpired) return true;
+      if (w.daysLeft !== null) return w.daysLeft <= 10;
+      if (w.expiresAt) {
+        const diffDays = Math.ceil(
+          (new Date(w.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        );
+        return diffDays <= 10;
+      }
+      return false;
+    });
+  }, [rawWarnings]);
+
+  const count = warnings.length;
 
   // Close dropdown on click outside
   useEffect(() => {

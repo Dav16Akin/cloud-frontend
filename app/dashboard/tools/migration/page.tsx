@@ -58,7 +58,7 @@ export default function WebsiteMigrationToolPage() {
       </div>
 
       {submitted ? (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 shadow-sm text-center flex flex-col items-center">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-8 shadow-sm text-center flex flex-col items-center">
           <div className="w-12 h-12 rounded-full bg-[#e6f9ed] text-[#12a150] flex items-center justify-center mb-4">
             <CheckCircle2 className="w-6 h-6" />
           </div>
@@ -69,21 +69,21 @@ export default function WebsiteMigrationToolPage() {
           <div className="flex gap-3">
             <Link
               href="/dashboard/tickets"
-              className="px-5 py-2.5 bg-[#1787D4] text-white text-xs font-semibold rounded-xl hover:bg-[#1371B5] transition-colors"
+              className="px-5 py-2.5 bg-[#1787D4] text-white text-xs font-semibold rounded-lg hover:bg-[#1371B5] transition-colors"
             >
               View Support Tickets
             </Link>
             <button
               type="button"
               onClick={() => setSubmitted(false)}
-              className="px-5 py-2.5 border border-[#e2eaff] text-[#5a6a85] text-xs font-semibold rounded-xl hover:bg-[#f8fafc] transition-colors"
+              className="px-5 py-2.5 border border-[#e2eaff] text-[#5a6a85] text-xs font-semibold rounded-lg hover:bg-[#f8fafc] transition-colors"
             >
               Request Another
             </button>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#e2eaff] p-7 shadow-sm flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm flex flex-col gap-5">
           <h3 className="text-[16px] font-bold text-[#1d1d1f]">Migration Details</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -96,7 +96,7 @@ export default function WebsiteMigrationToolPage() {
                 placeholder="mybrand.com"
                 value={domainToMigrate}
                 onChange={(e) => setDomainToMigrate(e.target.value)}
-                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                 required
               />
             </div>
@@ -109,7 +109,7 @@ export default function WebsiteMigrationToolPage() {
                 placeholder="e.g. GoDaddy, Bluehost, Namecheap"
                 value={currentHost}
                 onChange={(e) => setCurrentHost(e.target.value)}
-                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function WebsiteMigrationToolPage() {
                 placeholder="https://cpanel.domain.com:2083"
                 value={cpanelUrl}
                 onChange={(e) => setCpanelUrl(e.target.value)}
-                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
               />
             </div>
             <div>
@@ -136,7 +136,7 @@ export default function WebsiteMigrationToolPage() {
                 placeholder="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
               />
             </div>
             <div>
@@ -148,7 +148,7 @@ export default function WebsiteMigrationToolPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
               />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function WebsiteMigrationToolPage() {
               placeholder="Any specific databases, email accounts, or requirements..."
               value={additionalNotes}
               onChange={(e) => setAdditionalNotes(e.target.value)}
-              className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+              className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
             />
           </div>
 
@@ -170,7 +170,7 @@ export default function WebsiteMigrationToolPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm flex items-center gap-2 disabled:opacity-60"
+              className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center gap-2 disabled:opacity-60"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Submit Migration Request

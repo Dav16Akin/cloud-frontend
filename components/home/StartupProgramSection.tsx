@@ -63,7 +63,7 @@ export default function StartupProgramSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   id="smart-ai-chat-btn"
-                  className="inline-flex items-center justify-center bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] text-white font-medium text-[15px] px-7 py-3 rounded-xl shadow-lg shadow-[#1787D4]/35 transition-all duration-200 cursor-pointer"
+                  className="inline-flex items-center justify-center bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] text-white font-medium text-[15px] px-7 py-3 rounded-lg shadow-lg shadow-[#1787D4]/35 transition-all duration-200 cursor-pointer"
                 >
                   Chat with AI
                 </a>
@@ -88,7 +88,7 @@ export default function StartupProgramSection() {
                 </div>
 
                 {/* AI Greeting Message Bubble */}
-                <div className="bg-[#1787D4] text-white text-[14px] sm:text-[15px] font-normal leading-snug p-3.5 sm:p-4 rounded-2xl rounded-tl-xs mb-3.5 shadow-xs">
+                <div className="bg-[#1787D4] text-white text-[14px] sm:text-[15px] font-normal leading-snug p-3.5 sm:p-4 rounded-lg rounded-tl-xs mb-3.5 shadow-xs">
                   Hello! How can I help you today?
                 </div>
 
@@ -96,7 +96,7 @@ export default function StartupProgramSection() {
                 <div className="space-y-2.5">
                   <a
                     href="#domain-search"
-                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-lg flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>I want to register a domain</span>
                     <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />
@@ -104,7 +104,7 @@ export default function StartupProgramSection() {
 
                   <a
                     href="#pricing-preview"
-                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-lg flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>I want to create a website</span>
                     <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />
@@ -112,7 +112,7 @@ export default function StartupProgramSection() {
 
                   <a
                     href="#pricing-preview"
-                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
+                    className="w-full bg-[#031033] hover:bg-[#071D57] active:bg-[#020B24] text-white text-[13px] sm:text-[14px] font-normal px-4 py-3 sm:py-3.5 rounded-lg flex items-center justify-between transition-all duration-200 cursor-pointer group text-left shadow-xs"
                   >
                     <span>Help me choose a hosting plan</span>
                     <ChevronRight className="w-4 h-4 text-[#1787D4] shrink-0 group-hover:translate-x-0.5 transition-transform" />

@@ -230,7 +230,7 @@ function PlanCard({
           <Link
             href="/cart"
             id={`plan-${slug}-cta`}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-lg transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
           >
             In Cart — Checkout
             <ArrowRight className="w-4 h-4" />
@@ -240,7 +240,7 @@ function PlanCard({
             type="button"
             onClick={handleAddToCart}
             id={`plan-${slug}-cta`}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-white hover:bg-blue-50 text-[#1787D4] shadow-sm cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-lg transition-all duration-200 bg-white hover:bg-blue-50 text-[#1787D4] shadow-sm cursor-pointer active:scale-[0.98]"
           >
             Get Started
           </button>
@@ -304,7 +304,7 @@ function PlanCard({
         <Link
           href="/cart"
           id={`plan-${slug}-cta`}
-          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-lg transition-all duration-200 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm cursor-pointer active:scale-[0.98]"
         >
           In Cart — Checkout
           <ArrowRight className="w-4 h-4" />
@@ -314,7 +314,7 @@ function PlanCard({
           type="button"
           onClick={handleAddToCart}
           id={`plan-${slug}-cta`}
-          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-xl transition-all duration-200 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#031033] cursor-pointer active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-4 font-semibold text-sm rounded-lg transition-all duration-200 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#031033] cursor-pointer active:scale-[0.98]"
         >
           Get Started
         </button>

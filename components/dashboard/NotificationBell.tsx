@@ -100,7 +100,7 @@ export default function NotificationBell() {
         type="button"
         id="dashboard-notification-bell"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative p-2 rounded-xl text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-[#f2f5fc] transition-colors cursor-pointer"
+        className="relative p-2 rounded-lg text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-[#f2f5fc] transition-colors cursor-pointer"
         aria-label="Notifications"
       >
         <Bell className="w-4.5 h-4.5" />
@@ -120,7 +120,7 @@ export default function NotificationBell() {
       {isOpen && (
         <div
           id="dashboard-notification-panel"
-          className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-[#e2eaff] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg border border-[#e2eaff] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
         >
           {/* Panel Header */}
           <div className="px-4 py-3 bg-white border-b border-[#f2f5fc] flex items-center justify-between">
@@ -170,7 +170,7 @@ export default function NotificationBell() {
                     className="flex items-start gap-3 p-3.5 hover:bg-[#fbfcfe] transition-colors group cursor-pointer"
                   >
                     {/* Icon - unified brand blue */}
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-[#eff6fb] text-[#1787D4]">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-[#eff6fb] text-[#1787D4]">
                       {warning.type === "HOSTING" ? (
                         <Server className="w-4 h-4" />
                       ) : (

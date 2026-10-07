@@ -223,7 +223,7 @@ export default function TestimonialsSection() {
                 delay: idx * 0.1,
               }}
               whileHover={{ y: -4 }}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300"
+              className="bg-white border border-[#E5E7EB] rounded-lg p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300"
             >
               <div>
                 {/* Header with Quote Icon + Real Company Logo */}

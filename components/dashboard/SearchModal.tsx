@@ -210,7 +210,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
       {/* Modal Container */}
       <div
-        className="relative bg-white w-full max-w-xl shadow-2xl border border-[#e2eaff] rounded-2xl flex flex-col max-h-[70vh] overflow-hidden animate-slideDown"
+        className="relative bg-white w-full max-w-xl shadow-2xl border border-[#e2eaff] rounded-lg flex flex-col max-h-[70vh] overflow-hidden animate-slideDown"
         onKeyDown={handleKeyDown}
       >
         {/* Search Input Area */}

@@ -13,6 +13,8 @@ import {
   getTransferStatus,
   getDomainAuthCode,
   renewDomain,
+  suggestDomains,
+  extractAlternativeDomainNames,
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -248,6 +250,18 @@ export const useRenewDomain = () => {
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to initialize domain renewal.");
+    },
+  });
+};
+
+export const useSuggestDomainNames = () => {
+  return useMutation({
+    mutationFn: async ({ term, extensions }: { term: string; extensions?: string[] }) => {
+      const res = await suggestDomains({
+        term,
+        extensions: extensions || ["com", "net", "org"],
+      });
+      return extractAlternativeDomainNames(res.data, term);
     },
   });
 };

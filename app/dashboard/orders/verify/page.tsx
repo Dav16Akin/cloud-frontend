@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CheckCircle2,
   XCircle,
@@ -159,7 +160,7 @@ function OrderVerifyContent() {
           ref: {reference}
         </p>
 
-        <div className="p-3.5 bg-orange-50/50 rounded-xl text-xs text-orange-700 text-left w-full">
+        <div className="p-3.5 bg-orange-50/50 rounded-lg text-xs text-orange-700 text-left w-full">
           <p className="font-semibold mb-0.5">No need to wait here</p>
           <p>
             You can safely navigate away. You will receive an email confirmation as soon as Paystack confirms the transaction.
@@ -245,14 +246,16 @@ function OrderVerifyContent() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-6 max-w-md mx-auto">
-      {/* Animated success icon */}
-      <div className="relative">
-        <div className="w-20 h-20 bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
-          <CheckCircle2 className="w-9 h-9 text-emerald-500" />
-        </div>
-        <span className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-[#1787D4] flex items-center justify-center text-white text-[10px] font-extrabold rounded-full">
-          ✓
-        </span>
+      {/* Completed buying process checkmark badge */}
+      <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center">
+        <Image
+          src="/checkmark.svg"
+          alt="Payment Confirmed"
+          width={96}
+          height={96}
+          className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+          priority
+        />
       </div>
 
       <div>

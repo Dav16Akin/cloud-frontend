@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Server,
   Loader2,
@@ -128,7 +129,7 @@ export function HostingProvisioningCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border transition-all ${
+      className={`relative overflow-hidden rounded-lg border transition-all ${
         isCompleted
           ? "bg-gradient-to-br from-emerald-50/70 via-white to-emerald-50/40 border-emerald-200 shadow-sm"
           : "bg-gradient-to-br from-[#f8faff] via-white to-[#eff6fc] border-[#d4e4fc] shadow-sm"
@@ -143,14 +144,20 @@ export function HostingProvisioningCard({
           {/* Animated pulsing icon */}
           <div className="relative shrink-0">
             <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-xs ${
+              className={`w-12 h-12 rounded-lg flex items-center justify-center border shadow-xs ${
                 isCompleted
                   ? "bg-emerald-100/70 border-emerald-300 text-emerald-600"
                   : "bg-[#eaf3fe] border-[#cbe1fb] text-[#1787D4]"
               }`}
             >
               {isCompleted ? (
-                <CheckCircle2 className="w-6 h-6" />
+                <Image
+                  src="/checkmark.svg"
+                  alt="Completed"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 object-contain"
+                />
               ) : (
                 <Server className="w-6 h-6 animate-pulse" />
               )}
@@ -211,7 +218,7 @@ export function HostingProvisioningCard({
               type="button"
               onClick={handleRefresh}
               disabled={isRefreshingActive}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold text-[#1787D4] bg-white border border-[#d6eaf8] hover:bg-[#eff6fc] active:scale-95 transition-all shadow-2xs disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold text-[#1787D4] bg-white border border-[#d6eaf8] hover:bg-[#eff6fc] active:scale-95 transition-all shadow-2xs disabled:opacity-60 cursor-pointer"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${isRefreshingActive ? "animate-spin" : ""}`}
@@ -223,7 +230,7 @@ export function HostingProvisioningCard({
           {isCompleted && hostingId && (
             <Link
               href={`/dashboard/hosting/${hostingId}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-95 transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-95 transition-all shadow-xs"
             >
               <span>Manage Account</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -272,7 +279,7 @@ export function HostingProvisioningCard({
             return (
               <div
                 key={step.id}
-                className={`p-3.5 rounded-xl border transition-all flex items-start gap-3 ${
+                className={`p-3.5 rounded-lg border transition-all flex items-start gap-3 ${
                   step.done
                     ? "bg-white/90 border-emerald-200"
                     : step.active
@@ -321,7 +328,7 @@ export function HostingProvisioningCard({
 
         {/* Informational reassurance banner */}
         {!isCompleted ? (
-          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[#eff6fc]/80 border border-[#d6eaf8] text-[#1e4a7a]">
+          <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#eff6fc]/80 border border-[#d6eaf8] text-[#1e4a7a]">
             <Info className="w-4 h-4 shrink-0 text-[#1787D4] mt-0.5" />
             <div className="text-[12.5px] leading-relaxed">
               <span className="font-semibold text-[#031033]">
@@ -332,7 +339,7 @@ export function HostingProvisioningCard({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 text-emerald-900">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-lg bg-emerald-50/80 border border-emerald-200 text-emerald-900">
             <div className="flex items-center gap-2.5">
               <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
               <div className="text-[12.5px]">

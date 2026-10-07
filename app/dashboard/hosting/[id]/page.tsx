@@ -230,7 +230,7 @@ function OverviewTab({
           {infoCards.map(({ label, value, isStatus }) => (
             <div
               key={label}
-              className="flex flex-col gap-1 p-4 rounded-xl"
+              className="flex flex-col gap-1 p-4 rounded-lg"
               style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
               <p className="text-[12px] font-medium" style={{ color: "#6e6e73" }}>{label}</p>
@@ -251,14 +251,14 @@ function OverviewTab({
 
       {/* Right — Quick Operations sidebar */}
       <div
-        className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
+        className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-lg"
         style={{ border: "1px solid #e8e8ed", background: "#fff" }}
       >
         <h3 className="text-[14px] font-bold" style={{ color: "#1d1d1f" }}>Quick Operations</h3>
         <button
           id="hosting-quick-renew"
           onClick={onRenew}
-          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+          className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
           style={{ background: "#1787D4" }}
         >
           Renew Subscription
@@ -267,7 +267,7 @@ function OverviewTab({
           id="hosting-quick-cpanel"
           onClick={onOpenCpanel}
           disabled={fetchingCpanel || (account?.status ?? "").toUpperCase() === "PENDING"}
-          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7] disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
         >
           {fetchingCpanel ? "Opening..." : "Access cPanel"}
@@ -279,7 +279,7 @@ function OverviewTab({
         )}
         <button
           id="hosting-quick-backups"
-          className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
+          className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
           style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
         >
           Manage Backups

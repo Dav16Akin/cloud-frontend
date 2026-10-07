@@ -277,8 +277,8 @@ export default function PricingPage() {
                 />
 
                 {/* Badge 1: Pay in Naira (Top Left) */}
-                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
+                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <CreditCard className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -292,8 +292,8 @@ export default function PricingPage() {
                 </div>
 
                 {/* Badge 2: 99.9% Uptime SLA (Top Right) */}
-                <div className="absolute top-6 sm:top-10 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
+                <div className="absolute top-6 sm:top-10 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <Activity className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -307,8 +307,8 @@ export default function PricingPage() {
                 </div>
 
                 {/* Badge 3: 30-Day Guarantee (Bottom Right) */}
-                <div className="absolute bottom-4 sm:bottom-8 right-0 sm:right-2 lg:-right-2 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="absolute bottom-4 sm:bottom-8 right-0 sm:right-2 lg:-right-2 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -448,7 +448,7 @@ export default function PricingPage() {
               </p>
               <Link
                 href="#plans"
-                className="btn-primary py-2.5 px-6 text-xs font-semibold rounded-xl shrink-0"
+                className="btn-primary py-2.5 px-6 text-xs font-semibold rounded-lg shrink-0"
               >
                 Back to Plans &uarr;
               </Link>
@@ -471,8 +471,8 @@ export default function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
+            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
                 <Lock className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-[#031033] mb-1.5">
@@ -484,8 +484,8 @@ export default function PricingPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
+            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
                 <Server className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-[#031033] mb-1.5">
@@ -497,8 +497,8 @@ export default function PricingPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
+            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
                 <Zap className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-[#031033] mb-1.5">
@@ -510,8 +510,8 @@ export default function PricingPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
+            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
                 <LifeBuoy className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-[#031033] mb-1.5">
@@ -549,7 +549,7 @@ export default function PricingPage() {
                 <div
                   key={faq.q}
                   id={`faq-item-${index}`}
-                  className="bg-white rounded-2xl border border-[#e2eaff] overflow-hidden transition-all shadow-xs"
+                  className="bg-white rounded-lg border border-[#e2eaff] overflow-hidden transition-all shadow-xs"
                 >
                   <button
                     type="button"
@@ -610,7 +610,7 @@ export default function PricingPage() {
             <Link
               href="/contact"
               id="pricing-contact-sales"
-              className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-xl shadow-lg"
+              className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-lg shadow-lg"
             >
               Contact Solutions Team
               <ArrowRight className="w-4 h-4 ml-1.5 inline" />
@@ -620,7 +620,7 @@ export default function PricingPage() {
               target="_blank"
               rel="noopener noreferrer"
               id="pricing-whatsapp-inquiry"
-              className="py-3.5 px-7 text-sm font-semibold rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-colors"
+              className="py-3.5 px-7 text-sm font-semibold rounded-lg bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-colors"
             >
               Chat on WhatsApp
             </a>

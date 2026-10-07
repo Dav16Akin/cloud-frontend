@@ -243,7 +243,7 @@ function WhoisContent() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowRawJson(!showRawJson)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-xl transition-colors shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm cursor-pointer"
             >
               <Code className="w-3.5 h-3.5" />
               {showRawJson ? "Hide JSON" : "Raw JSON"}
@@ -251,7 +251,7 @@ function WhoisContent() {
             <button
               onClick={() => executeLookup(domain)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-xl transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               Refresh
@@ -261,7 +261,7 @@ function WhoisContent() {
       </div>
 
       {/* Input Form */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm">
+      <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <Globe className="w-4 h-4 text-[#8a9bb2] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -270,13 +270,13 @@ function WhoisContent() {
               placeholder="Enter a domain name (e.g. yourdomain.com)"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
           >
             {loading ? (
               <>
@@ -295,7 +295,7 @@ function WhoisContent() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 text-red-700">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 text-red-700">
           <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <h4 className="text-[13.5px] font-semibold">WHOIS Query Failed</h4>
@@ -312,7 +312,7 @@ function WhoisContent() {
 
       {/* Loading Skeleton */}
       {loading && !whoisData && (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-10 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-10 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
           <p className="text-[14px] font-semibold text-[#1d1d1f]">Querying WHOIS registry for {domain}...</p>
           <p className="text-[12.5px] text-[#6e6e73]">Retrieving registrar credentials, expiration dates, and nameserver delegation.</p>
@@ -321,9 +321,9 @@ function WhoisContent() {
 
       {/* Initial Empty State */}
       {!loading && !whoisData && !error && !hasLookedUp && (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-12 shadow-sm text-center">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-12 shadow-sm text-center">
           <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-            <div className="w-10 h-10 rounded-xl bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
               <Globe className="w-5 h-5" />
             </div>
             <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
@@ -342,7 +342,7 @@ function WhoisContent() {
           {/* Overview Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Domain Status */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Domain</span>
                 <Globe className="w-4 h-4 text-[#1787D4]" />
@@ -356,7 +356,7 @@ function WhoisContent() {
             </div>
 
             {/* Registrar */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Registrar</span>
                 <Building className="w-4 h-4 text-[#9333ea]" />
@@ -370,7 +370,7 @@ function WhoisContent() {
             </div>
 
             {/* Registered On */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Registered On</span>
                 <Calendar className="w-4 h-4 text-[#059669]" />
@@ -384,7 +384,7 @@ function WhoisContent() {
             </div>
 
             {/* Expires On */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Expires On</span>
                 <Clock className="w-4 h-4 text-[#d97706]" />
@@ -400,7 +400,7 @@ function WhoisContent() {
 
           {/* Raw JSON View */}
           {showRawJson && (
-            <div className="bg-[#031033] text-[#e2eaff] rounded-2xl p-5 shadow-sm border border-[#1e293b]">
+            <div className="bg-[#031033] text-[#e2eaff] rounded-lg p-5 shadow-sm border border-[#1e293b]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Code className="w-4 h-4 text-[#38bdf8]" />
@@ -423,7 +423,7 @@ function WhoisContent() {
                   )}
                 </button>
               </div>
-              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-xl max-h-96 text-emerald-300">
+              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-emerald-300">
                 {JSON.stringify(whoisData, null, 2)}
               </pre>
             </div>
@@ -432,7 +432,7 @@ function WhoisContent() {
           {/* Information Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Registration & Authority Overview */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
                 <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#1787D4]" />
@@ -527,7 +527,7 @@ function WhoisContent() {
             </div>
 
             {/* Dates & Active Nameservers */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
                 <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#1787D4]" />
@@ -600,7 +600,7 @@ function WhoisContent() {
 
             {/* Registrant / Contact Information (if present) */}
             {(registrantOrg || registrantName || registrantCountry || registrantState || registrantEmail) && (
-              <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4 md:col-span-2">
+              <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4 md:col-span-2">
                 <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
                   <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
                     <User className="w-4 h-4 text-[#1787D4]" />
@@ -610,19 +610,19 @@ function WhoisContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-[13px]">
                   {registrantOrg && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                       <span className="text-[11.5px] text-[#6e6e73] font-medium block">Organization</span>
                       <span className="font-semibold text-[#1d1d1f] mt-0.5 block">{registrantOrg}</span>
                     </div>
                   )}
                   {registrantName && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                       <span className="text-[11.5px] text-[#6e6e73] font-medium block">Name</span>
                       <span className="font-semibold text-[#1d1d1f] mt-0.5 block">{registrantName}</span>
                     </div>
                   )}
                   {(registrantState || registrantCountry) && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                       <span className="text-[11.5px] text-[#6e6e73] font-medium block">Location</span>
                       <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
                         {[registrantCity, registrantState, registrantCountry].filter(Boolean).join(", ")}
@@ -630,7 +630,7 @@ function WhoisContent() {
                     </div>
                   )}
                   {registrantEmail && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                       <span className="text-[11.5px] text-[#6e6e73] font-medium block">Contact / Email Form</span>
                       {registrantEmail.startsWith("http") ? (
                         <a
@@ -655,7 +655,7 @@ function WhoisContent() {
 
           {/* All Parsed WHOIS Attributes Table */}
           {allAttributes.length > 0 && (
-            <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
+            <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
               <div className="p-5 border-b border-[#f2f5fc] flex items-center justify-between bg-[#fbfcfe]">
                 <div className="flex items-center gap-2">
                   <List className="w-4 h-4 text-[#1787D4]" />

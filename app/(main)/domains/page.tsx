@@ -21,7 +21,12 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { searchDomains, DomainResult } from "@/lib/api";
+import {
+  searchDomains,
+  suggestDomains,
+  extractAlternativeDomainNames,
+  DomainResult,
+} from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
 import { useGetSslProducts } from "@/hooks/useSsl";
 import { toast } from "sonner";
@@ -46,6 +51,7 @@ export default function DomainsPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [suggestedAlternativeNames, setSuggestedAlternativeNames] = useState<string[]>([]);
 
   const { addDomainItem, addSslItem, removeItem, hasItem, itemCount } = useCartStore();
 
@@ -56,20 +62,40 @@ export default function DomainsPage() {
     return prod?.prices?.find((p: { period: number }) => p.period === 1)?.price ?? prod?.price ?? 15000;
   })();
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const executeSearch = async (searchTerm: string) => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed) return;
     setState("searching");
     setResults([]);
     setFilter("all");
+
+    const baseWord = trimmed.replace(/\.[a-z0-9.]+$/i, "");
+    suggestDomains({
+      term: baseWord,
+      extensions: ["com", "net", "org"],
+    })
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          setSuggestedAlternativeNames(extractAlternativeDomainNames(res.data, baseWord));
+        } else {
+          setSuggestedAlternativeNames([]);
+        }
+      })
+      .catch(() => setSuggestedAlternativeNames([]));
+
     try {
-      const res = await searchDomains(query.trim());
+      const res = await searchDomains(trimmed);
       setResults(res.data || []);
       setState("done");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
       setState("error");
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    executeSearch(query);
   };
 
   const handleAddToCart = (result: DomainResult) => {
@@ -204,14 +230,14 @@ export default function DomainsPage() {
 
                 {/* Floating Badge: yourbusiness.com */}
                 <div className="absolute bottom-[14%] left-[24%] sm:left-[28%] transition-transform hover:scale-105 duration-200">
-                  <div className="bg-white text-[#031033] font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-gray-100/90 -rotate-[6deg] flex items-center select-none">
+                  <div className="bg-white text-[#031033] font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-gray-100/90 -rotate-[6deg] flex items-center select-none">
                     yourbusiness.com
                   </div>
                 </div>
 
                 {/* Floating Badge: yourbusiness.ng */}
                 <div className="absolute top-[46%] right-[1%] sm:right-[3%] transition-transform hover:scale-105 duration-200">
-                  <div className="bg-white text-[#031033] font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-[0_8px_25px_rgba(0,0,0,0.1)] border-2 border-[#1787D4] rotate-[5deg] flex items-center select-none">
+                  <div className="bg-white text-[#031033] font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-[0_8px_25px_rgba(0,0,0,0.1)] border-2 border-[#1787D4] rotate-[5deg] flex items-center select-none">
                     yourbusiness.ng
                   </div>
                 </div>
@@ -236,7 +262,7 @@ export default function DomainsPage() {
 
           {/* Search bar */}
           <form onSubmit={handleSearch} id="domain-search-form" className="mt-8 max-w-2xl mx-auto">
-            <div className="flex items-center bg-white rounded-xl sm:rounded-2xl border border-[#dce4f7] focus-within:border-[#1787D4] focus-within:ring-2 focus-within:ring-[#1787D4]/15 transition-all shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-1.5 sm:p-2">
+            <div className="flex items-center bg-white rounded-lg sm:rounded-lg border border-[#dce4f7] focus-within:border-[#1787D4] focus-within:ring-2 focus-within:ring-[#1787D4]/15 transition-all shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-1.5 sm:p-2">
               <div className="pl-3 sm:pl-4 pr-1 shrink-0">
                 <Search className="w-5 h-5 text-[#1787D4]" />
               </div>
@@ -258,7 +284,7 @@ export default function DomainsPage() {
                 id="domain-search-btn"
                 type="submit"
                 disabled={state === "searching"}
-                className="btn-primary !rounded-xl py-2.5 sm:py-3 px-5 sm:px-8 text-sm sm:text-base font-semibold text-white shrink-0 disabled:opacity-60 transition-colors cursor-pointer"
+                className="btn-primary !rounded-lg py-2.5 sm:py-3 px-5 sm:px-8 text-sm sm:text-base font-semibold text-white shrink-0 disabled:opacity-60 transition-colors cursor-pointer"
               >
                 {state === "searching" ? (
                   <span className="flex items-center gap-2">
@@ -301,7 +327,7 @@ export default function DomainsPage() {
 
           {/* Searching state */}
           {state === "searching" && (
-            <div className="mt-8 bg-white rounded-xl p-5 border border-[#dce4f7] shadow-sm flex items-center justify-center gap-3 max-w-2xl mx-auto">
+            <div className="mt-8 bg-white rounded-lg p-5 border border-[#dce4f7] shadow-sm flex items-center justify-center gap-3 max-w-2xl mx-auto">
               <div className="w-5 h-5 rounded-full border-2 border-[#1787D4] border-t-transparent animate-spin" />
               <span className="text-[#5a6a85] text-sm">
                 Checking availability for{" "}
@@ -313,7 +339,7 @@ export default function DomainsPage() {
 
           {/* Error state */}
           {state === "error" && (
-            <div className="mt-8 bg-white rounded-xl p-5 border border-red-200 shadow-sm flex items-center justify-center gap-3 max-w-2xl mx-auto">
+            <div className="mt-8 bg-white rounded-lg p-5 border border-red-200 shadow-sm flex items-center justify-center gap-3 max-w-2xl mx-auto">
               <XCircle className="w-5 h-5 text-red-500 shrink-0" />
               <span className="text-red-500 text-sm">{errorMsg}</span>
             </div>
@@ -321,7 +347,7 @@ export default function DomainsPage() {
 
           {/* Results */}
           {state === "done" && results.length > 0 && (
-            <div className="mt-8 bg-white rounded-2xl border border-[#dce4f7] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden text-left max-w-3xl mx-auto">
+            <div className="mt-8 bg-white rounded-lg border border-[#dce4f7] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden text-left max-w-3xl mx-auto">
               {/* Filter tabs */}
               <div className="flex items-center gap-1 px-4 pt-4 pb-0 border-b border-[#f0f4fc]">
                 <div className="flex gap-1 flex-1">
@@ -514,6 +540,35 @@ export default function DomainsPage() {
                   No domains match this filter.
                 </div>
               )}
+
+              {/* Suggested Alternative Names */}
+              {suggestedAlternativeNames.length > 0 && (
+                <div className="p-5 bg-gradient-to-r from-blue-50/50 to-indigo-50/40 border-t border-[#e2eaff]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span className="text-xs font-bold text-[#031033] uppercase tracking-wider">
+                      Suggested Alternative Names
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {suggestedAlternativeNames.slice(0, 8).map((alt) => (
+                      <button
+                        key={alt}
+                        type="button"
+                        onClick={() => {
+                          const newTerm = `${alt}.com`;
+                          setQuery(newTerm);
+                          executeSearch(newTerm);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white hover:bg-blue-50 text-[#1787D4] border border-[#d0e0ff] hover:border-[#1787D4] shadow-2xs hover:shadow transition-all cursor-pointer"
+                      >
+                        <span>{alt}</span>
+                        <span className="text-slate-400 font-normal">.com</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -530,7 +585,7 @@ export default function DomainsPage() {
 
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 sm:gap-6">
             {/* Step 01 */}
-            <div className="bg-white rounded-2xl p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
+            <div className="bg-white rounded-lg p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
               <span className="text-4xl sm:text-5xl font-black text-[#1787D4] tracking-tight">
                 01
               </span>
@@ -549,7 +604,7 @@ export default function DomainsPage() {
             </div>
 
             {/* Step 02 */}
-            <div className="bg-white rounded-2xl p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
+            <div className="bg-white rounded-lg p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
               <span className="text-4xl sm:text-5xl font-black text-[#1787D4] tracking-tight">
                 02
               </span>
@@ -568,7 +623,7 @@ export default function DomainsPage() {
             </div>
 
             {/* Step 03 */}
-            <div className="bg-white rounded-2xl p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
+            <div className="bg-white rounded-lg p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#e2edfc] flex-1 min-h-[200px] flex flex-col justify-start hover:shadow-[0_8px_30px_rgba(23,135,212,0.08)] transition-all">
               <span className="text-4xl sm:text-5xl font-black text-[#1787D4] tracking-tight">
                 03
               </span>
@@ -596,8 +651,8 @@ export default function DomainsPage() {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4">
                 {/* Card 1 */}
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
-                  <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
+                <div className="bg-white rounded-lg p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
+                  <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Search className="w-5 h-5 text-[#1787D4]" />
                   </div>
                   <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
@@ -609,8 +664,8 @@ export default function DomainsPage() {
                 </div>
 
                 {/* Card 2 */}
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
-                  <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
+                <div className="bg-white rounded-lg p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
+                  <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Shield className="w-5 h-5 text-[#1787D4]" />
                   </div>
                   <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
@@ -622,8 +677,8 @@ export default function DomainsPage() {
                 </div>
 
                 {/* Card 3 */}
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
-                  <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
+                <div className="bg-white rounded-lg p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
+                  <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Settings className="w-5 h-5 text-[#1787D4]" />
                   </div>
                   <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
@@ -635,8 +690,8 @@ export default function DomainsPage() {
                 </div>
 
                 {/* Card 4 */}
-                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
-                  <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
+                <div className="bg-white rounded-lg p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-[0_6px_20px_rgba(23,135,212,0.06)] transition-all flex flex-col justify-start">
+                  <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                     <Globe className="w-5 h-5 text-[#1787D4]" />
                   </div>
                   <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#031033] mb-1.5 leading-snug">
@@ -708,7 +763,7 @@ export default function DomainsPage() {
             ].map((item) => (
               <div
                 key={item.ext}
-                className="bg-white rounded-2xl p-6 sm:p-7 border border-[#f5e6d8]/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/40 hover:shadow-[0_8px_25px_rgba(23,135,212,0.08)] transition-all flex flex-col justify-between min-h-[210px] group"
+                className="bg-white rounded-lg p-6 sm:p-7 border border-[#f5e6d8]/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/40 hover:shadow-[0_8px_25px_rgba(23,135,212,0.08)] transition-all flex flex-col justify-between min-h-[210px] group"
               >
                 <div>
                   <h3 className="text-3xl font-black text-[#1787D4] tracking-tight">
@@ -761,7 +816,7 @@ export default function DomainsPage() {
               Frequently asked questions
             </h2>
 
-            <div className="max-w-3xl mx-auto border border-[#e2edfc] rounded-xl bg-white divide-y divide-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div className="max-w-3xl mx-auto border border-[#e2edfc] rounded-lg bg-white divide-y divide-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
               {[
                 {
                   q: "How do I register a domain with Nupat?",

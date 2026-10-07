@@ -115,40 +115,42 @@ export default function CertificateDetailsPage({
         </Link>
       </div>
 
-      {/* Header with Title and Status Badge */}
-      <div className="flex items-center gap-3">
-        <h2
-          className="text-[26px] font-bold text-[#1d1d1f] tracking-tight"
-          style={{
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          Certificate Details
-        </h2>
-        {isActive && (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-            Active
-          </span>
-        )}
-        {isPending && (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-            Pending Issuance
-          </span>
-        )}
-        {isExpired && (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-red-50 text-red-600 border border-red-200">
-            Expired
-          </span>
-        )}
+      {/* Header with Title and Status Badge matching Screen 8 */}
+      <div>
+        <div className="flex items-center gap-3">
+          <h1
+            className="text-[24px] sm:text-[28px] font-bold text-[#1d1d1f] tracking-tight"
+            style={{ letterSpacing: "-0.4px" }}
+          >
+            {domainName} SSL Certificate
+          </h1>
+          {isActive && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+              Active
+            </span>
+          )}
+          {isPending && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+              Pending
+            </span>
+          )}
+          {isExpired && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-red-50 text-red-600 border border-red-200">
+              Expired
+            </span>
+          )}
+        </div>
+        <p className="text-[13.5px] text-[#6e6e73] mt-1">
+          View certificate status, validity, and renewal settings.
+        </p>
       </div>
 
       {/* Domain Validation (DNS / Email) Section — exposed via GET /api/ssl/:id/status */}
       {isPending && (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 shadow-xs flex flex-col gap-5">
+        <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-6 shadow-xs flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-200/80 pb-4">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0 mt-0.5">
+              <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0 mt-0.5">
                 <Clock className="w-5 h-5 animate-pulse" />
               </div>
               <div>
@@ -174,7 +176,7 @@ export default function CertificateDetailsPage({
                 toast.info("Checking certificate status with OpenProvider...");
               }}
               disabled={isFetching}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold rounded-xl transition-all shadow-xs shrink-0 self-start sm:self-auto cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold rounded-lg transition-all shadow-xs shrink-0 self-start sm:self-auto cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
               {isFetching ? "Checking..." : "Refresh Status"}
@@ -194,7 +196,7 @@ export default function CertificateDetailsPage({
                 return (
                   <div
                     key={idx}
-                    className="bg-white rounded-xl border border-amber-200/80 p-4 sm:p-5 flex flex-col gap-4 shadow-2xs"
+                    className="bg-white rounded-lg border border-amber-200/80 p-4 sm:p-5 flex flex-col gap-4 shadow-2xs"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -211,7 +213,7 @@ export default function CertificateDetailsPage({
                     {method === "dns" ? (
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
                         {/* Type */}
-                        <div className="md:col-span-2 bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3 flex flex-col justify-between">
+                        <div className="md:col-span-2 bg-[#f8faff] rounded-lg border border-[#e2eaff] p-3 flex flex-col justify-between">
                           <span className="text-[10px] font-bold text-[#5a6a85] uppercase tracking-wider block mb-1">
                             Record Type
                           </span>
@@ -229,7 +231,7 @@ export default function CertificateDetailsPage({
                         </div>
 
                         {/* Name / Host */}
-                        <div className="md:col-span-5 bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3 flex flex-col justify-between">
+                        <div className="md:col-span-5 bg-[#f8faff] rounded-lg border border-[#e2eaff] p-3 flex flex-col justify-between">
                           <span className="text-[10px] font-bold text-[#5a6a85] uppercase tracking-wider block mb-1">
                             Host / Name
                           </span>
@@ -247,7 +249,7 @@ export default function CertificateDetailsPage({
                         </div>
 
                         {/* Value / Target */}
-                        <div className="md:col-span-5 bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3 flex flex-col justify-between">
+                        <div className="md:col-span-5 bg-[#f8faff] rounded-lg border border-[#e2eaff] p-3 flex flex-col justify-between">
                           <span className="text-[10px] font-bold text-[#5a6a85] uppercase tracking-wider block mb-1">
                             Value / Target
                           </span>
@@ -269,7 +271,7 @@ export default function CertificateDetailsPage({
                         </div>
                       </div>
                     ) : (
-                      <div className="p-3 bg-[#f8fafc] rounded-xl border border-[#e2eaff] text-xs text-[#5a6a85]">
+                      <div className="p-3 bg-[#f8fafc] rounded-lg border border-[#e2eaff] text-xs text-[#5a6a85]">
                         <p>An approval email was sent to your domain administrator address for <strong>{hostName}</strong>. Please check your inbox and confirm the verification link.</p>
                       </div>
                     )}
@@ -285,7 +287,7 @@ export default function CertificateDetailsPage({
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-amber-200/80 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-white rounded-lg border border-amber-200/80 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-bold text-[#031033]">
                   Awaiting DNS Validation Record from OpenProvider
@@ -303,38 +305,53 @@ export default function CertificateDetailsPage({
         </div>
       )}
 
-      {/* Main Grid: General Information & Quick Operations */}
+      {/* Main Grid: Certificate Summary & Quick Operations (Matches Screen 8) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-1">
-        {/* Left Column (8 cols): General Information */}
-        <div className="lg:col-span-8 flex flex-col gap-4">
-          <h3 className="text-[16px] font-bold text-[#1d1d1f]">
-            General Information
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Domain */}
-            <div className="bg-white rounded-xl border border-[#e2eaff] p-5 shadow-sm">
-              <span className="text-[12px] font-medium text-[#6e6e73] block">
-                Domain
-              </span>
-              <span className="text-[14.5px] font-bold text-[#1d1d1f] mt-1 block">
-                {domainName}
-              </span>
+        {/* Left Column (8 cols): Certificate Details Card */}
+        <div className="lg:col-span-8 bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-6">
+          {/* Card Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-[#f0f4f9]">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center shrink-0 border border-[#b8ece5]">
+                <Shield className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div>
+                <h2 className="text-[17px] font-bold text-[#1d1d1f]">
+                  {certType}
+                </h2>
+                <span className="text-[12.5px] text-[#6e6e73] font-medium block">
+                  {domainName}
+                </span>
+              </div>
             </div>
 
-            {/* Certificate Type */}
-            <div className="bg-white rounded-xl border border-[#e2eaff] p-5 shadow-sm">
-              <span className="text-[12px] font-medium text-[#6e6e73] block">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+              Active
+            </span>
+          </div>
+
+          {/* 3x2 Metadata Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
                 Certificate Type
               </span>
-              <span className="text-[14.5px] font-bold text-[#1d1d1f] mt-1 block">
+              <span className="text-[14px] font-bold text-[#1d1d1f] mt-1 block">
                 {certType}
               </span>
             </div>
 
-            {/* Issued Date */}
-            <div className="bg-white rounded-xl border border-[#e2eaff] p-5 shadow-sm">
-              <span className="text-[12px] font-medium text-[#6e6e73] block">
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                Domain
+              </span>
+              <span className="text-[14px] font-bold text-[#1d1d1f] mt-1 block truncate">
+                {domainName}
+              </span>
+            </div>
+
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
                 Issued Date
               </span>
               <span className="text-[14px] font-bold text-[#1d1d1f] mt-1 block">
@@ -342,20 +359,50 @@ export default function CertificateDetailsPage({
               </span>
             </div>
 
-            {/* Expiry Date */}
-            <div className="bg-white rounded-xl border border-[#e2eaff] p-5 shadow-sm">
-              <span className="text-[12px] font-medium text-[#6e6e73] block">
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
                 Expiry Date
               </span>
               <span className="text-[14px] font-bold text-[#1d1d1f] mt-1 block">
                 {expiryDate}
               </span>
             </div>
+
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                Auto-Renewal
+              </span>
+              <span className="text-[14px] font-bold text-[#12a150] mt-1 block">
+                On
+              </span>
+            </div>
+
+            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
+              <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                Validity
+              </span>
+              <span className="text-[14px] font-bold text-[#1d1d1f] mt-1 block">
+                1 year
+              </span>
+            </div>
+          </div>
+
+          {/* Protection is active bottom banner */}
+          <div className="p-4 rounded-xl bg-[#e6f9ed]/70 border border-[#b7eed0] flex items-center gap-3">
+            <Shield className="w-5 h-5 text-[#12a150] shrink-0" />
+            <div>
+              <span className="text-[12.5px] font-bold text-[#1d1d1f] block">
+                Protection is active
+              </span>
+              <span className="text-[12px] text-[#5a6a85] mt-0.5 block">
+                This certificate is active for {domainName} and scheduled for automatic renewal.
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Right Column (4 cols): Quick Operations */}
-        <div className="lg:col-span-4 bg-white rounded-xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-3">
           <h3 className="text-[15px] font-bold text-[#1d1d1f] mb-1">
             Quick Operations
           </h3>
@@ -365,25 +412,19 @@ export default function CertificateDetailsPage({
             type="button"
             id="op-renew-ssl"
             onClick={handleRenew}
-            className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-colors text-center shadow-sm active:scale-98"
+            className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-colors text-center shadow-xs active:scale-98 cursor-pointer"
           >
-            Renew
+            Renew Certificate
           </button>
 
-          {/* Download Certificate Button */}
+          {/* Manage Auto-Renewal */}
           <button
             type="button"
-            id="op-download-ssl"
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+            id="op-manage-autorenew-ssl"
+            onClick={() => toast.info("Auto-renewal settings updated.")}
+            className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center cursor-pointer"
           >
-            {isDownloading ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#1787D4]" />
-            ) : (
-              <Download className="w-4 h-4 text-[#1787D4]" />
-            )}
-            Download Certificate (.crt)
+            Manage Auto-Renewal
           </button>
 
           {/* View Details Button */}
@@ -391,10 +432,30 @@ export default function CertificateDetailsPage({
             type="button"
             id="op-view-ssl-details"
             onClick={() => setShowTechnicalModal(true)}
-            className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#5a6a85] text-[13px] font-semibold rounded-xl transition-colors text-center cursor-pointer"
+            className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center cursor-pointer"
           >
-            View Technical Details
+            View Details
           </button>
+
+          {/* Download CRT */}
+          <button
+            type="button"
+            id="op-download-ssl"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="w-full py-2 px-4 text-[#6e6e73] hover:text-[#1787D4] text-[12px] font-medium transition-colors text-center flex items-center justify-center gap-1.5 disabled:opacity-60 cursor-pointer pt-1"
+          >
+            {isDownloading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
+            Download Certificate (.crt)
+          </button>
+
+          <p className="text-[11px] text-[#6e6e73] mt-2 leading-relaxed">
+            Auto-renewal is on. The next renewal is scheduled before {expiryDate}.
+          </p>
         </div>
       </div>
 
@@ -409,7 +470,7 @@ export default function CertificateDetailsPage({
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowTechnicalModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-lg shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-lg shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-bold text-[#1d1d1f]">
               Certificate Technical Details
             </h3>
@@ -451,11 +512,11 @@ export default function CertificateDetailsPage({
                   readOnly
                   rows={5}
                   value={cert.certificate}
-                  className="w-full p-2.5 bg-[#f8fafc] border border-[#e2eaff] rounded-xl font-mono text-[11px] text-[#5a6a85] focus:outline-none"
+                  className="w-full p-2.5 bg-[#f8fafc] border border-[#e2eaff] rounded-lg font-mono text-[11px] text-[#5a6a85] focus:outline-none"
                 />
               </div>
             ) : (
-              <div className="p-3 bg-[#f8fafc] border border-[#e2eaff] rounded-xl text-xs text-[#6e6e73]">
+              <div className="p-3 bg-[#f8fafc] border border-[#e2eaff] rounded-lg text-xs text-[#6e6e73]">
                 Public CRT is available for download once the certificate status is Active.
               </div>
             )}
@@ -464,7 +525,7 @@ export default function CertificateDetailsPage({
               <button
                 type="button"
                 onClick={() => setShowTechnicalModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc] cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc] cursor-pointer"
               >
                 Close
               </button>

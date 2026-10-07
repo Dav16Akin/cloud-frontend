@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,25 +15,35 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useGetHosting } from "@/hooks/useHosting";
+import { useGetRegisteredDomains } from "@/hooks/useDomains";
 
 export default function CreateMailboxPage() {
   const router = useRouter();
   const { data: hostingAccounts } = useGetHosting();
+  const { data: registeredDomains } = useGetRegisteredDomains();
 
-  // Domains available for mailbox creation
+  // Domains available for mailbox creation from real user accounts
   const availableDomains = useMemo(() => {
     const fromHosting = (hostingAccounts || [])
       .map((h) => h.domain)
       .filter(Boolean);
-    const defaults = ["acme.com", "nupatcloud.com"];
-    return Array.from(new Set([...fromHosting, ...defaults]));
-  }, [hostingAccounts]);
+    const fromDomains = (registeredDomains || [])
+      .map((d) => d.domain)
+      .filter(Boolean);
+    return Array.from(new Set([...fromHosting, ...fromDomains]));
+  }, [hostingAccounts, registeredDomains]);
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
 
-  // Step 1: Address Setup
-  const [selectedDomain, setSelectedDomain] = useState("acme.com");
-  const [emailName, setEmailName] = useState("sales");
+  // Step 1: Address Setup — never auto-fill dummy values
+  const [selectedDomain, setSelectedDomain] = useState("");
+  const [emailName, setEmailName] = useState("");
+
+  useEffect(() => {
+    if (!selectedDomain && availableDomains.length > 0) {
+      setSelectedDomain(availableDomains[0]);
+    }
+  }, [availableDomains, selectedDomain]);
 
   // Step 2: Password Setup
   const [password, setPassword] = useState("");
@@ -200,7 +210,7 @@ export default function CreateMailboxPage() {
       <div className="w-full max-w-xl">
         {/* ── STEP 1: Address Setup ───────────────────────────────────── */}
         {currentStep === 1 && (
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-7 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
             <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
               1. Address Setup
             </h3>
@@ -214,7 +224,7 @@ export default function CreateMailboxPage() {
                 <select
                   value={selectedDomain}
                   onChange={(e) => setSelectedDomain(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
                 >
                   {availableDomains.map((d) => (
                     <option key={d} value={d}>
@@ -236,12 +246,12 @@ export default function CreateMailboxPage() {
                       placeholder="e.g. sales"
                       value={emailName}
                       onChange={(e) => setEmailName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                      className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
                       required
                     />
                   </div>
                   <span className="text-[14px] font-medium text-[#6e6e73]">@</span>
-                  <div className="px-4 py-2.5 bg-[#f8fafc] border border-[#e2eaff] rounded-xl text-[13.5px] text-[#6e6e73] font-medium min-w-[140px]">
+                  <div className="px-4 py-2.5 bg-[#f8fafc] border border-[#e2eaff] rounded-lg text-[13.5px] text-[#6e6e73] font-medium min-w-[140px]">
                     {selectedDomain}
                   </div>
                 </div>
@@ -252,7 +262,7 @@ export default function CreateMailboxPage() {
                 <button
                   type="submit"
                   id="btn-step1-continue"
-                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm"
+                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm"
                 >
                   Continue
                 </button>
@@ -263,7 +273,7 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 2: Choose Password ──────────────────────────────────── */}
         {currentStep === 2 && (
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-7 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
             <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
               2. Choose Password
             </h3>
@@ -280,7 +290,7 @@ export default function CreateMailboxPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter strong password"
-                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
                     required
                   />
                   <button
@@ -308,7 +318,7 @@ export default function CreateMailboxPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
-                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
                     required
                   />
                   <button
@@ -399,7 +409,7 @@ export default function CreateMailboxPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(1)}
-                  className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-xl transition-colors"
+                  className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-lg transition-colors"
                 >
                   Back
                 </button>
@@ -407,7 +417,7 @@ export default function CreateMailboxPage() {
                   type="submit"
                   id="btn-step2-continue"
                   disabled={!isPasswordValid}
-                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 disabled:pointer-events-none text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm"
+                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 disabled:pointer-events-none text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm"
                 >
                   Continue
                 </button>
@@ -418,13 +428,13 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 3: Confirm Mailbox ──────────────────────────────────── */}
         {currentStep === 3 && (
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-7 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
             <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
               3. Confirm Mailbox
             </h3>
 
             {/* Summary Details Box */}
-            <div className="bg-[#fcfdfe] border border-[#eef2f8] rounded-xl p-5 flex flex-col gap-3.5 mb-5">
+            <div className="bg-[#fcfdfe] border border-[#eef2f8] rounded-lg p-5 flex flex-col gap-3.5 mb-5">
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-[#6e6e73]">Email Address</span>
                 <span className="font-semibold text-[#1d1d1f]">{fullEmail}</span>
@@ -448,7 +458,7 @@ export default function CreateMailboxPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-xl transition-colors"
+                className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-lg transition-colors"
               >
                 Back
               </button>
@@ -457,7 +467,7 @@ export default function CreateMailboxPage() {
                 id="btn-create-mailbox-submit"
                 onClick={handleCreateMailbox}
                 disabled={isCreating}
-                className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-60 text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm flex items-center gap-2"
+                className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-60 text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center gap-2"
               >
                 {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
                 Create Mailbox
@@ -468,7 +478,7 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 4: Mailbox Created ──────────────────────────────────── */}
         {currentStep === 4 && (
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-9 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-9 shadow-sm flex flex-col items-center text-center">
             {/* Success Icon */}
             <div className="w-12 h-12 rounded-full bg-[#e6f9ed] border border-[#b7eed0] flex items-center justify-center text-[#12a150] mb-4">
               <Check className="w-6 h-6 stroke-[3]" />
@@ -485,7 +495,7 @@ export default function CreateMailboxPage() {
               <Link
                 href={`/dashboard/email/${encodeURIComponent(fullEmail)}`}
                 id="btn-goto-mailbox"
-                className="w-full py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-colors text-center shadow-sm"
+                className="w-full py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-colors text-center shadow-sm"
               >
                 Go to Mailbox
               </Link>

@@ -1,114 +1,104 @@
 "use client";
-import { useState, useEffect, useRef, Suspense } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   User,
   ChevronDown,
   LogOut,
   X,
-  ChevronRight,
   Settings,
   LayoutDashboard,
   ExternalLink,
   BookOpen,
+  LayoutGrid,
+  Clock,
+  Globe,
+  Server,
+  Mail,
+  Shield,
+  Wrench,
+  Sparkles,
+  ArrowRight,
+  ShoppingBag,
+  Receipt,
+  Headphones,
 } from "lucide-react";
+import Image from "next/image";
 import { useGetMe } from "@/hooks/useUser";
 import { useLogout } from "@/hooks/useAuth";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+const DOCS_URL =
+  process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
-// ── Sidebar design tokens — dark teal, matching screenshot ───────────────────
+// ── Sidebar design tokens ──────────────────────────────────────────────────────
 const S = {
-  // Surfaces — brand navy palette
-  bg: "#031033",                     // brand navy
-  bgActive: "#1787D4",               // brand blue active pill
-  bgUser: "rgba(255,255,255,0.07)",  // subtle user chip
-
-  // Text
-  textPrimary: "#ffffff",
-  textInactive: "rgba(255,255,255,0.58)",
-  textMuted: "rgba(255,255,255,0.32)",
-
-  // Structural
-  divider: "rgba(255,255,255,0.08)",
+  bg: "#033B5C", // user-specified dark oceanic background
+  active: "#4AC3B4", // user-specified bright teal-cyan active state
+  activeBg: "#054972", // active container fill matching mockup
+  inactiveText: "#93b7cd", // soft muted slate-blue
+  hoverBg: "rgba(255, 255, 255, 0.05)",
+  userChipBg: "#02283f", // dark pill container
+  cardBg: "#022a42", // bottom promo card background
+  cardBorder: "rgba(255, 255, 255, 0.09)",
+  divider: "rgba(255, 255, 255, 0.08)",
 };
 
-// ── Nav items — flat list matching picture structure ──────────────────────────
+// ── Nav items strictly matching the shared screenshot ─────────────────────────
 type NavItem = {
   label: string;
   href: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   exact?: boolean;
   disabled?: boolean;
-  subItems?: { label: string; href: string }[];
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",        href: "/dashboard",                   exact: true },
-  { label: "Domain List",      href: "/dashboard/domains"                        },
-  { label: "Hosting List",     href: "/dashboard/hosting"                        },
-  { label: "Private Email",    href: "/dashboard/email",             disabled: true },
-  { label: "SSL Certificates", href: "/dashboard/ssl"                            },
-  { label: "Orders",           href: "/dashboard/orders"                         },
-  { label: "Invoices",         href: "/dashboard/invoices"                       },
-  { label: "Expired Services", href: "/dashboard/expired-services"               },
-  { label: "Support Tickets",  href: "/dashboard/tickets"                        },
-  { label: "Profile",          href: "/dashboard/settings"                       },
-  { label: "Tools",            href: "/dashboard/tools"                          },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutGrid,
+    exact: true,
+  },
+  {
+    label: "Expired",
+    href: "/dashboard/expired-services",
+    icon: Clock,
+  },
+  {
+    label: "Domain List",
+    href: "/dashboard/domains",
+    icon: Globe,
+  },
+  {
+    label: "Hosting List",
+    href: "/dashboard/hosting",
+    icon: Server,
+  },
+  {
+    label: "Private Email",
+    href: "/dashboard/email",
+    icon: Mail,
+    disabled: true,
+  },
+  {
+    label: "SSL Certificates",
+    href: "/dashboard/ssl",
+    icon: Shield,
+  },
+  {
+    label: "Profile",
+    href: "/dashboard/settings",
+    icon: User,
+  },
+  {
+    label: "Tools",
+    href: "/dashboard/tools",
+    icon: Wrench,
+  },
 ];
 
-
-// ── Sub-items (Domains expand) ─────────────────────────────────────────────
-function SubItems({
-  items,
-  onClose,
-  pathname,
-}: {
-  items: { label: string; href: string }[];
-  onClose?: () => void;
-  pathname: string;
-}) {
-  const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "registered";
-
-  return (
-    <div
-      className="flex flex-col pl-4 mt-0.5 gap-px"
-      style={{ borderLeft: `1px solid ${S.divider}`, marginLeft: "16px" }}
-    >
-      {items.map(({ label, href }) => {
-        const isTransfer = href.includes("domain-transfer");
-        let isActive = false;
-        if (isTransfer) {
-          isActive = pathname.startsWith("/dashboard/domain-transfer");
-        } else {
-          const tabMatch = href.match(/tab=([^&]+)/);
-          const tabName = tabMatch ? tabMatch[1] : "registered";
-          isActive = pathname === "/dashboard/domains" && activeTab === tabName;
-        }
-
-        return (
-          <Link
-            key={href}
-            href={href}
-            id={`sidebar-sub-${label.toLowerCase().replace(/\s+/g, "-")}`}
-            onClick={onClose}
-            className="py-1.5 px-3 rounded-md text-[12.5px] transition-colors duration-150"
-            style={{
-              color: isActive ? S.textPrimary : S.textInactive,
-              background: isActive ? "rgba(27,107,120,0.5)" : "transparent",
-              fontWeight: isActive ? 500 : 400,
-            }}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Sidebar ───────────────────────────────────────────────────────────────────
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { data: me, isLoading } = useGetMe();
@@ -118,13 +108,18 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const firstName = me?.data?.firstName ?? "";
-  const lastName  = me?.data?.lastName  ?? "";
-  const email     = me?.data?.email     ?? "";
-  const username  = [firstName, lastName].filter(Boolean).join(" ") || "Account";
+  const lastName = me?.data?.lastName ?? "";
+  const email = me?.data?.email ?? "";
+  const username =
+    [firstName, lastName].filter(Boolean).join(" ") ||
+    (email ? email.split("@")[0] : "alexprokhorov");
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
         setUserMenuOpen(false);
       }
     };
@@ -134,10 +129,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <aside
-      className="flex flex-col h-full w-56 shrink-0"
+      className="flex flex-col h-full w-60 shrink-0 select-none"
       style={{ background: S.bg }}
     >
-      {/* ── Mobile close (no logo — logo lives in the topbar) ─── */}
+      {/* ── Mobile Close Header ────────────────────────────────────────────── */}
       {onClose && (
         <div
           className="flex items-center justify-end px-3 shrink-0 md:hidden"
@@ -145,8 +140,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         >
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-md transition-colors"
-            style={{ color: S.textMuted }}
+            className="w-7 h-7 flex items-center justify-center rounded-md transition-colors text-white/70 hover:text-white"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -154,78 +148,63 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         </div>
       )}
 
-      {/* ── User chip & Dropdown ─────────────────────────────────── */}
-      <div className="relative px-3 pt-4 pb-2 shrink-0" ref={userMenuRef}>
+      {/* ── Top User Pill / Dropdown ───────────────────────────────────────── */}
+      <div className="relative px-3.5 pt-4 pb-2.5 shrink-0" ref={userMenuRef}>
         <button
           type="button"
           id="sidebar-user-chip"
           onClick={() => setUserMenuOpen((prev) => !prev)}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg w-full cursor-pointer text-left transition-colors hover:bg-white/10"
-          style={{ background: S.bgUser }}
+          className="flex items-center gap-2.5 px-3 py-2 rounded-2xl w-full cursor-pointer text-left transition-all border border-white/5 hover:border-white/15"
+          style={{ background: S.userChipBg }}
         >
-          {/* Avatar icon */}
-          <span
-            className="flex items-center justify-center w-6 h-6 rounded-full shrink-0"
-            style={{ background: "rgba(255,255,255,0.15)" }}
-          >
-            <User className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.8)" }} />
+          <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0 bg-white/10 text-white/90">
+            <User className="w-3.5 h-3.5" />
           </span>
 
-          {/* Name */}
           {isLoading ? (
-            <div
-              className="flex-1 h-3 rounded animate-pulse"
-              style={{ background: "rgba(255,255,255,0.12)" }}
-            />
+            <div className="flex-1 h-3 rounded bg-white/15 animate-pulse" />
           ) : (
-            <span
-              className="flex-1 text-[13px] font-medium truncate"
-              style={{ color: S.textPrimary, letterSpacing: "-0.1px" }}
-            >
+            <span className="flex-1 text-[13px] font-medium text-white truncate tracking-[-0.1px]">
               {username}
             </span>
           )}
 
           <ChevronDown
-            className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+            className={`w-3.5 h-3.5 text-white/70 shrink-0 transition-transform duration-200 ${
               userMenuOpen ? "rotate-180" : ""
             }`}
-            style={{ color: S.textMuted }}
           />
         </button>
 
-        {/* User Dropdown Popover */}
+        {/* User Dropdown Menu */}
         {userMenuOpen && (
           <div
-            className="absolute left-3 right-3 top-full mt-1.5 py-1 z-50 rounded-xl shadow-2xl overflow-hidden"
+            className="absolute left-3.5 right-3.5 top-full mt-1.5 py-1.5 z-50 rounded-xl shadow-2xl overflow-hidden"
             style={{
-              background: "#01283d",
+              background: "#01243a",
               border: "1px solid rgba(255, 255, 255, 0.12)",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.4)",
+              boxShadow: "0 14px 34px rgba(0, 0, 0, 0.5)",
             }}
           >
-            {/* User Info Header */}
+            {/* Header info */}
             <div
-              className="px-3.5 py-2.5 border-b"
+              className="px-3.5 py-2 border-b"
               style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
             >
-              <p
-                className="text-[12.5px] font-semibold truncate"
-                style={{ color: S.textPrimary }}
-              >
+              <p className="text-[12.5px] font-semibold text-white truncate">
                 {username}
               </p>
               {email && (
                 <p
                   className="text-[11px] truncate mt-0.5"
-                  style={{ color: S.textMuted }}
+                  style={{ color: S.inactiveText }}
                 >
                   {email}
                 </p>
               )}
             </div>
 
-            {/* Menu Links */}
+            {/* Quick Links */}
             <div className="p-1 flex flex-col gap-0.5">
               <Link
                 href="/dashboard/settings"
@@ -233,11 +212,43 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   setUserMenuOpen(false);
                   onClose?.();
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
-                style={{ color: S.textPrimary }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
               >
-                <Settings className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                <Settings className="w-3.5 h-3.5 text-white/60" />
                 Profile Settings
+              </Link>
+              <Link
+                href="/dashboard/orders"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
+              >
+                <ShoppingBag className="w-3.5 h-3.5 text-white/60" />
+                Orders
+              </Link>
+              <Link
+                href="/dashboard/invoices"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
+              >
+                <Receipt className="w-3.5 h-3.5 text-white/60" />
+                Invoices
+              </Link>
+              <Link
+                href="/dashboard/tickets"
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  onClose?.();
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
+              >
+                <Headphones className="w-3.5 h-3.5 text-white/60" />
+                Support Tickets
               </Link>
               <Link
                 href="/dashboard"
@@ -245,10 +256,9 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   setUserMenuOpen(false);
                   onClose?.();
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
-                style={{ color: S.textPrimary }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
               >
-                <LayoutDashboard className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                <LayoutDashboard className="w-3.5 h-3.5 text-white/60" />
                 Client Area Overview
               </Link>
               <Link
@@ -257,10 +267,9 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   setUserMenuOpen(false);
                   onClose?.();
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
-                style={{ color: S.textPrimary }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
               >
-                <ExternalLink className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                <ExternalLink className="w-3.5 h-3.5 text-white/60" />
                 Visit Main Site
               </Link>
               <a
@@ -271,10 +280,9 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   setUserMenuOpen(false);
                   onClose?.();
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-colors hover:bg-white/10"
-                style={{ color: S.textPrimary }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-white/90 hover:bg-white/10 transition-colors"
               >
-                <BookOpen className="w-3.5 h-3.5" style={{ color: S.textMuted }} />
+                <BookOpen className="w-3.5 h-3.5 text-white/60" />
                 Help &amp; Docs ↗
               </a>
 
@@ -291,7 +299,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   logout();
                 }}
                 disabled={isLoggingOut}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-red-400 hover:bg-red-500/15 transition-colors disabled:opacity-50 text-left cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[12px] text-red-400 hover:bg-red-500/15 transition-colors disabled:opacity-50 text-left cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 {isLoggingOut ? "Logging out…" : "Logout"}
@@ -301,23 +309,25 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         )}
       </div>
 
-      {/* ── Nav list ──────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-3 pb-3 flex flex-col gap-px">
+      {/* ── Main Nav List ──────────────────────────────────────────────────── */}
+      <nav className="flex-1 overflow-y-auto px-3 py-1.5 flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+
           if (item.disabled) {
             return (
               <div
                 key={`${item.href}-${item.label}`}
                 id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                className="px-3 py-2 rounded-lg text-[13.5px] opacity-40 cursor-not-allowed flex items-center justify-between select-none"
-                style={{
-                  color: S.textInactive,
-                  letterSpacing: "-0.1px",
-                }}
-                title={`${item.label} is temporarily disabled`}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] opacity-40 cursor-not-allowed select-none"
+                style={{ color: S.inactiveText }}
+                title={`${item.label} is coming soon`}
               >
-                <span>{item.label}</span>
-                <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-white/10 text-white/50">
+                <div className="flex items-center gap-3">
+                  <Icon className="w-[18px] h-[18px] shrink-0" />
+                  <span>{item.label}</span>
+                </div>
+                <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-white/10 text-white/60">
                   Soon
                 </span>
               </div>
@@ -328,52 +338,88 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             ? pathname === item.href
             : pathname.startsWith(item.href.split("?")[0]);
 
-          // Regular item
           return (
             <Link
               key={`${item.href}-${item.label}`}
               href={item.href}
               id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
               onClick={onClose}
-              className="px-3 py-2 rounded-lg text-[13.5px] transition-colors duration-150"
+              className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-all duration-150 ${
+                isActive
+                  ? "font-medium shadow-xs"
+                  : "hover:text-white"
+              }`}
               style={{
-                color: isActive ? S.textPrimary : S.textInactive,
-                background: isActive ? S.bgActive : "transparent",
-                fontWeight: isActive ? 500 : 400,
-                letterSpacing: "-0.1px",
+                color: isActive ? S.active : S.inactiveText,
+                background: isActive ? S.activeBg : "transparent",
               }}
             >
-              {item.label}
+              {/* Active left indicator pill matching the mockup screenshot */}
+              {isActive && (
+                <span
+                  className="absolute left-0 top-1.5 bottom-1.5 w-1.5 rounded-r-full"
+                  style={{ background: S.active }}
+                />
+              )}
+
+              <Icon
+                className="w-[18px] h-[18px] shrink-0 transition-colors"
+                style={{ color: isActive ? S.active : S.inactiveText }}
+              />
+
+              <span className="truncate tracking-[-0.1px]">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* ── Footer ────────────────────────────────────────────── */}
-      <div
-        className="px-3 pb-4 pt-2 shrink-0 flex flex-col gap-px"
-        style={{ borderTop: `1px solid ${S.divider}` }}
-      >
-        <Link
-          href="/contact"
-          id="sidebar-feedback"
-          className="px-3 py-2 rounded-lg text-[13px] transition-colors duration-150"
-          style={{ color: S.textInactive }}
+      {/* ── Premium Protection Promo Card (matches screenshot) ─────────────── */}
+      <div className="px-3.5 pt-2 pb-3.5 shrink-0">
+        <div
+          className="rounded-2xl p-3 flex flex-col gap-2 relative overflow-hidden"
+          style={{
+            background: S.cardBg,
+            border: `1px solid ${S.cardBorder}`,
+          }}
         >
-          Feedback
-        </Link>
-        <button
-          id="sidebar-logout"
-          onClick={() => logout()}
-          disabled={isLoggingOut}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] transition-colors duration-150 group disabled:opacity-50 w-full text-left"
-          style={{ color: S.textMuted }}
-        >
-          <LogOut className="w-3.5 h-3.5 shrink-0 group-hover:text-red-400 transition-colors" />
-          <span className="group-hover:text-red-400 transition-colors">
-            {isLoggingOut ? "Logging out…" : "Logout"}
-          </span>
-        </button>
+          {/* Header */}
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" style={{ color: S.active }} />
+            <span className="text-[12px] font-semibold text-white tracking-[-0.1px]">
+              Premium Protection
+            </span>
+          </div>
+
+          {/* Photo Banner */}
+          <div className="relative w-full h-[88px] rounded-xl overflow-hidden bg-[#044c77]">
+            <Image
+              src="/premium-protection-banner.png"
+              alt="Premium Protection"
+              fill
+              className="object-cover object-center"
+              sizes="200px"
+            />
+          </div>
+
+          {/* Body Copy */}
+          <p
+            className="text-[11px] leading-relaxed"
+            style={{ color: S.inactiveText }}
+          >
+            Keep expired domains from entering redemption with automatic
+            renewal and priority support.
+          </p>
+
+          {/* Action Link */}
+          <Link
+            href="/dashboard/expired-services"
+            onClick={onClose}
+            className="text-[11.5px] font-semibold text-white hover:text-[#4AC3B4] transition-colors flex items-center justify-between mt-0.5 group"
+          >
+            <span>Learn more</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
       </div>
     </aside>
   );

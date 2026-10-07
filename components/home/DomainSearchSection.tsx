@@ -16,7 +16,12 @@ import {
   Globe,
   ArrowRightLeft,
 } from "lucide-react";
-import { searchDomains, DomainResult } from "@/lib/api";
+import {
+  searchDomains,
+  suggestDomains,
+  extractAlternativeDomainNames,
+  DomainResult,
+} from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 
@@ -43,6 +48,7 @@ export default function DomainSearchSection() {
   const [results, setResults] = useState<DomainResult[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [suggestedAlternativeNames, setSuggestedAlternativeNames] = useState<string[]>([]);
 
   const { addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
 
@@ -54,6 +60,20 @@ export default function DomainSearchSection() {
     setErrorMsg("");
     setSearchedTerm(trimmed);
     setFilter("all");
+
+    const baseWord = trimmed.replace(/\.[a-z0-9.]+$/i, "");
+    suggestDomains({
+      term: baseWord,
+      extensions: ["com", "net", "org"],
+    })
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          setSuggestedAlternativeNames(extractAlternativeDomainNames(res.data, baseWord));
+        } else {
+          setSuggestedAlternativeNames([]);
+        }
+      })
+      .catch(() => setSuggestedAlternativeNames([]));
 
     try {
       const res = await searchDomains(trimmed);
@@ -195,7 +215,7 @@ export default function DomainSearchSection() {
         </div>
 
         {/* Blue Search Card */}
-        <div className="bg-[#1787D4] rounded-2xl overflow-hidden shadow-lg border border-[#1474b8]/20">
+        <div className="bg-[#1787D4] rounded-lg overflow-hidden shadow-lg border border-[#1474b8]/20">
           <div className="flex-1 flex flex-col justify-center px-3.5 sm:px-8 py-5 sm:py-7 gap-4">
             {/* Search bar — Apple pill container */}
             <form
@@ -274,7 +294,7 @@ export default function DomainSearchSection() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between h-44 animate-pulse"
+                  className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm flex flex-col justify-between h-44 animate-pulse"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -292,7 +312,7 @@ export default function DomainSearchSection() {
 
         {/* ── ERROR STATE ── */}
         {state === "error" && (
-          <div className="mt-8 p-6 bg-red-50/90 border border-red-200 rounded-2xl text-center space-y-3 animate-fade-up">
+          <div className="mt-8 p-6 bg-red-50/90 border border-red-200 rounded-lg text-center space-y-3 animate-fade-up">
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600">
               <XCircle className="w-6 h-6" />
             </div>
@@ -315,7 +335,7 @@ export default function DomainSearchSection() {
         {state === "done" && (
           <div className="mt-8 space-y-6 animate-fade-up">
             {/* Top Toolbar: Search summary, Filter pills, Clear button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-lg border border-slate-200 shadow-xs">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-[#1787D4]" />
                 <span className="text-sm font-semibold text-[#031033]">
@@ -378,7 +398,7 @@ export default function DomainSearchSection() {
 
             {/* Empty filter message */}
             {displayed.length === 0 && (
-              <div className="py-12 text-center bg-white rounded-2xl border border-slate-200">
+              <div className="py-12 text-center bg-white rounded-lg border border-slate-200">
                 <p className="text-slate-500 text-sm">
                   No domains match the &ldquo;{filter}&rdquo; filter.
                 </p>
@@ -396,7 +416,7 @@ export default function DomainSearchSection() {
                   return (
                     <div
                       key={result.domain}
-                      className={`bg-white rounded-2xl p-5 border transition-all duration-200 flex flex-col justify-between gap-4 group ${
+                      className={`bg-white rounded-lg p-5 border transition-all duration-200 flex flex-col justify-between gap-4 group ${
                         result.available
                           ? "border-[#e2eaff] hover:border-[#1787D4] hover:shadow-md"
                           : "border-slate-200/80 bg-slate-50/50 opacity-90"
@@ -482,14 +502,14 @@ export default function DomainSearchSection() {
                         {result.available ? (
                           isInCart ? (
                             <div className="flex items-center gap-2">
-                              <span className="flex-1 text-center py-2 px-3 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center gap-1.5">
+                              <span className="flex-1 text-center py-2 px-3 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-center gap-1.5">
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 Added in Cart
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveFromCart(result.domain)}
-                                className="p-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors"
+                                className="p-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
                                 title="Remove from cart"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -500,7 +520,7 @@ export default function DomainSearchSection() {
                               type="button"
                               onClick={() => handleAddToCart(result)}
                               disabled={result.price.price == null}
-                              className="btn-primary w-full py-2.5 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="btn-primary w-full py-2.5 px-4 text-xs font-bold rounded-lg flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               <ShoppingCart className="w-3.5 h-3.5" />
                               Add to Cart
@@ -510,7 +530,7 @@ export default function DomainSearchSection() {
                           <button
                             type="button"
                             disabled
-                            className="w-full py-2.5 px-4 text-xs font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-xl cursor-not-allowed"
+                            className="w-full py-2.5 px-4 text-xs font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed"
                           >
                             Unavailable
                           </button>
@@ -519,6 +539,35 @@ export default function DomainSearchSection() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Suggested Alternative Names */}
+            {suggestedAlternativeNames.length > 0 && (
+              <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold text-[#031033] uppercase tracking-wider">
+                    Suggested Alternative Names
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {suggestedAlternativeNames.slice(0, 8).map((alt) => (
+                    <button
+                      key={alt}
+                      type="button"
+                      onClick={() => {
+                        const newQ = `${alt}.com`;
+                        setQuery(newQ);
+                        executeSearch(newQ);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-50 hover:bg-blue-50 text-[#1787D4] border border-slate-200 hover:border-blue-200 transition-all cursor-pointer"
+                    >
+                      <span>{alt}</span>
+                      <span className="text-slate-400 font-normal">.com</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

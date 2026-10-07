@@ -128,7 +128,7 @@ export default function EverythingBusinessNeedsSection() {
                       delay: idx * 0.06,
                     }}
                     whileHover={{ y: -3, scale: 1.01 }}
-                    className="bg-white border border-[#E2E8F0] rounded-xl p-4 sm:p-4.5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-default"
+                    className="bg-white border border-[#E2E8F0] rounded-lg p-4 sm:p-4.5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-default"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2.5">

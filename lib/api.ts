@@ -979,6 +979,70 @@ export const searchDomains = (
     credentials: "include",
   }).then(handleResponse);
 
+export type DomainSuggestionItem = {
+  name: string;
+  domain: string;
+  tld: string;
+};
+
+export type SuggestDomainsPayload = {
+  term: string;
+  extensions?: string[];
+};
+
+/** POST /domains/suggest — suggest domain names from backend using OpenProvider */
+export const suggestDomains = (
+  payload: SuggestDomainsPayload,
+): Promise<{ success: boolean; data: DomainSuggestionItem[]; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/domains/suggest`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  }).then(handleResponse);
+
+/**
+ * Extracts unique alternative domain names from suggestDomains results.
+ * Ignores suggestions whose base name is identical to the searched term
+ * (which are merely unsupported TLD variations like .tk, .cn, .de), returning only clean, distinct alternative names.
+ */
+export function extractAlternativeDomainNames(
+  suggestions: DomainSuggestionItem[],
+  originalTerm: string
+): string[] {
+  if (!Array.isArray(suggestions) || suggestions.length === 0) return [];
+
+  const baseClean = originalTerm
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .split(".")[0]
+    .replace(/[^a-z0-9-]/g, "");
+
+  const uniqueNames: string[] = [];
+  const seen = new Set<string>();
+
+  for (const item of suggestions) {
+    // The backend suggest API returns items with { name, domain, tld }
+    // item.domain contains the domain name part (e.g. "BestBuyBank", "BestBuyHouses")
+    const rawDomain = (item.domain || item.name?.split(".")[0] || "").trim();
+    if (!rawDomain) continue;
+
+    const lower = rawDomain.toLowerCase().replace(/[^a-z0-9-]/g, "");
+
+    // Skip if identical to the searched base term (these are just TLD variations like .tk, .cn, .de)
+    if (lower === baseClean) continue;
+
+    if (!seen.has(lower)) {
+      seen.add(lower);
+      uniqueNames.push(rawDomain);
+    }
+  }
+
+  return uniqueNames;
+}
+
+
 export type RegisteredDomain = {
   id: string;
   domain: string;

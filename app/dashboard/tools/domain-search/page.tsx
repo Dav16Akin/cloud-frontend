@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Search, Loader2, Globe, ShieldCheck } from "lucide-react";
 import { searchDomains, type DomainResult } from "@/lib/api";
 import { toast } from "sonner";
-import { useCartStore } from "@/store/cartStore";
 
 interface DomainRow {
   domain: string;
@@ -24,7 +23,6 @@ function DomainSearchContent() {
   const [results, setResults] = useState<DomainRow[]>([]);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const addDomainItem = useCartStore((s) => s.addDomainItem);
 
   const executeSearch = useCallback(async (termToSearch: string) => {
     const term = termToSearch.trim().toLowerCase();
@@ -77,23 +75,9 @@ function DomainSearchContent() {
   };
 
   const handleRegister = (domainName: string) => {
-    try {
-      const parts = domainName.split(".");
-      const name = parts[0];
-      const ext = parts.slice(1).join(".");
-      addDomainItem({
-        type: "DOMAIN",
-        domainName: name,
-        extension: ext,
-        price: 27000,
-        currency: "NGN",
-        isPremium: false,
-      });
-      toast.success(`${domainName} added to cart`);
-      router.push("/cart");
-    } catch {
-      router.push(`/domains?search=${encodeURIComponent(domainName)}`);
-    }
+    router.push(
+      `/dashboard/domains?tab=register&domain=${encodeURIComponent(domainName)}`,
+    );
   };
 
   return (
@@ -127,7 +111,7 @@ function DomainSearchContent() {
       </div>
 
       {/* Search Input Box */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm">
+      <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
         <form onSubmit={handleSearch} className="flex items-center gap-3">
           <div className="relative flex-1">
             <Globe className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -136,14 +120,14 @@ function DomainSearchContent() {
               placeholder="Enter a domain name (e.g. yourbrand.com)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors"
             />
           </div>
           <button
             type="submit"
             id="btn-domain-search"
             disabled={searching || !searchTerm.trim()}
-            className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm shrink-0 flex items-center gap-2 disabled:opacity-60 cursor-pointer"
+            className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm shrink-0 flex items-center gap-2 disabled:opacity-60 cursor-pointer"
           >
             {searching && <Loader2 className="w-4 h-4 animate-spin" />}
             Search
@@ -157,7 +141,7 @@ function DomainSearchContent() {
           Search Results
         </h3>
 
-        <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>

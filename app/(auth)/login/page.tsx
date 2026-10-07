@@ -106,7 +106,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alex.morgan@example.com"
-                className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
+                className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 rounded-lg outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
               />
             </div>
 
@@ -126,7 +126,7 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full px-3.5 py-2.5 sm:py-3 pr-10 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
+                  className="w-full px-3.5 py-2.5 sm:py-3 pr-10 bg-slate-50/70 border border-slate-200 rounded-lg outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
                 />
                 <button
                   type="button"
@@ -168,7 +168,7 @@ function LoginForm() {
               type="submit"
               disabled={isPending}
               id="login-submit-btn"
-              className="w-full mt-2 py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-xl shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+              className="w-full mt-2 py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-lg shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -196,7 +196,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => router.push(`${process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api"}/auth/google`)}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               <GoogleIcon />
               <span>Google</span>
@@ -208,7 +208,7 @@ function LoginForm() {
                 const el = document.getElementById("email");
                 el?.focus();
               }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               <Mail className="w-4 h-4 text-[#1787D4]" />
               <span>Email</span>

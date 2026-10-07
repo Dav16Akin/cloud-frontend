@@ -153,14 +153,14 @@ export default function DomainTransferPage() {
               const Icon = item.icon;
               return (
                 <React.Fragment key={item.step}>
-                  <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] relative flex-1 min-h-[190px] flex flex-col justify-between hover:border-[#1787D4]/30 hover:shadow-[0_8px_25px_rgba(23,135,212,0.06)] transition-all">
+                  <div className="bg-white rounded-lg p-6 sm:p-7 border border-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] relative flex-1 min-h-[190px] flex flex-col justify-between hover:border-[#1787D4]/30 hover:shadow-[0_8px_25px_rgba(23,135,212,0.06)] transition-all">
                     {/* Watermark Number on Top-Right */}
                     <span className="absolute top-5 right-6 text-3xl sm:text-4xl font-black text-[#1787D4]/15 select-none pointer-events-none tracking-tight">
                       {item.step}
                     </span>
 
                     {/* Icon */}
-                    <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center mb-5 shrink-0">
                       <Icon className="w-5 h-5 text-[#1787D4]" />
                     </div>
 
@@ -204,9 +204,9 @@ export default function DomainTransferPage() {
                   return (
                     <div
                       key={feat.title}
-                      className="bg-white rounded-2xl p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-start gap-4 hover:border-[#1787D4]/30 hover:shadow-md transition-all"
+                      className="bg-white rounded-lg p-5 sm:p-6 border border-[#e8eff8] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-start gap-4 hover:border-[#1787D4]/30 hover:shadow-md transition-all"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-[#edf5ff] flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center shrink-0 mt-0.5">
                         <Icon className="w-5 h-5 text-[#1787D4]" />
                       </div>
                       <div>
@@ -249,7 +249,7 @@ export default function DomainTransferPage() {
                 Before you transfer
               </h2>
 
-              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] divide-y divide-[#edf2f7]">
+              <div className="bg-white rounded-lg p-6 sm:p-8 border border-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] divide-y divide-[#edf2f7]">
                 {checklist.map((item, idx) => (
                   <div
                     key={idx}
@@ -295,7 +295,7 @@ export default function DomainTransferPage() {
             Frequently asked questions
           </h2>
 
-          <div className="max-w-3xl mx-auto border border-[#e2edfc] rounded-xl bg-white divide-y divide-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+          <div className="max-w-3xl mx-auto border border-[#e2edfc] rounded-lg bg-white divide-y divide-[#e2edfc] shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
             {faqs.map((faq, idx) => (
               <div key={idx} className="transition-colors">
                 <button

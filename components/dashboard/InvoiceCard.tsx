@@ -99,10 +99,10 @@ export default function InvoiceCard({
   const isPaid = invoice.status === "PAID" || invoice.isPaid;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e2eaff] hover:border-[#b8d4fa] p-4 sm:px-5 sm:py-4 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+    <div className="bg-white rounded-lg border border-[#e2eaff] hover:border-[#b8d4fa] p-4 sm:px-5 sm:py-4 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
       {/* Left Column: Icon + Description + Category + Metadata */}
       <div className="flex items-center gap-3.5 min-w-0">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]">
           {isDomain ? (
             <Globe className="w-5 h-5" />
           ) : isHosting ? (
@@ -191,7 +191,7 @@ export default function InvoiceCard({
                   id={`btn-pay-invoice-${invoice.id}`}
                   onClick={() => onPay(invoice)}
                   disabled={isPaying || isRevalidating}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12.5px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
                 >
                   {isRevalidating ? (
                     <>
@@ -231,7 +231,7 @@ export default function InvoiceCard({
               id={`btn-view-invoice-${invoice.id}`}
               onClick={() => onViewInvoice(invoice.id)}
               disabled={isViewing}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold text-[#031033] bg-[#f2f5fc] hover:bg-[#e4ebf8] border border-[#dce5f5] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold text-[#031033] bg-[#f2f5fc] hover:bg-[#e4ebf8] border border-[#dce5f5] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
             >
               {isViewing ? (
                 <>

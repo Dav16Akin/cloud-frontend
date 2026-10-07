@@ -151,7 +151,7 @@ export default function InfrastructureSection() {
                   >
                     <Link
                       href={card.href}
-                      className="block bg-[#1787D4] text-white rounded-2xl p-5 sm:p-5.5 shadow-md shadow-[#1787D4]/25 hover:bg-[#1370B5] hover:shadow-lg transition-all duration-200"
+                      className="block bg-[#1787D4] text-white rounded-lg p-5 sm:p-5.5 shadow-md shadow-[#1787D4]/25 hover:bg-[#1370B5] hover:shadow-lg transition-all duration-200"
                     >
                       <div className="mb-3">
                         <h3 className="type-h3 text-white">
@@ -195,7 +195,7 @@ export default function InfrastructureSection() {
                 >
                   <Link
                     href={card.href}
-                    className="block bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-5.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-blue-200 hover:shadow-md transition-all duration-200"
+                    className="block bg-white border border-[#E2E8F0] rounded-lg p-5 sm:p-5.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-blue-200 hover:shadow-md transition-all duration-200"
                   >
                     <div className="mb-3">
                       <h3 className="type-h3 text-[#031033]">

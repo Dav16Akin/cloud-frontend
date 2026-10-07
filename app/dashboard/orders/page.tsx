@@ -142,7 +142,7 @@ export default function OrdersPage() {
         <Link
           href="/dashboard/hosting"
           id="orders-new-order"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all duration-150 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all duration-150 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
         >
           <ShoppingCart className="w-4 h-4" />
           New Order
@@ -152,7 +152,7 @@ export default function OrdersPage() {
       {/* Top 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Orders */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             Total Orders
           </span>
@@ -166,7 +166,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Paid Orders */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             Completed (Paid)
           </span>
@@ -180,7 +180,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Pending Orders */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             Pending / In Review
           </span>
@@ -231,13 +231,13 @@ export default function OrdersPage() {
             placeholder="Search by ref or item…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
           />
         </div>
       </div>
 
       {/* Orders Table Container */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
+      <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
         <div className="px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Receipt className="w-4 h-4 text-[#1787D4]" />
@@ -285,7 +285,7 @@ export default function OrdersPage() {
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
+            <div className="w-12 h-12 rounded-lg bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
               <Receipt className="w-6 h-6 stroke-[2]" />
             </div>
             <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
@@ -299,7 +299,7 @@ export default function OrdersPage() {
             {!searchQuery && statusFilter === "All" && (
               <Link
                 href="/dashboard/hosting"
-                className="mt-3 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm"
+                className="mt-3 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm"
               >
                 Browse Services
               </Link>
@@ -333,7 +333,7 @@ export default function OrdersPage() {
                       <OrderStatusBadge status={order.status} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[12px] bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                    <div className="grid grid-cols-2 gap-2 text-[12px] bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                       <div>
                         <span className="text-[#6e6e73] block text-[11px]">Amount</span>
                         <span className="font-bold text-[#1d1d1f] text-[13px]">
@@ -362,7 +362,7 @@ export default function OrdersPage() {
                           disabled={
                             isDownloading && downloadingId === order.id
                           }
-                          className="w-full inline-flex items-center justify-center gap-1.5 text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                          className="w-full inline-flex items-center justify-center gap-1.5 text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                         >
                           {isDownloading && downloadingId === order.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -480,7 +480,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Help / Support Strip */}
-      <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h4 className="text-[14px] font-bold text-[#1d1d1f]">
             Payment inquiry or missing order?

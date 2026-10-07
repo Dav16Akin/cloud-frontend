@@ -184,7 +184,7 @@ function DomainTransferPageContent() {
 
         <Link
           href="/dashboard/domains"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-all shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e2eaff] hover:bg-[#f8fafc] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-all shadow-sm self-start sm:self-auto"
         >
           <Globe className="w-4 h-4 text-[#1787D4]" />
           View My Domains
@@ -194,7 +194,7 @@ function DomainTransferPageContent() {
       {/* Top 3 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Transfers */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             Total Transfers
           </span>
@@ -208,7 +208,7 @@ function DomainTransferPageContent() {
         </div>
 
         {/* Completed */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             Completed
           </span>
@@ -222,7 +222,7 @@ function DomainTransferPageContent() {
         </div>
 
         {/* In Progress */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
           <span className="text-[13px] font-medium text-[#6e6e73]">
             In Progress
           </span>
@@ -240,7 +240,7 @@ function DomainTransferPageContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (8 cols): Initiation Card */}
         <div className="lg:col-span-8 flex flex-col gap-5">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-5">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-5">
             <div>
               <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#1787D4] bg-[#eff6fc] px-2.5 py-1 rounded-full">
                 Transfer In
@@ -270,7 +270,7 @@ function DomainTransferPageContent() {
                       setDomainName(e.target.value);
                       if (eligibilityResult) setEligibilityResult(null);
                     }}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
                   />
                 </div>
               </div>
@@ -306,7 +306,7 @@ function DomainTransferPageContent() {
                       setAuthCode(e.target.value);
                       if (eligibilityResult) setEligibilityResult(null);
                     }}
-                    className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs font-mono"
+                    className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs font-mono"
                   />
                 </div>
                 <p className="text-[11.5px] text-[#6e6e73] mt-1.5">
@@ -319,7 +319,7 @@ function DomainTransferPageContent() {
                 <button
                   type="submit"
                   disabled={checkEligibilityMutation.isPending}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-98"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-98"
                 >
                   {checkEligibilityMutation.isPending ? (
                     <>
@@ -338,9 +338,9 @@ function DomainTransferPageContent() {
 
             {/* Eligibility Result Box */}
             {eligibilityResult && (
-              <div className="bg-[#effaf2] border border-[#a3e5b9] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2 animate-fadeIn">
+              <div className="bg-[#effaf2] border border-[#a3e5b9] rounded-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2 animate-fadeIn">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#d5f5e0] flex items-center justify-center text-[#12a150] shrink-0 mt-0.5">
+                  <div className="w-9 h-9 rounded-lg bg-[#d5f5e0] flex items-center justify-center text-[#12a150] shrink-0 mt-0.5">
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div>
@@ -367,7 +367,7 @@ function DomainTransferPageContent() {
                     <button
                       type="button"
                       onClick={handleRemoveFromCart}
-                      className="w-full sm:w-auto px-4 py-2.5 border border-red-200 text-red-600 hover:bg-red-50 text-[13px] font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto px-4 py-2.5 border border-red-200 text-red-600 hover:bg-red-50 text-[13px] font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />
                       Remove from Cart
@@ -376,7 +376,7 @@ function DomainTransferPageContent() {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />
                       Add to Cart &amp; Checkout
@@ -387,7 +387,7 @@ function DomainTransferPageContent() {
             )}
 
             {checkEligibilityMutation.isError && (
-              <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3 mt-2">
+              <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-start gap-3 mt-2">
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                 <div className="text-[13px]">
                   <p className="font-bold text-red-700">
@@ -404,7 +404,7 @@ function DomainTransferPageContent() {
 
         {/* Right Column (4 cols): Checklist / Guide Card */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
             <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#1787D4]" />
               Transfer Requirements
@@ -463,7 +463,7 @@ function DomainTransferPageContent() {
             </div>
           </div>
 
-          <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-2xl p-5 flex flex-col gap-2">
+          <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-lg p-5 flex flex-col gap-2">
             <span className="text-[13px] font-bold text-[#1787D4] flex items-center gap-1.5">
               <Sparkles className="w-4 h-4" /> Need assistance?
             </span>
@@ -482,7 +482,7 @@ function DomainTransferPageContent() {
       </div>
 
       {/* Transfers Progress & History Table */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
+      <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
         <div className="px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ArrowRightLeft className="w-4 h-4 text-[#1787D4]" />
@@ -512,7 +512,7 @@ function DomainTransferPageContent() {
           </div>
         ) : !transfers || transfers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
+            <div className="w-12 h-12 rounded-lg bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
               <ArrowRightLeft className="w-6 h-6 stroke-[2]" />
             </div>
             <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">

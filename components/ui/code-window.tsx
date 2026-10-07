@@ -37,7 +37,7 @@ export function CodeWindow({
     <div
       data-slot="code-window"
       className={cn(
-        "rounded-2xl border border-slate-800 bg-slate-950 text-slate-100 shadow-2xl overflow-hidden font-mono text-xs sm:text-sm",
+        "rounded-lg border border-slate-800 bg-slate-950 text-slate-100 shadow-2xl overflow-hidden font-mono text-xs sm:text-sm",
         className
       )}
       {...props}

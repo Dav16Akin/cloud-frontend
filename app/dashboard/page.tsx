@@ -97,12 +97,12 @@ function StatCard({
 }: StatCardProps) {
   if (disabled) {
     return (
-      <div className="bg-white/80 rounded-2xl border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between opacity-60 cursor-not-allowed select-none">
+      <div className="bg-white/80 rounded-lg border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between opacity-60 cursor-not-allowed select-none">
         <div>
           {/* Top row: Icon box on left, Category label uppercase on right */}
           <div className="flex items-center justify-between">
             <div
-              className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center text-[#1787D4] opacity-75`}
+              className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center text-[#1787D4] opacity-75`}
             >
               <Icon className="w-5 h-5 stroke-[2.2]" />
             </div>
@@ -143,13 +143,13 @@ function StatCard({
   return (
     <Link
       href={href}
-      className="group bg-white rounded-2xl border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+      className="group bg-white rounded-lg border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-150 flex flex-col justify-between"
     >
       <div>
         {/* Top row: Icon box on left, Category label uppercase on right */}
         <div className="flex items-center justify-between">
           <div
-            className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center text-[#1787D4]`}
+            className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center text-[#1787D4]`}
           >
             <Icon className="w-5 h-5 stroke-[2.2]" />
           </div>
@@ -506,7 +506,7 @@ function QuickActions() {
                 }}
               >
                 {/* <span
-                  className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
                   style={{ background: action.accentBg }}
                 >
                   <Icon
@@ -543,7 +543,7 @@ function QuickActions() {
               }}
             >
               {/* <span
-                className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-transform group-hover:scale-105"
+                className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 transition-transform group-hover:scale-105"
                 style={{ background: action.accentBg }}
               >
                 <Icon
@@ -936,7 +936,7 @@ function DashboardOverviewContent() {
         <Link
           href="/dashboard/hosting"
           id="dashboard-new-order-btn"
-          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[12.5px] sm:text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 whitespace-nowrap self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-[12.5px] sm:text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 whitespace-nowrap self-start sm:self-auto"
           style={{
             background: T.blue,
             boxShadow: "0 2px 8px rgba(23,135,212,0.35)",
@@ -998,7 +998,7 @@ function DashboardOverviewContent() {
           <Link
             href="/dashboard/domains?tab=register"
             id="promo-banner-cta"
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 whitespace-nowrap"
+            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 whitespace-nowrap"
             style={{
               background: T.blue,
               boxShadow: "0 2px 16px rgba(23,135,212,0.5)",

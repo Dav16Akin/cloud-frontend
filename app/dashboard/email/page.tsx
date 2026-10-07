@@ -78,9 +78,9 @@ export default function PrivateEmailPage() {
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Disabled Notification Banner */}
-      <div className="bg-amber-50/60 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-amber-50/60 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#eff6fb] flex items-center justify-center text-[#1787D4] shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-[#eff6fb] flex items-center justify-center text-[#1787D4] shrink-0">
             <Mail className="w-5 h-5" />
           </div>
           <div>
@@ -120,7 +120,7 @@ export default function PrivateEmailPage() {
       {/* Top 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Mailboxes */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
           <span className="text-[13px] font-medium text-[#6e6e73]">Mailboxes</span>
           <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
             {totalMailboxes}
@@ -128,7 +128,7 @@ export default function PrivateEmailPage() {
         </div>
 
         {/* Card 2: Storage Used */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
           <span className="text-[13px] font-medium text-[#6e6e73]">Storage Used</span>
           <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
             24 GB
@@ -136,7 +136,7 @@ export default function PrivateEmailPage() {
         </div>
 
         {/* Card 3: Domains */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
           <span className="text-[13px] font-medium text-[#6e6e73]">Domains</span>
           <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
             {uniqueDomains || 3}
@@ -153,21 +153,21 @@ export default function PrivateEmailPage() {
             placeholder="Search by email or domain..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
           />
         </div>
 
         <Link
           href="/dashboard/email/create"
           id="btn-create-mailbox"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm shrink-0"
         >
           Create Mailbox
         </Link>
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

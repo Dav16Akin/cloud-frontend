@@ -101,7 +101,7 @@ function VerifyContent() {
 
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-4 shadow-xs">
+        <div className="w-12 h-12 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-4 shadow-xs">
           <MailCheck className="w-6 h-6" />
         </div>
         <h1 className="text-2xl sm:text-[28px] font-bold text-[#031033] tracking-tight mb-1.5">
@@ -134,7 +134,7 @@ function VerifyContent() {
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className="w-11 sm:w-12 h-13 sm:h-14 text-center text-xl font-bold bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl text-[#031033] outline-none transition-all"
+              className="w-11 sm:w-12 h-13 sm:h-14 text-center text-xl font-bold bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-lg text-[#031033] outline-none transition-all"
             />
           ))}
         </div>
@@ -143,7 +143,7 @@ function VerifyContent() {
           id="verify-submit"
           type="submit"
           disabled={isPending || code.join("").length < 6}
-          className="w-full py-3 sm:py-3.5 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-xl text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full py-3 sm:py-3.5 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-lg text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {isPending ? (
             <>

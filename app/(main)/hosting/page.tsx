@@ -104,8 +104,8 @@ export default function HostingPage() {
                 />
 
                 {/* Badge 1: 99.9% Uptime (Top Left) */}
-                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
+                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <Activity className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -119,8 +119,8 @@ export default function HostingPage() {
                 </div>
 
                 {/* Badge 2: Free SSL included (Top Right) */}
-                <div className="absolute top-8 sm:top-12 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
+                <div className="absolute top-8 sm:top-12 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -134,8 +134,8 @@ export default function HostingPage() {
                 </div>
 
                 {/* Badge 3: 1-Click Setup (Bottom Right) */}
-                <div className="absolute bottom-12 sm:bottom-16 right-0 sm:right-4 lg:-right-2 bg-white/95 backdrop-blur-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
+                <div className="absolute bottom-12 sm:bottom-16 right-0 sm:right-4 lg:-right-2 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4" />
                   </div>
                   <div className="text-left">
@@ -177,9 +177,9 @@ export default function HostingPage() {
               return (
                 <div
                   key={item.title}
-                  className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col items-start hover:shadow-md transition-shadow"
+                  className="bg-white rounded-lg p-6 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col items-start hover:shadow-md transition-shadow"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-4">
+                  <div className="w-11 h-11 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-4">
                     <Icon className="w-5 h-5 stroke-[2]" />
                   </div>
                   <h3 className="type-h3 text-[#031033] mb-1.5">
@@ -222,7 +222,7 @@ export default function HostingPage() {
                 {/* Top metrics grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3.5">
                   {/* Performance */}
-                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                  <div className="bg-[#f8fafc] rounded-lg p-4 border border-slate-100">
                     <div className="text-[11px] font-medium text-gray-400 mb-1">
                       Performance
                     </div>
@@ -235,7 +235,7 @@ export default function HostingPage() {
                   </div>
 
                   {/* Storage Usage */}
-                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                  <div className="bg-[#f8fafc] rounded-lg p-4 border border-slate-100">
                     <div className="text-[11px] font-medium text-gray-400 mb-1">
                       Storage Usage
                     </div>
@@ -248,7 +248,7 @@ export default function HostingPage() {
                   </div>
 
                   {/* Bandwidth */}
-                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100">
+                  <div className="bg-[#f8fafc] rounded-lg p-4 border border-slate-100">
                     <div className="text-[11px] font-medium text-gray-400 mb-1">
                       Bandwidth
                     </div>
@@ -264,7 +264,7 @@ export default function HostingPage() {
                 {/* Bottom status row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* SSL Certificate */}
-                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                  <div className="bg-[#f8fafc] rounded-lg p-4 border border-slate-100 flex items-center justify-between">
                     <span className="text-xs font-medium text-gray-500">
                       SSL Certificate
                     </span>
@@ -275,7 +275,7 @@ export default function HostingPage() {
                   </div>
 
                   {/* Next Renewal */}
-                  <div className="bg-[#f8fafc] rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                  <div className="bg-[#f8fafc] rounded-lg p-4 border border-slate-100 flex items-center justify-between">
                     <span className="text-xs font-medium text-gray-500">
                       Next Renewal
                     </span>
@@ -315,7 +315,7 @@ export default function HostingPage() {
             {steps.map((step, idx) => (
               <div
                 key={step.number}
-                className="bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-start relative group hover:border-blue-200 transition-colors"
+                className="bg-white border border-slate-200/90 rounded-lg p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-start relative group hover:border-blue-200 transition-colors"
               >
                 <div className="text-3xl font-extrabold text-[#1787D4] mb-4">
                   {step.number}

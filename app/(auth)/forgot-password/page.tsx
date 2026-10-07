@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
           <div className="w-full max-w-[380px] my-auto">
             {/* Header: compact icon, small crisp heading */}
             <div className="text-center mb-6">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-2.5 shadow-2xs">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-2.5 shadow-2xs">
                 <KeyRound className="w-4.5 h-4.5" />
               </div>
               {/* Refined, compact heading so it's never too big on mobile */}
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl outline-none text-[13.5px] text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all shadow-2xs"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200 rounded-lg outline-none text-[13.5px] text-[#031033] placeholder:text-slate-400 focus:bg-white focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all shadow-2xs"
                   />
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
                 id="forgot-password-submit"
                 type="submit"
                 disabled={isPending}
-                className="w-full h-10.5 sm:h-11 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-xl text-[13px] sm:text-[13.5px] transition-all duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full h-10.5 sm:h-11 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-lg text-[13px] sm:text-[13.5px] transition-all duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isPending ? (
                   <>

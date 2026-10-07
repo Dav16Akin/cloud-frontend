@@ -785,7 +785,7 @@ export default function HostingDashboardPage() {
           <Link
             href="/dashboard/hosting/purchase"
             id="hosting-get-cta"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0"
             style={{ background: "#1787D4" }}
           >
             Get Hosting
@@ -861,7 +861,7 @@ export default function HostingDashboardPage() {
             })}
           </div>
           <div
-            className="flex items-center gap-2 w-full sm:w-auto sm:max-w-xs sm:ml-auto px-3 py-2 rounded-xl"
+            className="flex items-center gap-2 w-full sm:w-auto sm:max-w-xs sm:ml-auto px-3 py-2 rounded-lg"
             style={{ background: "#ffffff", border: "1px solid #e8e8ed" }}
           >
             <Search className="w-4 h-4 shrink-0" style={{ color: "#aeaeb2" }} />
@@ -1117,7 +1117,7 @@ export default function HostingDashboardPage() {
                           <Link
                             href={`/dashboard/hosting/${account.id}`}
                             id={`hosting-manage-mobile-${account.id}`}
-                            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
+                            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
                             style={{ background: "#1787D4" }}
                           >
                             {isPending ? "View Provisioning Status" : "Manage Hosting"}

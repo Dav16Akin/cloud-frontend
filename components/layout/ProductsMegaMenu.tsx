@@ -331,11 +331,11 @@ export function DropdownItemRow({
       rel={isExternal ? "noopener noreferrer" : undefined}
       onClick={onClose}
       className={cn(
-        "flex items-center gap-3 p-2.5 rounded-xl transition-all duration-150 hover:bg-[#f2f6fc] group cursor-pointer",
+        "flex items-center gap-3 p-2.5 rounded-lg transition-all duration-150 hover:bg-[#f2f6fc] group cursor-pointer",
         item.highlighted && "bg-[#f8faff] border border-[#e2eaff]"
       )}
     >
-      <div className="w-8.5 h-8.5 rounded-xl bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs">
+      <div className="w-8.5 h-8.5 rounded-lg bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs">
         <Icon className="w-4 h-4 transition-colors" />
       </div>
       <div className="flex-1 min-w-0">
@@ -355,7 +355,7 @@ export function DropdownItemRow({
 export function ProductsMegaMenu({ onClose }: { onClose?: () => void }) {
   return (
     <div
-      className="rounded-2xl border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
+      className="rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
                  shadow-[0_20px_50px_rgba(0,91,138,0.12),0_4px_16px_rgba(23,135,212,0.08)]
                  w-[410px] max-w-[calc(100vw-32px)] text-left animate-in fade-in-0 zoom-in-95 duration-150"
     >
@@ -405,7 +405,7 @@ export function ProductsMegaMenu({ onClose }: { onClose?: () => void }) {
 export function ResourcesMegaMenu({ onClose }: { onClose?: () => void }) {
   return (
     <div
-      className="rounded-2xl border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
+      className="rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
                  shadow-[0_20px_50px_rgba(0,91,138,0.12),0_4px_16px_rgba(23,135,212,0.08)]
                  w-[410px] max-w-[calc(100vw-32px)] text-left animate-in fade-in-0 zoom-in-95 duration-150"
     >

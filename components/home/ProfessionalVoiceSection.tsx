@@ -67,7 +67,7 @@ export default function ProfessionalVoiceSection() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             className="lg:col-span-6"
           >
-            <div className="rounded-2xl border border-blue-200/80 bg-[#F4F8FC]/70 p-6 sm:p-8 backdrop-blur-xs shadow-xs">
+            <div className="rounded-lg border border-blue-200/80 bg-[#F4F8FC]/70 p-6 sm:p-8 backdrop-blur-xs shadow-xs">
               <div className="flex flex-col gap-4">
                 {emailDemos.map((item, idx) => {
                   const Icon = item.icon;
@@ -83,7 +83,7 @@ export default function ProfessionalVoiceSection() {
                         delay: 0.15 + idx * 0.1,
                       }}
                       whileHover={{ y: -3, scale: 1.01 }}
-                      className="bg-white rounded-xl p-4 sm:p-5 border border-[#E2E8F0] shadow-xs flex items-center gap-4 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-default"
+                      className="bg-white rounded-lg p-4 sm:p-5 border border-[#E2E8F0] shadow-xs flex items-center gap-4 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-default"
                     >
                       <div className="w-11 h-11 rounded-full bg-[#1787D4] text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Icon className="w-5 h-5" strokeWidth={2.2} />

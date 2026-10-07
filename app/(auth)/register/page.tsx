@@ -80,7 +80,7 @@ type FormState = z.infer<typeof registerSchema>;
 type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 const inputBase =
-  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-xl outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
+  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-lg outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
 
 const inputClass = (err?: string) =>
   `${inputBase} ${
@@ -428,7 +428,7 @@ export default function RegisterPage() {
                   />
                   {(addressLoading || addressSuggestions.length > 0) && (
                     <div className="relative z-20">
-                      <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                      <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
                         {addressLoading && (
                           <p className="px-3 py-2 text-xs text-slate-500">
                             Searching addresses...
@@ -655,7 +655,7 @@ export default function RegisterPage() {
 
             {/* ════════ Terms Agreement ════════ */}
             <div
-              className={`p-3.5 rounded-xl border transition-all ${
+              className={`p-3.5 rounded-lg border transition-all ${
                 submitted && !agreed
                   ? "bg-red-50/60 border-red-200"
                   : "bg-slate-50/70 border-slate-200/80"
@@ -704,7 +704,7 @@ export default function RegisterPage() {
               id="register-submit"
               type="submit"
               disabled={isPending}
-              className="w-full py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-xl shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+              className="w-full py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-lg shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -739,7 +739,7 @@ export default function RegisterPage() {
                   }/auth/google`,
                 )
               }
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               <GoogleIcon />
               <span>Google</span>
@@ -751,7 +751,7 @@ export default function RegisterPage() {
                 const el = document.getElementById("register-email");
                 el?.focus();
               }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-xl text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               <Mail className="w-4 h-4 text-[#1787D4]" />
               <span>Email</span>

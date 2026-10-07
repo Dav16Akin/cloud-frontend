@@ -89,7 +89,7 @@ export default function ToolsDashboardPage() {
   const renderToolIcon = (iconType: ToolItem["iconType"]) => {
     const iconClass = "w-5 h-5 text-[#1787D4]";
     const iconBoxClass =
-      "w-10 h-10 rounded-xl border border-[#d6e4ff] flex items-center justify-center bg-[#eff6ff] text-[#1787D4]";
+      "w-10 h-10 rounded-lg border border-[#d6e4ff] flex items-center justify-center bg-[#eff6ff] text-[#1787D4]";
 
     switch (iconType) {
       case "domain-search":
@@ -160,7 +160,7 @@ export default function ToolsDashboardPage() {
               href={tool.href}
               id={`tool-card-${tool.id}`}
               onClick={() => handleToolSelect(tool.id)}
-              className={`group bg-white rounded-2xl p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer ${
+              className={`group bg-white rounded-lg p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer ${
                 isActive
                   ? "border-2 border-[#1787D4] shadow-md ring-2 ring-[#1787D4]/10"
                   : "border border-[#e2eaff] hover:border-[#1787D4]/60 hover:shadow-md"

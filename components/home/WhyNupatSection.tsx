@@ -144,12 +144,12 @@ export default function WhyNupatSection() {
             >
               <Link
                 href={item.href}
-                className="group relative flex flex-col justify-between h-full rounded-2xl border border-[#E5E7EB] bg-white p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative flex flex-col justify-between h-full rounded-lg border border-[#E5E7EB] bg-white p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <div>
                   {/* Header: Icon + Badge */}
                   <div className="flex items-center justify-between mb-5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#1787D4] border border-blue-100 group-hover:bg-[#1787D4] group-hover:text-white group-hover:border-[#1787D4] transition-all duration-300">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-[#1787D4] border border-blue-100 group-hover:bg-[#1787D4] group-hover:text-white group-hover:border-[#1787D4] transition-all duration-300">
                       {item.icon}
                     </div>
                     <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-500 border border-slate-200/80 group-hover:border-blue-200 group-hover:text-[#1787D4] transition-colors">

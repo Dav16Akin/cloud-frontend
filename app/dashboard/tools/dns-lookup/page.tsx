@@ -257,7 +257,7 @@ function DnsLookupContent() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowRawJson(!showRawJson)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-xl transition-colors shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm cursor-pointer"
               title="Toggle JSON View"
             >
               <Code className="w-3.5 h-3.5" />
@@ -266,7 +266,7 @@ function DnsLookupContent() {
             <button
               onClick={() => executeLookup(domain)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-xl transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
               title="Refresh DNS Lookup"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -277,7 +277,7 @@ function DnsLookupContent() {
       </div>
 
       {/* Search Input Box */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm">
+      <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <Globe className="w-4 h-4 text-[#8a9bb2] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -286,14 +286,14 @@ function DnsLookupContent() {
               placeholder="Enter a domain name (e.g. yourdomain.com)"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
           >
             {loading ? (
               <>
@@ -312,7 +312,7 @@ function DnsLookupContent() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 text-red-700">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 text-red-700">
           <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <h4 className="text-[13.5px] font-semibold">DNS Lookup Error</h4>
@@ -329,7 +329,7 @@ function DnsLookupContent() {
 
       {/* Loading Skeleton */}
       {loading && !dnsData && (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-8 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
           <p className="text-[14px] font-medium text-[#1d1d1f]">Resolving DNS records for {domain}...</p>
           <p className="text-[12.5px] text-[#6e6e73]">Querying nameservers, mail exchangers, and address records</p>
@@ -338,9 +338,9 @@ function DnsLookupContent() {
 
       {/* Initial Empty State (When no search has been performed yet) */}
       {!loading && !dnsData && !error && !hasLookedUp && (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-12 shadow-sm text-center">
+        <div className="bg-white rounded-lg border border-[#e2eaff] p-12 shadow-sm text-center">
           <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-            <div className="w-10 h-10 rounded-xl bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
               <Network className="w-5 h-5" />
             </div>
             <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
@@ -358,7 +358,7 @@ function DnsLookupContent() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Total Records */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Total Records</span>
                 <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
@@ -372,7 +372,7 @@ function DnsLookupContent() {
             </div>
 
             {/* IPv4 (A) */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">IPv4 Addresses</span>
                 <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
@@ -388,7 +388,7 @@ function DnsLookupContent() {
             </div>
 
             {/* Mail Exchanges (MX) */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Mail Servers</span>
                 <div className="w-7 h-7 rounded-lg bg-[#faf5ff] text-[#9333ea] flex items-center justify-center">
@@ -404,7 +404,7 @@ function DnsLookupContent() {
             </div>
 
             {/* Nameservers (NS) */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-4 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[#6e6e73]">Nameservers</span>
                 <div className="w-7 h-7 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center">
@@ -422,7 +422,7 @@ function DnsLookupContent() {
 
           {/* Raw JSON viewer */}
           {showRawJson && (
-            <div className="bg-[#031033] text-[#e2eaff] rounded-2xl p-5 shadow-sm border border-[#1e293b]">
+            <div className="bg-[#031033] text-[#e2eaff] rounded-lg p-5 shadow-sm border border-[#1e293b]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Code className="w-4 h-4 text-[#38bdf8]" />
@@ -445,7 +445,7 @@ function DnsLookupContent() {
                   )}
                 </button>
               </div>
-              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-xl max-h-96 text-emerald-300">
+              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-emerald-300">
                 {JSON.stringify(dnsData, null, 2)}
               </pre>
             </div>
@@ -453,10 +453,10 @@ function DnsLookupContent() {
 
           {/* SOA Zone Parameters Card */}
           {soa && (selectedType === "ALL" || selectedType === "SOA") && (
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-sm">
+            <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 border border-violet-200 flex items-center justify-center font-bold text-[12px]">
+                  <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 border border-violet-200 flex items-center justify-center font-bold text-[12px]">
                     SOA
                   </div>
                   <div>
@@ -479,31 +479,31 @@ function DnsLookupContent() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-[13px]">
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Primary Nameserver</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold break-all">{soa.nsname}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Hostmaster / Authority</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold break-all">{soa.hostmaster}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Serial Number</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold">{soa.serial}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Minimum TTL</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold">{soa.minttl}s ({Math.round(soa.minttl / 3600)}h)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Refresh Interval</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold">{soa.refresh}s ({Math.round(soa.refresh / 60)}m)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8]">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Retry Interval</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold">{soa.retry}s ({Math.round(soa.retry / 60)}m)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-xl border border-[#eef2f8] sm:col-span-2">
+                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8] sm:col-span-2">
                   <span className="text-[11.5px] text-[#6e6e73] font-medium block">Expire Limit</span>
                   <span className="font-mono text-[#1d1d1f] font-semibold">{soa.expire}s ({Math.round(soa.expire / 86400)} days)</span>
                 </div>
@@ -531,7 +531,7 @@ function DnsLookupContent() {
                 <button
                   key={tab.key}
                   onClick={() => setSelectedType(tab.key)}
-                  className={`px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                     isActive
                       ? "bg-[#1787D4] text-white shadow-sm"
                       : "bg-white text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#1d1d1f] border border-transparent"
@@ -555,7 +555,7 @@ function DnsLookupContent() {
           </div>
 
           {/* Records Table */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>

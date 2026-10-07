@@ -91,7 +91,7 @@ export default function FAQSection() {
                   ease: [0.22, 1, 0.36, 1],
                   delay: index * 0.06,
                 }}
-                className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs transition-all duration-200 hover:border-blue-200 overflow-hidden"
+                className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs transition-all duration-200 hover:border-blue-200 overflow-hidden"
               >
                 <button
                   type="button"

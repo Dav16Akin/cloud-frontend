@@ -25,14 +25,14 @@ export function BentoCard({
     <div
       data-slot="bento-card"
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-[#e2eaff] bg-white p-6 sm:p-7 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1",
+        "group relative overflow-hidden rounded-lg border border-[#e2eaff] bg-white p-6 sm:p-7 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1",
         className
       )}
       {...props}
     >
       {/* Background glow on hover */}
       <div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        className="pointer-events-none absolute -inset-px rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
           background: `radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${glowColor}, transparent 70%)`,
         }}
@@ -43,7 +43,7 @@ export function BentoCard({
           {/* Header with Icon & Badge */}
           <div className="flex items-center justify-between mb-4">
             {icon && (
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eff6ff] text-[#1787D4] border border-[#dbeafe] group-hover:scale-105 transition-transform duration-300 shadow-2xs">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#eff6ff] text-[#1787D4] border border-[#dbeafe] group-hover:scale-105 transition-transform duration-300 shadow-2xs">
                 {icon}
               </div>
             )}

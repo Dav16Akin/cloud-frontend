@@ -88,19 +88,19 @@ export const useCartStore = create<CartStore>()(
         set((state) => {
           // Only one of each plan in the cart
           if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
-          return { items: [...state.items, item], isDrawerOpen: true };
+          return { items: [...state.items, item], isDrawerOpen: false };
         }),
 
       addDomainItem: (item) =>
         set((state) => {
           if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
-          return { items: [...state.items, item], isDrawerOpen: true };
+          return { items: [...state.items, item], isDrawerOpen: false };
         }),
 
       addDomainTransferItem: (item) =>
         set((state) => {
           if (state.items.find((i) => itemKey(i) === itemKey(item))) return state;
-          return { items: [...state.items, item], isDrawerOpen: true };
+          return { items: [...state.items, item], isDrawerOpen: false };
         }),
 
       addSslItem: (item) =>
@@ -110,9 +110,9 @@ export const useCartStore = create<CartStore>()(
           if (existingIndex >= 0) {
             const updated = [...state.items];
             updated[existingIndex] = item;
-            return { items: updated, isDrawerOpen: true };
+            return { items: updated, isDrawerOpen: false };
           }
-          return { items: [...state.items, item], isDrawerOpen: true };
+          return { items: [...state.items, item], isDrawerOpen: false };
         }),
 
       removeItem: (key) =>

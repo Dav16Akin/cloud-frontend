@@ -225,9 +225,9 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Header Banner Card */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-lineear-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+          <div className="w-16 h-16 rounded-lg bg-lineear-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-white" />
             ) : (
@@ -303,7 +303,7 @@ export default function ProfilePage() {
             type="button"
             id="btn-edit-profile"
             onClick={() => setShowEditModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm active:scale-[0.98]"
           >
             <Edit3 className="w-3.5 h-3.5" />
             Edit Profile
@@ -316,7 +316,7 @@ export default function ProfilePage() {
         {/* Left Column (8 cols): Personal Info + Address Info + Notification Settings */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Card 1: Personal & Organization Information */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center">
@@ -410,7 +410,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Card 2: Address & Location Details */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -498,7 +498,7 @@ export default function ProfilePage() {
 
             {/* Address Summary Preview */}
             {fullAddressString && (
-              <div className="mt-5 p-3.5 bg-[#f8faff] rounded-xl border border-[#e2eaff] flex items-start gap-2.5">
+              <div className="mt-5 p-3.5 bg-[#f8faff] rounded-lg border border-[#e2eaff] flex items-start gap-2.5">
                 <Globe className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#1787D4] block">
@@ -513,7 +513,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Card 3: Notification Settings */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
             <h3 className="text-[15.5px] font-bold text-[#1d1d1f] mb-1">
               Notification Settings
             </h3>
@@ -579,7 +579,7 @@ export default function ProfilePage() {
         {/* Right Column (4 cols): Security & Credentials + Account Overview */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           {/* Card 4: Account Details */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
             <h3 className="text-[15px] font-bold text-[#1d1d1f]">
               Account Overview
             </h3>
@@ -612,7 +612,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Card 5: Security & Credentials */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
+          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
             <h3 className="text-[15px] font-bold text-[#1d1d1f] mb-1">
               Security &amp; Credentials
             </h3>
@@ -622,7 +622,7 @@ export default function ProfilePage() {
               type="button"
               id="btn-change-password"
               onClick={() => setShowPasswordModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center"
+              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
             >
               Change Password
             </button>
@@ -632,7 +632,7 @@ export default function ProfilePage() {
               type="button"
               id="btn-2fa"
               onClick={() => setShow2faModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center"
+              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
             >
               Two-Factor Authentication
             </button>
@@ -642,7 +642,7 @@ export default function ProfilePage() {
               type="button"
               id="btn-active-sessions"
               onClick={() => setShowSessionsModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors text-center"
+              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
             >
               Active Sessions
             </button>
@@ -661,7 +661,7 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowEditModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-2xl shadow-2xl p-6 sm:p-7 flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-2xl shadow-2xl p-6 sm:p-7 flex flex-col max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
             <div className="pb-4 border-b border-[#eef2f8]">
               <h3 className="text-lg font-bold text-[#1d1d1f]">
@@ -700,7 +700,7 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. Akinloluwa"
-                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
                         formErrors.firstName
                           ? "border-red-400 bg-red-50/20"
                           : "border-[#e2eaff]"
@@ -728,7 +728,7 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. Oluwaleye"
-                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
                         formErrors.lastName
                           ? "border-red-400 bg-red-50/20"
                           : "border-[#e2eaff]"
@@ -751,7 +751,7 @@ export default function ProfilePage() {
                         type="email"
                         value={user?.email || ""}
                         disabled
-                        className="w-full px-3.5 py-2 bg-gray-50 border border-[#e2eaff] rounded-xl text-sm text-gray-500 cursor-not-allowed"
+                        className="w-full px-3.5 py-2 bg-gray-50 border border-[#e2eaff] rounded-lg text-sm text-gray-500 cursor-not-allowed"
                       />
                       <Lock className="w-3.5 h-3.5 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
                     </div>
@@ -778,7 +778,7 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. 08140300000"
-                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
                         formErrors.phoneNumber
                           ? "border-red-400 bg-red-50/20"
                           : "border-[#e2eaff]"
@@ -810,7 +810,7 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. DevSimplified"
-                      className={`w-full px-3.5 py-2 border rounded-xl text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
                         formErrors.companyName
                           ? "border-red-400 bg-red-50/20"
                           : "border-[#e2eaff]"
@@ -844,7 +844,7 @@ export default function ProfilePage() {
                       value={editHouseNumber}
                       onChange={(e) => setEditHouseNumber(e.target.value)}
                       placeholder="e.g. 40"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     />
                   </div>
 
@@ -858,7 +858,7 @@ export default function ProfilePage() {
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="e.g. Ayodele Fanoiki Street"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     />
                   </div>
 
@@ -872,7 +872,7 @@ export default function ProfilePage() {
                       value={editCity}
                       onChange={(e) => setEditCity(e.target.value)}
                       placeholder="e.g. Magodo G.R.A"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     />
                   </div>
 
@@ -886,7 +886,7 @@ export default function ProfilePage() {
                       value={editState}
                       onChange={(e) => setEditState(e.target.value)}
                       placeholder="e.g. Lagos"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     />
                   </div>
 
@@ -900,7 +900,7 @@ export default function ProfilePage() {
                       value={editPostcode}
                       onChange={(e) => setEditPostcode(e.target.value)}
                       placeholder="e.g. 100248"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     />
                   </div>
 
@@ -912,7 +912,7 @@ export default function ProfilePage() {
                     <select
                       value={editCountry}
                       onChange={(e) => setEditCountry(e.target.value)}
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4] bg-white transition-colors"
+                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4] bg-white transition-colors"
                     >
                       <option value="">Select a country</option>
                       {countryOptions.map((country) => (
@@ -933,14 +933,14 @@ export default function ProfilePage() {
                     setShowEditModal(false);
                     setFormErrors({});
                   }}
-                  className="px-4 py-2.5 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc] transition-colors"
+                  className="px-4 py-2.5 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={updating}
-                  className="px-5 py-2.5 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-sm"
+                  className="px-5 py-2.5 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Save Changes
@@ -962,7 +962,7 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowPasswordModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
             <h3 className="text-base font-bold text-[#1d1d1f]">
               Change Password
             </h3>
@@ -980,7 +980,7 @@ export default function ProfilePage() {
                     type={showOldPass ? "text" : "password"}
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
-                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     required
                   />
                   <button
@@ -1006,7 +1006,7 @@ export default function ProfilePage() {
                     type={showNewPass ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                     required
                   />
                   <button
@@ -1031,7 +1031,7 @@ export default function ProfilePage() {
                   type={showNewPass ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-xl text-sm focus:outline-none focus:border-[#1787D4]"
+                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
                   required
                 />
               </div>
@@ -1040,14 +1040,14 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-xl flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {changingPassword && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1071,7 +1071,7 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShow2faModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
             <h3 className="text-base font-bold text-[#1d1d1f]">
               Two-Factor Authentication (2FA)
             </h3>
@@ -1080,7 +1080,7 @@ export default function ProfilePage() {
               an authenticator app (e.g. Google Authenticator).
             </p>
 
-            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-[#e2eaff] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-[#e2eaff] rounded-lg">
               <div className="flex items-center gap-3">
                 <Smartphone className="w-5 h-5 text-[#1787D4]" />
                 <div>
@@ -1116,7 +1116,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShow2faModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
               >
                 Close
               </button>
@@ -1136,7 +1136,7 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowSessionsModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
             <h3 className="text-base font-bold text-[#1d1d1f]">
               Active Sessions
             </h3>
@@ -1146,7 +1146,7 @@ export default function ProfilePage() {
 
             <div className="flex flex-col gap-3">
               {/* Current device */}
-              <div className="p-3.5 bg-[#f8fafc] border border-[#e2eaff] rounded-xl flex items-center justify-between">
+              <div className="p-3.5 bg-[#f8fafc] border border-[#e2eaff] rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Laptop className="w-5 h-5 text-[#1787D4]" />
                   <div>
@@ -1178,7 +1178,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowSessionsModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
               >
                 Done
               </button>
@@ -1198,7 +1198,7 @@ export default function ProfilePage() {
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowDeleteModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-2xl w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
+          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
             <h3 className="text-base font-bold text-[#1d1d1f]">
               Delete Account
             </h3>
@@ -1212,7 +1212,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-xl text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
               >
                 Cancel
               </button>
@@ -1222,7 +1222,7 @@ export default function ProfilePage() {
                   toast.error("Account deletion request submitted.");
                   setShowDeleteModal(false);
                 }}
-                className="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                className="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg"
               >
                 Confirm Delete
               </button>

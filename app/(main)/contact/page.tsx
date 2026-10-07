@@ -133,7 +133,7 @@ export default function ContactPage() {
                 <a
                   href="#send-message"
                   id="hero-send-message-btn"
-                  className="btn-primary px-8 py-3.5 rounded-xl font-semibold text-sm shadow-xs transition-all active:scale-98"
+                  className="btn-primary px-8 py-3.5 rounded-lg font-semibold text-sm shadow-xs transition-all active:scale-98"
                 >
                   Send Message
                 </a>
@@ -174,10 +174,10 @@ export default function ContactPage() {
             {/* Card 1: Talk to our team */}
             <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
                   <MessageSquare className="w-4.5 h-4.5" />
                 </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 bg-slate-100">
+                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
                   <Image
                     src="/contact-1.png"
                     alt="Talk to our team"
@@ -204,10 +204,10 @@ export default function ContactPage() {
             {/* Card 2: Get technical support */}
             <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
                   <Key className="w-4.5 h-4.5" />
                 </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 bg-slate-100">
+                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
                   <Image
                     src="/conatct-2.png"
                     alt="Get technical support"
@@ -236,10 +236,10 @@ export default function ContactPage() {
             {/* Card 3: Partner with us */}
             <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
                   <Users className="w-4.5 h-4.5" />
                 </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 bg-slate-100">
+                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
                   <Image
                     src="/contact-3.png"
                     alt="Partner with us"
@@ -266,10 +266,10 @@ export default function ContactPage() {
             {/* Card 4: Find an answer yourself */}
             <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
                   <BookOpen className="w-4.5 h-4.5" />
                 </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 bg-slate-100">
+                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
                   <Image
                     src="/contact-4.png"
                     alt="Find an answer yourself"
@@ -334,7 +334,7 @@ export default function ContactPage() {
                         message: "",
                       });
                     }}
-                    className="btn-primary py-2.5 px-6 rounded-xl text-xs font-semibold"
+                    className="btn-primary py-2.5 px-6 rounded-lg text-xs font-semibold"
                   >
                     Send Another Message
                   </button>
@@ -354,7 +354,7 @@ export default function ContactPage() {
                         value={form.firstName}
                         onChange={handleChange}
                         placeholder="Enter your first name"
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
                       />
                     </div>
                     <div>
@@ -368,7 +368,7 @@ export default function ContactPage() {
                         value={form.lastName}
                         onChange={handleChange}
                         placeholder="Enter your last name"
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
                       />
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export default function ContactPage() {
                         value={form.email}
                         onChange={handleChange}
                         placeholder="you@company.com"
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
                       />
                     </div>
                     <div>
@@ -399,7 +399,7 @@ export default function ContactPage() {
                         value={form.company}
                         onChange={handleChange}
                         placeholder="Enter your company name"
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
                       />
                     </div>
                   </div>
@@ -417,7 +417,7 @@ export default function ContactPage() {
                             key={item}
                             type="button"
                             onClick={() => setForm((prev) => ({ ...prev, topic: item }))}
-                            className={`px-3.5 py-2.5 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                            className={`px-3.5 py-2.5 rounded-lg border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
                               isSelected
                                 ? "border-[#1787D4] bg-[#e8f4fc] text-[#1787D4] font-semibold"
                                 : "border-slate-200 bg-white text-[#5a6a85] hover:border-slate-300 hover:text-[#031033]"
@@ -443,7 +443,7 @@ export default function ContactPage() {
                       value={form.message}
                       onChange={handleChange}
                       placeholder="Tell us how we can help..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors resize-y"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors resize-y"
                     />
                   </div>
 
@@ -453,7 +453,7 @@ export default function ContactPage() {
                       type="submit"
                       disabled={loading}
                       id="contact-form-submit"
-                      className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-xl shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer flex items-center gap-2"
+                      className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-lg shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer flex items-center gap-2"
                     >
                       {loading ? "Sending..." : "Send Message"}
                       <Send className="w-3.5 h-3.5" />
@@ -470,7 +470,7 @@ export default function ContactPage() {
 
               <div className="relative z-10">
                 {/* Badge Icon */}
-                <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-white mb-6">
+                <div className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-white mb-6">
                   <MessageSquare className="w-5 h-5" />
                 </div>
 
@@ -606,7 +606,7 @@ export default function ContactPage() {
                 return (
                   <div
                     key={faq.q}
-                    className="bg-[#f8faff] rounded-2xl border border-[#e2eaff] overflow-hidden transition-all shadow-2xs"
+                    className="bg-[#f8faff] rounded-lg border border-[#e2eaff] overflow-hidden transition-all shadow-2xs"
                   >
                     <button
                       type="button"

@@ -55,7 +55,7 @@ export default function NetworkSection() {
         </div>
 
         {/* World Map Container — Apple Rounded Surface */}
-        <div className="w-full rounded-2xl border border-[#e2eaff] bg-[#f8faff] p-3 sm:p-6 relative shadow-xs overflow-hidden">
+        <div className="w-full rounded-lg border border-[#e2eaff] bg-[#f8faff] p-3 sm:p-6 relative shadow-xs overflow-hidden">
           <div className="w-full relative">
             <WorldMap dots={networkDots} lineColor="#1787D4" />
           </div>
@@ -63,19 +63,19 @@ export default function NetworkSection() {
 
         {/* Network Metrics Footer */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 text-center">
-          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
             <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">12ms</p>
             <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Lagos to Accra</p>
           </div>
-          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
             <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">34ms</p>
             <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo&apos;burg</p>
           </div>
-          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
             <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">10 Gbps</p>
             <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Port Capacity</p>
           </div>
-          <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
             <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">Anycast</p>
             <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">DNS Routing</p>
           </div>

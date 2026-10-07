@@ -52,12 +52,12 @@ type DashboardNavbarProps = {
 
 export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: DashboardNavbarProps) {
   const pathname = usePathname();
-  const { itemCount, toggleDrawer } = useCartStore();
-  const [cartCount, setCartCount] = useState(0);
+  const cartCount = useCartStore((s) => s.items.length);
+  const [mounted, setMounted] = useState(false);
   const [shortcut, setShortcut] = useState("⌘ K");
 
-  useEffect(() => { setCartCount(itemCount()); }, [itemCount]);
   useEffect(() => {
+    setMounted(true);
     if (typeof window !== "undefined") {
       setShortcut(navigator.userAgent.toLowerCase().includes("mac") ? "⌘ K" : "Ctrl K");
     }
@@ -179,15 +179,15 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
         <NotificationBell />
 
         {/* Cart */}
-        <button
+        <Link
+          href="/dashboard/cart"
           id="dashboard-nav-cart"
-          onClick={toggleDrawer}
           className="relative p-2 rounded-lg transition-colors cursor-pointer"
           style={{ color: N.inkMuted }}
           aria-label="Shopping cart"
         >
           <ShoppingCart className="w-4.5 h-4.5" />
-          {cartCount > 0 && (
+          {mounted && cartCount > 0 && (
             <span
               className="absolute top-1 right-1 w-4 h-4 text-white text-[8px] font-extrabold flex items-center justify-center rounded-full"
               style={{ background: N.blue }}
@@ -195,7 +195,7 @@ export default function DashboardNavbar({ onMobileMenuOpen, onSearchOpen }: Dash
               {cartCount > 9 ? "9+" : cartCount}
             </span>
           )}
-        </button>
+        </Link>
       </div>
     </header>
   );

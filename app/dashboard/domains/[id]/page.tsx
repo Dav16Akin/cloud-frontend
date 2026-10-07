@@ -368,7 +368,7 @@ export default function ManageDomainPage() {
           <div className="h-4 w-24 rounded bg-[#e8edf8]" />
         </div>
       ) : errorDomain || !domain ? (
-        <div className="bg-white border border-[#e2eaff] p-6 flex items-center gap-3 rounded-xl">
+        <div className="bg-white border border-[#e2eaff] p-6 flex items-center gap-3 rounded-lg">
           <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
           <p className="text-sm text-red-500">Could not load domain details.</p>
         </div>
@@ -438,7 +438,7 @@ export default function ManageDomainPage() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="flex flex-col gap-1 p-4 rounded-xl"
+                    className="flex flex-col gap-1 p-4 rounded-lg"
                     style={{ border: "1px solid #e8e8ed", background: "#fff" }}
                   >
                     <p
@@ -459,7 +459,7 @@ export default function ManageDomainPage() {
 
               {/* Domain Registrar Lock */}
               <div
-                className="flex items-start justify-between gap-4 p-4 rounded-xl"
+                className="flex items-start justify-between gap-4 p-4 rounded-lg"
                 style={{ border: "1px solid #e8e8ed", background: "#fff" }}
               >
                 <div className="flex items-start gap-3">
@@ -495,7 +495,7 @@ export default function ManageDomainPage() {
 
             {/* Right — Quick Operations sidebar */}
             <div
-              className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-xl"
+              className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-lg"
               style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
               <h3
@@ -507,7 +507,7 @@ export default function ManageDomainPage() {
               <button
                 id="domain-quick-renew"
                 onClick={() => setActiveDetailTab("renewal")}
-                className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
                 style={{ background: "#1787D4" }}
               >
                 Renew Domain
@@ -515,7 +515,7 @@ export default function ManageDomainPage() {
               <button
                 id="domain-quick-dns"
                 onClick={() => setActiveDetailTab("dns")}
-                className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
+                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
                 style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
               >
                 Manage DNS
@@ -523,7 +523,7 @@ export default function ManageDomainPage() {
               <button
                 id="domain-quick-autorenew"
                 onClick={() => setActiveDetailTab("renewal")}
-                className="w-full py-2.5 px-4 rounded-xl text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
+                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
                 style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
               >
                 {domain.autoRenew ? "Disable Auto-Renew" : "Enable Auto-Renew"}
@@ -1163,7 +1163,7 @@ export default function ManageDomainPage() {
               Domain Renewal
             </h2>
             <div
-              className="flex flex-col gap-4 p-6 rounded-xl"
+              className="flex flex-col gap-4 p-6 rounded-lg"
               style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
               <div className="flex items-center justify-between">
@@ -1193,7 +1193,7 @@ export default function ManageDomainPage() {
               </p>
               <button
                 id="domain-renew-cta"
-                className="self-start flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                className="self-start flex items-center gap-2 px-5 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
                 style={{ background: "#1787D4" }}
               >
                 <RefreshCcw className="w-4 h-4" />
@@ -1201,7 +1201,7 @@ export default function ManageDomainPage() {
               </button>
             </div>
             <div
-              className="flex items-center justify-between p-5 rounded-xl"
+              className="flex items-center justify-between p-5 rounded-lg"
               style={{ border: "1px solid #e8e8ed", background: "#fff" }}
             >
               <div>
@@ -1218,7 +1218,7 @@ export default function ManageDomainPage() {
                 </p>
               </div>
               <span
-                className="px-3 py-1.5 rounded-xl text-[12.5px] font-semibold"
+                className="px-3 py-1.5 rounded-lg text-[12.5px] font-semibold"
                 style={{
                   background: domain.autoRenew ? "#ecfdf5" : "#fef2f2",
                   color: domain.autoRenew ? "#059669" : "#dc2626",
@@ -1237,7 +1237,7 @@ export default function ManageDomainPage() {
             Contact Information
           </h2>
           <div
-            className="flex flex-col items-center justify-center py-14 gap-3 rounded-xl"
+            className="flex flex-col items-center justify-center py-14 gap-3 rounded-lg"
             style={{ border: "1px solid #e8e8ed", background: "#fff" }}
           >
             <Info className="w-8 h-8" style={{ color: "#aeaeb2" }} />

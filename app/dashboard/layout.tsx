@@ -7,7 +7,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
-import CartDrawer from "@/components/layout/CartDrawer";
 import SearchModal from "@/components/dashboard/SearchModal";
 import { refresh } from "@/lib/api";
 
@@ -141,7 +140,6 @@ export default function DashboardLayout({
           <main className="flex-1 overflow-y-auto p-4 sm:px-6 md:p-8">{children}</main>
         </div>
       </div>
-      <CartDrawer />
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}

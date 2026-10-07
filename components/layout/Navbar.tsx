@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Globe,
   ArrowRightLeft,
@@ -27,7 +27,6 @@ import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
-import CartDrawer from "@/components/layout/CartDrawer";
 import { ProductsMegaMenu, ResourcesMegaMenu } from "@/components/layout/ProductsMegaMenu";
 
 const DOCS_URL =
@@ -149,9 +148,9 @@ function DropdownItem({
   return (
     <Link
       href={href}
-      className="flex items-start gap-3 p-2.5 rounded-xl transition-all duration-150 hover:bg-[#1787D4]/6 hover:translate-x-0.5 group"
+      className="flex items-start gap-3 p-2.5 rounded-lg transition-all duration-150 hover:bg-[#1787D4]/6 hover:translate-x-0.5 group"
     >
-      <div className="mt-0.5 flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all shadow-2xs">
+      <div className="mt-0.5 flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all shadow-2xs">
         <Icon className="h-4 w-4 transition-colors" />
       </div>
       <div className="min-w-0">
@@ -199,11 +198,19 @@ export default function Navbar() {
   const pathname = usePathname();
   const scrolled = useScroll(10);
 
+  const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const { data: me } = useGetMe();
-  const { itemCount, toggleDrawer } = useCartStore();
-  const cartCount = itemCount();
+  const cartCount = useCartStore((s) => s.items.length);
+
+  const handleCartClick = () => {
+    if (token) {
+      router.push("/dashboard/cart");
+    } else {
+      router.push("/login?redirect=/dashboard/cart");
+    }
+  };
 
   /* Cart visible on domain/hosting pages OR whenever user has items in cart */
   const showCart =
@@ -264,7 +271,7 @@ export default function Navbar() {
       <div className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4">
         <div
           className={cn(
-            "mx-auto max-w-7xl rounded-2xl border border-[#e2eaff] bg-white/95 backdrop-blur-xl",
+            "mx-auto max-w-7xl rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-xl",
             "transition-all duration-300",
             scrolled
               ? "bg-white/90 shadow-[0_12px_36px_rgba(23,135,212,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
@@ -372,7 +379,7 @@ export default function Navbar() {
               {showCart && (
                 <button
                   id="nav-cart-btn"
-                  onClick={toggleDrawer}
+                  onClick={handleCartClick}
                   className="relative p-2 rounded-md text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors border-none bg-transparent cursor-pointer"
                   aria-label="Shopping cart"
                 >
@@ -490,7 +497,7 @@ export default function Navbar() {
               {showCart && (
                 <button
                   id="nav-cart-btn-mobile"
-                  onClick={toggleDrawer}
+                  onClick={handleCartClick}
                   className="relative p-2 !rounded-[8px] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <ShoppingCart className="h-5 w-5" />
@@ -692,8 +699,6 @@ export default function Navbar() {
           )}
         </div>
       </MobileMenu>
-
-      <CartDrawer />
     </>
   );
 }

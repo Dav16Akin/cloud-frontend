@@ -84,7 +84,7 @@ function ResetPasswordContent() {
     <div className="w-full max-w-[380px] my-auto">
       {/* Header */}
       <div className="text-center mb-6">
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-2.5 shadow-2xs">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-2.5 shadow-2xs">
           <LockKeyhole className="w-4.5 h-4.5" />
         </div>
         <h1 className="text-[17px] sm:text-[19px] font-bold text-[#031033] tracking-tight leading-snug mb-1">
@@ -119,7 +119,7 @@ function ResetPasswordContent() {
                 setTouched(true);
               }}
               required
-              className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl pr-12 text-[#031033] placeholder:text-slate-400 text-base sm:text-sm outline-none transition-all"
+              className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-lg pr-12 text-[#031033] placeholder:text-slate-400 text-base sm:text-sm outline-none transition-all"
             />
             <button
               type="button"
@@ -161,7 +161,7 @@ function ResetPasswordContent() {
         </div>
 
         {/* Requirements Checklist */}
-        <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2 text-xs">
+        <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 space-y-2 text-xs">
           <p className="font-semibold text-[#031033] text-[11px] uppercase tracking-wider">
             Password Requirements:
           </p>
@@ -223,7 +223,7 @@ function ResetPasswordContent() {
                   : passwordsMatch
                   ? "border-emerald-400"
                   : "border-slate-200"
-              } focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-xl pr-12 text-[#031033] placeholder:text-slate-400 text-base sm:text-sm outline-none transition-all`}
+              } focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-lg pr-12 text-[#031033] placeholder:text-slate-400 text-base sm:text-sm outline-none transition-all`}
             />
             <button
               type="button"
@@ -256,7 +256,7 @@ function ResetPasswordContent() {
           id="reset-password-submit"
           type="submit"
           disabled={isPending || !allRulesPassed}
-          className="w-full py-3 sm:py-3.5 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-xl text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-1"
+          className="w-full py-3 sm:py-3.5 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-lg text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-1"
         >
           {isPending ? (
             <>

@@ -61,8 +61,13 @@ export const useCreateTicket = () => {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { deptId: string; subject: string; message: string }) =>
-      createTicket(data),
+    mutationFn: (data: {
+      deptId: string;
+      subject: string;
+      message: string;
+      priority?: string;
+      service?: string;
+    }) => createTicket(data),
     onSuccess: () => {
       toast.success("Ticket created successfully");
       qc.invalidateQueries({ queryKey: ["support-tickets"] });
@@ -95,6 +100,58 @@ export const useReplyToTicket = () => {
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to send reply");
+    },
+  });
+};
+
+// ── Close Ticket ─────────────────────────────────────────────────────────────
+
+export const useCloseTicket = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ ticketId }: { ticketId: string }) =>
+      replyToTicket(ticketId, "[Customer closed this ticket]"),
+    onSuccess: (_data, variables) => {
+      toast.success("Ticket closed successfully");
+      qc.invalidateQueries({
+        queryKey: ["support-ticket", variables.ticketId],
+      });
+      qc.invalidateQueries({
+        queryKey: ["support-ticket"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["support-tickets"],
+      });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to close ticket");
+    },
+  });
+};
+
+// ── Reopen Ticket ────────────────────────────────────────────────────────────
+
+export const useReopenTicket = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ ticketId }: { ticketId: string }) =>
+      replyToTicket(ticketId, "[Customer reopened this ticket]"),
+    onSuccess: (_data, variables) => {
+      toast.success("Ticket reopened successfully");
+      qc.invalidateQueries({
+        queryKey: ["support-ticket", variables.ticketId],
+      });
+      qc.invalidateQueries({
+        queryKey: ["support-ticket"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["support-tickets"],
+      });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to reopen ticket");
     },
   });
 };

@@ -72,34 +72,33 @@ const HOSTING_TYPES: HostingTypeOption[] = [
     iconBg: "bg-blue-50 text-[#1787D4]",
     available: true,
   },
-  //,
-  // {
-  //   id: "vps",
-  //   title: "VPS Hosting",
-  //   description:
-  //     "Dedicated virtual resources and flexible server control for growing applications and advanced workloads.",
-  //   idealFor: "Developers • ecommerce • custom apps",
-  //   iconBg: "bg-indigo-50 text-indigo-600",
-  //   available: false,
-  // },
-  // {
-  //   id: "cloud",
-  //   title: "Cloud Hosting",
-  //   description:
-  //     "Elastic infrastructure that scales with traffic and keeps business-critical experiences available.",
-  //   idealFor: "High-traffic sites • SaaS • growing teams",
-  //   iconBg: "bg-sky-50 text-sky-500",
-  //   available: false,
-  // },
-  // {
-  //   id: "wordpress",
-  //   title: "Managed WordPress",
-  //   description:
-  //     "Optimized WordPress hosting with updates, backups, performance, and security managed for you.",
-  //   idealFor: "WordPress sites • agencies • publishers",
-  //   iconBg: "bg-teal-50 text-teal-600",
-  //   available: false,
-  // },
+  {
+    id: "vps",
+    title: "VPS Hosting",
+    description:
+      "Dedicated virtual resources and flexible server control for growing applications and advanced workloads.",
+    idealFor: "Developers • ecommerce • custom apps",
+    iconBg: "bg-indigo-50 text-indigo-600",
+    available: false,
+  },
+  {
+    id: "cloud",
+    title: "Cloud Hosting",
+    description:
+      "Elastic infrastructure that scales with traffic and keeps business-critical experiences available.",
+    idealFor: "High-traffic sites • SaaS • growing teams",
+    iconBg: "bg-sky-50 text-sky-500",
+    available: false,
+  },
+  {
+    id: "wordpress",
+    title: "Managed WordPress",
+    description:
+      "Optimized WordPress hosting with updates, backups, performance, and security managed for you.",
+    idealFor: "WordPress sites • agencies • publishers",
+    iconBg: "bg-teal-50 text-teal-600",
+    available: false,
+  },
 ];
 
 function formatPrice(n: number) {
@@ -198,7 +197,7 @@ function StepperBar({ currentStep }: { currentStep: StepId }) {
   const activeNum = getActiveStepNumber();
 
   return (
-    <div className="w-full bg-white rounded-lg border border-[#e8e8ed] px-4 sm:px-8 py-3.5 shadow-2xs">
+    <div className="w-full bg-white rounded-lg border border-[#e8e8ed] px-4 sm:px-8 py-3.5 shadow-sm">
       <div className="flex items-center justify-between overflow-x-auto gap-2">
         {[
           { num: 1, label: "Hosting" },
@@ -379,7 +378,9 @@ function HostingPurchaseFlow() {
         setDomainSearchResult(match);
       } else {
         setDomainSearchResult(null);
-        toast.error("No domain results found from the server. Try a different name.");
+        toast.error(
+          "No domain results found from the server. Try a different name.",
+        );
       }
     } catch (err: unknown) {
       setDomainSearchResult(null);
@@ -651,7 +652,8 @@ function HostingPurchaseFlow() {
                 Unable to load hosting plans
               </h3>
               <p className="text-xs text-[#6e6e73] mt-1.5 leading-relaxed">
-                We couldn&apos;t retrieve the current hosting plans from the server. Please check your network and try again.
+                We couldn&apos;t retrieve the current hosting plans from the
+                server. Please check your network and try again.
               </p>
               <button
                 type="button"
@@ -812,13 +814,13 @@ function HostingPurchaseFlow() {
                   )}
                 </div>
 
-                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6.5">
-                  Connect a domain you own to this {selectedPlan?.name || "Web"} hosting
-                  plan.
+                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6">
+                  Connect a domain you own to this {selectedPlan?.name || "Web"}{" "}
+                  hosting plan.
                 </p>
 
                 {domainOption === "existing" && (
-                  <div className="mt-4 ml-6.5 space-y-3">
+                  <div className="mt-4 ml-6 space-y-3">
                     <div>
                       <label className="text-[11.5px] font-semibold text-[#1d1d1f] block mb-1.5">
                         Domain name
@@ -868,7 +870,7 @@ function HostingPurchaseFlow() {
                     I need a domain
                   </h3>
                 </div>
-                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6.5">
+                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6">
                   Search Nupat Cloud and add an available domain to this order.
                 </p>
               </div>
@@ -1080,7 +1082,9 @@ function HostingPurchaseFlow() {
                   </div>
                   <div className="mt-3">
                     <span className="text-sm font-bold text-[#1d1d1f]">
-                      {selectedPlan ? formatPrice(selectedPlan.monthlyPrice) : "—"}
+                      {selectedPlan
+                        ? formatPrice(selectedPlan.monthlyPrice)
+                        : "—"}
                     </span>
                     <span className="text-[11px] text-[#6e6e73]"> /month</span>
                     <p className="text-[10.5px] text-[#8a9bb2] mt-0.5">
@@ -1116,7 +1120,9 @@ function HostingPurchaseFlow() {
                   </div>
                   <div className="mt-3">
                     <span className="text-sm font-bold text-[#1d1d1f]">
-                      {selectedPlan ? formatPrice(selectedPlan.quarterlyPrice) : "—"}
+                      {selectedPlan
+                        ? formatPrice(selectedPlan.quarterlyPrice)
+                        : "—"}
                     </span>
                     <span className="text-[11px] text-[#6e6e73]">
                       {" "}
@@ -1124,7 +1130,11 @@ function HostingPurchaseFlow() {
                     </span>
                     <p className="text-[10.5px] text-[#8a9bb2] mt-0.5">
                       ~
-                      {selectedPlan ? formatPrice(Math.round(selectedPlan.quarterlyPrice / 3)) : "—"}
+                      {selectedPlan
+                        ? formatPrice(
+                            Math.round(selectedPlan.quarterlyPrice / 3),
+                          )
+                        : "—"}
                       /mo equivalent
                     </p>
                   </div>
@@ -1777,7 +1787,9 @@ function HostingPurchaseFlow() {
             <CheckCircle className="w-4 h-4 text-[#10b981] shrink-0" />
             <span>
               A hosting receipt and access details were sent to{" "}
-              {userEmail || (domainName ? `admin@${domainName}` : "your registered email")}.
+              {userEmail ||
+                (domainName ? `admin@${domainName}` : "your registered email")}
+              .
             </span>
           </div>
         </div>

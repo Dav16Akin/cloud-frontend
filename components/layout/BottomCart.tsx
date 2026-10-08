@@ -67,7 +67,7 @@ export default function BottomCart() {
           aria-label="Open cart drawer"
         >
           <div className="w-9 h-9 rounded-lg bg-[#1787D4] flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#1370B5] transition-colors">
-            <ShoppingCart className="w-4.5 h-4.5 text-white" />
+            <ShoppingCart className="w-4 h-4 text-white" />
           </div>
           <div>
             <p className="text-white text-xs sm:text-sm font-bold leading-tight">

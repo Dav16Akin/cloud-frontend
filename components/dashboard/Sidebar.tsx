@@ -36,7 +36,7 @@ const DOCS_URL =
 const S = {
   bg: "#033B5C", // user-specified dark oceanic background
   active: "#4AC3B4", // user-specified bright teal-cyan active state
-  activeBg: "#054972", // active container fill matching mockup
+  activeBg: "#01253B", // dark recessed oceanic container matching media_1791418712175.png
   inactiveText: "#93b7cd", // soft muted slate-blue
   hoverBg: "rgba(255, 255, 255, 0.05)",
   userChipBg: "#02283f", // dark pill container
@@ -49,7 +49,10 @@ const S = {
 type NavItem = {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{
+    className?: string;
+    style?: React.CSSProperties;
+  }>;
   exact?: boolean;
   disabled?: boolean;
 };
@@ -74,6 +77,16 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "Hosting List",
     href: "/dashboard/hosting",
+    icon: Server,
+  },
+  {
+    label: "Invoices",
+    href: "/dashboard/invoices",
+    icon: Receipt,
+  },
+  {
+    label: "Support Tickets",
+    href: "/dashboard/tickets",
     icon: Server,
   },
   {
@@ -346,18 +359,21 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
               onClick={onClose}
               className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-all duration-150 ${
                 isActive
-                  ? "font-medium shadow-xs"
-                  : "hover:text-white"
+                  ? "font-semibold shadow-xs"
+                  : "hover:text-white hover:bg-white/[0.04]"
               }`}
               style={{
                 color: isActive ? S.active : S.inactiveText,
                 background: isActive ? S.activeBg : "transparent",
+                border: isActive
+                  ? "1px solid rgba(255, 255, 255, 0.08)"
+                  : "1px solid transparent",
               }}
             >
-              {/* Active left indicator pill matching the mockup screenshot */}
+              {/* Active left flush curved indicator matching media_1791418712175.png */}
               {isActive && (
                 <span
-                  className="absolute left-0 top-1.5 bottom-1.5 w-1.5 rounded-r-full"
+                  className="absolute left-0 top-0 bottom-0 w-[4px] rounded-l-2xl"
                   style={{ background: S.active }}
                 />
               )}
@@ -391,13 +407,14 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           </div>
 
           {/* Photo Banner */}
-          <div className="relative w-full h-[88px] rounded-xl overflow-hidden bg-[#044c77]">
+          <div className="relative w-full h-[96px] rounded-xl overflow-hidden bg-[#044c77]">
             <Image
-              src="/premium-protection-banner.png"
+              src="/premiuimprotection.png"
               alt="Premium Protection"
               fill
-              className="object-cover object-center"
+              className="object-cover object-top"
               sizes="200px"
+              priority
             />
           </div>
 
@@ -406,8 +423,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             className="text-[11px] leading-relaxed"
             style={{ color: S.inactiveText }}
           >
-            Keep expired domains from entering redemption with automatic
-            renewal and priority support.
+            Keep expired domains from entering redemption with automatic renewal
+            and priority support.
           </p>
 
           {/* Action Link */}

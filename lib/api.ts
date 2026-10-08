@@ -1517,6 +1517,8 @@ export const createTicket = (data: {
   deptId: string;
   subject: string;
   message: string;
+  priority?: string;
+  service?: string;
 }): Promise<{
   success: boolean;
   data: { ticketId: string; ticketNumber: string };

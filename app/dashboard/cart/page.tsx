@@ -205,7 +205,7 @@ function DashboardCartContent() {
                   return (
                     <div
                       key={key}
-                      className="py-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       <div className="flex items-start gap-3.5 min-w-0">
                         <div
@@ -251,7 +251,7 @@ function DashboardCartContent() {
 
           {/* Complementary Services / Quick-Add Card (when domains are in cart) */}
           {domainsWithoutSsl.length > 0 && (
-            <div className="w-full bg-[#f8fbfe] rounded-lg border border-[#d6eaf8] p-5 shadow-2xs">
+            <div className="w-full bg-[#f8fbfe] rounded-lg border border-[#d6eaf8] p-5 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <span className="w-9 h-9 rounded-lg bg-blue-100 text-[#1787D4] flex items-center justify-center shrink-0 mt-0.5">
@@ -285,7 +285,7 @@ function DashboardCartContent() {
                           });
                           toast.success(`PositiveSSL added for ${full}`);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold text-[#1787D4] bg-white border border-[#bce0f8] hover:bg-[#1787D4] hover:text-white transition-all shadow-2xs cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold text-[#1787D4] bg-white border border-[#bce0f8] hover:bg-[#1787D4] hover:text-white transition-all shadow-sm cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Add for {full}

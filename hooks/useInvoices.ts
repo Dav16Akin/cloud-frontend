@@ -27,6 +27,39 @@ export const useGetInvoices = () => {
   });
 };
 
+// ── Get single invoice by ID ──────────────────────────────────────────────────
+
+export const useGetInvoice = (id: string) => {
+  const token = useAuthStore((s) => s.token);
+  const { data: invoices } = useGetInvoices();
+
+  return useQuery({
+    queryKey: ["invoice", id],
+    queryFn: async () => {
+      if (!token || !id) return null;
+      const matchInv = (inv: Invoice) => {
+        if (inv.id === id) return true;
+        if (inv.whmcsInvoiceId && String(inv.whmcsInvoiceId) === id) return true;
+        if (inv.whmcsInvoiceId && id.includes(String(inv.whmcsInvoiceId))) return true;
+        return false;
+      };
+
+      const cached = (invoices || []).find(matchInv);
+      if (cached) return cached;
+
+      const res = await getInvoices();
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? (res as Invoice[])
+        : [];
+      return list.find(matchInv) || null;
+    },
+    enabled: !!token && !!id,
+    staleTime: 30 * 1000,
+  });
+};
+
 // ── Pay now for PENDING or FAILED invoice ──────────────────────────────────────
 
 export const usePayInvoice = () => {

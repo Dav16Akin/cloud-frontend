@@ -119,7 +119,7 @@ export const useLogout = () => {
     onSettled: () => {
       logout();
       queryClient.clear();
-      router.push("/login");
+      router.push("/");
     },
   });
 };

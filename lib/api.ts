@@ -195,16 +195,16 @@ const fetchWithRefresh = async (
         processQueue(authErr, null);
         useAuthStore.getState().logout();
         clearQueryCache();
-        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-          window.location.href = "/login?session_expired=true";
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
         }
       }
     } catch (err) {
       processQueue(err, null);
       useAuthStore.getState().logout();
       clearQueryCache();
-      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login?session_expired=true";
+      if (typeof window !== "undefined" && window.location.pathname !== "/") {
+        window.location.href = "/";
       }
     } finally {
       isRefreshing = false;

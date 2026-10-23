@@ -47,7 +47,7 @@ const footerLinks = {
   Products: [
     { label: "Domains", href: "/domains" },
     { label: "Web Hosting", href: "/hosting" },
-    { label: "VPS", href: "/hosting#vps" },
+    { label: "VPS Hosting", href: "/vps" },
     { label: "Cloud Hosting", href: "/hosting#cloud" },
     { label: "AI Website Builder", href: "/hosting#ai" },
     { label: "Managed WordPress", href: "/hosting#wordpress" },

@@ -56,6 +56,13 @@ const productsLinks = [
     available: true,
   },
   {
+    title: "VPS Hosting",
+    href: "/vps",
+    icon: Server,
+    description: "Dedicated resources with full root control.",
+    available: true,
+  },
+  {
     title: "Pricing & Plans",
     href: "/pricing",
     icon: Tag,
@@ -68,13 +75,6 @@ const productsLinks = [
     href: "#",
     icon: Globe,
     description: "Manage your domains in one place.",
-    available: false,
-  },
-  {
-    title: "VPS Hosting",
-    href: "#",
-    icon: Server,
-    description: "Powerful infrastructure with more control.",
     available: false,
   },
   {

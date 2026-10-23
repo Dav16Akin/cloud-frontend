@@ -67,11 +67,11 @@ export default function DashboardLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasHydrated, queryClient]);
 
-  // If the token is cleared mid-session (e.g. both tokens expired), redirect.
+  // If the token is cleared mid-session (e.g. both tokens expired), redirect to home screen.
   useEffect(() => {
     if (authStatus === "unauthenticated") {
       queryClient.clear();
-      router.replace("/login");
+      router.replace("/");
     }
   }, [authStatus, router, queryClient]);
 

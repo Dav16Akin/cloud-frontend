@@ -79,6 +79,13 @@ export const activeProductsItems: MenuItem[] = [
     available: true,
   },
   {
+    title: "VPS Hosting",
+    description: "Dedicated virtual servers with full root control.",
+    icon: Server,
+    href: "/vps",
+    available: true,
+  },
+  {
     title: "Hosting Plans & Pricing",
     description: "Flexible packages for creators, startups, and agencies.",
     icon: Tag,

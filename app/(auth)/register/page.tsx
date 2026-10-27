@@ -25,6 +25,7 @@ import countries from "i18n-iso-countries";
 import en from "i18n-iso-countries/langs/en.json";
 import { toast } from "sonner";
 import { useRegister } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 // ── Zod Schema ────────────────────────────────────────────────────────────────
@@ -37,23 +38,43 @@ const countryOptions = Object.entries(countryNames)
 
 const registerSchema = z
   .object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(100, "First name is too long"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(100, "Last name is too long"),
     email: z
       .string()
       .min(1, "Email is required")
       .email("Enter a valid email address"),
     phoneNumber: z.string().min(7, "Enter a valid phone number"),
-    companyName: z.string().min(1, "Company name is required"),
-    address: z.string().min(3, "Street address is required"),
-    houseNumber: z.string().min(1, "Unit / suite number is required"),
-    city: z.string().min(1, "City is required"),
-    state: z.string().min(1, "State / Province is required"),
+    companyName: z
+      .string()
+      .max(200, "Company name must be 200 characters or fewer"),
+    address: z
+      .string()
+      .min(3, "Street address is required")
+      .max(255, "Street address is too long"),
+    houseNumber: z
+      .string()
+      .max(50, "Unit / suite must be 50 characters or fewer"),
+    city: z.string().min(1, "City is required").max(100, "City is too long"),
+    state: z
+      .string()
+      .min(1, "State / Province is required")
+      .max(100, "State / Province is too long"),
     country: z.string().regex(/^[A-Z]{2}$/, "Select a country"),
-    postcode: z.string().min(1, "Postcode is required"),
+    postcode: z
+      .string()
+      .min(1, "Postcode is required")
+      .max(20, "Postcode is too long"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
+      .max(72, "Password must be 72 characters or fewer")
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[0-9]/, "Password must contain at least one number"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -255,7 +276,19 @@ export default function RegisterPage() {
     }
 
     const { confirmPassword: _, ...payload } = result.data;
-    register(payload);
+    register(payload, {
+      onError: (error) => {
+        if (!(error instanceof ApiError) || !error.fieldErrors) return;
+        const serverErrors: FieldErrors = {};
+        (Object.keys(error.fieldErrors) as (keyof FormState)[]).forEach(
+          (key) => {
+            if (key === "confirmPassword") return;
+            serverErrors[key] = error.fieldErrors?.[key]?.[0];
+          },
+        );
+        setErrors((prev) => ({ ...prev, ...serverErrors }));
+      },
+    });
   };
 
   return (
@@ -295,8 +328,8 @@ export default function RegisterPage() {
               Start your cloud journey with Nupat Cloud today
             </p>
             <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-              All fields are required (
-              <span className="text-red-500 font-bold">*</span>)
+              Fields marked (<span className="text-red-500 font-bold">*</span>)
+              are required
             </p>
           </div>
 
@@ -397,7 +430,7 @@ export default function RegisterPage() {
               <div>
                 <label htmlFor="register-company" className={labelClass}>
                   Company / Organization Name{" "}
-                  <span className="text-red-500 ml-0.5">*</span>
+                  <span className="text-slate-400 text-[11px]">(optional)</span>
                 </label>
                 <input
                   id="register-company"
@@ -456,18 +489,14 @@ export default function RegisterPage() {
                 <div>
                   <label htmlFor="register-house-number" className={labelClass}>
                     Unit / Suite No.{" "}
-                    <span className="text-red-500 ml-0.5">*</span>
+                    <span className="text-slate-400 text-[11px]">(optional)</span>
                   </label>
                   <input
                     id="register-house-number"
                     type="text"
-                    inputMode="numeric"
                     placeholder="Suite 4B"
                     value={form.houseNumber}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      set("houseNumber", val);
-                    }}
+                    onChange={(e) => set("houseNumber", e.target.value)}
                     onBlur={() => validateField("houseNumber")}
                     className={inputClass(errors.houseNumber)}
                   />

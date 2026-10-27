@@ -9,25 +9,21 @@ import {
   Globe,
   ArrowRightLeft,
   ShoppingCart,
-  LogOut,
-  LayoutDashboard,
   Server,
   Headphones,
   BookOpen,
   Tag,
   ChevronDown,
   Zap,
-  FileText,
-  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
-import { FluidOrb } from "@/components/ui/fluid-orb";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
 import { ProductsMegaMenu, ResourcesMegaMenu } from "@/components/layout/ProductsMegaMenu";
+import { MobileAccountPanel, UserMenu } from "@/components/layout/UserMenu";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
@@ -118,67 +114,31 @@ const resourcesLinks = [
 
 /* ─── Scroll hook ───────────────────────────────────────────── */
 function useScroll(threshold: number) {
-  const [scrolled, setScrolled] = React.useState(false);
-  const fn = React.useCallback(
-    () => setScrolled(window.scrollY > threshold),
-    [threshold],
-  );
-  React.useEffect(() => {
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, [fn]);
-  React.useEffect(() => {
-    fn();
-  }, [fn]);
-  return scrolled;
-}
-
-/* ─── Dropdown card item ────────────────────────────────────── */
-function DropdownItem({
-  title,
-  description,
-  icon: Icon,
-  href,
-}: {
-  title: string;
-  description?: string;
-  icon: LucideIcon | React.ComponentType<{ className?: string }>;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-start gap-3 p-2.5 rounded-lg transition-all duration-150 hover:bg-[#1787D4]/6 hover:translate-x-0.5 group"
-    >
-      <div className="mt-0.5 flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all shadow-2xs">
-        <Icon className="h-4 w-4 transition-colors" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[12.5px] font-semibold text-[#031033] group-hover:text-[#1787D4] leading-tight mb-1 transition-colors">
-          {title}
-        </p>
-        {description && (
-          <p className="text-[11px] text-[#5a6a85] leading-snug">
-            {description}
-          </p>
-        )}
-      </div>
-    </Link>
+  return React.useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener("scroll", onChange, { passive: true });
+      return () => window.removeEventListener("scroll", onChange);
+    },
+    () => window.scrollY > threshold,
+    () => false,
   );
 }
 
 /* ─── Mobile portal ─────────────────────────────────────────── */
 function MobileMenu({
   open,
+  onClose,
   children,
 }: {
   open: boolean;
+  onClose: () => void;
   children: React.ReactNode;
 }) {
   if (!open || typeof window === "undefined") return null;
   return createPortal(
     <div
       id="mobile-menu"
+      onClick={onClose}
       className="fixed inset-x-0 bottom-0 z-40 flex flex-col overflow-y-auto bg-white/95 backdrop-blur-xl border-t border-[#e2eaff] md:hidden animate-in fade-in-0 slide-in-from-top-2"
       style={{ top: 88 }}
     >
@@ -193,8 +153,6 @@ function MobileMenu({
 /* ═══ NAVBAR ════════════════════════════════════════════════════ */
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [profileOpen, setProfileOpen] = React.useState(false);
-  const profileRef = React.useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const scrolled = useScroll(10);
 
@@ -219,28 +177,12 @@ export default function Navbar() {
     pathname.startsWith("/hosting") ||
     pathname.startsWith("/dashboard/domain");
 
-  const firstName = me?.data?.firstName ?? "";
-  const lastName = me?.data?.lastName ?? "";
-  const initials =
-    `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "U";
-
-  React.useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
   React.useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
-  React.useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node))
-        setProfileOpen(false);
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
 
   const productsActive =
     pathname.startsWith("/hosting") ||
@@ -401,77 +343,11 @@ export default function Navbar() {
               </button>
 
               {token ? (
-                /* ── Profile dropdown ── */
-                <div className="relative" ref={profileRef}>
-                  <button
-                    id="nav-profile-btn"
-                    onClick={() => setProfileOpen((v) => !v)}
-                    className="flex items-center gap-2 rounded-md border border-[#e2eaff] bg-white px-2.5 py-[5px] text-[13px] font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors shadow-sm cursor-pointer"
-                  >
-                    <div className="relative flex h-7 w-7 items-center justify-center rounded-full overflow-hidden shrink-0 shadow-xs">
-                      <FluidOrb
-                        size={28}
-                        color="#1787D4"
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                      />
-                      <span className="relative z-10 text-[11px] font-bold text-white drop-shadow-sm select-none">
-                        {initials}
-                      </span>
-                    </div>
-                    <ChevronDown
-                      className={cn(
-                        "h-3.5 w-3.5 text-[#9ba8c0] transition-transform duration-200",
-                        profileOpen && "rotate-180",
-                      )}
-                    />
-                  </button>
-
-                  {profileOpen && (
-                    <div className="absolute right-0 top-[calc(100%+8px)] w-56 rounded-lg border border-[#e2eaff] bg-white shadow-xl py-1 z-50 animate-in fade-in-0 zoom-in-95">
-                      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#e2eaff]">
-                        <div className="relative flex h-9 w-9 items-center justify-center rounded-full overflow-hidden shrink-0 shadow-xs">
-                          <FluidOrb
-                            size={36}
-                            color="#1787D4"
-                            className="absolute inset-0 w-full h-full pointer-events-none"
-                          />
-                          <span className="relative z-10 text-[12px] font-bold text-white drop-shadow-sm select-none">
-                            {initials}
-                          </span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[12px] font-semibold text-[#031033] truncate">
-                            {firstName} {lastName}
-                          </p>
-                          <p className="text-[11px] text-[#5a6a85] mt-0.5 truncate">
-                            {me?.data?.email ?? ""}
-                          </p>
-                        </div>
-                      </div>
-                      <Link
-                        href="/dashboard"
-                        id="nav-go-to-dashboard"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#031033] hover:bg-[#f2f5fc] transition-colors"
-                      >
-                        <LayoutDashboard className="h-4 w-4 text-[#5a6a85]" />
-                        Client Area
-                      </Link>
-                      <button
-                        id="nav-logout"
-                        onClick={() => {
-                          logout();
-                          setProfileOpen(false);
-                        }}
-                        disabled={isLoggingOut}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px]  hover:bg-red-50 transition-colors disabled:opacity-60 cursor-pointer border-none bg-transparent text-left"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {isLoggingOut ? "Logging out…" : "Logout"}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <UserMenu
+                  account={me?.data}
+                  isLoggingOut={isLoggingOut}
+                  onLogout={() => logout()}
+                />
               ) : (
                 <>
                   <Link
@@ -524,7 +400,7 @@ export default function Navbar() {
       </div>
 
       {/* ═══ Mobile menu ════════════════════════════════════════ */}
-      <MobileMenu open={mobileOpen}>
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)}>
         {/* Nav links */}
         <div className="flex flex-col gap-1">
           <p className="px-2 pt-1 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#9ba8c0]">
@@ -640,43 +516,14 @@ export default function Navbar() {
         {/* Bottom CTA */}
         <div className="flex flex-col gap-2 border-t border-[#e2eaff] pt-4">
           {token ? (
-            <>
-              <div className="flex items-center gap-3 px-3 py-2 !rounded-[10px] bg-[#f2f5fc]">
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full overflow-hidden shrink-0 shadow-xs">
-                  <FluidOrb
-                    size={36}
-                    color="#1787D4"
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                  />
-                  <span className="relative z-10 text-[12px] font-bold text-white drop-shadow-sm select-none">
-                    {initials}
-                  </span>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-[#031033] truncate">
-                    {firstName} {lastName}
-                  </p>
-                  <p className="text-[12px] text-[#5a6a85] truncate">
-                    {me?.data?.email ?? ""}
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2.5 !rounded-[10px] px-3 py-2.5 text-[14px] font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors"
-              >
-                <LayoutDashboard className="h-4 w-4 text-[#5a6a85]" />
-                Go to Client Area
-              </Link>
-              <button
-                onClick={() => logout()}
-                disabled={isLoggingOut}
-                className="flex items-center gap-2.5 !rounded-[10px] px-3 py-2.5 text-[14px] font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-60 cursor-pointer border-none bg-transparent w-full text-left"
-              >
-                <LogOut className="h-4 w-4" />
-                {isLoggingOut ? "Logging out…" : "Logout"}
-              </button>
-            </>
+            <MobileAccountPanel
+              account={me?.data}
+              isLoggingOut={isLoggingOut}
+              onLogout={() => {
+                setMobileOpen(false);
+                logout();
+              }}
+            />
           ) : (
             <>
               <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#e2eaff] bg-white px-4 py-3 text-[14px] font-semibold text-[#031033] hover:border-[#1787D4] hover:text-[#1787D4] transition-colors cursor-pointer">

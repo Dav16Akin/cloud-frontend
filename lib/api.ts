@@ -6,10 +6,18 @@ const BASE_URL =
 
 // ── Standardized API Errors ───────────────────────────────────────────────────
 
+export type FieldErrors = Record<string, string[]>;
+
 export class ApiError extends Error {
   status: number;
   data?: any;
   retryAfter?: number; // wait time in seconds
+  /** Stable machine-readable code, e.g. EMAIL_ALREADY_REGISTERED. */
+  code?: string;
+  /** Flat, human-readable messages suitable for a toast. */
+  errors: string[];
+  /** Per-field messages suitable for inline form errors. */
+  fieldErrors?: FieldErrors;
 
   constructor(status: number, message: string, data?: any, retryAfter?: number) {
     super(message);
@@ -17,9 +25,26 @@ export class ApiError extends Error {
     this.status = status;
     this.data = data;
     this.retryAfter = retryAfter;
+    this.code = typeof data?.code === "string" ? data.code : undefined;
+    this.errors = Array.isArray(data?.errors)
+      ? data.errors.filter((item: unknown): item is string => typeof item === "string")
+      : [];
+    this.fieldErrors =
+      data?.fieldErrors && typeof data.fieldErrors === "object"
+        ? data.fieldErrors
+        : undefined;
     Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
+
+/** First inline error for a field, if the API returned one. */
+export const firstFieldError = (
+  error: unknown,
+  field: string,
+): string | undefined => {
+  if (!(error instanceof ApiError) || !error.fieldErrors) return undefined;
+  return error.fieldErrors[field]?.[0];
+};
 
 export class UnauthorizedError extends ApiError {
   constructor(message: string = "Unauthorized or session expired", data?: any) {
@@ -246,12 +271,16 @@ const handleResponse = async (res: Response) => {
   }
 
   if (!res.ok) {
-    const details =
-      Array.isArray(data?.error) && data.error.length > 0
-        ? data.error.join(" · ")
-        : null;
+    // The backend returns `errors` (flat strings) and `fieldErrors` (per form
+    // field). `error` is the legacy shape, kept so older deployments still work.
+    const errors = Array.isArray(data?.errors)
+      ? data.errors.filter((item: unknown): item is string => typeof item === "string")
+      : Array.isArray(data?.error)
+        ? data.error.filter((item: unknown): item is string => typeof item === "string")
+        : [];
+    const details = errors.length > 0 ? errors.join(" · ") : null;
     const baseMessage =
-      details || data?.message || `Request failed with status ${res.status}`;
+      data?.message || details || `Request failed with status ${res.status}`;
 
     if (res.status === 401) {
       throw new UnauthorizedError(baseMessage, data);
@@ -282,12 +311,12 @@ export const registerUser = (data: {
   email: string;
   password: string;
   phoneNumber: string;
-  companyName: string;
+  companyName?: string;
   address: string;
   houseNumber?: string;
   country: string;
   city: string;
-  state?: string;
+  state: string;
   postcode: string;
 }) =>
   fetch(`${BASE_URL}/auth/register`, {
@@ -825,19 +854,397 @@ export const assignHostingDatabaseUser = (
     body: JSON.stringify(data),
   }).then(handleResponse);
 
+// ── VPS Hosting ───────────────────────────────────────────────────────────────
+
+export type VpsStatus =
+  | "PROVISIONING"
+  | "RUNNING"
+  | "STOPPED"
+  | "REBOOTING"
+  | "REBUILDING"
+  | "SUSPENDED"
+  | "FAILED"
+  | "DELETING"
+  | "DELETED";
+
+export type VpsPlan = {
+  id: string;
+  name: string;
+  cpu: number;
+  ramGb: number;
+  diskGb: number;
+  priceNgnMonthly: number;
+};
+
+export type VpsImage = {
+  id: string;
+  label: string;
+  providerImage: string;
+};
+
+export type VpsLocation = {
+  id: string;
+  name: string;
+  country: string;
+  countryCode: string;
+};
+
+export type VpsServer = {
+  id: string;
+  name: string;
+  status: VpsStatus;
+  location: string;
+  image: string;
+  providerServerId: string | null;
+  ipv4: string | null;
+  ipv6: string | null;
+  plan: VpsPlan | null;
+  sshKey: { id: string; name: string } | null;
+  orderItemId?: string | null;
+  firewallConfigured: boolean;
+  nextBillingAt: string | null;
+  suspendedAt: string | null;
+  lastSyncedAt: string | null;
+  createdAt: string;
+  deletedAt: string | null;
+  /** False when the last live provider sync failed; the rest is last-known state. */
+  providerSynced?: boolean;
+};
+
+export type VpsActionType =
+  | "CREATE"
+  | "START"
+  | "STOP"
+  | "REBOOT"
+  | "REBUILD"
+  | "RESIZE"
+  | "DELETE";
+
+export type VpsActionStatus = "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
+
+export type VpsAction = {
+  id: string;
+  type: VpsActionType;
+  status: VpsActionStatus;
+  providerActionId: string | null;
+  metadata: Record<string, unknown> | null;
+  error: Record<string, unknown> | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+};
+
+export type VpsActionPage = {
+  items: VpsAction[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+};
+
+export type VpsServerPage = {
+  items: VpsServer[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+};
+
+export type VpsFirewallProtocol = "tcp" | "udp" | "icmp" | "esp" | "gre";
+
+export type VpsFirewallRule = {
+  direction: "in" | "out";
+  protocol: VpsFirewallProtocol;
+  port?: string;
+  sourceIps?: string[];
+  destinationIps?: string[];
+  description?: string;
+};
+
+export type VpsFirewall = {
+  applied: boolean;
+  rules: VpsFirewallRule[];
+};
+
+export type SshKey = {
+  id: string;
+  name: string;
+  publicKey: string;
+  fingerprint: string | null;
+  createdAt: string;
+};
+
+export type CreateVpsPayload = {
+  planId: string;
+  image: string;
+  location: string;
+  name: string;
+  sshKeyId?: string;
+  orderItemId?: string;
+};
+
+export type RenewVpsResult = {
+  paymentUrl: string;
+  reference: string;
+  total: number;
+  orderId: string;
+  vpsId: string;
+  nextBillingAt: string | null;
+};
+
+/** Idempotency keys must be 8–128 characters; a UUID satisfies both bounds. */
+const newIdempotencyKey = () => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `vps-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+};
+
+const idempotentHeaders = (key?: string) =>
+  getHeaders({ "Idempotency-Key": key ?? newIdempotencyKey() });
+
+export const getVpsPlans = (): Promise<{
+  success: boolean;
+  data: VpsPlan[];
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/vps/plans`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getVpsImages = (): Promise<{
+  success: boolean;
+  data: VpsImage[];
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/vps/images`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getVpsLocations = (): Promise<{
+  success: boolean;
+  data: VpsLocation[];
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/vps/locations`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getVpsServers = (params?: {
+  page?: number;
+  limit?: number;
+  status?: VpsStatus;
+}): Promise<{
+  success: boolean;
+  data: VpsServerPage;
+  message: string;
+}> => {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  if (params?.status) query.set("status", params.status);
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  return fetchWithRefresh(`${BASE_URL}/vps${suffix}`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+};
+
+export const getVpsServer = (id: string): Promise<{
+  success: boolean;
+  data: VpsServer;
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const createVpsServer = (
+  data: CreateVpsPayload,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: VpsServer; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps`, {
+    method: "POST",
+    headers: idempotentHeaders(idempotencyKey),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const getVpsActions = (
+  id: string,
+  params?: { page?: number; limit?: number },
+): Promise<{ success: boolean; data: VpsActionPage; message: string }> => {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  return fetchWithRefresh(
+    `${BASE_URL}/vps/${encodeURIComponent(id)}/actions${suffix}`,
+    { headers: getHeaders() },
+  ).then(handleResponse);
+};
+
+export const renameVpsServer = (
+  id: string,
+  name: string,
+): Promise<{ success: boolean; data: VpsServer; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+    body: JSON.stringify({ name }),
+  }).then(handleResponse);
+
+export const deleteVpsServer = (
+  id: string,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: { id: string; status: string }; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: idempotentHeaders(idempotencyKey),
+    body: JSON.stringify({ confirm: true }),
+  }).then(handleResponse);
+
+export const startVpsServer = (
+  id: string,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: VpsAction; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/start`, {
+    method: "POST",
+    headers: idempotentHeaders(idempotencyKey),
+  }).then(handleResponse);
+
+export const stopVpsServer = (
+  id: string,
+  options?: { force?: boolean; idempotencyKey?: string },
+): Promise<{ success: boolean; data: VpsAction; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/stop`, {
+    method: "POST",
+    headers: idempotentHeaders(options?.idempotencyKey),
+    body: JSON.stringify({ force: options?.force === true }),
+  }).then(handleResponse);
+
+export const rebootVpsServer = (
+  id: string,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: VpsAction; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/reboot`, {
+    method: "POST",
+    headers: idempotentHeaders(idempotencyKey),
+  }).then(handleResponse);
+
+export const rebuildVpsServer = (
+  id: string,
+  image: string,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: VpsAction; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/rebuild`, {
+    method: "POST",
+    headers: idempotentHeaders(idempotencyKey),
+    body: JSON.stringify({ image, confirm: true }),
+  }).then(handleResponse);
+
+export const resizeVpsServer = (
+  id: string,
+  planId: string,
+  idempotencyKey?: string,
+): Promise<{ success: boolean; data: VpsAction; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/resize`, {
+    method: "POST",
+    headers: idempotentHeaders(idempotencyKey),
+    body: JSON.stringify({ planId }),
+  }).then(handleResponse);
+
+export const renewVpsServer = (
+  id: string,
+): Promise<{ success: boolean; data: RenewVpsResult; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/renew`, {
+    method: "POST",
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const getVpsFirewall = (
+  id: string,
+): Promise<{ success: boolean; data: VpsFirewall; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/firewall`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const updateVpsFirewall = (
+  id: string,
+  rules: VpsFirewallRule[],
+): Promise<{ success: boolean; data: VpsFirewall; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/firewall`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({ rules }),
+  }).then(handleResponse);
+
+export const getSshKeys = (): Promise<{
+  success: boolean;
+  data: SshKey[];
+  message: string;
+}> =>
+  fetchWithRefresh(`${BASE_URL}/vps/ssh-keys`, {
+    headers: getHeaders(),
+  }).then(handleResponse);
+
+export const createSshKey = (data: {
+  name: string;
+  publicKey: string;
+}): Promise<{ success: boolean; data: SshKey; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/ssh-keys`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  }).then(handleResponse);
+
+export const deleteSshKey = (
+  id: string,
+): Promise<{ success: boolean; message: string }> =>
+  fetchWithRefresh(`${BASE_URL}/vps/ssh-keys/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  }).then(handleResponse);
+
 // ── Orders ────────────────────────────────────────────────────────────────────
 
-export type OrderStatus = "PENDING" | "PAID" | "FAILED";
+export type OrderStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+export type RefundStatus =
+  | "NONE"
+  | "REQUESTED"
+  | "PROCESSING"
+  | "PROCESSED"
+  | "FAILED";
 
-/** A single line-item inside an order (HOSTING, DOMAIN, or SSL) */
+/** A single line-item inside an order */
 export type OrderItem = {
   id: string;
-  type: "HOSTING" | "DOMAIN" | "SSL";
+  type:
+    | "HOSTING"
+    | "DOMAIN"
+    | "SSL"
+    | "DOMAIN_TRANSFER"
+    | "VPS"
+    | "VPS_RENEWAL";
   price: number;
   domainName?: string;
   plan?: Plan; // present for HOSTING items
   planId?: string;
   hostingAccountId?: string | null;
+  vpsPlanId?: string | null;
+  vpsPlan?: VpsPlan | null;
+  vpsTarget?: { id: string; name: string } | null;
+  vpsConfig?: {
+    image: string;
+    location: string;
+    name?: string;
+    sshKeyId?: string;
+  } | null;
+  /** Refund state for a paid VPS line that could not be provisioned. */
+  refundStatus?: RefundStatus;
+  /** Raw Paystack refund status (pending/processing/processed/failed). */
+  refundProviderStatus?: string | null;
+  refundAmount?: number | null;
+  refundRequestedAt?: string | null;
+  refundFailureReason?: string | null;
+  /** Set only when Paystack reports the refund as processed. */
+  refundedAt?: string | null;
+  /** Present once this paid VPS line item has a server attached. */
+  vps?: { id: string; status: VpsStatus } | null;
 };
 
 /** Backend cart item shapes sent to POST /orders/initialize */
@@ -845,6 +1252,7 @@ export type BackendCartItem =
   | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
   | { type: "DOMAIN"; domainName: string; extension: string }
   | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
+  | { type: "VPS"; planId: string; image: string; location: string; name?: string; sshKeyId?: string }
   | { type: "SSL"; domainName: string; productId?: number; period?: number; csr?: string; approverEmail?: string };
 
 export type Order = {

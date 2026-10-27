@@ -4,9 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Receipt,
-  CheckCircle2,
-  Clock,
-  XCircle,
   ShoppingCart,
   ArrowRight,
   AlertCircle,
@@ -17,10 +14,10 @@ import {
   ExternalLink,
   Loader2,
   Search,
-  Plus,
+  Cpu,
 } from "lucide-react";
 import { useGetOrders, useGetInvoiceLink } from "@/hooks/useOrders";
-import type { Order, OrderItem, OrderStatus } from "@/lib/api";
+import type { OrderItem, OrderStatus } from "@/lib/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +40,9 @@ function orderSummary(items: OrderItem[]): string {
     .map((i) => {
       if (i.type === "HOSTING") return `${i.plan?.name ?? "Hosting"} Plan`;
       if (i.type === "DOMAIN") return i.domainName ?? "Domain";
+      if (i.type === "VPS") return `${i.vpsPlan?.name ?? "VPS"} Server`;
+      if (i.type === "VPS_RENEWAL")
+        return `${i.vpsTarget?.name ?? i.vpsPlan?.name ?? "VPS"} Renewal`;
       return `SSL (${i.domainName ?? ""})`;
     })
     .join(", ");
@@ -53,6 +53,8 @@ function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
     return <Server className="w-3.5 h-3.5 text-[#1787D4]" />;
   if (type === "DOMAIN")
     return <Globe className="w-3.5 h-3.5 text-[#1787D4]" />;
+  if (type === "VPS" || type === "VPS_RENEWAL")
+    return <Cpu className="w-3.5 h-3.5 text-[#1787D4]" />;
   return <Shield className="w-3.5 h-3.5 text-[#1787D4]" />;
 }
 
@@ -210,7 +212,7 @@ export default function OrdersPage() {
             return (
               <button
                 key={val}
-                onClick={() => setStatusFilter(val as any)}
+                onClick={() => setStatusFilter(val)}
                 className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 cursor-pointer ${
                   isActive
                     ? "bg-[#1787D4] text-white shadow-xs"

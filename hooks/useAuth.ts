@@ -54,14 +54,19 @@ export const useRegister = () => {
       email: string;
       password: string;
       phoneNumber: string;
-      companyName: string;
+      companyName?: string;
       address: string;
+      houseNumber?: string;
       country: string;
       city: string;
+      state: string;
       postcode: string;
     }) => registerUser(data),
-    onSuccess: (_res, variables) => {
-      toast.success("Account created! Check your email for the verification code.");
+    onSuccess: (res, variables) => {
+      toast.success(
+        res?.message ||
+          "Account created! Check your email for the verification code.",
+      );
       router.push(`/verify?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (err: Error) => {

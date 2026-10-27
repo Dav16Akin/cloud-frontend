@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  CheckCircle2,
   XCircle,
   Loader2,
   ArrowRight,
@@ -14,12 +13,20 @@ import {
   Server,
   Globe,
   Shield,
+  Cpu,
 } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/useOrders";
 import type { OrderItem } from "@/lib/api";
 
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
-  const Icon = type === "HOSTING" ? Server : type === "DOMAIN" ? Globe : Shield;
+  const Icon =
+    type === "HOSTING"
+      ? Server
+      : type === "DOMAIN"
+        ? Globe
+        : type === "VPS" || type === "VPS_RENEWAL"
+          ? Cpu
+          : Shield;
   return (
     <div className="w-8 h-8 rounded-lg bg-[#eff6fb] border border-[#d6e4ff] flex items-center justify-center shrink-0 text-[#1787D4]">
       <Icon className="w-3.5 h-3.5" />
@@ -30,12 +37,28 @@ function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
 function ItemLabel({ item }: { item: OrderItem }) {
   if (item.type === "HOSTING") return <>{item.plan?.name ?? "Hosting"} Plan</>;
   if (item.type === "DOMAIN") return <>{item.domainName}</>;
+  if (item.type === "VPS")
+    return <>{item.vpsPlan?.name ?? "VPS"} Server</>;
+  if (item.type === "VPS_RENEWAL")
+    return (
+      <>
+        {item.vpsTarget?.name ?? item.vpsPlan?.name ?? "VPS"} Renewal
+      </>
+    );
   return <>SSL — {item.domainName}</>;
 }
 
 function ItemSubtitle({ item }: { item: OrderItem }) {
   if (item.type === "HOSTING") return <>Web Hosting Plan</>;
   if (item.type === "DOMAIN") return <>Domain Registration</>;
+  if (item.type === "VPS")
+    return (
+      <>
+        Virtual Server
+        {item.vpsConfig?.location ? ` · ${item.vpsConfig.location}` : ""}
+      </>
+    );
+  if (item.type === "VPS_RENEWAL") return <>30-day extension</>;
   return <>SSL Certificate</>;
 }
 
@@ -63,11 +86,21 @@ function OrderVerifyContent() {
 
   const [countdown, setCountdown] = useState(5);
 
+  const items = data?.items ?? [];
+  const hasVpsServer = items.some((item) => item.type === "VPS");
+  const hasVpsRenewal = items.some((item) => item.type === "VPS_RENEWAL");
+  const hasVps = hasVpsServer || hasVpsRenewal;
+  const hasNonVps = items.some(
+    (item) => item.type !== "VPS" && item.type !== "VPS_RENEWAL",
+  );
+  const isVpsOnly = hasVps && !hasNonVps;
+  const destination = isVpsOnly ? "/dashboard/vps" : "/dashboard/orders";
+
   useEffect(() => {
     if (!isPaid) return;
 
     const timer = setTimeout(() => {
-      router.replace("/dashboard/orders");
+      router.replace(destination);
     }, 5000);
 
     const interval = setInterval(() => {
@@ -78,7 +111,7 @@ function OrderVerifyContent() {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, [isPaid, router]);
+  }, [isPaid, router, destination]);
 
   // ── No reference in URL ───────────────────────────────────────────────────
 
@@ -263,8 +296,11 @@ function OrderVerifyContent() {
           Payment Confirmed!
         </h2>
         <p className="text-[#5a6a85] mt-2 text-sm leading-relaxed">
-          Your payment has been confirmed and your services are being
-          provisioned automatically. No further action needed.
+          {isVpsOnly
+            ? hasVpsRenewal && !hasVpsServer
+              ? "Your payment is confirmed and the renewal is being applied. You can manage the server from your VPS dashboard."
+              : "Your payment is confirmed and your server is being provisioned automatically. Its IP address will appear on the VPS dashboard shortly."
+            : "Your payment has been confirmed and your services are being provisioned automatically. No further action needed."}
         </p>
       </div>
 
@@ -312,25 +348,25 @@ function OrderVerifyContent() {
       {/* Auto-redirect countdown */}
       <div className="flex flex-col items-center gap-3 w-full">
         <p className="text-xs text-[#9ba8c0]">
-          Redirecting to your orders in{" "}
+          Redirecting to {isVpsOnly ? "your VPS servers" : "your orders"} in{" "}
           <span className="font-bold text-[#1787D4]">{displayCountdown}s</span>
           …
         </p>
 
         <Link
-          href="/dashboard/orders"
+          href={destination}
           id="verify-view-orders"
           className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
         >
-          View My Orders
+          {isVpsOnly ? "Go to VPS Servers" : "View My Orders"}
           <ArrowRight className="w-4 h-4" />
         </Link>
 
         <Link
-          href="/dashboard/hosting"
+          href={isVpsOnly ? "/dashboard/orders" : "/dashboard/hosting"}
           className="text-xs font-semibold text-[#9ba8c0] hover:text-[#5a6a85] transition-colors"
         >
-          Go to Hosting Dashboard
+          {isVpsOnly ? "View order history" : "Go to Hosting Dashboard"}
         </Link>
       </div>
     </div>

@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -24,6 +29,7 @@ import {
   ShoppingBag,
   Receipt,
   Headphones,
+  Cpu,
 } from "lucide-react";
 import Image from "next/image";
 import { useGetMe } from "@/hooks/useUser";
@@ -31,6 +37,29 @@ import { useLogout } from "@/hooks/useAuth";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+
+// ── Premium Protection promo dismissal (persisted per browser) ────────────────
+const PREMIUM_PROMO_KEY = "nupat:dismissed-premium-protection";
+const PREMIUM_PROMO_EVENT = "nupat:premium-promo-change";
+
+const subscribePremiumPromo = (onChange: () => void) => {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(PREMIUM_PROMO_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(PREMIUM_PROMO_EVENT, onChange);
+  };
+};
+
+const getPremiumPromoSnapshot = () => {
+  try {
+    return window.localStorage.getItem(PREMIUM_PROMO_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
+const getPremiumPromoServerSnapshot = () => false;
 
 // ── Sidebar design tokens ──────────────────────────────────────────────────────
 const S = {
@@ -80,6 +109,11 @@ const NAV_ITEMS: NavItem[] = [
     icon: Server,
   },
   {
+    label: "VPS Servers",
+    href: "/dashboard/vps",
+    icon: Cpu,
+  },
+  {
     label: "Invoices",
     href: "/dashboard/invoices",
     icon: Receipt,
@@ -116,6 +150,24 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { data: me, isLoading } = useGetMe();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
+
+  const premiumPromoDismissed = useSyncExternalStore(
+    subscribePremiumPromo,
+    getPremiumPromoSnapshot,
+    getPremiumPromoServerSnapshot,
+  );
+  const [premiumPromoClosed, setPremiumPromoClosed] = useState(false);
+  const showPremiumPromo = !premiumPromoClosed && !premiumPromoDismissed;
+
+  const dismissPremiumPromo = () => {
+    setPremiumPromoClosed(true);
+    try {
+      window.localStorage.setItem(PREMIUM_PROMO_KEY, "1");
+      window.dispatchEvent(new Event(PREMIUM_PROMO_EVENT));
+    } catch {
+      // Persisting is unavailable (e.g. private mode); still hide it for this session.
+    }
+  };
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -323,7 +375,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* ── Main Nav List ──────────────────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-1.5 flex flex-col gap-1">
+      <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-1.5 flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
 
@@ -389,55 +441,68 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         })}
       </nav>
 
-      {/* ── Premium Protection Promo Card (matches screenshot) ─────────────── */}
-      <div className="px-3.5 pt-2 pb-3.5 shrink-0">
-        <div
-          className="rounded-2xl p-3 flex flex-col gap-2 relative overflow-hidden"
-          style={{
-            background: S.cardBg,
-            border: `1px solid ${S.cardBorder}`,
-          }}
-        >
-          {/* Header */}
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" style={{ color: S.active }} />
-            <span className="text-[12px] font-semibold text-white tracking-[-0.1px]">
-              Premium Protection
-            </span>
-          </div>
-
-          {/* Photo Banner */}
-          <div className="relative w-full h-[96px] rounded-xl overflow-hidden bg-[#044c77]">
-            <Image
-              src="/premiuimprotection.png"
-              alt="Premium Protection"
-              fill
-              className="object-cover object-top"
-              sizes="200px"
-              priority
-            />
-          </div>
-
-          {/* Body Copy */}
-          <p
-            className="text-[11px] leading-relaxed"
-            style={{ color: S.inactiveText }}
+      {/* ── Premium Protection Promo Card (dismissible, persisted) ─────────── */}
+      {showPremiumPromo && (
+        <div className="px-3.5 pt-2 pb-3.5 shrink-0">
+          <div
+            className="rounded-2xl p-3 flex flex-col gap-2 relative overflow-hidden"
+            style={{
+              background: S.cardBg,
+              border: `1px solid ${S.cardBorder}`,
+            }}
           >
-            Keep expired domains from entering redemption with automatic renewal
-            and priority support.
-          </p>
+            {/* Header */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" style={{ color: S.active }} />
+                <span className="text-[12px] font-semibold text-white tracking-[-0.1px]">
+                  Premium Protection
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={dismissPremiumPromo}
+                aria-label="Dismiss Premium Protection"
+                title="Dismiss"
+                className="-mr-1 -mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4AC3B4]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
-          {/* Action Link */}
-          <Link
-            href="/dashboard/expired-services"
-            onClick={onClose}
-            className="text-[11.5px] font-semibold text-white hover:text-[#4AC3B4] transition-colors flex items-center justify-between mt-0.5 group"
-          >
-            <span>Learn more</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+            {/* Photo Banner */}
+            <div className="relative w-full h-[96px] rounded-xl overflow-hidden bg-[#044c77]">
+              <Image
+                src="/premiuimprotection.png"
+                alt="Premium Protection"
+                fill
+                className="object-cover object-top"
+                sizes="200px"
+                priority
+              />
+            </div>
+
+            {/* Body Copy */}
+            <p
+              className="text-[11px] leading-relaxed"
+              style={{ color: S.inactiveText }}
+            >
+              Keep expired domains from entering redemption with automatic
+              renewal and priority support.
+            </p>
+
+            {/* Action Link */}
+            <Link
+              href="/dashboard/expired-services"
+              onClick={onClose}
+              className="text-[11.5px] font-semibold text-white hover:text-[#4AC3B4] transition-colors flex items-center justify-between mt-0.5 group"
+            >
+              <span>Learn more</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

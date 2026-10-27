@@ -13,10 +13,12 @@ import {
   LifeBuoy,
   X,
   ArrowRight,
+  Cpu,
 } from "lucide-react";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetHosting } from "@/hooks/useHosting";
 import { useGetOrders } from "@/hooks/useOrders";
+import { useGetVpsServers } from "@/hooks/useVps";
 
 type SearchModalProps = {
   isOpen: boolean;
@@ -25,7 +27,7 @@ type SearchModalProps = {
 
 type SearchItem = {
   id: string;
-  category: "Navigation" | "My Domains" | "Hosting Accounts" | "Orders";
+  category: "Navigation" | "My Domains" | "Hosting Accounts" | "VPS Servers" | "Orders";
   title: string;
   subtitle?: string;
   href: string;
@@ -35,6 +37,7 @@ type SearchItem = {
 const STATIC_ROUTES: SearchItem[] = [
   { id: "nav-overview", category: "Navigation", title: "Overview", subtitle: "Client Area / Overview", href: "/dashboard", icon: LayoutDashboard },
   { id: "nav-hosting", category: "Navigation", title: "Hosting Services", subtitle: "Manage hosting accounts", href: "/dashboard/hosting", icon: Server },
+  { id: "nav-vps", category: "Navigation", title: "VPS Servers", subtitle: "Deploy & manage virtual servers", href: "/dashboard/vps", icon: Cpu },
   { id: "nav-domains", category: "Navigation", title: "Domains Manager", subtitle: "DNS & Nameserver management", href: "/dashboard/domains", icon: Globe },
   { id: "nav-domain-transfer", category: "Navigation", title: "Domain Transfer", subtitle: "Transfer domains in or request EPP out", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },
   { id: "nav-orders", category: "Navigation", title: "Orders & Invoices", subtitle: "Payment history & invoices", href: "/dashboard/orders", icon: Receipt },
@@ -43,6 +46,11 @@ const STATIC_ROUTES: SearchItem[] = [
 ];
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  if (!isOpen) return null;
+  return <SearchDialog onClose={onClose} />;
+}
+
+function SearchDialog({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -53,20 +61,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const { data: domains } = useGetRegisteredDomains();
   const { data: hosting } = useGetHosting();
   const { data: orders } = useGetOrders();
+  const { data: vpsServers } = useGetVpsServers();
 
-  // Reset states on open/close
   useEffect(() => {
-    if (isOpen) {
-      setQuery("");
-      setActiveIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
-  }, [isOpen]);
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // Global keydown listener for Escape key to close the modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape") {
         e.preventDefault();
         onClose();
       }
@@ -74,7 +79,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
   // Compile search list
   const searchItems = useMemo((): SearchItem[] => {
@@ -108,6 +113,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       });
     }
 
+    // Add VPS servers
+    if (Array.isArray(vpsServers)) {
+      vpsServers.forEach((server) => {
+        items.push({
+          id: `vps-${server.id}`,
+          category: "VPS Servers",
+          title: server.name,
+          subtitle: `${server.plan?.name ?? "VPS"} • ${server.status} • ${server.ipv4 ?? "IP pending"}`,
+          href: `/dashboard/vps/${server.id}`,
+          icon: Cpu,
+        });
+      });
+    }
+
     // Add orders
     if (Array.isArray(orders)) {
       orders.forEach((o) => {
@@ -124,7 +143,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
 
     return items;
-  }, [domains, hosting, orders]);
+  }, [domains, hosting, orders, vpsServers]);
 
   // Filter items based on query
   const filteredItems = useMemo(() => {
@@ -138,10 +157,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     );
   }, [query, searchItems]);
 
-  // Reset activeIndex when filtered results change
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [filteredItems]);
+  // Query changes can shrink the list, so clamp instead of resetting in an effect.
+  const currentIndex =
+    filteredItems.length === 0
+      ? -1
+      : Math.min(activeIndex, filteredItems.length - 1);
 
   // Keyboard navigation inside the modal
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -149,21 +169,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % filteredItems.length;
-        scrollIntoView(next);
-        return next;
-      });
+      const next = (currentIndex + 1) % filteredItems.length;
+      setActiveIndex(next);
+      scrollIntoView(next);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((prev) => {
-        const next = (prev - 1 + filteredItems.length) % filteredItems.length;
-        scrollIntoView(next);
-        return next;
-      });
+      const next = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
+      setActiveIndex(next);
+      scrollIntoView(next);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const targetItem = filteredItems[activeIndex];
+      const targetItem = filteredItems[currentIndex];
       if (targetItem) {
         router.push(targetItem.href);
         onClose();
@@ -194,11 +210,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     onClose();
   };
 
-  if (!isOpen) return null;
-
-  // Group by category
-  const categories = ["Navigation", "My Domains", "Hosting Accounts", "Orders"] as const;
-
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4">
       {/* Backdrop */}
@@ -221,7 +232,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             type="text"
             placeholder="Search pages, domains, plans, orders..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
             className="flex-1 py-4 text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
           />
           <kbd className="hidden sm:inline-flex items-center gap-0.5 bg-[#f2f5fc] border border-[#e2eaff] px-1.5 py-0.5 text-[9px] font-mono text-[#9ba8c0]">
@@ -252,7 +266,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {/* Category-based rendering or flattened render for highlighted index mapping */}
               {filteredItems.map((item, idx) => {
                 const Icon = item.icon;
-                const isSelected = idx === activeIndex;
+                const isSelected = idx === currentIndex;
 
                 return (
                   <button

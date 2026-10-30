@@ -15,7 +15,7 @@ import {
   Search,
   Server,
 } from "lucide-react";
-import { verifyPayment, type HostingAccount } from "@/lib/api";
+import { ApiError, verifyPayment, type HostingAccount } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { HostingProvisioningCard } from "@/components/dashboard/HostingProvisioningCard";
@@ -51,6 +51,8 @@ function CartSuccessContent() {
     reference: string;
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  // Shown under the error so support can find the order and the request.
+  const [errorRequestId, setErrorRequestId] = useState<string | undefined>();
 
   const verifyAttempt = async (isManual = false) => {
     if (!reference) {
@@ -109,6 +111,7 @@ function CartSuccessContent() {
         sessionStorage.removeItem("domain_order_ref");
       } else {
         setErrorMsg(err?.message || "Could not verify payment status.");
+        setErrorRequestId(err instanceof ApiError ? err.requestId : undefined);
         setVerifyState("error");
       }
     } finally {
@@ -523,6 +526,13 @@ function CartSuccessContent() {
               </div>
               <h1 className="text-2xl font-extrabold text-[#031033]">Something Went Wrong</h1>
               <p className="text-[#5a6a85]">{errorMsg || "Could not verify your payment. Please contact support."}</p>
+              {(reference || errorRequestId) && (
+                <p className="text-xs text-[#5a6a85] break-all">
+                  {reference && <>Payment reference: <span className="font-mono">{reference}</span></>}
+                  {reference && errorRequestId && " · "}
+                  {errorRequestId && <>Request ID: <span className="font-mono">{errorRequestId}</span></>}
+                </p>
+              )}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
                   href="/cart"

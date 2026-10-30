@@ -8,6 +8,15 @@ const BASE_URL =
 
 export type FieldErrors = Record<string, string[]>;
 
+// Server errors get the request ID appended so users can quote it to
+// support, and support can look it up in the admin Logs page.
+const withReference = (status: number, message: string, data?: any) => {
+  const requestId = typeof data?.requestId === "string" ? data.requestId : undefined;
+  return status >= 500 && requestId && !message.includes(requestId)
+    ? `${message} (Reference: ${requestId})`
+    : message;
+};
+
 export class ApiError extends Error {
   status: number;
   data?: any;
@@ -18,14 +27,17 @@ export class ApiError extends Error {
   errors: string[];
   /** Per-field messages suitable for inline form errors. */
   fieldErrors?: FieldErrors;
+  /** Identifies this request in the backend logs. */
+  requestId?: string;
 
   constructor(status: number, message: string, data?: any, retryAfter?: number) {
-    super(message);
+    super(withReference(status, message, data));
     this.name = "ApiError";
     this.status = status;
     this.data = data;
     this.retryAfter = retryAfter;
     this.code = typeof data?.code === "string" ? data.code : undefined;
+    this.requestId = typeof data?.requestId === "string" ? data.requestId : undefined;
     this.errors = Array.isArray(data?.errors)
       ? data.errors.filter((item: unknown): item is string => typeof item === "string")
       : [];
@@ -271,6 +283,12 @@ const handleResponse = async (res: Response) => {
   }
 
   if (!res.ok) {
+    // Non-JSON errors (e.g. a proxy page) still carry the ID in the header.
+    const headerRequestId = res.headers.get("x-request-id");
+    if (headerRequestId && !data?.requestId) {
+      data = { ...(data ?? {}), requestId: headerRequestId };
+    }
+
     // The backend returns `errors` (flat strings) and `fieldErrors` (per form
     // field). `error` is the legacy shape, kept so older deployments still work.
     const errors = Array.isArray(data?.errors)

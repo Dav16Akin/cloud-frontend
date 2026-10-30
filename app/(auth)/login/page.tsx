@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
+import { safeRedirectPath } from "@/lib/safeRedirect";
 
 function GoogleIcon() {
   return (
@@ -34,7 +35,7 @@ function GoogleIcon() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/dashboard";
+  const redirect = safeRedirectPath(searchParams.get("redirect"));
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");

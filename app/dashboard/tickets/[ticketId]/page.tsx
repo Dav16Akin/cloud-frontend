@@ -26,6 +26,7 @@ import {
 } from "@/hooks/useSupport";
 import type { TicketReply } from "@/lib/api";
 import { toast } from "sonner";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -141,6 +142,10 @@ function ConversationMessage({
   const displayName = isStaff ? reply.admin || "Support Team" : "You";
   const displayTime = formatShortTime(reply.date);
   const cleaned = cleanMessageText(reply.message);
+  const safeHtml = useMemo(
+    () => sanitizeHtml(cleaned || reply.message),
+    [cleaned, reply.message],
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -171,10 +176,16 @@ function ConversationMessage({
             : "bg-[#fef6f5] border border-[#fde8e5] text-[#2c3e50]"
         }`}
       >
-        <div
-          className="whitespace-pre-wrap break-words [&_br]:leading-loose"
-          dangerouslySetInnerHTML={{ __html: cleaned || reply.message }}
-        />
+        {safeHtml === null ? (
+          <div className="whitespace-pre-wrap break-words">
+            {cleaned || reply.message}
+          </div>
+        ) : (
+          <div
+            className="whitespace-pre-wrap break-words [&_br]:leading-loose"
+            dangerouslySetInnerHTML={{ __html: safeHtml }}
+          />
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, ArrowRight, ArrowLeft, MailCheck } from "lucide-react";
 import { useVerifyOTP, useResendOTP } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 
 function VerifyContent() {
@@ -74,7 +75,22 @@ function VerifyContent() {
     e.preventDefault();
     const fullCode = code.join("");
     if (fullCode.length < 6) return;
-    verify({ email, code: fullCode });
+    verify(
+      { email, code: fullCode },
+      {
+        onError: (err) => {
+          // After 5 wrong tries (or once it expires) the code is gone, so
+          // clear the boxes and let the user request a new one right away.
+          if (
+            err instanceof ApiError &&
+            (err.code === "OTP_ATTEMPTS_EXCEEDED" || err.code === "OTP_EXPIRED")
+          ) {
+            setCode(["", "", "", "", "", ""]);
+            setResendCooldown(0);
+          }
+        },
+      },
+    );
   };
 
   return (

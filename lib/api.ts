@@ -795,7 +795,8 @@ export const getHostingDatabases = (
 export const createHostingDatabase = (
   token: string,
   id: string,
-  data: { database: string },
+  // `name` without the cPanel username prefix; the backend adds it.
+  data: { name: string },
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases`, {
     method: "POST",
@@ -831,7 +832,8 @@ export const getHostingDatabaseUsers = (
 export const createHostingDatabaseUser = (
   token: string,
   id: string,
-  data: { user: string; password?: string },
+  // `username` without the cPanel username prefix; the backend adds it.
+  data: { username: string; password: string },
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users`, {
     method: "POST",
@@ -855,7 +857,7 @@ export const deleteHostingDatabaseUser = (
 export const assignHostingDatabaseUser = (
   token: string,
   id: string,
-  data: { database: string; user: string; privileges?: string[] },
+  data: { database: string; username: string; privileges?: "ALL PRIVILEGES" },
 ): Promise<{ success: boolean; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/hosting/${id}/databases/users/assign`, {
     method: "POST",

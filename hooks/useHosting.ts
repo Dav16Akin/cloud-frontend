@@ -389,7 +389,7 @@ export const useCreateHostingDatabase = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { database: string }) =>
+    mutationFn: (data: { name: string }) =>
       createHostingDatabase(token!, id, data),
     onSuccess: () => {
       toast.success("Database created.");
@@ -434,7 +434,7 @@ export const useCreateHostingDatabaseUser = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { user: string; password?: string }) =>
+    mutationFn: (data: { username: string; password: string }) =>
       createHostingDatabaseUser(token!, id, data),
     onSuccess: () => {
       toast.success("Database user created.");
@@ -468,7 +468,7 @@ export const useAssignHostingDatabaseUser = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { database: string; user: string; privileges?: string[] }) =>
+    mutationFn: (data: { database: string; username: string; privileges?: "ALL PRIVILEGES" }) =>
       assignHostingDatabaseUser(token!, id, data),
     onSuccess: () => {
       toast.success("User assigned to database successfully.");

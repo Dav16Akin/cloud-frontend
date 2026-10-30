@@ -744,9 +744,8 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
   const handleCreateDb = (e: React.FormEvent) => {
     e.preventDefault();
     if (!dbSuffix.trim()) return;
-    const databaseName = `${dbPrefix}${dbSuffix.trim()}`;
     createDb(
-      { database: databaseName },
+      { name: dbSuffix.trim() },
       {
         onSuccess: () => {
           setShowCreateDb(false);
@@ -759,9 +758,8 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
   const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userSuffix.trim() || !userPass.trim()) return;
-    const username = `${dbPrefix}${userSuffix.trim()}`;
     createUser(
-      { user: username, password: userPass },
+      { username: userSuffix.trim(), password: userPass },
       {
         onSuccess: () => {
           setShowCreateUser(false);
@@ -776,7 +774,7 @@ function DatabasesTab({ hostingId }: { hostingId: string }) {
     e.preventDefault();
     if (!assignDb || !assignUserVal) return;
     assignUser(
-      { database: assignDb, user: assignUserVal, privileges: ["ALL PRIVILEGES"] },
+      { database: assignDb, username: assignUserVal, privileges: "ALL PRIVILEGES" },
       {
         onSuccess: () => {
           setAssignDb("");

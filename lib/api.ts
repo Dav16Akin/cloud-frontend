@@ -10,8 +10,9 @@ export type FieldErrors = Record<string, string[]>;
 
 // Server errors get the request ID appended so users can quote it to
 // support, and support can look it up in the admin Logs page.
-const withReference = (status: number, message: string, data?: any) => {
-  const requestId = typeof data?.requestId === "string" ? data.requestId : undefined;
+const withReference = (status: number, message: string, data?: unknown) => {
+  const raw = (data as { requestId?: unknown } | null | undefined)?.requestId;
+  const requestId = typeof raw === "string" ? raw : undefined;
   return status >= 500 && requestId && !message.includes(requestId)
     ? `${message} (Reference: ${requestId})`
     : message;

@@ -133,26 +133,69 @@ function parseRetryAfter(res: Response, bodyData?: any): number {
   return 60; // safe fallback: 60 seconds
 }
 
-// ── Refresh Queue & Fetch Client ──────────────────────────────────────────────
+// ── Token Refresh & Fetch Client ──────────────────────────────────────────────
 
-// Prevents multiple simultaneous token refresh calls.
-// All in-flight 401 requests are queued and replayed once refresh resolves.
-let isRefreshing = false;
-type QueueItem = {
-  resolve: (token: string) => void;
-  reject: (err: unknown) => void;
-};
-const failedQueue: QueueItem[] = [];
+export type RefreshResult =
+  | { status: "ok"; token: string }
+  /** The refresh cookie is missing, expired or revoked: the user must sign in. */
+  | { status: "expired" }
+  /** Network error, 5xx, rate limit…: the session may still be fine. */
+  | { status: "unavailable" };
 
-function processQueue(error: unknown, token: string | null) {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token!);
-    }
+let refreshInFlight: Promise<RefreshResult> | null = null;
+
+async function requestNewAccessToken(): Promise<RefreshResult> {
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include", // sends the httpOnly refresh-token cookie
+    });
+  } catch {
+    return { status: "unavailable" };
+  }
+
+  if (res.status === 401 || res.status === 403) return { status: "expired" };
+  if (!res.ok) return { status: "unavailable" };
+
+  const body = await res.json().catch(() => null);
+  // Support both { accessToken } and { data: { accessToken } } shapes
+  const token: string | undefined =
+    body?.accessToken ??
+    body?.data?.accessToken ??
+    body?.token ??
+    body?.data?.token;
+  if (!token) return { status: "unavailable" };
+
+  useAuthStore.getState().setToken(token);
+  return { status: "ok", token };
+}
+
+/**
+ * Gets a fresh access token from the refresh cookie. Concurrent callers in
+ * this tab share one request, and the Web Locks API stops two tabs from
+ * rotating the same refresh cookie at once (the loser would otherwise send
+ * a cookie that was just replaced).
+ */
+export function refreshAccessToken(): Promise<RefreshResult> {
+  refreshInFlight ??= refreshWithLock().finally(() => {
+    refreshInFlight = null;
   });
-  failedQueue.length = 0;
+  return refreshInFlight;
+}
+
+async function refreshWithLock(): Promise<RefreshResult> {
+  const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+  if (!locks) return requestNewAccessToken();
+  return await locks.request("nupat-auth-refresh", requestNewAccessToken);
+}
+
+function endSession() {
+  useAuthStore.getState().logout();
+  clearQueryCache();
+  if (typeof window !== "undefined" && window.location.pathname !== "/") {
+    window.location.href = "/";
+  }
 }
 
 const fetchWithRefresh = async (
@@ -164,7 +207,7 @@ const fetchWithRefresh = async (
     credentials: "include", // Stricter CORS/cookie behavior — sends cookies across origins
   };
 
-  let res = await fetch(url, mergedOptions);
+  const res = await fetch(url, mergedOptions);
 
   // Access token expired — attempt a silent refresh
   // Exclude auth routes to avoid infinite refresh loops
@@ -173,83 +216,30 @@ const fetchWithRefresh = async (
     url.includes("/auth/login") ||
     url.includes("/auth/register");
 
-  if (res.status === 401 && !isAuthEndpoint) {
-    // If a refresh is already in flight, queue this request until it resolves.
-    if (isRefreshing) {
-      return new Promise<Response>((resolve, reject) => {
-        failedQueue.push({
-          resolve: (newToken) => {
-            const retryOptions: RequestInit = {
-              ...mergedOptions,
-              headers: {
-                ...mergedOptions.headers,
-                Authorization: `Bearer ${newToken}`,
-              },
-            };
-            resolve(fetch(url, retryOptions));
-          },
-          reject,
-        });
-      });
-    }
+  if (res.status !== 401 || isAuthEndpoint) return res;
 
-    isRefreshing = true;
+  const result = await refreshAccessToken();
 
-    try {
-      const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-        method: "POST",
-        credentials: "include", // sends the httpOnly refresh-token cookie
-      });
-
-      if (refreshRes.ok) {
-        const body = await refreshRes.json();
-        // Support both { accessToken } and { data: { accessToken } } shapes
-        const newToken: string =
-          body?.accessToken ??
-          body?.data?.accessToken ??
-          body?.token ??
-          body?.data?.token;
-
-        if (newToken) {
-          // Persist the new access token in the store
-          useAuthStore.getState().setToken(newToken);
-
-          // Unblock all queued requests with the new token
-          processQueue(null, newToken);
-
-          // Retry the original request with the fresh token
-          res = await fetch(url, {
-            ...mergedOptions,
-            headers: {
-              ...mergedOptions.headers,
-              Authorization: `Bearer ${newToken}`,
-            },
-          });
-        } else {
-          throw new UnauthorizedError("Invalid token returned from refresh");
-        }
-      } else {
-        const authErr = new UnauthorizedError("Session expired. Please log in again.");
-        processQueue(authErr, null);
-        useAuthStore.getState().logout();
-        clearQueryCache();
-        if (typeof window !== "undefined" && window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
-      }
-    } catch (err) {
-      processQueue(err, null);
-      useAuthStore.getState().logout();
-      clearQueryCache();
-      if (typeof window !== "undefined" && window.location.pathname !== "/") {
-        window.location.href = "/";
-      }
-    } finally {
-      isRefreshing = false;
-    }
+  if (result.status === "expired") {
+    endSession();
+    return res;
   }
 
-  return res;
+  if (result.status === "unavailable") {
+    // Keep the user signed in; this request just fails and can be retried.
+    throw new ApiError(
+      503,
+      "We couldn't reach the server. Check your connection and try again.",
+    );
+  }
+
+  return fetch(url, {
+    ...mergedOptions,
+    headers: {
+      ...mergedOptions.headers,
+      Authorization: `Bearer ${result.token}`,
+    },
+  });
 };
 
 const getHeaders = (extraHeaders?: Record<string, string>) => {

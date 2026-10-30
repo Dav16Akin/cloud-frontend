@@ -8,9 +8,9 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import ExpiryBanner from "@/components/dashboard/ExpiryBanner";
 import SearchModal from "@/components/dashboard/SearchModal";
-import { refresh } from "@/lib/api";
+import { refreshAccessToken } from "@/lib/api";
 
-type AuthStatus = "loading" | "authenticated" | "unauthenticated";
+type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "offline";
 
 export default function DashboardLayout({
   children,
@@ -20,10 +20,10 @@ export default function DashboardLayout({
   const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
-  const setToken = useAuthStore((s) => s.setToken);
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
   const [authStatus, setAuthStatus] = useState<AuthStatus>("loading");
+  const [authAttempt, setAuthAttempt] = useState(0);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -40,32 +40,22 @@ export default function DashboardLayout({
     }
 
     // No token after hydration — try a silent refresh using the httpOnly cookie.
-    refresh()
-      .then((res) => {
-        const newToken: string =
-          res?.accessToken ??
-          res?.data?.accessToken ??
-          res?.token ??
-          res?.data?.token;
-        if (newToken) {
-          setToken(newToken);
-          setAuthStatus("authenticated");
-        } else {
-          queryClient.clear();
-          logout();
-          setAuthStatus("unauthenticated");
-        }
-      })
-      .catch(() => {
-        // Refresh token expired or missing — redirect to login
+    refreshAccessToken().then((result) => {
+      if (result.status === "ok") {
+        setAuthStatus("authenticated");
+      } else if (result.status === "unavailable") {
+        // Server unreachable: don't sign the user out over a network blip.
+        setAuthStatus("offline");
+      } else {
         queryClient.clear();
         logout();
         setAuthStatus("unauthenticated");
-      });
+      }
+    });
     // Re-run whenever hydration completes; token changes mid-session are handled
     // by fetchWithRefresh in api.ts which updates the store directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHydrated, queryClient]);
+  }, [hasHydrated, queryClient, authAttempt]);
 
   // If the token is cleared mid-session (e.g. both tokens expired), redirect to home screen.
   useEffect(() => {
@@ -95,6 +85,29 @@ export default function DashboardLayout({
         style={{ background: "#f5f5f7" }}
       >
         <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+      </div>
+    );
+  }
+
+  if (authStatus === "offline") {
+    return (
+      <div
+        className="flex h-screen flex-col items-center justify-center gap-3 px-4 text-center"
+        style={{ background: "#f5f5f7" }}
+      >
+        <p className="text-sm text-[#5a6a85]">
+          We couldn&apos;t reach the server. Check your connection and try again.
+        </p>
+        <button
+          type="button"
+          className="btn-primary text-sm py-2 px-5"
+          onClick={() => {
+            setAuthStatus("loading");
+            setAuthAttempt((n) => n + 1);
+          }}
+        >
+          Try again
+        </button>
       </div>
     );
   }

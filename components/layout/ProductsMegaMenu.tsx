@@ -7,7 +7,6 @@ import {
   ArrowRightLeft,
   Server,
   ArrowRight,
-  ChevronRight,
   BookOpen,
   Headphones,
   Tag,
@@ -32,8 +31,6 @@ import {
   CreditCard,
   Bot,
   ShieldCheck,
-  Mail,
-  Inbox,
   Briefcase,
   Terminal,
   */
@@ -43,6 +40,9 @@ import { cn } from "@/lib/utils";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+
+const focusRing =
+  "outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
 
 export interface MenuItem {
   title: string;
@@ -59,35 +59,35 @@ export interface MenuItem {
 export const activeProductsItems: MenuItem[] = [
   {
     title: "Domain Registration",
-    description: "Search, purchase, and manage custom domains.",
+    description: "Search, buy and manage your domains.",
     icon: Search,
     href: "/domains",
     available: true,
   },
   {
     title: "Domain Transfer",
-    description: "Seamlessly transfer your domain to Nupat.",
+    description: "Move a domain you already own to Nupat.",
     icon: ArrowRightLeft,
     href: "/domain-transfer",
     available: true,
   },
   {
     title: "Web Hosting",
-    description: "High-speed SSD cPanel hosting with free SSL.",
+    description: "SSD cPanel hosting with free SSL.",
     icon: Server,
     href: "/hosting",
     available: true,
   },
   {
     title: "VPS Hosting",
-    description: "Dedicated virtual servers with full root control.",
+    description: "Virtual servers with full root access.",
     icon: Server,
     href: "/vps",
     available: true,
   },
   {
     title: "Hosting Plans & Pricing",
-    description: "Flexible packages for creators, startups, and agencies.",
+    description: "Plans for personal sites, startups and agencies.",
     icon: Tag,
     href: "/pricing",
     available: true,
@@ -100,21 +100,21 @@ export const activeProductsItems: MenuItem[] = [
 export const activeResourcesItems: MenuItem[] = [
   {
     title: "Documentation",
-    description: "Guides, API references, and architecture docs.",
+    description: "Guides, API references and architecture docs.",
     icon: BookOpen,
     href: DOCS_URL,
     available: true,
   },
   {
     title: "Help Center & Support",
-    description: "Our dedicated technical team is ready to assist.",
+    description: "Reach our technical support team.",
     icon: Headphones,
     href: "/contact",
     available: true,
   },
   {
-    title: "Transparent Pricing",
-    description: "Clear tiers with no hidden fees or lock-ins.",
+    title: "Pricing",
+    description: "Plan prices with no hidden fees or lock-in.",
     icon: Tag,
     href: "/pricing",
     available: true,
@@ -127,7 +127,7 @@ export const activeResourcesItems: MenuItem[] = [
 export const domainsItems: MenuItem[] = [
   {
     title: "Domain Registration",
-    description: "Find and register your perfect domain.",
+    description: "Find and register your domain.",
     icon: Search,
     href: "/domains",
     available: true,
@@ -151,21 +151,21 @@ export const domainsItems: MenuItem[] = [
 export const hostingItems: MenuItem[] = [
   {
     title: "Web Hosting",
-    description: "Reliable hosting for websites.",
+    description: "Hosting for websites.",
     icon: Monitor,
     href: "/hosting",
     available: true,
   },
   {
     title: "VPS Hosting",
-    description: "Powerful infrastructure with more control.",
+    description: "Virtual servers with more control.",
     icon: Cpu,
     href: "/hosting#vps",
     available: false,
   },
   {
     title: "Cloud Hosting",
-    description: "Flexible infrastructure that scales.",
+    description: "Infrastructure that scales with traffic.",
     icon: Cloud,
     href: "/hosting#cloud",
     available: false,
@@ -182,7 +182,7 @@ export const hostingItems: MenuItem[] = [
 export const aiWebsitesItems: MenuItem[] = [
   {
     title: "AI Website Builder",
-    description: "Create professional websites with AI.",
+    description: "Build a website with AI.",
     icon: Sparkles,
     href: "#",
     available: false,
@@ -207,7 +207,7 @@ export const developerCloudItems: MenuItem[] = [
   },
   {
     title: "Serverless",
-    description: "Build without managing servers.",
+    description: "Run code without managing servers.",
     icon: Zap,
     href: "#",
     available: false,
@@ -221,21 +221,21 @@ export const developerCloudItems: MenuItem[] = [
   },
   {
     title: "CDN",
-    description: "Deliver content faster.",
+    description: "Serve content from locations near your visitors.",
     icon: Globe,
     href: "#",
     available: false,
   },
   {
     title: "Databases",
-    description: "Reliable data infrastructure.",
+    description: "Managed databases for your apps.",
     icon: Database,
     href: "#",
     available: false,
   },
   {
     title: "CI/CD",
-    description: "Streamline development and deployment.",
+    description: "Build, test and deploy from your repository.",
     icon: GitBranch,
     href: "#",
     available: false,
@@ -301,16 +301,6 @@ export const businessItems: MenuItem[] = [
   },
 ];
 
-export const emailItems: MenuItem[] = [
-  {
-    title: "Email Suite",
-    description: "Professional email for your business.",
-    icon: Inbox,
-    href: "#",
-    available: false,
-  },
-];
-
 // Blog link commented out until /blog route exists:
 // {
 //   title: "Blog",
@@ -338,42 +328,31 @@ export function DropdownItemRow({
       rel={isExternal ? "noopener noreferrer" : undefined}
       onClick={onClose}
       className={cn(
-        "flex items-center gap-3 p-2.5 rounded-lg transition-all duration-150 hover:bg-[#f2f6fc] group cursor-pointer",
-        item.highlighted && "bg-[#f8faff] border border-[#e2eaff]"
+        "flex items-start gap-3 p-2.5 rounded-lg transition-colors hover:bg-[#F2F5FC] group cursor-pointer",
+        focusRing,
+        item.highlighted && "bg-[#F2F5FC]",
       )}
     >
-      <div className="w-8.5 h-8.5 rounded-lg bg-[#1787D4]/10 text-[#1787D4] group-hover:bg-[#1787D4] group-hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs">
-        <Icon className="w-4 h-4 transition-colors" />
-      </div>
+      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[#1787D4]" />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-[#005B8A] group-hover:text-[#1787D4] leading-tight transition-colors">
+        <p className="text-sm font-medium text-[#031033] group-hover:text-[#1787D4] leading-tight transition-colors">
           {item.title}
         </p>
-        <p className="text-[11.5px] text-[#5a6a85] leading-snug mt-0.5">
+        <p className="text-xs text-[#5A6A85] leading-snug mt-1">
           {item.description}
         </p>
       </div>
-      <ChevronRight className="w-3.5 h-3.5 text-[#9ba8c0] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0" />
     </Link>
   );
 }
 
-/* ─── Redesigned Products Dropdown (Compact & Elegant) ─────── */
+/* ─── Products dropdown ─────────────────────────────────────── */
 export function ProductsMegaMenu({ onClose }: { onClose?: () => void }) {
   return (
-    <div
-      className="rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
-                 shadow-[0_20px_50px_rgba(0,91,138,0.12),0_4px_16px_rgba(23,135,212,0.08)]
-                 w-[410px] max-w-[calc(100vw-32px)] text-left animate-in fade-in-0 zoom-in-95 duration-150"
-    >
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 shadow-[0_12px_32px_rgba(3,16,51,0.12)] w-[400px] max-w-[calc(100vw-32px)] text-left">
       {/* Header */}
-      <div className="mb-2 px-2 pb-2 border-b border-slate-100 flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#1787D4]">
-          PRODUCTS
-        </span>
-        <span className="text-[11px] text-[#5a6a85]">
-          Domains & Cloud Hosting
-        </span>
+      <div className="mb-2 px-2.5 pb-2 border-b border-[#E2E8F0]">
+        <span className="text-xs text-[#5A6A85]">Domains and cloud hosting</span>
       </div>
 
       {/* Active Items List */}
@@ -384,46 +363,43 @@ export function ProductsMegaMenu({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* Footer link */}
-      <div className="border-t border-slate-100 mt-2 pt-2.5 px-2 flex items-center justify-between">
+      <div className="border-t border-[#E2E8F0] mt-2 pt-2.5 px-2.5 flex items-center justify-between">
         <Link
           href="/hosting"
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#005B8A] hover:text-[#1787D4] transition-colors group"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors",
+            focusRing,
+          )}
         >
-          <span>Compare all hosting plans</span>
-          <ArrowRight className="w-3 h-3 text-[#1787D4] group-hover:translate-x-0.5 transition-transform" />
+          <span>Compare hosting plans</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
         <Link
           href={DOCS_URL}
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[#5a6a85] hover:text-[#1787D4] transition-colors group"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded text-sm font-medium text-[#5A6A85] hover:text-[#031033] transition-colors",
+            focusRing,
+          )}
         >
-          <span>API Docs</span>
-          <ArrowRight className="w-3 h-3 text-[#9ba8c0] group-hover:text-[#1787D4] group-hover:translate-x-0.5 transition-transform" />
+          <span>API docs</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
     </div>
   );
 }
 
-/* ─── Redesigned Resources Dropdown (Identical Apple Aesthetic) ─ */
+/* ─── Resources dropdown ────────────────────────────────────── */
 export function ResourcesMegaMenu({ onClose }: { onClose?: () => void }) {
   return (
-    <div
-      className="rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-2xl p-3.5
-                 shadow-[0_20px_50px_rgba(0,91,138,0.12),0_4px_16px_rgba(23,135,212,0.08)]
-                 w-[410px] max-w-[calc(100vw-32px)] text-left animate-in fade-in-0 zoom-in-95 duration-150"
-    >
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 shadow-[0_12px_32px_rgba(3,16,51,0.12)] w-[400px] max-w-[calc(100vw-32px)] text-left">
       {/* Header */}
-      <div className="mb-2 px-2 pb-2 border-b border-slate-100 flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#1787D4]">
-          RESOURCES
-        </span>
-        <span className="text-[11px] text-[#5a6a85]">
-          Documentation & Support
-        </span>
+      <div className="mb-2 px-2.5 pb-2 border-b border-[#E2E8F0]">
+        <span className="text-xs text-[#5A6A85]">Documentation and support</span>
       </div>
 
       {/* Active Items List */}
@@ -434,14 +410,17 @@ export function ResourcesMegaMenu({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* Footer link */}
-      <div className="border-t border-slate-100 mt-2 pt-2.5 px-2 flex items-center justify-between">
+      <div className="border-t border-[#E2E8F0] mt-2 pt-2.5 px-2.5 flex items-center justify-between">
         <Link
           href="/contact"
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#005B8A] hover:text-[#1787D4] transition-colors group"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors",
+            focusRing,
+          )}
         >
           <span>Contact 24/7 technical support</span>
-          <ArrowRight className="w-3 h-3 text-[#1787D4] group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
     </div>

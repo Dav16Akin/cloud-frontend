@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Scale, Shield, RefreshCw, ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions | Nupat Cloud",
@@ -20,24 +20,17 @@ const toc = [
 
 function SectionHeading({
   id,
-  icon: Icon,
   title,
   subtitle,
 }: {
   id: string;
-  icon: React.ComponentType<{ className?: string }>;
   title: string;
   subtitle: string;
 }) {
   return (
-    <div id={id} className="flex items-start gap-4 mb-8 scroll-mt-28">
-      <div className="w-10 h-10 bg-[#fff8ee] border border-[#e8900a]/30 flex items-center justify-center shrink-0 mt-0.5">
-        <Icon className="w-5 h-5 text-[#e8900a]" />
-      </div>
-      <div>
-        <h2 className="type-h2 text-[#031033]">{title}</h2>
-        <p className="text-sm text-[#9ba8c0] mt-0.5">{subtitle}</p>
-      </div>
+    <div id={id} className="mb-8 scroll-mt-28">
+      <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033]">{title}</h2>
+      <p className="text-base text-[#5A6A85] mt-2">{subtitle}</p>
     </div>
   );
 }
@@ -52,12 +45,12 @@ function Clause({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-7">
-      <h3 className="text-base font-bold text-[#031033] mb-2 flex items-baseline gap-2">
-        <span className="text-[#e8900a] font-extrabold tabular-nums">{number}.</span>
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-[#031033] mb-2 flex items-baseline gap-2">
+        <span className="tabular-nums">{number}.</span>
         {title}
       </h3>
-      <div className="text-[#5a6a85] text-sm leading-relaxed space-y-2 pl-5 border-l-2 border-[#e2eaff]">
+      <div className="text-[#5A6A85] text-base leading-relaxed space-y-3 max-w-[68ch]">
         {children}
       </div>
     </div>
@@ -66,19 +59,16 @@ function Clause({
 
 function BulletList({ items }: { items: string[] }) {
   return (
-    <ul className="space-y-1.5">
+    <ul className="list-disc pl-5 space-y-1.5 marker:text-[#8A97AD]">
       {items.map((item) => (
-        <li key={item} className="flex items-start gap-2">
-          <span className="mt-1.5 w-1.5 h-1.5 bg-[#e8900a] shrink-0" />
-          <span>{item}</span>
-        </li>
+        <li key={item}>{item}</li>
       ))}
     </ul>
   );
 }
 
 function Divider() {
-  return <div className="border-t border-[#e2eaff] my-10" />;
+  return <div className="border-t border-[#E2E8F0] my-12" />;
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -89,65 +79,59 @@ export default function TermsPage() {
   return (
     <div className="flex flex-col bg-white">
       {/* ── Hero ── */}
-      <section className="relative pt-32 pb-16 section-navy-tint overflow-hidden">
-        <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <span className="trust-badge mb-4 inline-flex">
-            <Scale className="w-3.5 h-3.5" />
-            Legal Documents
-          </span>
-          <h1 className="type-h1 text-[#031033] mb-4">
-            Terms, Privacy &{" "}
-            <span className="gradient-text">Refund Policy</span>
+      <section className="pt-32 pb-16 bg-[#F2F5FC] border-b border-[#E2E8F0]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl sm:text-5xl font-semibold text-[#031033] mb-4 max-w-4xl">
+            Terms, privacy and refund policy
           </h1>
-          <p className="text-[#5a6a85] text-lg max-w-xl mx-auto">
+          <p className="text-[#5A6A85] text-lg max-w-2xl">
             These documents govern your use of Nupat Cloud services. Please read
             them carefully before using our platform.
           </p>
-          <p className="mt-4 text-xs text-[#9ba8c0]">
-            Last updated: {lastUpdated}
+          <p className="mt-4 text-sm text-[#5A6A85]">
+            Last updated {lastUpdated}
           </p>
         </div>
       </section>
 
-      {/* ── Body: sidebar + content ── */}
-      <section className="section-pad section-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Body: sidebar + content */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-12">
 
-            {/* ── Sticky sidebar ── */}
-            <aside className="lg:w-64 shrink-0">
-              <div className="lg:sticky lg:top-28 space-y-1">
-                <p className="text-[10px] font-bold text-[#9ba8c0] uppercase tracking-widest mb-3">
+            <aside className="lg:w-60 shrink-0">
+              <nav aria-label="On this page" className="lg:sticky lg:top-28">
+                <p className="text-sm font-medium text-[#031033] mb-3">
                   On this page
                 </p>
-                {toc.map((item) => (
-                  <a
-                    key={item.id}
-                    href={`#${item.id}`}
-                    className="flex items-center gap-2 text-sm text-[#5a6a85] hover:text-[#e8900a] py-1.5 border-l-2 border-[#e2eaff] hover:border-[#e8900a] pl-3 transition-all"
-                  >
-                    {item.label}
-                  </a>
-                ))}
+                <ul className="space-y-1">
+                  {toc.map((item) => (
+                    <li key={item.id}>
+                      <a
+                        href={`#${item.id}`}
+                        className="block text-sm text-[#5A6A85] hover:text-[#1787D4] py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] rounded"
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
 
-                <div className="pt-6">
-                  <div className="bg-[#031033] p-4">
-                    <p className="text-white text-xs font-semibold mb-1">
-                      Questions?
-                    </p>
-                    <p className="text-[#9ba8c0] text-xs mb-3 leading-relaxed">
-                      Our team is happy to clarify any of our policies.
-                    </p>
-                    <Link
-                      href="/contact"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#e8900a] hover:underline"
-                    >
-                      Contact us <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </div>
+                <div className="mt-8 rounded-xl border border-[#E2E8F0] bg-[#F2F5FC] p-5">
+                  <p className="text-[#031033] text-sm font-medium mb-1">
+                    Questions?
+                  </p>
+                  <p className="text-[#5A6A85] text-sm mb-3 leading-relaxed">
+                    Our team can clarify any of these policies.
+                  </p>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] hover:underline"
+                  >
+                    Contact us <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
-              </div>
+              </nav>
             </aside>
 
             {/* ── Main content ── */}
@@ -156,15 +140,14 @@ export default function TermsPage() {
               {/* ═══ TERMS & CONDITIONS ═══ */}
               <SectionHeading
                 id="terms"
-                icon={Scale}
                 title="Terms and Conditions"
                 subtitle="Effective for all Nupat Cloud services"
               />
 
-              <p className="text-sm text-[#5a6a85] leading-relaxed mb-7">
+              <p className="text-base text-[#5A6A85] leading-relaxed mb-8 max-w-[68ch]">
                 These Terms and Conditions govern the use of services provided by{" "}
-                <strong className="text-[#031033]">Nupat Cloud</strong> ("Nupat",
-                "we", "our", or "us"), including domain registration, web hosting,
+                <strong className="font-medium text-[#031033]">Nupat Cloud</strong> (&ldquo;Nupat&rdquo;,
+                &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), including domain registration, web hosting,
                 cloud infrastructure, managed services, software solutions, and
                 related products.
               </p>
@@ -184,7 +167,6 @@ export default function TermsPage() {
                     "Shared hosting services",
                     "VPS and dedicated server hosting",
                     "Cloud infrastructure services",
-                    "Email hosting",
                     "Managed IT services",
                     "Software development services",
                   ]}
@@ -251,15 +233,14 @@ export default function TermsPage() {
               {/* ═══ PRIVACY POLICY ═══ */}
               <SectionHeading
                 id="privacy"
-                icon={Shield}
                 title="Privacy Policy"
                 subtitle="In accordance with the Nigeria Data Protection Act (NDPA) 2023"
               />
 
-              <p className="text-sm text-[#5a6a85] leading-relaxed mb-7">
+              <p className="text-base text-[#5A6A85] leading-relaxed mb-8 max-w-[68ch]">
                 Nupat Cloud respects your privacy and is committed to protecting
                 personal information in accordance with the{" "}
-                <strong className="text-[#031033]">
+                <strong className="font-medium text-[#031033]">
                   Nigeria Data Protection Act (NDPA) 2023
                 </strong>
                 .
@@ -341,19 +322,14 @@ export default function TermsPage() {
               {/* ═══ REFUND POLICY ═══ */}
               <SectionHeading
                 id="refund"
-                icon={RefreshCw}
                 title="Refund Policy"
                 subtitle="30-Day Money Back Guarantee on all hosting plans"
               />
 
-              <div className="bg-emerald-50 border border-emerald-200 p-4 mb-7 flex items-start gap-3">
-                <div className="w-5 h-5 bg-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-sm text-emerald-800 font-medium leading-relaxed">
-                  We offer a <strong>no-quibble 30-day Money Back Guarantee</strong> on
+              <div className="rounded-xl bg-[#F2F5FC] border border-[#E2E8F0] p-5 mb-8 flex items-start gap-3 max-w-[68ch]">
+                <Check className="w-5 h-5 text-[#12A150] shrink-0 mt-0.5" />
+                <p className="text-base text-[#031033] leading-relaxed">
+                  We offer a <strong className="font-semibold">no-quibble 30-day Money Back Guarantee</strong> on
                   all web hosting plans. You will receive a refund of hosting fees
                   (remainder of the term) within 72 hours of requesting it.
                 </p>
@@ -365,7 +341,7 @@ export default function TermsPage() {
                   the 30-day Money Back Guarantee. This includes any setup fees and
                   monthly fees, regardless of usage. All billing disputes must be
                   reported within{" "}
-                  <strong className="text-[#031033]">15 days</strong> of the time
+                  <strong className="font-medium text-[#031033]">15 days</strong> of the time
                   the dispute occurred.
                 </p>
               </Clause>
@@ -373,7 +349,7 @@ export default function TermsPage() {
               <Clause number="2" title="Chargebacks">
                 <p>
                   Disputed charges to your credit card issuer (chargebacks) will, in
-                  Nupat Cloud's valid discretion and under the terms of our SLA, AUP,
+                  Nupat Cloud&rsquo;s valid discretion and under the terms of our SLA, AUP,
                   and TOS, result in service interruption and reconnection fees to
                   restore the desired service.
                 </p>
@@ -381,10 +357,10 @@ export default function TermsPage() {
 
               <Clause number="3" title="30-Day Money Back Guarantee">
                 <p>
-                  We are confident you'll be pleased with Nupat Cloud's performance
+                  We are confident you&rsquo;ll be pleased with Nupat Cloud&rsquo;s performance
                   and support. Our 30-day Money Back Guarantee applies to all web
                   hosting plans. Refunds are processed within{" "}
-                  <strong className="text-[#031033]">72 hours</strong> of the
+                  <strong className="font-medium text-[#031033]">72 hours</strong> of the
                   request.
                 </p>
               </Clause>
@@ -398,18 +374,18 @@ export default function TermsPage() {
               </Clause>
 
               {/* Bottom CTA */}
-              <div className="mt-10 bg-[#031033] border-l-4 border-[#e8900a] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="mt-12 rounded-xl bg-[#031033] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-white font-semibold">Have a question about our policies?</p>
-                  <p className="text-[#9ba8c0] text-sm mt-0.5">
-                    Our support team is available to clarify anything in these documents.
+                  <p className="text-white font-medium">Have a question about our policies?</p>
+                  <p className="text-white/70 text-sm mt-1">
+                    Our support team can clarify anything in these documents.
                   </p>
                 </div>
                 <Link
                   href="/contact"
-                  className="btn-primary text-sm py-2.5 px-5 whitespace-nowrap shrink-0 flex items-center gap-2"
+                  className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#031033]"
                 >
-                  Contact Support <ArrowRight className="w-4 h-4" />
+                  Contact support <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>

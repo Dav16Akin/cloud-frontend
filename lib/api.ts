@@ -1476,7 +1476,8 @@ export type RegisteredDomain = {
   status: "ACTIVE" | "EXPIRED" | "PENDING";
   expiryDate: string;
   registrationDate: string;
-  autoRenew: boolean;
+  /** undefined when the API does not report it (never assume "on") */
+  autoRenew?: boolean;
   /** Current nameservers — defaults to ["ns1.nupatcloud.com","ns2.nupatcloud.com"] */
   nameservers?: string[];
 };

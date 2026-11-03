@@ -1,10 +1,7 @@
-"use client";
-
-import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-// SVG Logos for OS & Runtimes
+// OS and runtime logos (brand colours kept)
 function UbuntuIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -108,112 +105,85 @@ const templates = [
     tag: "Enterprise",
   },
   {
-    name: "Debian GNU",
+    name: "Debian",
     version: "Debian 12 Bookworm",
     icon: DebianIcon,
     tag: "Stable",
   },
   {
-    name: "WordPress CMS",
-    version: "LEMP + FastCGI Cache",
+    name: "WordPress",
+    version: "LEMP + FastCGI cache",
     icon: WordpressIcon,
-    tag: "1-Click",
+    tag: "One-click",
   },
   {
-    name: "Docker Stack",
+    name: "Docker",
     version: "Engine + Compose v2",
     icon: DockerIcon,
     tag: "DevOps",
   },
   {
-    name: "NodeJS Engine",
+    name: "Node.js",
     version: "v20 / v22 LTS + PM2",
     icon: NodeIcon,
-    tag: "Node Runtime",
+    tag: "Runtime",
   },
 ];
 
 export default function VpsOsTemplatesSection() {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
-    <section className="py-20 sm:py-24 lg:py-28 bg-[#f8faff] border-y border-slate-100 relative">
+    <section className="py-16 sm:py-24 bg-[#F2F5FC] border-y border-[#E2E8F0] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
-          <h2 className="type-h2 text-[#031033] mb-4">
-            Ready-to-Deploy OS Templates
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033] mb-4">
+            Ready-to-deploy OS templates
           </h2>
-          <p className="type-lead text-[#5a6a85] leading-relaxed">
-            Skip standard OS setups. Select a foundation image or Docker container build and
-            spin up your application instantly.
+          <p className="text-lg text-[#5A6A85] leading-relaxed">
+            Skip the base install. Pick an operating system or a Docker image and your server
+            boots with it ready to use.
           </p>
         </div>
 
-        {/* Templates Grid (2 rows of 3) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {templates.map((tpl, idx) => {
+          {templates.map((tpl) => {
             const Icon = tpl.icon;
             return (
-              <motion.div
+              <div
                 key={tpl.name}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.35,
-                  delay: idx * 0.05,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-[#1787D4]/30 hover:shadow-md transition-all duration-200 flex items-center justify-between"
+                className="bg-white rounded-xl p-5 border border-[#E2E8F0] flex items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                    <Icon className="w-9 h-9" />
-                  </div>
+                  <Icon className="w-9 h-9 shrink-0" />
                   <div>
-                    <h3 className="text-[15px] font-semibold text-[#031033] tracking-tight">
-                      {tpl.name}
-                    </h3>
-                    <p className="text-xs text-[#5a6a85] mt-0.5">
-                      {tpl.version}
-                    </p>
+                    <h3 className="text-base font-semibold text-[#031033]">{tpl.name}</h3>
+                    <p className="text-xs text-[#5A6A85] mt-0.5">{tpl.version}</p>
                   </div>
                 </div>
 
-                <span className="text-[11px] font-medium text-[#1787D4] bg-[#E8F4FC] px-2.5 py-0.5 rounded-full shrink-0">
+                <span className="text-xs font-medium text-[#1787D4] bg-[#E8F4FC] px-2.5 py-0.5 rounded-full shrink-0">
                   {tpl.tag}
                 </span>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
-        {/* Explore, Deploy, and Build Faster Banner */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.45, delay: 0.15 }}
-          className="mt-10 sm:mt-12 rounded-2xl bg-[#E8F4FC]/60 border border-[#d0e7f9] p-6 sm:p-8 text-center max-w-4xl mx-auto shadow-sm"
-        >
-          <h3 className="text-lg sm:text-xl font-bold text-[#031033] tracking-tight mb-2">
-            Explore, Deploy, and Build Faster
+        <div className="mt-10 sm:mt-12 rounded-xl bg-white border border-[#E2E8F0] p-6 sm:p-8 text-center max-w-4xl mx-auto">
+          <h3 className="text-xl font-semibold text-[#031033] mb-2">
+            More runtimes and frameworks
           </h3>
-          <p className="type-body-sm text-[#415170] leading-relaxed max-w-xl mx-auto mb-5">
-            Access over 120 pre-built application runtimes, database structures, and development
-            frameworks. Get everything running live on the web with a simple click.
+          <p className="text-sm text-[#5A6A85] leading-relaxed max-w-xl mx-auto mb-5">
+            Choose from over 120 pre-built application runtimes, databases and development
+            frameworks, and have your app live on the web in a click.
           </p>
           <Link
             href="#pricing"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#1787D4] hover:text-[#1370B5] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
           >
-            <span>View all supported images and templates</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            See VPS plans
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
-        </motion.div>
-
+        </div>
       </div>
     </section>
   );

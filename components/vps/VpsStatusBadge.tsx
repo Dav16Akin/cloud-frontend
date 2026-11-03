@@ -20,48 +20,48 @@ const STATUS_STYLES: Record<
 > = {
   PROVISIONING: {
     label: "Provisioning",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
+    className: "text-[#031033]",
+    dot: "bg-[#1787D4]",
   },
   RUNNING: {
     label: "Running",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    dot: "bg-emerald-500",
+    className: "text-[#031033]",
+    dot: "bg-[#12A150]",
   },
   STOPPED: {
     label: "Stopped",
-    className: "bg-slate-100 text-slate-600 border-slate-200",
-    dot: "bg-slate-400",
+    className: "text-[#031033]",
+    dot: "bg-[#9AA6B8]",
   },
   REBOOTING: {
     label: "Rebooting",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
+    className: "text-[#031033]",
+    dot: "bg-[#1787D4]",
   },
   REBUILDING: {
     label: "Rebuilding",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
+    className: "text-[#031033]",
+    dot: "bg-[#1787D4]",
   },
   SUSPENDED: {
     label: "Suspended",
-    className: "bg-red-50 text-red-600 border-red-200",
-    dot: "bg-red-500",
+    className: "text-[#C21F1F]",
+    dot: "bg-[#DC2626]",
   },
   FAILED: {
     label: "Failed",
-    className: "bg-red-50 text-red-600 border-red-200",
-    dot: "bg-red-500",
+    className: "text-[#C21F1F]",
+    dot: "bg-[#DC2626]",
   },
   DELETING: {
     label: "Deleting",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
+    className: "text-[#031033]",
+    dot: "bg-[#1787D4]",
   },
   DELETED: {
     label: "Deleted",
-    className: "bg-slate-100 text-slate-500 border-slate-200",
-    dot: "bg-slate-400",
+    className: "text-[#031033]",
+    dot: "bg-[#9AA6B8]",
   },
 };
 
@@ -76,18 +76,18 @@ export default function VpsStatusBadge({
   const style =
     STATUS_STYLES[key] ?? {
       label: status ?? "Unknown",
-      className: "bg-slate-100 text-slate-600 border-slate-200",
-      dot: "bg-slate-400",
+      className: "text-[#031033]",
+      dot: "bg-[#9AA6B8]",
     };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11.5px] font-semibold whitespace-nowrap ${style.className} ${className}`}
+      className={`inline-flex items-center gap-2 whitespace-nowrap text-sm ${style.className} ${className}`}
     >
       {isVpsBusy(key) ? (
-        <Loader2 className="w-3 h-3 animate-spin" />
+        <Loader2 aria-hidden className="w-3.5 h-3.5 shrink-0 animate-spin text-[#1787D4]" />
       ) : (
-        <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${style.dot}`} />
       )}
       {style.label}
     </span>

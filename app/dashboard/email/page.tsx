@@ -78,121 +78,112 @@ export default function PrivateEmailPage() {
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Disabled Notification Banner */}
-      <div className="bg-amber-50/60 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#eff6fb] flex items-center justify-center text-[#1787D4] shrink-0">
-            <Mail className="w-5 h-5" />
-          </div>
+      <div className="bg-[#FFF4E0] border border-[#E8900A]/25 rounded-lg px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <Mail className="w-4 h-4 text-[#E8900A] shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-[14px] font-semibold text-orange-600">
-              Private Email is Temporarily Disabled
+            <h3 className="text-sm font-medium text-[#9A5B00]">
+              Private Email is temporarily disabled
             </h3>
-            <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+            <p className="text-xs text-[#9A5B00] mt-0.5">
               Email creation and management are currently offline. All existing data is safely preserved.
             </p>
           </div>
         </div>
         <Link
           href="/dashboard"
-          className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] transition-colors shrink-0"
+          className="text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors shrink-0"
         >
-          Return to Dashboard →
+          Return to dashboard →
         </Link>
       </div>
 
       {/* Header */}
       <div>
-        <h2
-          className="text-[26px] font-bold tracking-tight"
-          style={{
-            color: "#1d1d1f",
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
+        <h1 className="text-2xl font-semibold text-[#031033]">
           Private Email
-        </h2>
-        <p className="text-[14px] mt-1 text-[#6e6e73]">
+        </h1>
+        <p className="text-sm mt-1 text-[#5A6A85]">
           Create and manage professional email addresses for your domains.
         </p>
       </div>
 
-      {/* Top 3 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Card 1: Mailboxes */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
-          <span className="text-[13px] font-medium text-[#6e6e73]">Mailboxes</span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+      {/* Metrics: one container split by hairlines */}
+      <div className="bg-white rounded-xl border border-[#E2E8F0] grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#EEF2F7]">
+        {/* Mailboxes */}
+        <div className="px-5 py-4">
+          <span className="text-xs text-[#5A6A85]">Mailboxes</span>
+          <div className="text-2xl font-semibold text-[#031033] tabular-nums mt-1">
             {totalMailboxes}
           </div>
         </div>
 
-        {/* Card 2: Storage Used */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
-          <span className="text-[13px] font-medium text-[#6e6e73]">Storage Used</span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+        {/* Storage Used */}
+        <div className="px-5 py-4">
+          <span className="text-xs text-[#5A6A85]">Storage used</span>
+          <div className="text-2xl font-semibold text-[#031033] tabular-nums mt-1">
             24 GB
           </div>
         </div>
 
-        {/* Card 3: Domains */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm flex flex-col justify-between min-h-[108px]">
-          <span className="text-[13px] font-medium text-[#6e6e73]">Domains</span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
+        {/* Domains */}
+        <div className="px-5 py-4">
+          <span className="text-xs text-[#5A6A85]">Domains</span>
+          <div className="text-2xl font-semibold text-[#031033] tabular-nums mt-1">
             {uniqueDomains || 3}
           </div>
         </div>
       </div>
 
       {/* Action and Search Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             placeholder="Search by email or domain..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+            className="w-full h-10 pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
           />
         </div>
 
         <Link
           href="/dashboard/email/create"
           id="btn-create-mailbox"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
         >
-          Create Mailbox
+          Create mailbox
         </Link>
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                  Email Address
+              <tr className="border-b border-[#E2E8F0]">
+                <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
+                  Email address
                 </th>
-                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                   Domain
                 </th>
-                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">
                   Storage
                 </th>
-                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                   Status
                 </th>
-                <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
+                <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f2f5fc]">
+            <tbody>
               {filteredMailboxes.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-[13.5px] text-[#6e6e73]">
+                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-[#5A6A85]">
                     No mailboxes found matching &quot;{searchQuery}&quot;.
                   </td>
                 </tr>
@@ -200,33 +191,45 @@ export default function PrivateEmailPage() {
                 filteredMailboxes.map((item) => (
                   <tr
                     key={item.id || item.email}
-                    className="hover:bg-[#fbfcfe] transition-colors group"
+                    className="border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                   >
-                    <td className="py-5 px-6">
-                      <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                    <td className="py-3 px-5">
+                      <span className="text-sm font-medium text-[#031033]">
                         {item.email}
                       </span>
                     </td>
-                    <td className="py-5 px-6">
-                      <span className="text-[13px] text-[#6e6e73]">
+                    <td className="py-3 px-5">
+                      <span className="text-sm text-[#5A6A85]">
                         {item.domain}
                       </span>
                     </td>
-                    <td className="py-5 px-6">
-                      <span className="text-[13px] text-[#6e6e73]">
+                    <td className="py-3 px-5 text-right">
+                      <span className="text-sm text-[#5A6A85] tabular-nums whitespace-nowrap">
                         {item.storage}
                       </span>
                     </td>
-                    <td className="py-5 px-6">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
+                    <td className="py-3 px-5">
+                      <span className={`inline-flex items-center gap-2 whitespace-nowrap text-sm ${
+                          item.status === "Suspended" ? "text-[#C21F1F]" : "text-[#031033]"
+                        }`}>
+                        <span
+                          aria-hidden
+                          className={`h-2 w-2 shrink-0 rounded-full ${
+                            item.status === "Suspended"
+                              ? "bg-[#DC2626]"
+                              : item.status === "Pending"
+                                ? "bg-[#E8900A]"
+                                : "bg-[#12A150]"
+                          }`}
+                        />
                         {item.status}
                       </span>
                     </td>
-                    <td className="py-5 px-6 text-right">
+                    <td className="py-3 px-5 text-right">
                       <Link
                         href={`/dashboard/email/${encodeURIComponent(item.email)}`}
                         id={`manage-mailbox-${item.email.replace(/[@.]/g, "-")}`}
-                        className="inline-flex items-center justify-center px-4 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-full transition-colors active:scale-95 shadow-sm"
+                        className="inline-flex items-center justify-center h-8 px-3 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                       >
                         Manage
                       </Link>

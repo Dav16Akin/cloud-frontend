@@ -15,14 +15,10 @@ import {
   ArrowRight,
   CheckCircle2,
   Copy,
-  Cpu,
-  Loader2,
   MapPin,
   Plus,
-  Power,
   RefreshCw,
   Search,
-  Server,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -74,47 +70,36 @@ function matchesFilter(status: string, filter: StatusFilter) {
 function renewalHint(iso?: string | null) {
   const days = daysUntil(iso);
   if (days === null) return null;
-  if (days < 0) return { label: "Overdue", tone: "text-red-600" };
-  if (days === 0) return { label: "Due today", tone: "text-amber-600" };
+  if (days < 0) return { label: "Overdue", tone: "text-[#C21F1F]" };
+  if (days === 0) return { label: "Due today", tone: "text-[#9A5B00]" };
   if (days <= 5)
     return {
       label: `${days} day${days === 1 ? "" : "s"} left`,
-      tone: "text-amber-600",
+      tone: "text-[#9A5B00]",
     };
   return {
     label: `${days} days left`,
-    tone: "text-[#6e6e73]",
+    tone: "text-[#5A6A85]",
   };
 }
 
 function StatCard({
   label,
   value,
-  icon: Icon,
-  iconClassName,
   loading,
+  className = "",
 }: {
   label: string;
   value: number;
-  icon: React.ComponentType<{ className?: string }>;
-  iconClassName: string;
   loading: boolean;
+  className?: string;
 }) {
   return (
-    <div className="bg-white rounded-[14px] border border-[#e8e8ed] shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5 min-h-[108px] flex flex-col justify-between">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[12.5px] font-medium text-[#6e6e73]">
-          {label}
-        </span>
-        <span
-          className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${iconClassName}`}
-        >
-          <Icon className="w-3.5 h-3.5" />
-        </span>
-      </div>
-      <div className="text-[26px] font-bold text-[#1d1d1f] tracking-tight mt-1 leading-none">
+    <div className={`p-5 border-[#EEF2F7] ${className}`}>
+      <span className="block text-xs text-[#5A6A85]">{label}</span>
+      <div className="text-2xl font-semibold text-[#031033] tabular-nums mt-1.5 leading-8">
         {loading ? (
-          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <span className="block h-6 w-10 my-1 rounded bg-[#EEF2F7] animate-pulse" />
         ) : (
           value
         )}
@@ -128,7 +113,7 @@ function VpsRowActions({ server }: { server: VpsServer }) {
     <Link
       href={`/dashboard/vps/${server.id}`}
       id={`vps-manage-${server.id}`}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff6fc] hover:bg-[#e4f0fa] text-[#1787D4] hover:text-[#1371B5] text-[12px] font-semibold transition-colors"
+      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[#1787D4] hover:bg-[#E8F4FC] hover:text-[#1370B5] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       Manage
       <ArrowRight className="w-3.5 h-3.5" />
@@ -155,10 +140,10 @@ function CopyIpButton({ ip }: { ip: string }) {
       type="button"
       onClick={copy}
       aria-label={`Copy ${ip}`}
-      className="p-1 rounded text-[#8a9bb2] hover:text-[#1787D4] hover:bg-[#eff6fc] transition-colors"
+      className="p-1 rounded text-[#5A6A85] hover:text-[#1787D4] hover:bg-[#E8F4FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
     >
       {copied ? (
-        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+        <CheckCircle2 className="w-3.5 h-3.5 text-[#0E7C3A]" />
       ) : (
         <Copy className="w-3.5 h-3.5" />
       )}
@@ -180,32 +165,31 @@ function PendingSetupCard({
     `${item.vpsPlan?.name ?? "VPS"} server`;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 px-4 sm:px-5 py-3.5 border-b border-[#e2eaf3] last:border-b-0">
-      <div className="w-9 h-9 rounded-lg bg-white border border-[#d6eaf8] text-[#1787D4] flex items-center justify-center shrink-0">
-        <Cpu className="w-4 h-4" />
-      </div>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-3.5 border-b border-[#1787D4]/15 last:border-b-0">
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-[13px] font-semibold text-[#1d1d1f] truncate">
+          <p className="text-sm font-semibold text-[#031033] truncate">
             {name}
           </p>
-          <span className="text-[10.5px] font-bold uppercase tracking-wide bg-white text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033]">
+            <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#12A150]" />
             Paid
           </span>
         </div>
-        <p className="text-[11.5px] text-[#5a6a85] mt-0.5 truncate">
+        <p className="text-xs text-[#5A6A85] mt-0.5 truncate">
           {item.vpsPlan?.name ?? "VPS"} ·{" "}
           {humanizeImage(item.vpsConfig?.image)} ·{" "}
           {locationLabel(item.vpsConfig?.location)}
         </p>
-        <p className="text-[10.5px] text-[#8a9bb2] mt-0.5">
-          Order ref {order.paystackRef} · {formatVpsDate(order.createdAt)}
+        <p className="text-xs text-[#5A6A85] mt-0.5">
+          Order ref <span className="font-mono">{order.paystackRef}</span> ·{" "}
+          {formatVpsDate(order.createdAt)}
         </p>
       </div>
 
       <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-        <span className="text-[12.5px] font-bold text-[#1d1d1f]">
+        <span className="text-sm font-semibold text-[#031033] tabular-nums">
           {formatNaira(item.price)}
         </span>
         <button
@@ -218,7 +202,7 @@ function PendingSetupCard({
               ? "Contact support to complete this order."
               : undefined
           }
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold transition-colors disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Finish setup
           <ArrowRight className="w-3.5 h-3.5" />
@@ -237,26 +221,30 @@ function refundCopy(status: RefundStatus) {
     case "PROCESSED":
       return {
         label: "Refunded",
-        badge: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        dot: "bg-[#12A150]",
+        text: "text-[#031033]",
         note: "Paystack has completed this refund to your original payment method.",
       };
     case "FAILED":
       return {
         label: "Needs attention",
-        badge: "border-red-200 bg-red-50 text-red-700",
+        dot: "bg-[#DC2626]",
+        text: "text-[#C21F1F]",
         note: "The refund could not be completed automatically. Please contact support so we can finish it for you.",
       };
     case "REQUESTED":
     case "PROCESSING":
       return {
         label: "Refund in progress",
-        badge: "border-amber-200 bg-amber-50 text-amber-700",
+        dot: "bg-[#1787D4]",
+        text: "text-[#031033]",
         note: "Paystack is processing this refund. It has not settled to your account yet.",
       };
     default:
       return {
         label: "Not refunded",
-        badge: "border-[#e8e8ed] bg-[#f5f5f7] text-[#6e6e73]",
+        dot: "bg-[#9AA6B8]",
+        text: "text-[#031033]",
         note: "No refund has been recorded for this payment.",
       };
   }
@@ -447,18 +435,10 @@ function VpsDashboardContent() {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2
-            className="text-[24px] font-bold"
-            style={{
-              color: "#1d1d1f",
-              fontFamily:
-                "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            VPS Servers
-          </h2>
-          <p className="text-[14px] mt-0.5 text-[#6e6e73]">
+          <h1 className="text-2xl font-semibold text-[#031033]">
+            VPS servers
+          </h1>
+          <p className="text-sm mt-1 text-[#5A6A85]">
             Deploy, monitor and manage your virtual servers.
           </p>
         </div>
@@ -466,7 +446,7 @@ function VpsDashboardContent() {
         <Link
           href="/dashboard/vps/purchase"
           id="vps-deploy-cta"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all duration-150 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed self-start sm:self-auto shrink-0"
         >
           <Plus className="w-4 h-4" />
           Deploy VPS
@@ -474,46 +454,41 @@ function VpsDashboardContent() {
       </div>
 
       {/* ── Stats ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
         <StatCard
           label="Total servers"
           value={liveServers.length}
-          icon={Server}
-          iconClassName="bg-[#eff6fc] text-[#1787D4] border-[#d6eaf8]"
           loading={serversQuery.isLoading}
+          className="border-r border-b lg:border-b-0"
         />
         <StatCard
           label="Running"
           value={runningCount}
-          icon={CheckCircle2}
-          iconClassName="bg-emerald-50 text-emerald-600 border-emerald-200"
           loading={serversQuery.isLoading}
+          className="border-b lg:border-b-0 lg:border-r"
         />
         <StatCard
           label="Stopped"
           value={stoppedCount}
-          icon={Power}
-          iconClassName="bg-slate-100 text-slate-500 border-slate-200"
           loading={serversQuery.isLoading}
+          className="border-r"
         />
         <StatCard
           label="Needs attention"
           value={attentionCount}
-          icon={AlertCircle}
-          iconClassName="bg-red-50 text-red-500 border-red-200"
           loading={serversQuery.isLoading}
         />
       </div>
 
       {/* ── Recent purchase banner ─────────────────────────────────────── */}
       {showRecent && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-[#bbf7d0] bg-[#f0fdf4] px-4 py-3.5">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-lg border border-[#0E7C3A]/20 bg-[#E7F6EC] px-4 py-3">
+          <CheckCircle2 className="w-4 h-4 text-[#0E7C3A] shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-[#166534]">
+            <p className="text-sm font-medium text-[#0E7C3A]">
               Payment confirmed
             </p>
-            <p className="text-[11.5px] text-[#15803d] mt-0.5 leading-relaxed">
+            <p className="text-sm text-[#0E7C3A] mt-0.5 leading-relaxed">
               We are preparing{" "}
               {recent.name?.trim() || recent.planName || "your new server"}. It
               will appear below automatically, usually within a minute. If it
@@ -524,7 +499,7 @@ function VpsDashboardContent() {
             type="button"
             onClick={dismissRecent}
             aria-label="Dismiss"
-            className="p-1 rounded-lg text-emerald-700/60 hover:text-emerald-800 hover:bg-emerald-100 transition-colors shrink-0"
+            className="p-1 rounded-lg text-[#0E7C3A]/70 hover:text-[#0E7C3A] hover:bg-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E7C3A]/30 shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
@@ -533,16 +508,13 @@ function VpsDashboardContent() {
 
       {/* ── Paid but not provisioned ───────────────────────────────────── */}
       {pendingItems.length > 0 && (
-        <div className="rounded-[14px] border border-[#d6eaf8] bg-[#f6fbff] overflow-hidden">
-          <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-[#e2eaf3]">
-            <span className="w-7 h-7 rounded-lg bg-white border border-[#d6eaf8] text-[#1787D4] flex items-center justify-center shrink-0">
-              <Cpu className="w-3.5 h-3.5" />
-            </span>
+        <div className="rounded-xl border border-[#1787D4]/20 bg-[#E8F4FC] overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#1787D4]/15">
             <div>
-              <h3 className="text-[13.5px] font-bold text-[#1d1d1f]">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Finish setting up your server
               </h3>
-              <p className="text-[11px] text-[#5a6a85]">
+              <p className="text-sm text-[#5A6A85] mt-0.5">
                 Your payment is confirmed. No further charge is needed.
               </p>
             </div>
@@ -561,16 +533,13 @@ function VpsDashboardContent() {
 
       {/* ── Refund status for provisioning failures ────────────────────── */}
       {refundItems.length > 0 && (
-        <div className="rounded-[14px] border border-[#e8e8ed] bg-white overflow-hidden">
-          <div className="flex items-center gap-2.5 px-4 sm:px-5 py-3 border-b border-[#e8e8ed]">
-            <span className="w-7 h-7 rounded-lg bg-[#f5f5f7] border border-[#e8e8ed] text-[#6e6e73] flex items-center justify-center shrink-0">
-              <RefreshCw className="w-3.5 h-3.5" />
-            </span>
+        <div className="rounded-xl border border-[#E2E8F0] bg-white overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#EEF2F7]">
             <div>
-              <h3 className="text-[13.5px] font-bold text-[#1d1d1f]">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Provisioning refunds
               </h3>
-              <p className="text-[11px] text-[#6e6e73]">
+              <p className="text-sm text-[#5A6A85] mt-0.5">
                 Refund status is reported by Paystack. Bank settlement can take
                 up to 10 business days.
               </p>
@@ -582,32 +551,36 @@ function VpsDashboardContent() {
             return (
               <div
                 key={item.id}
-                className="px-4 sm:px-5 py-3 border-b border-[#f0f0f2] last:border-b-0"
+                className="px-5 py-3.5 border-b border-[#EEF2F7] last:border-b-0"
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[12.5px] font-semibold text-[#1d1d1f]">
+                  <p className="text-sm font-medium text-[#031033] tabular-nums">
                     {item.vpsPlan?.name ?? "VPS"} ·{" "}
                     {formatNaira(item.refundAmount ?? item.price)}
                   </p>
                   <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10.5px] font-semibold ${copy.badge}`}
+                    className={`inline-flex items-center gap-2 whitespace-nowrap text-sm ${copy.text}`}
                   >
+                    <span
+                      aria-hidden
+                      className={`h-2 w-2 shrink-0 rounded-full ${copy.dot}`}
+                    />
                     {copy.label}
                   </span>
                 </div>
-                <p className="text-[11px] text-[#6e6e73] mt-1 leading-relaxed">
+                <p className="text-xs text-[#5A6A85] mt-1 leading-relaxed">
                   {copy.note}
                 </p>
                 <div className="flex items-center justify-between gap-3 mt-1.5">
-                  <span className="text-[10.5px] text-[#9ba8c0]">
-                    Ref {order.paystackRef} ·{" "}
+                  <span className="text-xs text-[#5A6A85]">
+                    Ref <span className="font-mono">{order.paystackRef}</span> ·{" "}
                     {status === "PROCESSED"
                       ? `Refunded ${formatVpsDate(item.refundedAt)}`
                       : `Requested ${formatVpsDate(item.refundRequestedAt)}`}
                   </span>
                   <Link
                     href="/dashboard/tickets"
-                    className="text-[11.5px] font-semibold text-[#1787D4] hover:underline shrink-0"
+                    className="rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 shrink-0"
                   >
                     {status === "FAILED" ? "Contact support" : "Need help?"}
                   </Link>
@@ -619,8 +592,8 @@ function VpsDashboardContent() {
       )}
 
       {/* ── Filters + search ───────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 self-start rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] p-1 overflow-x-auto max-w-full">
           {FILTERS.map((filter) => {
             const active = statusFilter === filter.value;
             return (
@@ -629,10 +602,11 @@ function VpsDashboardContent() {
                 type="button"
                 id={`vps-filter-${filter.value.toLowerCase()}`}
                 onClick={() => setStatusFilter(filter.value)}
-                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 ${
+                aria-pressed={active}
+                className={`h-8 px-3 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                   active
-                    ? "bg-[#1787D4] text-white shadow-sm"
-                    : "bg-white border border-[#e8e8ed] text-[#6e6e73] hover:bg-[#f8fafc]"
+                    ? "bg-white text-[#031033] shadow-sm"
+                    : "text-[#5A6A85] hover:text-[#031033]"
                 }`}
               >
                 {filter.label}
@@ -642,28 +616,27 @@ function VpsDashboardContent() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             id="vps-search"
             placeholder="Search by name, IP or plan…"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#e8e8ed] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+            className="w-full h-10 pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
           />
         </div>
       </div>
 
       {/* ── Server list ────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[14px] border border-[#e8e8ed] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden mt-1">
-        <div className="px-5 sm:px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between gap-3">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#EEF2F7] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Server className="w-4 h-4 text-[#1787D4]" />
-            <h3 className="text-[14.5px] font-bold text-[#1d1d1f]">
+            <h3 className="text-base font-semibold text-[#031033]">
               Your servers
             </h3>
             {liveServers.length > 0 && (
-              <span className="text-[11px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8] px-2 py-0.5 rounded-full">
+              <span className="text-sm tabular-nums text-[#5A6A85]">
                 {liveServers.length}
               </span>
             )}
@@ -673,7 +646,7 @@ function VpsDashboardContent() {
             type="button"
             onClick={() => serversQuery.refetch()}
             disabled={serversQuery.isFetching}
-            className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] flex items-center gap-1.5 disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 h-8 px-3 -mr-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${
@@ -685,38 +658,43 @@ function VpsDashboardContent() {
         </div>
 
         {serversQuery.isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2">
-            <Loader2 className="w-6 h-6 text-[#1787D4] animate-spin" />
-            <p className="text-[13px] text-[#6e6e73]">Loading your servers…</p>
+          <div className="divide-y divide-[#EEF2F7]" aria-label="Loading your servers">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="px-5 py-4 flex items-center gap-6">
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-40 rounded bg-[#EEF2F7] animate-pulse" />
+                  <div className="h-3 w-56 rounded bg-[#EEF2F7] animate-pulse" />
+                </div>
+                <div className="hidden md:block h-3.5 w-28 rounded bg-[#EEF2F7] animate-pulse" />
+                <div className="h-5 w-20 rounded-full bg-[#EEF2F7] animate-pulse" />
+              </div>
+            ))}
           </div>
         ) : serversQuery.isError ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center gap-2">
-            <AlertCircle className="w-8 h-8 text-red-400" />
-            <p className="text-[14px] font-semibold text-red-600">
+            <AlertCircle className="w-5 h-5 text-[#DC2626]" />
+            <p className="text-sm font-medium text-[#031033]">
               Could not load your servers.
             </p>
-            <p className="text-[12px] text-[#6e6e73]">
+            <p className="text-sm text-[#5A6A85]">
               Check your connection and try again.
             </p>
             <button
               type="button"
               onClick={() => serversQuery.refetch()}
-              className="mt-2 text-[12px] font-semibold text-[#1787D4] hover:underline"
+              className="mt-2 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
               Try again
             </button>
           </div>
         ) : filteredServers.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
-              <Cpu className="w-6 h-6" />
-            </div>
-            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
+          <div className="flex flex-col items-center justify-center py-12 px-5 text-center">
+            <p className="text-sm font-medium text-[#031033]">
               {liveServers.length === 0
                 ? "No servers yet"
                 : "No servers match your filters"}
             </p>
-            <p className="text-[12.5px] text-[#6e6e73] max-w-sm mt-0.5">
+            <p className="text-sm text-[#5A6A85] max-w-sm mt-1">
               {liveServers.length === 0
                 ? "Deploy your first virtual server. It comes with dedicated resources, full root access and an IPv4 address."
                 : "Try a different status or clear the search."}
@@ -724,9 +702,9 @@ function VpsDashboardContent() {
             {liveServers.length === 0 ? (
               <Link
                 href="/dashboard/vps/purchase"
-                className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm"
+                className="mt-4 inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-[#5A6A85]" />
                 Deploy your first VPS
               </Link>
             ) : (
@@ -736,7 +714,7 @@ function VpsDashboardContent() {
                   setStatusFilter("ALL");
                   setSearchQuery("");
                 }}
-                className="mt-3 text-[12px] font-semibold text-[#1787D4] hover:underline"
+                className="mt-3 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Clear filters
               </button>
@@ -745,17 +723,17 @@ function VpsDashboardContent() {
         ) : (
           <>
             {/* Mobile cards */}
-            <div className="md:hidden divide-y divide-[#f2f5fc]">
+            <div className="md:hidden divide-y divide-[#EEF2F7]">
               {filteredServers.map((server) => {
                 const hint = renewalHint(server.nextBillingAt);
                 return (
-                  <div key={server.id} className="p-4 flex flex-col gap-3">
+                  <div key={server.id} className="px-5 py-4 flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-[13.5px] font-bold text-[#1d1d1f] truncate">
+                        <p className="text-sm font-medium text-[#031033] truncate">
                           {server.name}
                         </p>
-                        <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
+                        <p className="text-xs text-[#5A6A85] mt-0.5 truncate">
                           {server.plan?.name ?? "VPS"} ·{" "}
                           {humanizeImage(server.image)}
                         </p>
@@ -763,12 +741,12 @@ function VpsDashboardContent() {
                       <VpsStatusBadge status={server.status} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[12px] bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
+                    <div className="grid grid-cols-2 gap-3 text-xs bg-[#F2F5FC] p-3 rounded-lg">
                       <div className="min-w-0">
-                        <span className="text-[#6e6e73] block text-[11px]">
+                        <span className="text-[#5A6A85] block text-xs">
                           Public IP
                         </span>
-                        <span className="font-mono text-[12px] text-[#1d1d1f] flex items-center gap-1">
+                        <span className="font-mono text-xs text-[#031033] flex items-center gap-1">
                           <span className="truncate">
                             {server.ipv4 ?? "Pending"}
                           </span>
@@ -778,22 +756,22 @@ function VpsDashboardContent() {
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#6e6e73] block text-[11px]">
+                        <span className="text-[#5A6A85] block text-xs">
                           Renews
                         </span>
-                        <span className="text-[12px] text-[#1d1d1f]">
+                        <span className="text-xs text-[#031033] tabular-nums">
                           {formatVpsDate(server.nextBillingAt)}
                         </span>
                         {hint && (
                           <span
-                            className={`block text-[10.5px] ${hint.tone}`}
+                            className={`block text-xs ${hint.tone}`}
                           >
                             {hint.label}
                           </span>
                         )}
                       </div>
-                      <div className="col-span-2 pt-1.5 border-t border-[#eef2f8] flex items-center justify-between gap-2">
-                        <span className="text-[#6e6e73] text-[11px] inline-flex items-center gap-1">
+                      <div className="col-span-2 pt-2 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
+                        <span className="text-[#5A6A85] text-xs inline-flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {locationLabel(server.location)}
                         </span>
@@ -809,103 +787,94 @@ function VpsDashboardContent() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[720px]">
                 <thead>
-                  <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Server
                     </th>
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Public IP
                     </th>
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Plan
                     </th>
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Status
                     </th>
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Renews
                     </th>
-                    <th className="py-3.5 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f2f5fc]">
+                <tbody className="divide-y divide-[#EEF2F7]">
                   {filteredServers.map((server) => {
                     const hint = renewalHint(server.nextBillingAt);
                     return (
                       <tr
                         key={server.id}
-                        className="hover:bg-[#fbfcfe] transition-colors"
+                        className="hover:bg-[#F2F5FC]/60 transition-colors"
                       >
-                        <td className="py-3.5 px-6">
+                        <td className="py-3 px-5">
                           <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${
-                                server.status === "RUNNING"
-                                  ? "bg-emerald-50 border-emerald-200 text-emerald-600"
-                                  : "bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]"
-                              }`}
-                            >
-                              <Cpu className="w-4 h-4" />
-                            </div>
                             <div className="min-w-0">
-                              <p className="text-[13px] font-bold text-[#1d1d1f] truncate max-w-[220px]">
+                              <p className="text-sm font-medium text-[#031033] truncate max-w-[220px]">
                                 {server.name}
                               </p>
-                              <p className="text-[11px] text-[#8a9bb2] truncate max-w-[220px]">
+                              <p className="text-xs text-[#5A6A85] truncate max-w-[220px]">
                                 {humanizeImage(server.image)} ·{" "}
                                 {locationLabel(server.location)}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3.5 px-6">
+                        <td className="py-3 px-5">
                           <div className="flex items-center gap-1">
-                            <span className="text-[12px] font-mono text-[#1d1d1f]">
-                              {server.ipv4 ?? "—"}
+                            <span className="text-sm font-mono text-[#031033]">
+                              {server.ipv4 ?? <span className="text-[#5A6A85]">—</span>}
                             </span>
                             {server.ipv4 && (
                               <CopyIpButton ip={server.ipv4} />
                             )}
                           </div>
                           {server.ipv6 && (
-                            <span className="block text-[10px] font-mono text-[#8a9bb2] truncate max-w-[160px]">
+                            <span className="block text-xs font-mono text-[#5A6A85] truncate max-w-[160px]">
                               {server.ipv6}
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-6">
-                          <span className="text-[12.5px] font-semibold text-[#1d1d1f]">
-                            {server.plan?.name ?? "—"}
+                        <td className="py-3 px-5">
+                          <span className="text-sm text-[#031033]">
+                            {server.plan?.name ?? <span className="text-[#5A6A85]">—</span>}
                           </span>
                           {server.plan && (
-                            <span className="block text-[10.5px] text-[#8a9bb2]">
+                            <span className="block text-xs text-[#5A6A85]">
                               {server.plan.cpu} vCPU · {server.plan.ramGb} GB RAM
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-6">
+                        <td className="py-3 px-5">
                           <VpsStatusBadge status={server.status} />
                           {isVpsBusy(server.status) && (
-                            <span className="block text-[10px] text-[#8a9bb2] mt-1">
+                            <span className="block text-xs text-[#5A6A85] mt-1">
                               Updating…
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-6">
-                          <span className="text-[12px] text-[#1d1d1f]">
+                        <td className="py-3 px-5">
+                          <span className="text-sm text-[#5A6A85] tabular-nums">
                             {formatVpsDate(server.nextBillingAt)}
                           </span>
                           {hint && (
                             <span
-                              className={`block text-[10.5px] ${hint.tone}`}
+                              className={`block text-xs ${hint.tone}`}
                             >
                               {hint.label}
                             </span>
                           )}
                         </td>
-                        <td className="py-3.5 px-6 text-right">
+                        <td className="py-3 px-5 text-right">
                           <VpsRowActions server={server} />
                         </td>
                       </tr>
@@ -918,8 +887,8 @@ function VpsDashboardContent() {
         )}
       </div>
 
-      <p className="text-[10.5px] text-[#8a9bb2] flex items-start gap-1.5">
-        <ShieldCheck className="w-3.5 h-3.5 text-[#1787D4] shrink-0 mt-px" />
+      <p className="text-xs text-[#5A6A85] flex items-start gap-1.5">
+        <ShieldCheck className="w-3.5 h-3.5 text-[#5A6A85] shrink-0 mt-px" />
         Servers are prepaid for 30 days. You are only charged when you renew.
         Deleting a server stops future billing.
       </p>
@@ -944,9 +913,10 @@ export default function VpsDashboardPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-3">
-          <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-          <p className="text-[13px] text-[#6e6e73]">Loading your servers…</p>
+        <div className="flex flex-col gap-6 max-w-6xl mx-auto" aria-label="Loading your servers">
+          <div className="h-8 w-48 rounded bg-[#EEF2F7] animate-pulse" />
+          <div className="h-24 rounded-xl bg-[#EEF2F7] animate-pulse" />
+          <div className="h-64 rounded-xl bg-[#EEF2F7] animate-pulse" />
         </div>
       }
     >

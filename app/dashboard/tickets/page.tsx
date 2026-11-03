@@ -21,7 +21,7 @@ export function formatTicketNumber(ticket: SupportTicketSummary): string {
   if (ticket.id?.startsWith("TKT-") || ticket.id?.startsWith("#TKT-")) {
     return ticket.id.startsWith("#") ? ticket.id : `#${ticket.id}`;
   }
-  return `#TKT-${ticket.id || "10245"}`;
+  return ticket.id ? `#TKT-${ticket.id}` : "—";
 }
 
 export function formatShortDate(dateStr: string): string {
@@ -41,31 +41,31 @@ export function getTicketStatusStyle(status: string) {
   const s = (status || "").toLowerCase();
   if (s.includes("progress")) {
     return {
-      label: "In Progress",
-      bg: "bg-[#e8fbf7] text-[#0f9f8c] border-[#b9f2e8]",
+      label: "In progress",
+      bg: "bg-[#1787D4]",
     };
   }
   if (s.includes("wait") || s.includes("customer")) {
     return {
-      label: "Waiting for You",
-      bg: "bg-amber-50 text-amber-700 border-amber-200",
+      label: "Waiting for you",
+      bg: "bg-[#E8900A]",
     };
   }
   if (s.includes("resolve") || s.includes("completed")) {
     return {
       label: "Resolved",
-      bg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      bg: "bg-[#12A150]",
     };
   }
   if (s.includes("close")) {
     return {
       label: "Closed",
-      bg: "bg-gray-100 text-gray-600 border-gray-200",
+      bg: "bg-[#9AA6B8]",
     };
   }
   return {
     label: "Open",
-    bg: "bg-blue-50 text-[#1787D4] border-blue-200",
+    bg: "bg-[#1787D4]",
   };
 }
 
@@ -106,13 +106,10 @@ function TicketsContent() {
       {/* ── Page Header ────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1
-            className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-            style={{ letterSpacing: "-0.4px" }}
-          >
-            Support Tickets
+          <h1 className="text-2xl font-semibold text-[#031033]">
+            Support tickets
           </h1>
-          <p className="text-[13.5px] text-[#6e6e73] mt-0.5">
+          <p className="text-sm text-[#5A6A85] mt-1">
             Get help from our support team and keep track of your requests in one place.
           </p>
         </div>
@@ -120,107 +117,115 @@ function TicketsContent() {
         <Link
           href="/dashboard/tickets/create"
           id="btn-create-support-ticket"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl shadow-xs transition-all active:scale-95 shrink-0 self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors shrink-0 self-start sm:self-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
         >
           <Plus className="w-4 h-4" />
-          <span>Create Ticket</span>
+          <span>Create ticket</span>
         </Link>
       </div>
 
-      {/* ── Search Bar (Matches Screenshot) ────────────────────────────── */}
+      {/* ── Search Bar ─────────────────────────────────────────────────── */}
       <div className="relative">
-        <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="text"
           id="input-search-tickets"
           placeholder="Search by ticket ID or subject..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+          className="w-full h-10 pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
         />
       </div>
 
-      {/* ── Filter Pills ───────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            { id: "ALL", label: "All" },
-            { id: "OPEN", label: "Open" },
-            { id: "IN_PROGRESS", label: "In Progress" },
-            { id: "WAITING_FOR_YOU", label: "Waiting for You" },
-            { id: "RESOLVED", label: "Resolved" },
-            { id: "CLOSED", label: "Closed" },
-          ] as const
-        ).map((tab) => {
-          const isActive = statusFilter === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              id={`pill-filter-ticket-${tab.id.toLowerCase()}`}
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all duration-150 cursor-pointer ${
-                isActive
-                  ? "bg-[#1787D4] text-white shadow-xs font-semibold"
-                  : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:text-[#1d1d1f] hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+      {/* ── Status filter (segmented control) ──────────────────────────── */}
+      <div className="overflow-x-auto">
+        <div className="inline-flex items-center gap-1 bg-[#F2F5FC] p-1 rounded-lg">
+          {(
+            [
+              { id: "ALL", label: "All" },
+              { id: "OPEN", label: "Open" },
+              { id: "IN_PROGRESS", label: "In progress" },
+              { id: "WAITING_FOR_YOU", label: "Waiting for you" },
+              { id: "RESOLVED", label: "Resolved" },
+              { id: "CLOSED", label: "Closed" },
+            ] as const
+          ).map((tab) => {
+            const isActive = statusFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                id={`pill-filter-ticket-${tab.id.toLowerCase()}`}
+                onClick={() => setStatusFilter(tab.id)}
+                className={`h-8 px-3 rounded-md text-sm font-medium whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                  isActive
+                    ? "bg-white text-[#031033] shadow-sm"
+                    : "text-[#5A6A85] hover:text-[#031033]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Loading Skeleton ───────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 shadow-xs flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
-          <p className="text-[13px] text-[#6e6e73]">Loading support tickets…</p>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+          <div className="px-5 py-3 border-b border-[#E2E8F0]">
+            <div className="h-3 w-48 animate-pulse rounded bg-[#EEF2F7]" />
+          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="px-5 py-4 border-b border-[#EEF2F7] last:border-0 flex items-center gap-6"
+            >
+              <div className="h-4 w-24 animate-pulse rounded bg-[#EEF2F7]" />
+              <div className="h-4 flex-1 animate-pulse rounded bg-[#EEF2F7]" />
+              <div className="h-4 w-20 animate-pulse rounded bg-[#EEF2F7]" />
+            </div>
+          ))}
+          <p className="sr-only">Loading support tickets…</p>
         </div>
       ) : tickets.length === 0 ? (
-        /* ── Empty State (Screen 3 in Mockups) ────────────────────────── */
+        /* ── Empty State ──────────────────────────────────────────────── */
         <div className="flex flex-col gap-6">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-10 sm:p-14 text-center shadow-xs flex flex-col items-center justify-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center border border-[#b8ece5]">
-              <MessageSquare className="w-7 h-7 stroke-[2]" />
-            </div>
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 sm:p-12 text-center flex flex-col items-center justify-center gap-4">
+            <MessageSquare className="w-5 h-5 text-[#5A6A85]" />
 
             <div>
-              <h2 className="text-[18px] font-bold text-[#1d1d1f]">
+              <h2 className="text-base font-semibold text-[#031033]">
                 No support tickets yet
               </h2>
-              <p className="text-[13px] text-[#6e6e73] mt-1 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-md mx-auto">
                 When you need help, create a ticket and our support team will assist you.
               </p>
             </div>
 
             <Link
               href="/dashboard/tickets/create"
-              className="mt-2 inline-flex items-center px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-xs"
+              className="inline-flex items-center h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              Create a Ticket
+              Create a ticket
             </Link>
           </div>
 
-          {/* Need quick help? Ask AI Banner */}
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#4AC3B4] flex items-center justify-center shrink-0 border border-teal-100">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-[14px] font-bold text-[#1d1d1f]">
-                  Need quick help?
-                </h3>
-                <p className="text-[12.5px] text-[#6e6e73] mt-0.5 max-w-xl">
-                  Ask Nupat AI about your domains, hosting, email, or security. If the issue needs a specialist, your conversation can be escalated to a ticket.
-                </p>
-              </div>
+          {/* Need quick help? Ask AI */}
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="flex items-center gap-2 text-base font-semibold text-[#031033]">
+                <Sparkles className="w-4 h-4 text-[#5A6A85]" />
+                Need quick help?
+              </h3>
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-xl">
+                Ask Nupat AI about your domains, hosting, email, or security. If the issue needs a specialist, your conversation can be escalated to a ticket.
+              </p>
             </div>
 
             <Link
               href="/dashboard/tickets/create?from=ai"
-              className="px-4 py-2 rounded-xl border border-[#d6eaf8] bg-[#f8fbfe] hover:bg-[#eaf4fd] text-[#1787D4] text-[12.5px] font-semibold transition-colors shrink-0 text-center"
+              className="inline-flex items-center justify-center h-9 px-4 rounded-lg border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
               Ask AI
             </Link>
@@ -228,11 +233,11 @@ function TicketsContent() {
         </div>
       ) : filteredTickets.length === 0 ? (
         /* Empty search results */
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-12 text-center shadow-xs">
-          <p className="text-[14.5px] font-bold text-[#1d1d1f]">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center">
+          <p className="text-base font-semibold text-[#031033]">
             No tickets match your filter
           </p>
-          <p className="text-[12.5px] text-[#6e6e73] mt-1">
+          <p className="text-sm text-[#5A6A85] mt-1">
             Try adjusting your search query or status filter.
           </p>
           <button
@@ -241,40 +246,40 @@ function TicketsContent() {
               setSearchQuery("");
               setStatusFilter("ALL");
             }}
-            className="mt-3 px-4 py-2 bg-[#1787D4] text-white text-xs font-semibold rounded-xl cursor-pointer"
+            className="mt-4 h-9 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Reset Filters
+            Reset filters
           </button>
         </div>
       ) : (
-        /* ── Screen 1: Support Tickets Table ──────────────────────────── */
+        /* ── Support Tickets Table ────────────────────────────────────── */
         <div className="flex flex-col gap-4">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#f0f4f9] bg-[#fbfcfe]">
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Ticket ID
                     </th>
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Subject
                     </th>
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Category
                     </th>
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">
                       Updated
                     </th>
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">
                       Status
                     </th>
-                    <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider text-right">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">
                       Action
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f2f5fc]">
+                <tbody>
                   {filteredTickets.map((ticket) => {
                     const ticketIdStr = formatTicketNumber(ticket);
                     const statusInfo = getTicketStatusStyle(ticket.status);
@@ -284,9 +289,9 @@ function TicketsContent() {
                     return (
                       <tr
                         key={ticket.id}
-                        className="hover:bg-[#fbfcfe] transition-colors"
+                        className="border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                       >
-                        <td className="py-4 px-6 text-[13.5px] font-bold text-[#1d1d1f]">
+                        <td className="py-3 px-5 text-sm font-mono text-[#031033] whitespace-nowrap">
                           <Link
                             href={`/dashboard/tickets/${encodeURIComponent(ticket.id)}`}
                             className="hover:text-[#1787D4] transition-colors"
@@ -294,26 +299,25 @@ function TicketsContent() {
                             {ticketIdStr}
                           </Link>
                         </td>
-                        <td className="py-4 px-6 text-[13.5px] font-semibold text-[#1d1d1f]">
-                          {ticket.subject || "Support Request"}
+                        <td className="py-3 px-5 text-sm font-medium text-[#031033]">
+                          {ticket.subject || "Support request"}
                         </td>
-                        <td className="py-4 px-6 text-[13px] text-[#5a6a85] font-medium">
+                        <td className="py-3 px-5 text-sm text-[#5A6A85]">
                           {categoryLabel}
                         </td>
-                        <td className="py-4 px-6 text-[13px] text-[#6e6e73]">
+                        <td className="py-3 px-5 text-sm text-[#5A6A85] text-right tabular-nums whitespace-nowrap">
                           {updatedStr}
                         </td>
-                        <td className="py-4 px-6">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusInfo.bg}`}
-                          >
+                        <td className="py-3 px-5">
+                          <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                            <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${statusInfo.bg}`} />
                             {statusInfo.label}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
+                        <td className="py-3 px-5 text-right">
                           <Link
                             href={`/dashboard/tickets/${encodeURIComponent(ticket.id)}`}
-                            className="text-[13px] font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                            className="text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer"
                           >
                             View
                           </Link>
@@ -325,32 +329,36 @@ function TicketsContent() {
               </table>
             </div>
 
-            {/* Table pagination/footer */}
-            <div className="px-6 py-3.5 bg-[#fbfcfe] border-t border-[#f0f4f9] flex items-center justify-between text-[12px] text-[#6e6e73]">
+            {/* Table footer */}
+            <div className="px-5 py-3 border-t border-[#EEF2F7] flex items-center justify-between text-xs text-[#5A6A85] tabular-nums">
               <span>
                 Showing {filteredTickets.length} ticket
                 {filteredTickets.length === 1 ? "" : "s"}
               </span>
-              <span>Page 1 of 1</span>
             </div>
           </div>
 
-          {/* Ticket status key legend footer matching screenshot */}
-          <div className="flex items-center gap-3 px-2 text-[12px] text-[#6e6e73] overflow-x-auto">
+          {/* Ticket status key */}
+          <div className="flex items-center gap-3 px-1 text-xs text-[#5A6A85] overflow-x-auto">
             <span className="font-medium shrink-0">Ticket status key:</span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1787D4] border border-blue-200 shrink-0">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033] shrink-0">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#1787D4]" />
               Open
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8fbf7] text-[#0f9f8c] border border-[#b9f2e8] shrink-0">
-              In Progress
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033] shrink-0">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#1787D4]" />
+              In progress
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
-              Waiting for You
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033] shrink-0">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E8900A]" />
+              Waiting for you
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033] shrink-0">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#12A150]" />
               Resolved
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200 shrink-0">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#031033] shrink-0">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9AA6B8]" />
               Closed
             </span>
           </div>
@@ -365,8 +373,8 @@ export default function TicketsPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-sm text-[#6e6e73]">Loading support tickets…</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading support tickets…</p>
         </div>
       }
     >

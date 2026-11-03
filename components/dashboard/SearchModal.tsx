@@ -27,7 +27,7 @@ type SearchModalProps = {
 
 type SearchItem = {
   id: string;
-  category: "Navigation" | "My Domains" | "Hosting Accounts" | "VPS Servers" | "Orders";
+  category: "Navigation" | "My domains" | "Hosting accounts" | "VPS servers" | "Orders";
   title: string;
   subtitle?: string;
   href: string;
@@ -35,14 +35,14 @@ type SearchItem = {
 };
 
 const STATIC_ROUTES: SearchItem[] = [
-  { id: "nav-overview", category: "Navigation", title: "Overview", subtitle: "Client Area / Overview", href: "/dashboard", icon: LayoutDashboard },
-  { id: "nav-hosting", category: "Navigation", title: "Hosting Services", subtitle: "Manage hosting accounts", href: "/dashboard/hosting", icon: Server },
-  { id: "nav-vps", category: "Navigation", title: "VPS Servers", subtitle: "Deploy & manage virtual servers", href: "/dashboard/vps", icon: Cpu },
-  { id: "nav-domains", category: "Navigation", title: "Domains Manager", subtitle: "DNS & Nameserver management", href: "/dashboard/domains", icon: Globe },
-  { id: "nav-domain-transfer", category: "Navigation", title: "Domain Transfer", subtitle: "Transfer domains in or request EPP out", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },
-  { id: "nav-orders", category: "Navigation", title: "Orders & Invoices", subtitle: "Payment history & invoices", href: "/dashboard/orders", icon: Receipt },
-  { id: "nav-tickets", category: "Navigation", title: "Support Tickets", subtitle: "Open tickets & customer support", href: "/dashboard/tickets", icon: LifeBuoy },
-  { id: "nav-settings", category: "Navigation", title: "Account Settings", subtitle: "Profile information & password changes", href: "/dashboard/settings", icon: Settings },
+  { id: "nav-overview", category: "Navigation", title: "Overview", subtitle: "Client area / Overview", href: "/dashboard", icon: LayoutDashboard },
+  { id: "nav-hosting", category: "Navigation", title: "Hosting services", subtitle: "Manage hosting accounts", href: "/dashboard/hosting", icon: Server },
+  { id: "nav-vps", category: "Navigation", title: "VPS servers", subtitle: "Deploy & manage virtual servers", href: "/dashboard/vps", icon: Cpu },
+  { id: "nav-domains", category: "Navigation", title: "Domains manager", subtitle: "DNS & nameserver management", href: "/dashboard/domains", icon: Globe },
+  { id: "nav-domain-transfer", category: "Navigation", title: "Domain transfer", subtitle: "Transfer domains in or request EPP out", href: "/dashboard/domain-transfer", icon: ArrowRightLeft },
+  { id: "nav-orders", category: "Navigation", title: "Orders & invoices", subtitle: "Payment history & invoices", href: "/dashboard/orders", icon: Receipt },
+  { id: "nav-tickets", category: "Navigation", title: "Support tickets", subtitle: "Open tickets & customer support", href: "/dashboard/tickets", icon: LifeBuoy },
+  { id: "nav-settings", category: "Navigation", title: "Account settings", subtitle: "Profile information & password changes", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
@@ -90,9 +90,9 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
       domains.forEach((d) => {
         items.push({
           id: `domain-${d.id}`,
-          category: "My Domains",
+          category: "My domains",
           title: d.domain,
-          subtitle: `Status: ${d.status} • Expires: ${new Date(d.expiryDate).toLocaleDateString()}`,
+          subtitle: `Status: ${d.status} · Expires: ${new Date(d.expiryDate).toLocaleDateString()}`,
           href: `/dashboard/domains/${d.id}`,
           icon: Globe,
         });
@@ -104,9 +104,9 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
       hosting.forEach((h) => {
         items.push({
           id: `hosting-${h.id}`,
-          category: "Hosting Accounts",
+          category: "Hosting accounts",
           title: h.domain,
-          subtitle: `${h.plan?.name ?? "Hosting"} Plan • Status: ${h.status}`,
+          subtitle: `${h.plan?.name ?? "Hosting"} plan · Status: ${h.status}`,
           href: `/dashboard/hosting/${h.id}`,
           icon: Server,
         });
@@ -118,9 +118,9 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
       vpsServers.forEach((server) => {
         items.push({
           id: `vps-${server.id}`,
-          category: "VPS Servers",
+          category: "VPS servers",
           title: server.name,
-          subtitle: `${server.plan?.name ?? "VPS"} • ${server.status} • ${server.ipv4 ?? "IP pending"}`,
+          subtitle: `${server.plan?.name ?? "VPS"} · ${server.status} · ${server.ipv4 ?? "IP pending"}`,
           href: `/dashboard/vps/${server.id}`,
           icon: Cpu,
         });
@@ -135,7 +135,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
           id: `order-${o.id}`,
           category: "Orders",
           title: o.paystackRef,
-          subtitle: `₦${o.amount.toLocaleString()} • Status: ${o.status} • ${itemNames}`,
+          subtitle: `₦${o.amount.toLocaleString()} · Status: ${o.status} · ${itemNames}`,
           href: "/dashboard/orders",
           icon: Receipt,
         });
@@ -191,18 +191,12 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
     const listElement = scrollContainerRef.current;
     if (!listElement) return;
 
-    const itemElement = listElement.children[index] as HTMLElement;
-    if (!itemElement) return;
-
-    const listHeight = listElement.clientHeight;
-    const itemTop = itemElement.offsetTop;
-    const itemHeight = itemElement.clientHeight;
-
-    if (itemTop + itemHeight > listElement.scrollTop + listHeight) {
-      listElement.scrollTop = itemTop + itemHeight - listHeight;
-    } else if (itemTop < listElement.scrollTop) {
-      listElement.scrollTop = itemTop;
-    }
+    // Results sit inside a wrapper div, so look the row up by its index
+    // rather than relying on the container's direct children.
+    const itemElement = listElement.querySelector<HTMLElement>(
+      `[data-index="${index}"]`
+    );
+    itemElement?.scrollIntoView({ block: "nearest" });
   };
 
   const handleItemClick = (item: SearchItem) => {
@@ -211,96 +205,97 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh]">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#031033]/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-[#031033]/40 animate-in fade-in duration-150"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal Container */}
+      {/* Modal container */}
       <div
-        className="relative bg-white w-full max-w-xl shadow-2xl border border-[#e2eaff] rounded-lg flex flex-col max-h-[70vh] overflow-hidden animate-slideDown"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search"
+        className="relative flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-xl bg-white shadow-xl animate-in fade-in duration-150"
         onKeyDown={handleKeyDown}
       >
-        {/* Search Input Area */}
-        <div className="flex items-center px-4 border-b border-[#e2eaff] gap-3 shrink-0">
-          <Search className="w-5 h-5 text-[#9ba8c0]" />
+        {/* Search input area */}
+        <div className="flex shrink-0 items-center gap-3 border-b border-[#E2E8F0] px-4">
+          <Search className="w-4 h-4 shrink-0 text-[#5A6A85]" />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search pages, domains, plans, orders..."
+            placeholder="Search pages, domains, plans, orders…"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setActiveIndex(0);
             }}
-            className="flex-1 py-4 text-base sm:text-sm text-[#031033] placeholder-[#9ba8c0] outline-none bg-transparent"
+            className="flex-1 bg-transparent py-4 text-base text-[#031033] outline-none placeholder:text-[#5A6A85]/70 sm:text-sm"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 bg-[#f2f5fc] border border-[#e2eaff] px-1.5 py-0.5 text-[9px] font-mono text-[#9ba8c0]">
-            ESC
+          <kbd className="hidden items-center rounded border border-[#E2E8F0] bg-[#F2F5FC] px-1.5 py-px font-sans text-xs text-[#5A6A85] sm:inline-flex">
+            Esc
           </kbd>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-[#9ba8c0] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors cursor-pointer rounded-lg"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#5A6A85] transition-colors hover:bg-[#F2F5FC] hover:text-[#031033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             aria-label="Close search"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Results Area */}
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto p-2"
-        >
+        {/* Results area */}
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-2">
           {filteredItems.length === 0 ? (
-            <div className="py-12 px-4 text-center text-[#5a6a85] flex flex-col items-center justify-center gap-2">
-              <ShieldAlert className="w-8 h-8 text-[#9ba8c0]" />
-              <p className="text-sm font-semibold">No results found for &ldquo;{query}&rdquo;</p>
-              <p className="text-xs text-[#9ba8c0]">Try searching for other words or sections.</p>
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm font-medium text-[#031033]">
+                No results for &ldquo;{query}&rdquo;
+              </p>
+              <p className="mt-1 text-xs text-[#5A6A85]">
+                Try a domain name, a server name or a page such as Invoices.
+              </p>
             </div>
           ) : (
-            <div className="flex flex-col">
-              {/* Category-based rendering or flattened render for highlighted index mapping */}
+            <div className="flex flex-col gap-0.5">
               {filteredItems.map((item, idx) => {
                 const Icon = item.icon;
                 const isSelected = idx === currentIndex;
 
                 return (
                   <button
+                    type="button"
                     key={item.id}
+                    data-index={idx}
                     onClick={() => handleItemClick(item)}
                     onMouseEnter={() => setActiveIndex(idx)}
-                    className={`w-full flex items-center text-left px-4 py-3 gap-3 transition-colors ${
-                      isSelected
-                        ? "bg-[#f0f7ff] text-[#031033] border-l-4 border-[#1787D4]"
-                        : "text-[#5a6a85] hover:bg-[#f2f5fc] border-l-4 border-transparent"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
+                      isSelected ? "bg-[#F2F5FC]" : "hover:bg-[#F2F5FC]/60"
                     }`}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                        isSelected ? "bg-white border border-[#d4e9f7] text-[#1787D4]" : "bg-[#f2f5fc] text-[#9ba8c0]"
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${
+                        isSelected ? "text-[#1787D4]" : "text-[#5A6A85]"
                       }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#9ba8c0] uppercase tracking-widest text-[9px] mb-0.5">
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="mb-0.5 text-xs text-[#5A6A85]">
                         {item.category}
                       </p>
-                      <p className="text-sm font-bold text-[#031033] truncate">
+                      <p className="truncate text-sm font-medium text-[#031033]">
                         {item.title}
                       </p>
                       {item.subtitle && (
-                        <p className="text-xs text-[#5a6a85] truncate mt-0.5">
+                        <p className="mt-0.5 truncate text-xs text-[#5A6A85]">
                           {item.subtitle}
                         </p>
                       )}
                     </div>
                     {isSelected && (
-                      <ArrowRight className="w-4 h-4 text-[#1787D4] shrink-0 animate-pulse" />
+                      <ArrowRight className="w-4 h-4 shrink-0 text-[#5A6A85]" />
                     )}
                   </button>
                 );
@@ -310,44 +305,23 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Footer info */}
-        <div className="px-4 py-2.5 bg-[#f6f9ff] border-t border-[#e2eaff] text-[10px] text-[#9ba8c0] flex items-center justify-between shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-t border-[#EEF2F7] px-4 py-2.5 text-xs text-[#5A6A85]">
           <span className="flex items-center gap-1">
-            Use <kbd className="font-mono bg-white px-1 py-0.5 border border-[#e2eaff]">↑↓</kbd> to navigate,
-            <kbd className="font-mono bg-white px-1 py-0.5 border border-[#e2eaff] ml-0.5">Enter</kbd> to select
+            Use
+            <kbd className="rounded border border-[#E2E8F0] bg-[#F2F5FC] px-1 py-px font-sans">
+              ↑↓
+            </kbd>
+            to navigate,
+            <kbd className="rounded border border-[#E2E8F0] bg-[#F2F5FC] px-1 py-px font-sans">
+              Enter
+            </kbd>
+            to select
           </span>
-          <span>{filteredItems.length} result{filteredItems.length !== 1 ? "s" : ""}</span>
+          <span className="tabular-nums">
+            {filteredItems.length} result{filteredItems.length !== 1 ? "s" : ""}
+          </span>
         </div>
       </div>
-
-      <style>{`
-        @keyframes slideDown {
-          from { transform: translateY(-16px); opacity: 0; }
-          to   { transform: translateY(0);    opacity: 1; }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.18s ease-out forwards;
-        }
-      `}</style>
     </div>
-  );
-}
-
-// Minimal dummy shield icon to prevent import crash if lucide icon not found
-function ShieldAlert({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
   );
 }

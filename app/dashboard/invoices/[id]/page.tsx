@@ -27,9 +27,40 @@ import { useGetMe } from "@/hooks/useUser";
 import { formatInvoiceNumber, getInvoiceServiceLabel } from "../page";
 import { toast } from "sonner";
 
-function formatPrice(n: number) {
-  return "₦" + Number(n || 0).toLocaleString("en-NG");
+const DASH = "—";
+
+function formatPrice(n: number | null | undefined) {
+  if (n === null || n === undefined || !Number.isFinite(Number(n))) return DASH;
+  return "₦" + Number(n).toLocaleString("en-NG");
 }
+
+function formatLongDate(value: string | null | undefined) {
+  if (!value) return DASH;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return DASH;
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+/** Grey out a missing value. */
+function mutedIf(value: string) {
+  return value === DASH ? "text-[#5A6A85]!" : "";
+}
+
+/**
+ * Optional fields the API may add to an invoice. The current `Invoice` type has
+ * no due date or payment date, so these are read only when present.
+ */
+type InvoiceExtras = {
+  dueDate?: string | null;
+  dueAt?: string | null;
+  paidAt?: string | null;
+  paidDate?: string | null;
+  datePaid?: string | null;
+};
 
 export default function InvoiceDetailPage({
   params,
@@ -58,40 +89,28 @@ export default function InvoiceDetailPage({
   const serviceLabel = invoice
     ? getInvoiceServiceLabel(invoice)
     : "Cloud Service";
-  const amountVal = invoice?.amount || 45000;
+  const amountVal = invoice?.amount;
 
-  // Dates
-  const issuedDate = useMemo(() => {
-    const base = invoice?.createdAt ? new Date(invoice.createdAt) : new Date();
-    return base.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }, [invoice]);
+  // Dates — only real values from the API; missing ones render as "—".
+  const extras = (invoice ?? {}) as InvoiceExtras;
+  const issuedDate = useMemo(
+    () => formatLongDate(invoice?.createdAt),
+    [invoice?.createdAt],
+  );
+  const dueDate = formatLongDate(extras.dueDate ?? extras.dueAt);
+  const paidOnDate = formatLongDate(
+    extras.paidAt ?? extras.paidDate ?? extras.datePaid,
+  );
 
-  const dueDate = useMemo(() => {
-    const base = invoice?.createdAt ? new Date(invoice.createdAt) : new Date();
-    base.setDate(base.getDate() + 7);
-    return base.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }, [invoice]);
-
-  // User billed-to information
+  // User billed-to information (lines without data are hidden)
   const user = me?.data;
   const billedName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.email?.split("@")[0] ||
-    "Account Holder";
-  const billedCompany = user?.companyName || "Personal Account";
-  const billedEmail = user?.email || "billing@customer.com";
-  const billedAddress =
-    [user?.houseNumber, user?.address, user?.city, user?.country]
-      .filter(Boolean)
-      .join(", ") || "Lagos, Nigeria";
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || DASH;
+  const billedCompany = user?.companyName || "";
+  const billedEmail = user?.email || "";
+  const billedAddress = [user?.houseNumber, user?.address, user?.city, user?.country]
+    .filter(Boolean)
+    .join(", ");
 
   // Actions
   const handlePrint = () => {
@@ -114,93 +133,84 @@ export default function InvoiceDetailPage({
     payInvoice(invoice.id);
   };
 
+  const backLinkCls =
+    "inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors";
+  const pillCls =
+    "inline-flex items-center gap-2 whitespace-nowrap text-sm";
+  const focusCls =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30";
+  const secondaryBtnCls = `inline-flex h-9 items-center justify-center gap-1.5 px-4 bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] text-[#031033] text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${focusCls}`;
+  const primaryBtnCls = `inline-flex h-9 items-center justify-center gap-2 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${focusCls}`;
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-        <p className="text-sm text-[#6e6e73]">Loading invoice details…</p>
+        <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+        <p className="text-sm text-[#5A6A85]">Loading invoice details…</p>
       </div>
     );
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // SCREEN 4: Payment Failed Screen (Matches Screen 4 in User Mockup)
+  // SCREEN 4: Payment Failed Screen
   // ───────────────────────────────────────────────────────────────────────────
   if (isFailedStatus) {
     return (
       <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
         {/* Back Link */}
         <div>
-          <Link
-            href="/dashboard/invoices"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#1371B5] transition-colors"
-          >
+          <Link href="/dashboard/invoices" className={backLinkCls}>
             <ArrowLeft className="w-4 h-4" />
-            Back to Invoice
+            Back to invoices
           </Link>
         </div>
 
         {/* Header */}
         <div>
-          <div className="flex items-center gap-3">
-            <h1
-              className="text-[24px] sm:text-[28px] font-bold text-[#1d1d1f] tracking-tight"
-              style={{ letterSpacing: "-0.4px" }}
-            >
-              Payment failed
-            </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-red-50 text-red-600 border border-red-200">
-              Failed
-            </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold text-[#031033]">Payment failed</h1>
+            <span className={`${pillCls} text-[#C21F1F]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#DC2626]" />Failed</span>
           </div>
-          <p className="text-[13.5px] text-[#6e6e73] mt-1">
-            Invoice #{invNumber} • {serviceLabel}
+          <p className="text-sm text-[#5A6A85] mt-1">
+            Invoice <span className="font-mono">#{invNumber}</span> · {serviceLabel}
           </p>
         </div>
 
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (8 cols): Payment Failed Card */}
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-[#e2eaff] p-8 sm:p-10 shadow-xs flex flex-col items-center text-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100">
-              <AlertTriangle className="w-8 h-8 stroke-[2.2]" />
-            </div>
+          <div className="lg:col-span-8 bg-white rounded-xl border border-[#E2E8F0] px-5 py-10 sm:px-10 flex flex-col items-center text-center gap-5">
+            <AlertTriangle className="w-6 h-6 text-[#DC2626]" />
 
             <div>
-              <h2 className="text-[20px] font-bold text-[#1d1d1f]">
-                Payment Failed
+              <h2 className="text-lg font-semibold text-[#031033]">
+                We couldn&apos;t complete this payment
               </h2>
-              <p className="text-[13px] text-[#6e6e73] mt-1 max-w-md mx-auto leading-relaxed">
-                We couldn&apos;t complete the payment for this invoice. No
-                charge was made. Check your payment details or try another
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-md mx-auto">
+                No charge was made. Check your payment details or try another
                 payment method.
               </p>
             </div>
 
-            {/* Red amount banner */}
-            <div className="w-full max-w-md py-4 px-6 rounded-xl bg-red-50/70 border border-red-100 text-center">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 block">
-                Amount
-              </span>
-              <span className="text-[26px] font-extrabold text-[#1d1d1f] block mt-0.5 tracking-tight">
+            {/* Amount */}
+            <div className="w-full max-w-md px-5 py-4 rounded-lg bg-[#F2F5FC] text-center">
+              <span className="text-xs text-[#5A6A85] block">Amount</span>
+              <span className="text-2xl font-semibold text-[#031033] tabular-nums block mt-1">
                 {formatPrice(amountVal)}
               </span>
             </div>
 
             {/* Support CTA */}
-            <div className="flex flex-col items-center justify-center gap-2 mt-2 w-full max-w-md">
-              <Link
-                href="/dashboard/tickets"
-                className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
-              >
+            <div className="flex flex-col items-center justify-center gap-2 w-full max-w-md">
+              <Link href="/dashboard/tickets" className={`w-full ${primaryBtnCls}`}>
                 <Headphones className="w-4 h-4" />
-                Contact Support
+                Contact support
               </Link>
             </div>
 
-            {/* Green info alert at bottom */}
-            <div className="w-full mt-3 p-3.5 rounded-xl bg-[#e6f9ed]/70 border border-[#b7eed0] text-[12px] text-[#12a150] flex items-center justify-center gap-2">
-              <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
+            {/* Info notice */}
+            <div className="w-full max-w-md px-4 py-3 rounded-lg border border-[#0E7C3A]/20 bg-[#E7F6EC] text-sm text-[#0E7C3A] flex items-start justify-center gap-2 text-left">
+              <Check className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 Your invoice remains available and your payment details were not
                 saved.
@@ -209,48 +219,31 @@ export default function InvoiceDetailPage({
           </div>
 
           {/* Right Column (4 cols): Invoice Context */}
-          <div className="lg:col-span-4 bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-4">
-            <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-              Invoice context
-            </h3>
-
-            <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4 flex flex-col gap-3 text-xs">
-              <div>
-                <span className="text-[#6e6e73] block uppercase tracking-wider text-[10.5px] font-semibold">
-                  Invoice number
-                </span>
-                <span className="font-bold text-[#1d1d1f] text-[13px] mt-0.5 block">
-                  {invNumber}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[#6e6e73] block uppercase tracking-wider text-[10.5px] font-semibold">
-                  Service
-                </span>
-                <span className="font-bold text-[#1d1d1f] text-[13px] mt-0.5 block">
-                  {serviceLabel}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[#6e6e73] block uppercase tracking-wider text-[10.5px] font-semibold">
-                  Amount due
-                </span>
-                <span className="font-extrabold text-[#d92d20] text-[16px] mt-0.5 block">
-                  {formatPrice(amountVal)}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[#6e6e73] block uppercase tracking-wider text-[10.5px] font-semibold">
-                  Due date
-                </span>
-                <span className="font-medium text-[#1d1d1f] text-[12.5px] mt-0.5 block">
-                  {dueDate}
-                </span>
-              </div>
+          <div className="lg:col-span-4 bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="px-5 py-4 border-b border-[#EEF2F7]">
+              <h3 className="text-base font-semibold text-[#031033]">Invoice context</h3>
             </div>
+
+            <dl className="px-5 py-2 text-sm divide-y divide-[#EEF2F7]">
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-[#5A6A85]">Invoice number</dt>
+                <dd className="font-mono text-[#031033] text-right">{invNumber}</dd>
+              </div>
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-[#5A6A85]">Service</dt>
+                <dd className="font-medium text-[#031033] text-right">{serviceLabel}</dd>
+              </div>
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-[#5A6A85]">Amount due</dt>
+                <dd className="font-semibold text-[#031033] tabular-nums text-right">
+                  {formatPrice(amountVal)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-[#5A6A85]">Due date</dt>
+                <dd className={`text-[#031033] tabular-nums text-right ${mutedIf(dueDate)}`}>{dueDate}</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </div>
@@ -258,180 +251,159 @@ export default function InvoiceDetailPage({
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // SCREEN 3: Payment Pending Screen (Matches Screen 3 in User Mockup)
+  // SCREEN 3: Payment Pending Screen
   // ───────────────────────────────────────────────────────────────────────────
   if (isPendingStatus) {
     return (
       <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
         {/* Back Link */}
         <div>
-          <Link
-            href="/dashboard/invoices"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#1371B5] transition-colors"
-          >
+          <Link href="/dashboard/invoices" className={backLinkCls}>
             <ArrowLeft className="w-4 h-4" />
-            Back to Invoices
+            Back to invoices
           </Link>
         </div>
 
         {/* Header */}
         <div>
-          <div className="flex items-center gap-3">
-            <h1
-              className="text-[24px] sm:text-[28px] font-bold text-[#1d1d1f] tracking-tight"
-              style={{ letterSpacing: "-0.4px" }}
-            >
-              Invoice #{invNumber}
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold text-[#031033]">
+              Invoice <span className="font-mono">#{invNumber}</span>
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-              Payment Pending
-            </span>
+            <span className={`${pillCls} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#E8900A]" />Awaiting payment</span>
           </div>
-          <p className="text-[13.5px] text-[#6e6e73] mt-1">
-            Created: {issuedDate} • Due: {dueDate}
+          <p className="text-sm text-[#5A6A85] mt-1 tabular-nums">
+            Created {issuedDate}
+            {dueDate !== DASH && <> · Due {dueDate}</>}
           </p>
         </div>
 
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (8 cols): Payment pending overview */}
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-[#e2eaff] p-6 sm:p-8 shadow-xs flex flex-col gap-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
-                <Clock className="w-6 h-6 stroke-[2]" />
-              </div>
+          <div className="lg:col-span-8 bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="flex items-start gap-3 px-5 py-4 border-b border-[#EEF2F7]">
+              <Clock className="w-4 h-4 text-[#E8900A] shrink-0 mt-1" />
               <div>
-                <h2 className="text-[18px] font-bold text-[#1d1d1f]">
-                  Payment pending
-                </h2>
-                <p className="text-[13px] text-[#6e6e73] mt-0.5">
+                <h2 className="text-base font-semibold text-[#031033]">Payment pending</h2>
+                <p className="text-sm text-[#5A6A85] mt-0.5">
                   Your {serviceLabel} invoice is ready for payment.
                 </p>
               </div>
             </div>
 
-            {/* 3 Detail Tiles */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                <span className="text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-                  Service
-                </span>
-                <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block truncate">
-                  {serviceLabel}
-                </span>
+            <div className="p-5 flex flex-col gap-5">
+              {/* 3 Detail Tiles */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { label: "Service", value: serviceLabel },
+                  { label: "Invoice date", value: issuedDate },
+                  { label: "Due date", value: dueDate },
+                ].map((tile) => (
+                  <div key={tile.label} className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+                    <span className="text-xs text-[#5A6A85] block">{tile.label}</span>
+                    <span className={`text-sm font-medium text-[#031033] mt-1 block truncate tabular-nums ${mutedIf(tile.value)}`}>
+                      {tile.value}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                <span className="text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-                  Invoice date
-                </span>
-                <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block">
-                  {issuedDate}
-                </span>
-              </div>
-
-              <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                <span className="text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-                  Due date
-                </span>
-                <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block">
-                  {dueDate}
-                </span>
-              </div>
-            </div>
-
-            {/* Itemized card */}
-            <div className="rounded-xl border border-[#e2eaff] p-4 bg-[#fbfcfe] flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[14px] font-bold text-[#1d1d1f] block">
-                    {serviceLabel}
-                  </span>
-                  <span className="text-[12px] text-[#6e6e73] block mt-0.5">
-                    {invoice?.description || "1-year renewal subscription plan"}
-                  </span>
-                </div>
-                <span className="text-[15px] font-extrabold text-[#1d1d1f]">
-                  {formatPrice(amountVal)}
-                </span>
-              </div>
-
-              <div className="pt-3 border-t border-[#eef2f8] flex flex-col gap-1.5 text-xs text-[#6e6e73]">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-[#1d1d1f]">
+              {/* Itemized summary */}
+              <div className="rounded-lg border border-[#E2E8F0]">
+                <div className="flex items-start justify-between gap-4 px-4 py-3 border-b border-[#EEF2F7]">
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-[#031033] block">
+                      {serviceLabel}
+                    </span>
+                    {invoice?.description && (
+                      <span className="text-xs text-[#5A6A85] block mt-0.5">
+                        {invoice.description}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-[#031033] tabular-nums text-right shrink-0">
                     {formatPrice(amountVal)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Tax</span>
-                  <span className="font-medium text-[#1d1d1f]">₦0</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-[#eef2f8] text-sm font-bold text-[#1d1d1f]">
-                  <span>Amount due</span>
-                  <span className="text-[#1787D4] font-extrabold text-[16px]">
-                    {formatPrice(amountVal)}
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {/* Help note */}
-            <p className="text-[12px] text-[#6e6e73] leading-relaxed">
-              Need help with this invoice?{" "}
-              <Link
-                href="/dashboard/tickets"
-                className="text-[#1787D4] font-medium hover:underline"
-              >
-                Contact support
-              </Link>{" "}
-              and quote <strong className="text-[#1d1d1f]">{invNumber}</strong>.
-            </p>
+                <dl className="px-4 py-3 flex flex-col text-sm">
+                  <div className="flex justify-between gap-4 py-1">
+                    <dt className="text-[#5A6A85]">Subtotal</dt>
+                    <dd className="text-[#031033] tabular-nums text-right">{formatPrice(amountVal)}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4 py-1">
+                    <dt className="text-[#5A6A85]">Tax</dt>
+                    <dd className="text-[#031033] tabular-nums text-right">₦0</dd>
+                  </div>
+                  <div className="flex justify-between items-baseline gap-4 pt-3 mt-2 border-t border-[#E2E8F0]">
+                    <dt className="font-semibold text-[#031033]">Amount due</dt>
+                    <dd className="text-base font-semibold text-[#031033] tabular-nums text-right">
+                      {formatPrice(amountVal)}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Help note */}
+              <p className="text-xs text-[#5A6A85]">
+                Need help with this invoice?{" "}
+                <Link
+                  href="/dashboard/tickets"
+                  className="text-[#1787D4] font-medium hover:text-[#1370B5]"
+                >
+                  Contact support
+                </Link>{" "}
+                and quote <span className="font-mono text-[#031033]">{invNumber}</span>.
+              </p>
+            </div>
           </div>
 
           {/* Right Column (4 cols): Amount due & Pay button */}
-          <div className="lg:col-span-4 bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-4">
+          <div className="lg:col-span-4 bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
             <div>
-              <span className="text-[11px] font-bold text-[#6e6e73] uppercase tracking-wider block">
-                Amount due
-              </span>
-              <span className="text-[26px] font-extrabold text-[#1d1d1f] block mt-1 tracking-tight">
+              <span className="text-xs text-[#5A6A85] block">Amount due</span>
+              <span className="text-3xl font-semibold text-[#031033] tabular-nums block mt-1">
                 {formatPrice(amountVal)}
               </span>
-              <span className="text-[12px] text-amber-700 font-medium block mt-1">
-                Due: {dueDate}
-              </span>
+              {dueDate !== DASH && (
+                <span className="text-xs text-[#9A5B00] font-medium block mt-1 tabular-nums">
+                  Due {dueDate}
+                </span>
+              )}
             </div>
 
-            <p className="text-[12px] text-[#6e6e73] leading-relaxed">
+            <p className="text-xs text-[#5A6A85]">
               Pay now to keep activation on schedule. Your payment is encrypted
-              and processed securely.
+              and processed by Paystack.
             </p>
 
-            <button
-              type="button"
-              id="btn-pay-pending-invoice"
-              onClick={handlePayNow}
-              disabled={isPaying}
-              className="w-full py-3 px-4 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 text-white text-[13.5px] font-semibold rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isPaying ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Connecting to Paystack…</span>
-                </>
-              ) : (
-                "Pay Now"
-              )}
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                id="btn-pay-pending-invoice"
+                onClick={handlePayNow}
+                disabled={isPaying}
+                className={`w-full h-10 ${primaryBtnCls}`}
+              >
+                {isPaying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Connecting to Paystack…</span>
+                  </>
+                ) : (
+                  "Pay now"
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors cursor-pointer"
-            >
-              Download Invoice
-            </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className={`w-full ${secondaryBtnCls}`}
+              >
+                Download invoice
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -439,70 +411,59 @@ export default function InvoiceDetailPage({
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // SCREEN 2: Paid Invoice Screen (Matches Screen 2 in User Mockup)
+  // SCREEN 2: Paid Invoice Screen
   // ───────────────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Back Link */}
       <div>
-        <Link
-          href="/dashboard/invoices"
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#1371B5] transition-colors"
-        >
+        <Link href="/dashboard/invoices" className={backLinkCls}>
           <ArrowLeft className="w-4 h-4" />
-          Back to Invoices
+          Back to invoices
         </Link>
       </div>
 
       {/* Header with Title, Paid Badge, Subtitle & Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1
-              className="text-[24px] sm:text-[28px] font-bold text-[#1d1d1f] tracking-tight"
-              style={{ letterSpacing: "-0.4px" }}
-            >
-              Invoice #{invNumber}
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold text-[#031033]">
+              Invoice <span className="font-mono">#{invNumber}</span>
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-              Paid
-            </span>
+            <span className={`${pillCls} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />Paid</span>
           </div>
-          <p className="text-[13.5px] text-[#6e6e73] mt-1">
-            Issued: {issuedDate} • Due: {dueDate}
+          <p className="text-sm text-[#5A6A85] mt-1 tabular-nums">
+            Issued {issuedDate}
+            {dueDate !== DASH && <> · Due {dueDate}</>}
           </p>
         </div>
 
         {/* Top Right Action Buttons (Download PDF, Print) */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
+            className={secondaryBtnCls}
           >
             {isDownloading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-4 h-4" />
             )}
             Download PDF
           </button>
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
+          <button type="button" onClick={handlePrint} className={secondaryBtnCls}>
+            <Printer className="w-4 h-4" />
             Print
           </button>
         </div>
       </div>
 
-      {/* ── Official Invoice Paper Card (Screen 2) ───────────────────────── */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 sm:p-12 shadow-xs flex flex-col gap-8 print:p-0 print:border-none print:shadow-none">
+      {/* ── Invoice Paper Card ───────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-[#E2E8F0] p-6 sm:p-10 flex flex-col gap-8 print:p-0 print:border-none">
         {/* Top Row: Nupat Cloud Logo & Tax Invoice Number */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-[#f0f4f9]">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-[#EEF2F7]">
           <div>
             <Image
               src="/nupat_cloud_logo-nav.png"
@@ -512,103 +473,83 @@ export default function InvoiceDetailPage({
               className="h-8 w-auto object-contain"
               priority
             />
-            <span className="text-[10px] font-bold text-[#8a9bb2] uppercase tracking-wider block mt-2">
-              Tax Invoice
-            </span>
+            <span className="text-xs text-[#5A6A85] block mt-2">Tax invoice</span>
           </div>
 
           <div className="text-left sm:text-right">
-            <span className="text-[11px] font-semibold text-[#6e6e73] block uppercase tracking-wider">
-              Invoice Number
-            </span>
+            <span className="text-xs text-[#5A6A85] block">Invoice number</span>
             <div className="flex items-center sm:justify-end gap-2 mt-1">
-              <span className="text-[18px] font-extrabold text-[#1d1d1f] tracking-tight">
-                {invNumber}
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#e6f9ed] text-[#12a150]">
-                PAID
-              </span>
+              <span className="text-lg font-semibold text-[#031033] font-mono">{invNumber}</span>
+              <span className={`${pillCls} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />Paid</span>
             </div>
           </div>
         </div>
 
         {/* FROM & BILLED TO Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-[12.5px] leading-relaxed">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
           {/* FROM */}
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e6e73] block mb-1">
-              From
-            </span>
-            <span className="font-bold text-[#1d1d1f] block">Nupat Cloud</span>
-            <span className="text-[#5a6a85] block"></span>
-            <span className="text-[#5a6a85] block">Lagos, Nigeria</span>
-            <span className="text-[#5a6a85] block mt-1">
-              billing@nupatcloud.com
-            </span>
-            <span className="text-[#5a6a85] block">+234 907 664 6154</span>
+            <span className="text-xs text-[#5A6A85] block mb-1.5">From</span>
+            <span className="font-medium text-[#031033] block">Nupat Cloud</span>
+            <span className="text-[#5A6A85] block">Lagos, Nigeria</span>
+            <span className="text-[#5A6A85] block mt-1">billing@nupatcloud.com</span>
+            <span className="text-[#5A6A85] block tabular-nums">+234 907 664 6154</span>
           </div>
 
           {/* BILLED TO */}
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e6e73] block mb-1">
-              Billed To
-            </span>
-            <span className="font-bold text-[#1d1d1f] block">{billedName}</span>
-            <span className="text-[#5a6a85] block">{billedCompany}</span>
-            <span className="text-[#5a6a85] block">{billedEmail}</span>
-            <span className="text-[#5a6a85] block">{billedAddress}</span>
+            <span className="text-xs text-[#5A6A85] block mb-1.5">Billed to</span>
+            <span className={`font-medium text-[#031033] block ${mutedIf(billedName)}`}>{billedName}</span>
+            {billedCompany && (
+              <span className="text-[#5A6A85] block">{billedCompany}</span>
+            )}
+            {billedEmail && (
+              <span className="text-[#5A6A85] block break-all">{billedEmail}</span>
+            )}
+            {billedAddress && (
+              <span className="text-[#5A6A85] block">{billedAddress}</span>
+            )}
           </div>
 
           {/* ISSUED */}
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e6e73] block mb-1">
-              Issued
-            </span>
-            <span className="font-bold text-[#1d1d1f] block">{issuedDate}</span>
+            <span className="text-xs text-[#5A6A85] block mb-1.5">Issued</span>
+            <span className={`font-medium text-[#031033] block tabular-nums ${mutedIf(issuedDate)}`}>{issuedDate}</span>
           </div>
 
           {/* DUE */}
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6e6e73] block mb-1">
-              Due
-            </span>
-            <span className="font-bold text-[#1d1d1f] block">{dueDate}</span>
+            <span className="text-xs text-[#5A6A85] block mb-1.5">Due</span>
+            <span className={`font-medium text-[#031033] block tabular-nums ${mutedIf(dueDate)}`}>{dueDate}</span>
           </div>
         </div>
 
         {/* Line Items Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-[13px]">
+          <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                <th className="py-3 px-4 text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="py-3 px-4 text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider text-center">
-                  Qty
-                </th>
-                <th className="py-3 px-4 text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider text-right">
-                  Unit price
-                </th>
-                <th className="py-3 px-4 text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider text-right">
-                  Total
-                </th>
+              <tr className="border-b border-[#E2E8F0]">
+                <th className="py-3 pr-4 text-xs font-medium text-[#5A6A85]">Description</th>
+                <th className="py-3 px-4 text-xs font-medium text-[#5A6A85] text-right">Qty</th>
+                <th className="py-3 px-4 text-xs font-medium text-[#5A6A85] text-right">Unit price</th>
+                <th className="py-3 pl-4 text-xs font-medium text-[#5A6A85] text-right">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f2f5fc]">
-              <tr>
-                <td className="py-4 px-4 font-bold text-[#1d1d1f]">
+            <tbody>
+              <tr className="border-b border-[#EEF2F7]">
+                <td className="py-3 pr-4 font-medium text-[#031033]">
                   {serviceLabel}
-                  <span className="text-[11.5px] font-normal text-[#6e6e73] block mt-0.5">
-                    {invoice?.description ||
-                      "Subscription plan and active domain service"}
-                  </span>
+                  {invoice?.description && (
+                    <span className="text-xs font-normal text-[#5A6A85] block mt-0.5">
+                      {invoice.description}
+                    </span>
+                  )}
                 </td>
-                <td className="py-4 px-4 text-center text-[#5a6a85]">1</td>
-                <td className="py-4 px-4 text-right text-[#5a6a85]">
+                <td className="py-3 px-4 text-right text-[#5A6A85] tabular-nums">1</td>
+                <td className="py-3 px-4 text-right text-[#5A6A85] tabular-nums whitespace-nowrap">
                   {formatPrice(amountVal)}
                 </td>
-                <td className="py-4 px-4 text-right font-bold text-[#1d1d1f]">
+                <td className="py-3 pl-4 text-right font-medium text-[#031033] tabular-nums whitespace-nowrap">
                   {formatPrice(amountVal)}
                 </td>
               </tr>
@@ -617,153 +558,125 @@ export default function InvoiceDetailPage({
         </div>
 
         {/* Totals Breakdown */}
-        <div className="flex flex-col items-end gap-2 text-[13px] pt-2 border-t border-[#f0f4f9]">
-          <div className="w-full max-w-xs flex justify-between text-[#6e6e73]">
-            <span>Subtotal</span>
-            <span className="font-medium text-[#1d1d1f]">
-              {formatPrice(amountVal)}
-            </span>
+        <dl className="flex flex-col items-end text-sm -mt-4">
+          <div className="w-full max-w-xs flex justify-between gap-4 py-1.5">
+            <dt className="text-[#5A6A85]">Subtotal</dt>
+            <dd className="text-[#031033] tabular-nums">{formatPrice(amountVal)}</dd>
           </div>
-          <div className="w-full max-w-xs flex justify-between text-[#6e6e73]">
-            <span>Tax (0%)</span>
-            <span className="font-medium text-[#1d1d1f]">₦0</span>
+          <div className="w-full max-w-xs flex justify-between gap-4 py-1.5">
+            <dt className="text-[#5A6A85]">Tax (0%)</dt>
+            <dd className="text-[#031033] tabular-nums">₦0</dd>
           </div>
-          <div className="w-full max-w-xs flex justify-between text-[#6e6e73]">
-            <span>Discount</span>
-            <span className="font-medium text-[#1d1d1f]">—</span>
+          <div className="w-full max-w-xs flex justify-between gap-4 py-1.5">
+            <dt className="text-[#5A6A85]">Discount</dt>
+            <dd className="text-[#5A6A85]">—</dd>
           </div>
-          <div className="w-full max-w-xs flex justify-between text-[16px] font-extrabold text-[#1d1d1f] pt-2 border-t border-[#eef2f8]">
-            <span>Total</span>
-            <span className="text-[#1787D4]">{formatPrice(amountVal)}</span>
+          <div className="w-full max-w-xs flex justify-between items-baseline gap-4 pt-3 mt-1.5 border-t border-[#E2E8F0]">
+            <dt className="font-semibold text-[#031033]">Total</dt>
+            <dd className="text-lg font-semibold text-[#031033] tabular-nums">{formatPrice(amountVal)}</dd>
           </div>
-        </div>
+        </dl>
 
-        {/* Green Payment Status Bar */}
-        <div className="p-4 rounded-xl bg-[#e6f9ed]/80 border border-[#b7eed0] flex items-center justify-between text-[13px] text-[#12a150]">
+        {/* Payment status notice */}
+        <div className="px-4 py-3 rounded-lg border border-[#0E7C3A]/20 bg-[#E7F6EC] flex flex-wrap items-center justify-between gap-2 text-sm text-[#0E7C3A]">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-            <span className="font-bold">Payment Status: PAID</span>
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="font-medium">Paid in full</span>
           </div>
-          <span className="font-extrabold">
+          <span className="font-medium tabular-nums">
             {formatPrice(amountVal)} received
           </span>
         </div>
 
         {/* Fine Print Note */}
-        <p className="text-center text-[11px] text-[#9ba8c0]">
+        <p className="text-center text-xs text-[#5A6A85]">
           Thank you for choosing Nupat Cloud. This invoice was generated
           automatically and is valid without a signature.
         </p>
       </div>
 
-      {/* ── Card Below Invoice: Payment Details (Screen 2) ────────────────── */}
-      <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-4">
-        <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-          Payment details
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-            <span className="text-[10.5px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-              Method
-            </span>
-            <span className="font-bold text-[#1d1d1f] text-[13px] mt-1 block">
-              Card / Paystack
-            </span>
-          </div>
-
-          <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-            <span className="text-[10.5px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-              Transaction ID
-            </span>
-            <span className="font-bold font-mono text-[#1d1d1f] text-[12px] mt-1 block truncate">
-              {invoice?.paystackRef ||
-                `TXN-20261003-${invoice?.id?.slice(-5) || "V6821"}`}
-            </span>
-          </div>
-
-          <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-            <span className="text-[10.5px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-              Paid on Date
-            </span>
-            <span className="font-bold text-[#1d1d1f] text-[13px] mt-1 block">
-              {issuedDate}
-            </span>
-          </div>
-
-          <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-            <span className="text-[10.5px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
-              Status
-            </span>
-            <span className="font-bold text-[#12a150] text-[13px] mt-1 block">
-              Successful
-            </span>
-          </div>
+      {/* ── Card Below Invoice: Payment Details ──────────────────────────── */}
+      <div className="bg-white rounded-xl border border-[#E2E8F0]">
+        <div className="px-5 py-4 border-b border-[#EEF2F7]">
+          <h3 className="text-base font-semibold text-[#031033]">Payment details</h3>
         </div>
 
-        {/* Connected Service Box */}
-        <div className="flex items-center justify-between p-4 rounded-xl border border-[#e2eaff] bg-[#fbfcfe]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center">
-              {serviceLabel === "Web Hosting" ? (
-                <Server className="w-5 h-5" />
-              ) : serviceLabel === "SSL Certificate" ? (
-                <Shield className="w-5 h-5" />
-              ) : (
-                <Globe className="w-5 h-5" />
-              )}
+        <div className="p-5 flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+              <span className="text-xs text-[#5A6A85] block">Method</span>
+              <span className="font-medium text-[#031033] text-sm mt-1 block">Paystack</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[13.5px] font-bold text-[#1d1d1f]">
-                  {serviceLabel}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#e6f9ed] text-[#12a150]">
-                  Active
-                </span>
-              </div>
-              <span className="text-[11.5px] text-[#6e6e73] block mt-0.5">
-                {invoice?.description || "Subscription active on account"}
+
+            <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+              <span className="text-xs text-[#5A6A85] block">Transaction ID</span>
+              <span className={`font-mono text-[#031033] text-sm mt-1 block truncate ${mutedIf(invoice?.paystackRef || DASH)}`}>
+                {invoice?.paystackRef || DASH}
               </span>
+            </div>
+
+            <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+              <span className="text-xs text-[#5A6A85] block">Paid on</span>
+              <span className={`font-medium text-[#031033] text-sm mt-1 block tabular-nums ${mutedIf(paidOnDate)}`}>{paidOnDate}</span>
+            </div>
+
+            <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+              <span className="text-xs text-[#5A6A85] block">Status</span>
+              <span className="mt-1 flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]"><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />Successful</span>
             </div>
           </div>
 
-          <Link
-            href={
-              serviceLabel === "Web Hosting"
-                ? "/dashboard/hosting"
-                : serviceLabel === "SSL Certificate"
-                  ? "/dashboard/ssl"
-                  : "/dashboard/domains"
-            }
-            className="py-2 px-3.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-xl transition-colors shadow-sm"
-          >
-            Manage {serviceLabel.split(" ")[0]}
-          </Link>
+          {/* Connected Service Box */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-lg border border-[#E2E8F0]">
+            <div className="flex items-start gap-3 min-w-0">
+              {serviceLabel === "Web Hosting" ? (
+                <Server className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+              ) : serviceLabel === "SSL Certificate" ? (
+                <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+              ) : (
+                <Globe className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-[#031033]">{serviceLabel}</span>
+                </div>
+                {invoice?.description && (
+                  <span className="text-xs text-[#5A6A85] block mt-0.5">
+                    {invoice.description}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <Link
+              href={
+                serviceLabel === "Web Hosting"
+                  ? "/dashboard/hosting"
+                  : serviceLabel === "SSL Certificate"
+                    ? "/dashboard/ssl"
+                    : "/dashboard/domains"
+              }
+              className={`inline-flex h-8 items-center justify-center px-3 self-start sm:self-auto shrink-0 bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] text-[#031033] text-sm font-medium rounded-lg transition-colors ${focusCls}`}
+            >
+              Manage {serviceLabel.split(" ")[0]}
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Bottom Action Buttons */}
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleDownload}
-          className="py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-colors shadow-xs cursor-pointer"
-        >
-          Download Invoice
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={handleDownload} className={primaryBtnCls}>
+          Download invoice
         </button>
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
-        >
-          Print Invoice
+        <button type="button" onClick={handlePrint} className={secondaryBtnCls}>
+          Print invoice
         </button>
         <Link
           href="/dashboard/tickets"
-          className="py-2.5 px-4 text-[#1787D4] hover:bg-blue-50/50 text-[13px] font-semibold rounded-xl transition-colors"
+          className={`inline-flex h-9 items-center px-4 text-[#1787D4] hover:bg-[#E8F4FC] text-sm font-medium rounded-lg transition-colors ${focusCls}`}
         >
-          Contact Support
+          Contact support
         </Link>
       </div>
     </div>

@@ -1,23 +1,26 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+
+const noopSubscribe = () => () => {};
 
 export default function BottomCart() {
   const count = useCartStore((s) => s.items.length);
   const { isDrawerOpen, openDrawer } = useCartStore();
   const pathname = usePathname();
   const [isScrolling, setIsScrolling] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Avoid hydration mismatch: false during SSR and hydration, true afterwards.
+  const mounted = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -54,7 +57,7 @@ export default function BottomCart() {
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-auto sm:min-w-[440px] max-w-lg bg-[#031033]/95 backdrop-blur-md border border-[#1787D4]/30 rounded-lg shadow-2xl shadow-[#031033]/40 transition-all duration-300 transform ${
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-auto sm:min-w-[440px] max-w-lg bg-[#031033] border border-white/10 rounded-xl shadow-[0_12px_32px_rgba(3,16,51,0.3)] transition-[opacity,translate] duration-300 ${
         shouldHide
           ? "translate-y-28 opacity-0 pointer-events-none"
           : "translate-y-0 opacity-100"
@@ -63,18 +66,18 @@ export default function BottomCart() {
       <div className="px-4 py-3 flex items-center justify-between gap-3">
         <button
           onClick={openDrawer}
-          className="flex items-center gap-2.5 text-left cursor-pointer group"
+          className="flex items-center gap-2.5 rounded-lg text-left cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           aria-label="Open cart drawer"
         >
-          <div className="w-9 h-9 rounded-lg bg-[#1787D4] flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#1370B5] transition-colors">
+          <div className="w-9 h-9 rounded-lg bg-[#1787D4] flex items-center justify-center shrink-0 group-hover:bg-[#1370B5] transition-colors">
             <ShoppingCart className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-white text-xs sm:text-sm font-bold leading-tight">
+            <p className="text-white text-sm font-medium leading-tight">
               {count} {count === 1 ? "item" : "items"} in cart
             </p>
-            <span className="text-[#1787D4] group-hover:text-white text-[11px] font-medium transition-colors">
-              Open drawer &rarr;
+            <span className="text-white/70 group-hover:text-white text-xs transition-colors">
+              Show items
             </span>
           </div>
         </button>
@@ -82,16 +85,16 @@ export default function BottomCart() {
           <Link
             href="/cart"
             id="bottom-cart-view-link"
-            className="text-white/80 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="inline-flex h-9 items-center text-white/70 hover:text-white text-sm font-medium px-3 rounded-lg hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
-            View Cart
+            View cart
           </Link>
           <Link
             href="/dashboard/checkout"
             id="bottom-cart-checkout-link"
-            className="btn-primary py-2 px-4 text-xs font-semibold rounded-lg shadow-xs shrink-0"
+            className="inline-flex h-9 items-center px-4 text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] rounded-lg shrink-0 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
-            Checkout &rarr;
+            Checkout
           </Link>
         </div>
       </div>

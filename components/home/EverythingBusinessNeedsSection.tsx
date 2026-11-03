@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 import {
@@ -12,7 +10,6 @@ import {
   CreditCard,
   Sparkles,
 } from "lucide-react";
-import { motion } from "motion/react";
 
 interface BusinessTool {
   id: string;
@@ -26,56 +23,56 @@ const businessTools: BusinessTool[] = [
   {
     id: "crm",
     name: "CRM",
-    desc: "Manage customer relationships.",
+    desc: "Keep track of customers and conversations.",
     status: "Active",
     icon: Users,
   },
   {
     id: "erp",
     name: "ERP",
-    desc: "Manage operational logistics.",
+    desc: "Run operations and logistics.",
     status: "Coming Soon",
     icon: Settings,
   },
   {
     id: "accounting",
     name: "Accounting",
-    desc: "Keep track of finances.",
+    desc: "Keep track of your finances.",
     status: "Active",
     icon: BarChart3,
   },
   {
     id: "hr",
     name: "HR",
-    desc: "Administer staff & payroll.",
+    desc: "Manage staff and payroll.",
     status: "Coming Soon",
     icon: Briefcase,
   },
   {
     id: "ecommerce",
     name: "E-commerce",
-    desc: "Launch online storefronts.",
+    desc: "Open an online store.",
     status: "Active",
     icon: ShoppingBag,
   },
   {
     id: "pos",
     name: "POS",
-    desc: "In-store digital registry.",
+    desc: "Take payments in your shop.",
     status: "Coming Soon",
     icon: Monitor,
   },
   {
     id: "payments",
     name: "Payments",
-    desc: "Accept mobile money/cards.",
+    desc: "Accept card and mobile money payments.",
     status: "Active",
     icon: CreditCard,
   },
   {
     id: "ai-agents",
-    name: "AI Agents",
-    desc: "Automate task operations.",
+    name: "AI agents",
+    desc: "Automate routine tasks.",
     status: "Coming Soon",
     icon: Sparkles,
   },
@@ -85,123 +82,92 @@ export default function EverythingBusinessNeedsSection() {
   return (
     <section
       id="business-suite"
-      className="py-10 sm:py-12 bg-white relative overflow-hidden"
+      className="py-16 sm:py-24 bg-[#F2F5FC] relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          {/* Left Column: Heading, Subtitle & 8 Tool Cards with Motion */}
+          {/* Left column: heading, subtitle and tool cards */}
           <div className="lg:col-span-7 flex flex-col justify-center">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <h2 className="type-h2 text-[#031033] mb-3">
-                Everything your business needs to{" "}
-                <br className="hidden sm:inline" />
-                operate and grow
-              </h2>
+            <h2 className="type-h2 text-[#031033] mb-3 text-balance">
+              Everything your business needs to operate and grow
+            </h2>
 
-              <p className="type-lead text-[#5a6a85] leading-relaxed mb-6 max-w-2xl">
-                We are expanding beyond infrastructure to bring essential tools
-                businesses need to manage customers, teams, finances, commerce,
-                and workflows, all within one unified ecosystem.
-              </p>
-            </motion.div>
+            <p className="type-lead text-[#5A6A85] leading-relaxed mb-8 max-w-2xl">
+              We are adding the tools businesses use to manage customers,
+              staff, money and sales, in the same account you use for your
+              website and hosting.
+            </p>
 
-            {/* 8 Cards Grid with Staggered Motion */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-              {businessTools.map((tool, idx) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {businessTools.map((tool) => {
                 const Icon = tool.icon;
                 const isActive = tool.status === "Active";
 
                 return (
-                  <motion.div
+                  <div
                     key={tool.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{
-                      duration: 0.45,
-                      ease: [0.22, 1, 0.36, 1],
-                      delay: idx * 0.06,
-                    }}
-                    whileHover={{ y: -3, scale: 1.01 }}
-                    className="bg-white border border-[#E2E8F0] rounded-lg p-4 sm:p-4.5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-default"
+                    className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col justify-between"
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between gap-3 mb-1.5">
                       <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                            isActive
-                              ? "text-[#1787D4] bg-blue-50"
-                              : "text-[#64748B] bg-slate-100"
+                        <Icon
+                          className={`w-5 h-5 shrink-0 ${
+                            isActive ? "text-[#1787D4]" : "text-[#5A6A85]"
                           }`}
-                        >
-                          <Icon className="w-4.5 h-4.5" />
-                        </div>
-                        <span className="font-semibold text-[#031033] text-[15px] sm:text-[16px]">
+                        />
+                        <h3 className="font-semibold text-[#031033] text-base">
                           {tool.name}
-                        </span>
+                        </h3>
                       </div>
 
                       <span
-                        className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
-                          isActive
-                            ? "bg-[#1787D4] text-white shadow-xs"
-                            : "bg-[#E2E8F0] text-[#64748B]"
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium shrink-0 ${
+                          isActive ? "text-[#0E7C3A]" : "text-[#5A6A85]"
                         }`}
                       >
-                        {tool.status}
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            isActive ? "bg-[#12A150]" : "bg-[#D5DCE6]"
+                          }`}
+                          aria-hidden="true"
+                        />
+                        {isActive ? "Available" : "Coming soon"}
                       </span>
                     </div>
 
-                    <p className="text-[13px] text-[#5a6a85] pl-10.5 leading-relaxed">
+                    <p className="text-sm text-[#5A6A85] pl-7.5 leading-relaxed">
                       {tool.desc}
                     </p>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Column: Hero Image with Blue backdrop & signature curved notches */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94, x: 30 }}
-            whileInView={{ opacity: 1, scale: 1, x: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{
-              duration: 0.7,
-              ease: [0.22, 1, 0.36, 1],
-              delay: 0.15,
-            }}
-            className="lg:col-span-5 relative flex justify-center lg:justify-end"
-          >
-            <div className="relative w-full max-w-120 lg:max-w-none aspect-4/5 sm:aspect-3/4 lg:aspect-4/5 bg-[#0058F6] rounded-3xl overflow-hidden shadow-2xl flex items-end justify-center">
-              {/* White Semicircular Notch cutouts from Figma design */}
+          {/* Right column: image on a blue panel with the curved notches */}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <div className="relative w-full max-w-120 lg:max-w-none aspect-4/5 sm:aspect-3/4 lg:aspect-4/5 bg-[#1787D4] rounded-xl overflow-hidden flex items-end justify-center">
+              {/* Semicircular notch cutouts from the Figma design (match the section ground) */}
               <div
-                className="absolute top-0 -left-6 w-14 h-14 bg-white rounded-full z-20 pointer-events-none hidden lg:block"
+                className="absolute top-0 -left-6 w-14 h-14 bg-[#F2F5FC] rounded-full z-20 pointer-events-none hidden lg:block"
                 aria-hidden="true"
               />
               <div
-                className="absolute bottom-0 -left-6 w-14 h-14 bg-white rounded-full z-20 pointer-events-none hidden lg:block"
+                className="absolute bottom-0 -left-6 w-14 h-14 bg-[#F2F5FC] rounded-full z-20 pointer-events-none hidden lg:block"
                 aria-hidden="true"
               />
 
-              {/* Main Image */}
               <div className="relative w-full h-full">
                 <Image
                   src="/everything-y-b-n.png"
-                  alt="Young professionals collaborating seamlessly on Nupat business suite"
+                  alt="Young professionals working together on laptops"
                   fill
                   className="object-cover object-center"
-                  sizes="(max-width: 768px) 100vw, 550px"
-                  priority
+                  sizes="(max-width: 1024px) 480px, 460px"
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

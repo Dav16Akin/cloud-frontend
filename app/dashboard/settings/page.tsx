@@ -1,26 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import {
   User,
   Lock,
   Loader2,
-  Check,
   Eye,
   EyeOff,
   AlertCircle,
-  Shield,
-  Smartphone,
   Laptop,
-  Building2,
   MapPin,
-  Mail,
-  Phone,
-  Hash,
   CheckCircle2,
-  Calendar,
   Globe,
-  ShieldCheck,
   Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -42,6 +33,42 @@ const getCountryName = (codeOrName?: string) => {
   }
   return codeOrName;
 };
+
+// ── This-device description (client-only, from navigator.userAgent) ─────────
+
+const noopSubscribe = () => () => {};
+const getUserAgent = () => navigator.userAgent;
+const getServerUserAgent = () => "";
+
+function describeUserAgent(ua: string): string {
+  if (!ua) return "—";
+  const os = /Windows/i.test(ua)
+    ? "Windows"
+    : /iPhone|iPad|iPod/i.test(ua)
+      ? "iOS"
+      : /Android/i.test(ua)
+        ? "Android"
+        : /Mac OS X|Macintosh/i.test(ua)
+          ? "macOS"
+          : /CrOS/i.test(ua)
+            ? "ChromeOS"
+            : /Linux/i.test(ua)
+              ? "Linux"
+              : null;
+  // Order matters: Edge/Opera UAs also contain "Chrome", Chrome's contains "Safari".
+  const browser = /Edg\//i.test(ua)
+    ? "Edge"
+    : /OPR\/|Opera/i.test(ua)
+      ? "Opera"
+      : /Firefox\/|FxiOS/i.test(ua)
+        ? "Firefox"
+        : /Chrome\/|CriOS/i.test(ua)
+          ? "Chrome"
+          : /Safari\//i.test(ua)
+            ? "Safari"
+            : null;
+  return [os ?? "Unknown OS", browser ?? "Unknown browser"].join(" · ");
+}
 
 const getCountryCode = (codeOrName?: string) => {
   if (!codeOrName) return "";
@@ -141,21 +168,12 @@ export default function ProfilePage() {
     );
   };
 
-  // Notification settings state
-  const [notifications, setNotifications] = useState({
-    renewalReminders: true,
-    productUpdates: true,
-    securityAlerts: true,
-    marketingEmails: false,
-  });
-
-  const toggleNotification = (key: keyof typeof notifications) => {
-    setNotifications((prev) => {
-      const next = { ...prev, [key]: !prev[key] };
-      toast.success("Notification preferences updated.");
-      return next;
-    });
-  };
+  const userAgent = useSyncExternalStore(
+    noopSubscribe,
+    getUserAgent,
+    getServerUserAgent,
+  );
+  const thisDevice = describeUserAgent(userAgent);
 
   // Modals state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -164,9 +182,6 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
-
-  const [show2faModal, setShow2faModal] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   const [showSessionsModal, setShowSessionsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -225,52 +240,33 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Header Banner Card */}
-      <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-lg bg-lineear-to-br from-[#1787D4] to-[#0d5588] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+          <div className="w-14 h-14 rounded-full bg-[#1787D4] text-white flex items-center justify-center font-semibold text-lg shrink-0">
             {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-white" />
+              <Loader2 className="w-5 h-5 animate-spin text-white" />
             ) : (
               initials
             )}
           </div>
           <div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2
-                className="text-[22px] font-bold tracking-tight text-[#1d1d1f]"
-                style={{
-                  fontFamily:
-                    "SF Pro Display, system-ui, -apple-system, sans-serif",
-                  letterSpacing: "-0.3px",
-                }}
-              >
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold text-[#031033]">
                 {isLoading
                   ? "Loading profile..."
-                  : fullName || "Account Details"}
-              </h2>
-
-              {user?.role && (
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-blue-50 text-[#1787D4] border border-blue-200">
-                  {user.role}
-                </span>
-              )}
+                  : fullName || "Account details"}
+              </h1>
 
               {user?.verified !== undefined && (
-                <span
-                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11.5px] font-medium border ${
-                    user.verified
-                      ? "bg-[#e6f9ed] text-[#12a150] border-[#b7eed0]"
-                      : "bg-amber-50 text-amber-700 border-amber-200"
-                  }`}
-                >
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#5A6A85]">
                   {user.verified ? (
                     <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#12A150]" />
                       Verified
                     </>
                   ) : (
                     <>
-                      <AlertCircle className="w-3.5 h-3.5" />
+                      <AlertCircle className="w-4 h-4 text-[#E8900A]" />
                       Unverified
                     </>
                   )}
@@ -278,19 +274,19 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <p className="text-[13.5px] text-[#6e6e73] mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p className="text-sm text-[#5A6A85] mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>{isLoading ? "—" : user?.email}</span>
               {user?.companyName && (
                 <>
-                  <span className="text-gray-300">•</span>
-                  <span className="font-medium text-[#1d1d1f]">
+                  <span className="text-[#D5DCE6]" aria-hidden="true">•</span>
+                  <span className="font-medium text-[#031033]">
                     {user.companyName}
                   </span>
                 </>
               )}
               {user?.createdAt && (
                 <>
-                  <span className="text-gray-300">•</span>
+                  <span className="text-[#D5DCE6]" aria-hidden="true">•</span>
                   <span>Joined {formattedJoinedDate}</span>
                 </>
               )}
@@ -303,10 +299,10 @@ export default function ProfilePage() {
             type="button"
             id="btn-edit-profile"
             onClick={() => setShowEditModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm active:scale-[0.98]"
+            className="inline-flex items-center gap-2 h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            Edit Profile
+            Edit profile
           </button>
         </div>
       </div>
@@ -316,62 +312,57 @@ export default function ProfilePage() {
         {/* Left Column (8 cols): Personal Info + Address Info + Notification Settings */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Card 1: Personal & Organization Information */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center">
-                  <User className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-[15.5px] font-bold text-[#1d1d1f]">
-                    Personal &amp; Organization Information
-                  </h3>
-                  <p className="text-[12px] text-[#6e6e73]">
-                    Your identity and organization credentials.
-                  </p>
-                </div>
+          <div className="bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[#EEF2F7]">
+              <div>
+                <h3 className="text-base font-semibold text-[#031033]">
+                  Personal &amp; organization information
+                </h3>
+                <p className="text-xs text-[#5A6A85] mt-0.5">
+                  Your identity and organization credentials.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowEditModal(true)}
-                className="text-[12.5px] font-semibold text-[#1787D4] hover:underline"
+                className="h-8 px-3 text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Edit
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
               {/* First Name */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  First Name
+                <span className="text-xs text-[#5A6A85] block">
+                  First name
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.firstName || "—"}
                 </span>
               </div>
 
               {/* Last Name */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Last Name
+                <span className="text-xs text-[#5A6A85] block">
+                  Last name
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.lastName || "—"}
                 </span>
               </div>
 
               {/* Email Address */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Email Address
+                <span className="text-xs text-[#5A6A85] block">
+                  Email address
                 </span>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[14px] font-medium text-[#1d1d1f]">
+                  <span className="text-sm font-medium text-[#031033]">
                     {isLoading ? "—" : user?.email || "—"}
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
-                    <Lock className="w-2.5 h-2.5" />
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap text-xs text-[#5A6A85]">
+                    <Lock className="w-3 h-3" />
                     Primary
                   </span>
                 </div>
@@ -379,118 +370,105 @@ export default function ProfilePage() {
 
               {/* Phone Number */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Phone Number
+                <span className="text-xs text-[#5A6A85] block">
+                  Phone number
                 </span>
-                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.phoneNumber || "—"}
                 </span>
               </div>
 
               {/* Company / Organization Name */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Company / Organization
+                <span className="text-xs text-[#5A6A85] block">
+                  Company / organization
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.companyName || "—"}
                 </span>
               </div>
 
-              {/* Role */}
-              <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Account Role
-                </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
-                  {isLoading ? "—" : user?.role || "USER"}
-                </span>
-              </div>
             </div>
           </div>
 
           {/* Card 2: Address & Location Details */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#eef2f8]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-[15.5px] font-bold text-[#1d1d1f]">
-                    Address &amp; Location Information
-                  </h3>
-                  <p className="text-[12px] text-[#6e6e73]">
-                    Billing and service location associated with your account.
-                  </p>
-                </div>
+          <div className="bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[#EEF2F7]">
+              <div>
+                <h3 className="text-base font-semibold text-[#031033]">
+                  Address &amp; location information
+                </h3>
+                <p className="text-xs text-[#5A6A85] mt-0.5">
+                  Billing and service location associated with your account.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowEditModal(true)}
-                className="text-[12.5px] font-semibold text-[#1787D4] hover:underline"
+                className="h-8 px-3 text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Edit
               </button>
             </div>
 
+            <div className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-6">
               {/* House Number */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  House / Unit No.
+                <span className="text-xs text-[#5A6A85] block">
+                  House / unit no.
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.houseNumber || "—"}
                 </span>
               </div>
 
               {/* Street Address */}
               <div className="sm:col-span-2">
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Street Address
+                <span className="text-xs text-[#5A6A85] block">
+                  Street address
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block truncate">
+                <span className="text-sm font-medium text-[#031033] mt-1 block truncate">
                   {isLoading ? "—" : user?.address || "—"}
                 </span>
               </div>
 
               {/* City */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                <span className="text-xs text-[#5A6A85] block">
                   City
                 </span>
-                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.city || "—"}
                 </span>
               </div>
 
               {/* State */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  State / Province
+                <span className="text-xs text-[#5A6A85] block">
+                  State / province
                 </span>
-                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.state || "—"}
                 </span>
               </div>
 
               {/* Postal Code */}
               <div>
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
-                  Postal Code
+                <span className="text-xs text-[#5A6A85] block">
+                  Postal code
                 </span>
-                <span className="text-[14px] font-medium text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : user?.postcode || "—"}
                 </span>
               </div>
 
               {/* Country */}
               <div className="sm:col-span-3">
-                <span className="text-[11.5px] uppercase font-bold tracking-wider text-[#6e6e73] block">
+                <span className="text-xs text-[#5A6A85] block">
                   Country
                 </span>
-                <span className="text-[14px] font-semibold text-[#1d1d1f] mt-1 block">
+                <span className="text-sm font-medium text-[#031033] mt-1 block">
                   {isLoading ? "—" : getCountryName(user?.country)}
                 </span>
               </div>
@@ -498,77 +476,88 @@ export default function ProfilePage() {
 
             {/* Address Summary Preview */}
             {fullAddressString && (
-              <div className="mt-5 p-3.5 bg-[#f8faff] rounded-lg border border-[#e2eaff] flex items-start gap-2.5">
-                <Globe className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
+              <div className="mt-5 px-4 py-3 bg-[#F2F5FC] rounded-lg flex items-start gap-2.5">
+                <Globe className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#1787D4] block">
-                    Full Formatted Address
+                  <span className="text-xs text-[#5A6A85] block">
+                    Full formatted address
                   </span>
-                  <p className="text-[13px] text-[#1d1d1f] font-medium mt-0.5">
+                  <p className="text-sm text-[#031033] mt-0.5">
                     {fullAddressString}
                   </p>
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           {/* Card 3: Notification Settings */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm">
-            <h3 className="text-[15.5px] font-bold text-[#1d1d1f] mb-1">
-              Notification Settings
-            </h3>
-            <p className="text-[12px] text-[#6e6e73] mb-4">
-              Choose which emails and notifications you wish to receive.
-            </p>
-            <div className="border-t border-[#eef2f8] pt-4 flex flex-col gap-3.5">
+          <div className="bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="px-5 py-4 border-b border-[#EEF2F7]">
+              <h3 className="text-base font-semibold text-[#031033]">
+                Notification settings
+              </h3>
+              <p className="text-xs text-[#5A6A85] mt-0.5">
+                Choose which emails and notifications you wish to receive.
+              </p>
+            </div>
+            <div className="p-5 flex flex-col gap-3.5">
+              <p className="text-xs text-[#5A6A85]">
+                Not available yet: notification preferences can&apos;t be saved
+                from the dashboard.
+              </p>
               {/* Renewal reminders */}
-              <label className="flex items-center gap-3 cursor-pointer select-none">
+              <label className="flex items-center gap-3 cursor-not-allowed select-none opacity-60">
                 <input
                   type="checkbox"
-                  checked={notifications.renewalReminders}
-                  onChange={() => toggleNotification("renewalReminders")}
-                  className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
+                  checked={false}
+                  disabled
+                  readOnly
+                  className="w-4 h-4 rounded border-[#D5DCE6] accent-[#1787D4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 />
-                <span className="text-[13.5px] font-medium text-[#1d1d1f]">
+                <span className="text-sm text-[#031033]">
                   Renewal reminders (Domain &amp; hosting expiry warnings)
                 </span>
               </label>
 
               {/* Product updates */}
-              <label className="flex items-center gap-3 cursor-pointer select-none">
+              <label className="flex items-center gap-3 cursor-not-allowed select-none opacity-60">
                 <input
                   type="checkbox"
-                  checked={notifications.productUpdates}
-                  onChange={() => toggleNotification("productUpdates")}
-                  className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
+                  checked={false}
+                  disabled
+                  readOnly
+                  className="w-4 h-4 rounded border-[#D5DCE6] accent-[#1787D4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 />
-                <span className="text-[13.5px] font-medium text-[#1d1d1f]">
+                <span className="text-sm text-[#031033]">
                   Product updates &amp; service maintenance alerts
                 </span>
               </label>
 
               {/* Security alerts */}
-              <label className="flex items-center gap-3 cursor-pointer select-none">
+              <label className="flex items-center gap-3 cursor-not-allowed select-none opacity-60">
                 <input
                   type="checkbox"
-                  checked={notifications.securityAlerts}
-                  onChange={() => toggleNotification("securityAlerts")}
-                  className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
+                  checked={false}
+                  disabled
+                  readOnly
+                  className="w-4 h-4 rounded border-[#D5DCE6] accent-[#1787D4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 />
-                <span className="text-[13.5px] font-medium text-[#1d1d1f]">
+                <span className="text-sm text-[#031033]">
                   Security alerts &amp; new sign-in notifications
                 </span>
               </label>
 
               {/* Marketing emails */}
-              <label className="flex items-center gap-3 cursor-pointer select-none">
+              <label className="flex items-center gap-3 cursor-not-allowed select-none opacity-60">
                 <input
                   type="checkbox"
-                  checked={notifications.marketingEmails}
-                  onChange={() => toggleNotification("marketingEmails")}
-                  className="w-4 h-4 rounded text-[#1787D4] border-gray-300 focus:ring-[#1787D4] accent-[#1787D4]"
+                  checked={false}
+                  disabled
+                  readOnly
+                  className="w-4 h-4 rounded border-[#D5DCE6] accent-[#1787D4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 />
-                <span className="text-[13.5px] font-medium text-[#1d1d1f]">
+                <span className="text-sm text-[#031033]">
                   Promotional offers &amp; newsletters
                 </span>
               </label>
@@ -579,73 +568,84 @@ export default function ProfilePage() {
         {/* Right Column (4 cols): Security & Credentials + Account Overview */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           {/* Card 4: Account Details */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
-            <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-              Account Overview
-            </h3>
+          <div className="bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="px-5 py-4 border-b border-[#EEF2F7]">
+              <h3 className="text-base font-semibold text-[#031033]">
+                Account overview
+              </h3>
+            </div>
 
-            <div className="flex flex-col gap-3.5 text-[13px]">
+            <div className="px-5 py-2 flex flex-col divide-y divide-[#EEF2F7] text-sm">
               {/* Joined Date */}
-              <div className="flex items-center justify-between">
-                <span className="text-[#6e6e73]">Member Since</span>
-                <span className="font-semibold text-[#1d1d1f]">
+              <div className="flex items-center justify-between gap-3 py-2.5">
+                <span className="text-[#5A6A85]">Member since</span>
+                <span className="font-medium text-[#031033] text-right tabular-nums">
                   {isLoading ? "—" : formattedJoinedDate}
                 </span>
               </div>
 
               {/* Account Status */}
-              <div className="flex items-center justify-between">
-                <span className="text-[#6e6e73]">Account Status</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+              <div className="flex items-center justify-between gap-3 py-2.5">
+                <span className="text-[#5A6A85]">Account status</span>
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                   Active
                 </span>
               </div>
 
               {/* Verification */}
-              <div className="flex items-center justify-between">
-                <span className="text-[#6e6e73]">Email Status</span>
-                <span className="font-semibold text-[#1d1d1f]">
-                  {user?.verified ? "Verified" : "Pending Verification"}
+              <div className="flex items-center justify-between gap-3 py-2.5">
+                <span className="text-[#5A6A85]">Email status</span>
+                <span className="font-medium text-[#031033]">
+                  {user?.verified ? "Verified" : "Pending verification"}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Card 5: Security & Credentials */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
-            <h3 className="text-[15px] font-bold text-[#1d1d1f] mb-1">
-              Security &amp; Credentials
-            </h3>
+          <div className="bg-white rounded-xl border border-[#E2E8F0]">
+            <div className="px-5 py-4 border-b border-[#EEF2F7]">
+              <h3 className="text-base font-semibold text-[#031033]">
+                Security &amp; credentials
+              </h3>
+            </div>
+            <div className="p-5 flex flex-col gap-3">
 
             {/* Change Password */}
             <button
               type="button"
               id="btn-change-password"
               onClick={() => setShowPasswordModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
+              className="w-full h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 text-center"
             >
-              Change Password
+              Change password
             </button>
 
             {/* Two-Factor Authentication */}
             <button
               type="button"
               id="btn-2fa"
-              onClick={() => setShow2faModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
+              disabled
+              aria-describedby="btn-2fa-note"
+              className="w-full h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 text-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
             >
-              Two-Factor Authentication
+              Two-factor authentication
             </button>
+            <p id="btn-2fa-note" className="-mt-1 text-xs text-[#5A6A85]">
+              Not available yet.
+            </p>
 
             {/* Active Sessions */}
             <button
               type="button"
               id="btn-active-sessions"
               onClick={() => setShowSessionsModal(true)}
-              className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
+              className="w-full h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 text-center"
             >
-              Active Sessions
+              Active sessions
             </button>
+            </div>
           </div>
         </div>
       </div>
@@ -658,16 +658,16 @@ export default function ProfilePage() {
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowEditModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-2xl shadow-2xl p-6 sm:p-7 flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="relative bg-white rounded-xl w-full max-w-2xl shadow-xl p-6 flex flex-col max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="pb-4 border-b border-[#eef2f8]">
-              <h3 className="text-lg font-bold text-[#1d1d1f]">
-                Edit Profile Information
+            <div className="pb-4 border-b border-[#EEF2F7]">
+              <h3 className="text-lg font-semibold text-[#031033]">
+                Edit profile information
               </h3>
-              <p className="text-xs text-[#6e6e73] mt-0.5">
+              <p className="text-sm text-[#5A6A85] mt-1">
                 Update your personal info, organization name, and billing
                 address.
               </p>
@@ -679,16 +679,16 @@ export default function ProfilePage() {
             >
               {/* Section 1: Personal & Organization */}
               <div>
-                <h4 className="text-[13px] font-bold text-[#1787D4] uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  Personal &amp; Organization
+                <h4 className="text-base font-semibold text-[#031033] mb-3 flex items-center gap-2">
+                  <User className="w-4 h-4 text-[#5A6A85]" />
+                  Personal &amp; organization
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* First Name */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      First Name
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      First name
                     </label>
                     <input
                       type="text"
@@ -700,14 +700,14 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. Akinloluwa"
-                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full h-10 px-3 bg-white border rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors ${
                         formErrors.firstName
-                          ? "border-red-400 bg-red-50/20"
-                          : "border-[#e2eaff]"
+                          ? "border-[#C21F1F]"
+                          : "border-[#D5DCE6]"
                       }`}
                     />
                     {formErrors.firstName && (
-                      <span className="text-[11px] text-red-500 mt-1 block">
+                      <span className="text-xs text-[#C21F1F] mt-1.5 block">
                         {formErrors.firstName}
                       </span>
                     )}
@@ -715,8 +715,8 @@ export default function ProfilePage() {
 
                   {/* Last Name */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Last Name
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Last name
                     </label>
                     <input
                       type="text"
@@ -728,14 +728,14 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. Oluwaleye"
-                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full h-10 px-3 bg-white border rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors ${
                         formErrors.lastName
-                          ? "border-red-400 bg-red-50/20"
-                          : "border-[#e2eaff]"
+                          ? "border-[#C21F1F]"
+                          : "border-[#D5DCE6]"
                       }`}
                     />
                     {formErrors.lastName && (
-                      <span className="text-[11px] text-red-500 mt-1 block">
+                      <span className="text-xs text-[#C21F1F] mt-1.5 block">
                         {formErrors.lastName}
                       </span>
                     )}
@@ -743,27 +743,27 @@ export default function ProfilePage() {
 
                   {/* Email (Read-only) */}
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Email Address (Read-only)
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Email address (read-only)
                     </label>
                     <div className="relative">
                       <input
                         type="email"
                         value={user?.email || ""}
                         disabled
-                        className="w-full px-3.5 py-2 bg-gray-50 border border-[#e2eaff] rounded-lg text-sm text-gray-500 cursor-not-allowed"
+                        className="w-full h-10 px-3 pr-9 bg-[#F2F5FC] border border-[#E2E8F0] rounded-lg text-sm text-[#5A6A85] cursor-not-allowed"
                       />
-                      <Lock className="w-3.5 h-3.5 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                      <Lock className="w-3.5 h-3.5 text-[#5A6A85] absolute right-3 top-1/2 -translate-y-1/2" />
                     </div>
-                    <span className="text-[11px] text-[#6e6e73] mt-1 block">
+                    <span className="text-xs text-[#5A6A85] mt-1 block">
                       Email address cannot be changed from profile settings.
                     </span>
                   </div>
 
                   {/* Phone Number */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Phone Number *
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Phone number *
                     </label>
                     <input
                       type="tel"
@@ -778,15 +778,15 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. 08140300000"
-                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full h-10 px-3 bg-white border rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors ${
                         formErrors.phoneNumber
-                          ? "border-red-400 bg-red-50/20"
-                          : "border-[#e2eaff]"
+                          ? "border-[#C21F1F]"
+                          : "border-[#D5DCE6]"
                       }`}
                       required
                     />
                     {formErrors.phoneNumber && (
-                      <span className="text-[11px] text-red-500 mt-1 block">
+                      <span className="text-xs text-[#C21F1F] mt-1.5 block">
                         {formErrors.phoneNumber}
                       </span>
                     )}
@@ -794,8 +794,8 @@ export default function ProfilePage() {
 
                   {/* Company Name */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Company / Organization *
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Company / organization *
                     </label>
                     <input
                       type="text"
@@ -810,15 +810,15 @@ export default function ProfilePage() {
                         }
                       }}
                       placeholder="e.g. DevSimplified"
-                      className={`w-full px-3.5 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#1787D4] transition-colors ${
+                      className={`w-full h-10 px-3 bg-white border rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors ${
                         formErrors.companyName
-                          ? "border-red-400 bg-red-50/20"
-                          : "border-[#e2eaff]"
+                          ? "border-[#C21F1F]"
+                          : "border-[#D5DCE6]"
                       }`}
                       required
                     />
                     {formErrors.companyName && (
-                      <span className="text-[11px] text-red-500 mt-1 block">
+                      <span className="text-xs text-[#C21F1F] mt-1.5 block">
                         {formErrors.companyName}
                       </span>
                     )}
@@ -827,44 +827,44 @@ export default function ProfilePage() {
               </div>
 
               {/* Section 2: Address & Location */}
-              <div className="pt-2 border-t border-[#eef2f8]">
-                <h4 className="text-[13px] font-bold text-[#1787D4] uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5" />
-                  Address &amp; Location
+              <div className="pt-2 border-t border-[#EEF2F7]">
+                <h4 className="text-base font-semibold text-[#031033] mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#5A6A85]" />
+                  Address &amp; location
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* House Number */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      House / Unit No.
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      House / unit no.
                     </label>
                     <input
                       type="text"
                       value={editHouseNumber}
                       onChange={(e) => setEditHouseNumber(e.target.value)}
                       placeholder="e.g. 40"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
 
                   {/* Street Address */}
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Street Address
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Street address
                     </label>
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="e.g. Ayodele Fanoiki Street"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
 
                   {/* City */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
                       City
                     </label>
                     <input
@@ -872,47 +872,47 @@ export default function ProfilePage() {
                       value={editCity}
                       onChange={(e) => setEditCity(e.target.value)}
                       placeholder="e.g. Magodo G.R.A"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
 
                   {/* State */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      State / Province
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      State / province
                     </label>
                     <input
                       type="text"
                       value={editState}
                       onChange={(e) => setEditState(e.target.value)}
                       placeholder="e.g. Lagos"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
 
                   {/* Postal Code */}
                   <div>
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                      Postal Code
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Postal code
                     </label>
                     <input
                       type="text"
                       value={editPostcode}
                       onChange={(e) => setEditPostcode(e.target.value)}
                       placeholder="e.g. 100248"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
 
                   {/* Country */}
                   <div className="sm:col-span-3">
-                    <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
                       Country
                     </label>
                     <select
                       value={editCountry}
                       onChange={(e) => setEditCountry(e.target.value)}
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4] bg-white transition-colors"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors cursor-pointer"
                     >
                       <option value="">Select a country</option>
                       {countryOptions.map((country) => (
@@ -926,24 +926,24 @@ export default function ProfilePage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 justify-end pt-4 border-t border-[#eef2f8] mt-2">
+              <div className="flex gap-2 justify-end pt-4 border-t border-[#EEF2F7] mt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setShowEditModal(false);
                     setFormErrors({});
                   }}
-                  className="px-4 py-2.5 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc] transition-colors"
+                  className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={updating}
-                  className="px-5 py-2.5 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-sm"
+                  className="h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Save Changes
+                  Save changes
                 </button>
               </div>
             </form>
@@ -959,12 +959,12 @@ export default function ProfilePage() {
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowPasswordModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#1d1d1f]">
-              Change Password
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Change password
             </h3>
 
             <form
@@ -972,21 +972,21 @@ export default function ProfilePage() {
               className="flex flex-col gap-3.5"
             >
               <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  Current Password
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Current password
                 </label>
                 <div className="relative">
                   <input
                     type={showOldPass ? "text" : "password"}
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
-                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                    className="w-full h-10 pl-3 pr-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowOldPass(!showOldPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6A85] hover:text-[#031033] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {showOldPass ? (
                       <EyeOff className="w-4 h-4" />
@@ -998,21 +998,21 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  New Password (min. 8 characters)
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  New password (min. 8 characters)
                 </label>
                 <div className="relative">
                   <input
                     type={showNewPass ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                    className="w-full h-10 pl-3 pr-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPass(!showNewPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6A85] hover:text-[#031033] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {showNewPass ? (
                       <EyeOff className="w-4 h-4" />
@@ -1024,14 +1024,14 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">
-                  Confirm New Password
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Confirm new password
                 </label>
                 <input
                   type={showNewPass ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                   required
                 />
               </div>
@@ -1040,87 +1040,22 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                  className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+                  className="h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {changingPassword && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   )}
-                  Update Password
+                  Update password
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Two-Factor Authentication Modal */}
-      {show2faModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setShow2faModal(false)}
-          />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#1d1d1f]">
-              Two-Factor Authentication (2FA)
-            </h3>
-            <p className="text-xs text-[#6e6e73] leading-relaxed">
-              Add an extra layer of security to your Nupat Cloud account using
-              an authenticator app (e.g. Google Authenticator).
-            </p>
-
-            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-[#e2eaff] rounded-lg">
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-5 h-5 text-[#1787D4]" />
-                <div>
-                  <div className="text-xs font-semibold text-[#1d1d1f]">
-                    Authenticator App
-                  </div>
-                  <div className="text-[11px] text-[#6e6e73]">
-                    {twoFactorEnabled ? "Enabled" : "Currently disabled"}
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setTwoFactorEnabled(!twoFactorEnabled);
-                  toast.success(
-                    twoFactorEnabled
-                      ? "2FA disabled"
-                      : "2FA enabled successfully",
-                  );
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  twoFactorEnabled
-                    ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                    : "bg-[#1787D4] text-white hover:bg-[#1371B5]"
-                }`}
-              >
-                {twoFactorEnabled ? "Disable" : "Enable"}
-              </button>
-            </div>
-
-            <div className="flex justify-end mt-2">
-              <button
-                type="button"
-                onClick={() => setShow2faModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -1133,52 +1068,56 @@ export default function ProfilePage() {
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowSessionsModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#1d1d1f]">
-              Active Sessions
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Active sessions
             </h3>
-            <p className="text-xs text-[#6e6e73]">
-              Devices currently signed in to your account.
+            <p className="text-sm text-[#5A6A85]">
+              This browser&apos;s session. Other devices aren&apos;t listed yet.
             </p>
 
             <div className="flex flex-col gap-3">
               {/* Current device */}
-              <div className="p-3.5 bg-[#f8fafc] border border-[#e2eaff] rounded-lg flex items-center justify-between">
+              <div className="px-4 py-3 border border-[#E2E8F0] rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Laptop className="w-5 h-5 text-[#1787D4]" />
+                  <Laptop className="w-4 h-4 text-[#5A6A85]" />
                   <div>
-                    <div className="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
-                      Current Browser Session
-                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-100 text-emerald-700 font-bold">
-                        THIS DEVICE
+                    <div className="text-sm font-medium text-[#031033] flex items-center gap-2">
+                      Current browser session
+                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-normal text-[#5A6A85]">
+                        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#12A150]" />
+                        This device
                       </span>
                     </div>
-                    <div className="text-[11px] text-[#6e6e73] mt-0.5">
-                      Mac OS · Chrome · Active now
+                    <div className="text-xs text-[#5A6A85] mt-0.5">
+                      {thisDevice} · Active now
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center mt-2 pt-2 border-t border-[#eef2f8]">
-              <button
-                type="button"
-                onClick={() => {
-                  toast.success("Other sessions terminated.");
-                  setShowSessionsModal(false);
-                }}
-                className="text-xs text-red-500 hover:text-red-700 font-medium"
-              >
-                Log Out Other Devices
-              </button>
+            <div className="flex justify-between items-center gap-2 mt-2 pt-4 border-t border-[#EEF2F7]">
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  disabled
+                  aria-describedby="logout-others-note"
+                  className="h-9 px-4 border border-[#F3C7C7] bg-white text-sm font-medium text-[#C21F1F] hover:bg-[#FDECEC] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                >
+                  Log out other devices
+                </button>
+                <span id="logout-others-note" className="text-xs text-[#5A6A85]">
+                  Not available yet.
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowSessionsModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Done
               </button>
@@ -1195,15 +1134,15 @@ export default function ProfilePage() {
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowDeleteModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#1d1d1f]">
-              Delete Account
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Delete account
             </h3>
-            <p className="text-xs text-[#6e6e73] leading-relaxed">
-              Are you sure you want to delete your account? This will
+            <p className="text-sm text-[#5A6A85]">
+              Are you sure you want to delete your Nupat Cloud account? This will
               permanently cancel all your services, domains, and hosting
               accounts. This action cannot be undone.
             </p>
@@ -1212,7 +1151,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Cancel
               </button>
@@ -1222,9 +1161,9 @@ export default function ProfilePage() {
                   toast.error("Account deletion request submitted.");
                   setShowDeleteModal(false);
                 }}
-                className="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                className="h-9 px-4 text-sm font-medium bg-[#DC2626] hover:bg-[#C21F1F] text-white rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/30"
               >
-                Confirm Delete
+                Delete account
               </button>
             </div>
           </div>

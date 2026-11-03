@@ -3,12 +3,11 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import PremiumProtectionBanner from "@/components/dashboard/PremiumProtectionBanner";
 import {
   Server,
   Globe,
-  Mail,
   Shield,
-  ShieldCheck,
   ShoppingCart,
   ArrowRight,
   ChevronRight,
@@ -38,104 +37,67 @@ import { useCartStore } from "@/store/cartStore";
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
 
-// ─── Design tokens ───────────────────────────────────────────────────────────
-const T = {
-  ink: "#1d1d1f",
-  inkMuted: "#6e6e73",
-  inkSubtle: "#aeaeb2",
-  canvas: "#ffffff",
-  parchment: "#f5f5f7",
-  hairline: "#e8e8ed",
-  orange: "#e8900a",
-  orangeLight: "#fff8ee",
-  orangeMid: "#fff0d6",
-  blue: "#1787D4",
-  blueLight: "#e8f4fc",
-  emerald: "#059669",
-  emeraldLight: "#ecfdf5",
-  red: "#dc2626",
-  redLight: "#fef2f2",
-  amber: "#d97706",
-  amberLight: "#fffbeb",
-};
-
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton({ className }: { className: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-md ${className}`}
-      style={{ background: "#f0f0f3" }}
-    />
-  );
+  return <div className={`animate-pulse rounded bg-[#EEF2F7] ${className}`} />;
 }
 
-// ─── Stat card ────────────────────────────────────────────────────────────────
+// ─── KPI cell (one cell of the divided strip) ────────────────────────────────
 type StatCardProps = {
-  icon: React.ComponentType<{
-    className?: string;
-  }>;
   label: string;
   value: number | string;
   sublabel: string;
   href: string;
   actionText: string;
-  iconBg?: string;
   disabled?: boolean;
   loading?: boolean;
 };
 
 function StatCard({
-  icon: Icon,
   label,
   value,
   sublabel,
   href,
   actionText,
-  iconBg = "bg-[#eff6fb]",
   disabled,
   loading,
 }: StatCardProps) {
+  const body = (
+    <>
+      <p className="text-xs text-[#5A6A85]">{label}</p>
+      <div className="mt-2 flex items-baseline gap-1.5">
+        {loading ? (
+          <Skeleton className="h-8 w-12" />
+        ) : (
+          <>
+            <span
+              className={`text-2xl font-semibold tabular-nums leading-8 ${
+                disabled ? "text-[#5A6A85]" : "text-[#031033]"
+              }`}
+            >
+              {value}
+            </span>
+            <span className="text-sm text-[#5A6A85]">{sublabel}</span>
+          </>
+        )}
+      </div>
+      <p
+        className={`mt-3 inline-flex items-center gap-1 text-sm font-medium ${
+          disabled
+            ? "text-[#5A6A85]"
+            : "text-[#1787D4] group-hover:text-[#1370B5]"
+        }`}
+      >
+        {actionText}
+        {!disabled && <ArrowRight className="h-3.5 w-3.5" />}
+      </p>
+    </>
+  );
+
   if (disabled) {
     return (
-      <div className="bg-white/80 rounded-lg border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between opacity-60 cursor-not-allowed select-none">
-        <div>
-          {/* Top row: Icon box on left, Category label uppercase on right */}
-          <div className="flex items-center justify-between">
-            <div
-              className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center text-[#1787D4] opacity-75`}
-            >
-              <Icon className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#98a2b3]">
-                {label}
-              </span>
-            </div>
-          </div>
-
-          {/* Middle row: Large number and inline sublabel */}
-          <div className="flex items-baseline gap-2 mt-5 mb-4">
-            {loading ? (
-              <Skeleton className="h-9 w-16" />
-            ) : (
-              <>
-                <span className="text-[34px] font-extrabold text-[#64748b] tracking-tight leading-none">
-                  {value}
-                </span>
-                <span className="text-[14px] font-medium text-[#94a3b8] leading-none">
-                  {sublabel}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom row: Divider and Action Link */}
-        <div className="border-t border-[#f0f3f8] pt-3.5 mt-auto">
-          <span className="text-[13px] font-medium text-[#94a3b8] inline-flex items-center gap-1">
-            {actionText}
-          </span>
-        </div>
+      <div className="cursor-not-allowed select-none bg-white px-5 py-4 opacity-60">
+        {body}
       </div>
     );
   }
@@ -143,45 +105,9 @@ function StatCard({
   return (
     <Link
       href={href}
-      className="group bg-white rounded-lg border border-[#e8ecf4] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+      className="group bg-white px-5 py-4 transition-colors hover:bg-[#F2F5FC]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1787D4]/30"
     >
-      <div>
-        {/* Top row: Icon box on left, Category label uppercase on right */}
-        <div className="flex items-center justify-between">
-          <div
-            className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center text-[#1787D4]`}
-          >
-            <Icon className="w-5 h-5 stroke-[2.2]" />
-          </div>
-          <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#98a2b3]">
-            {label}
-          </span>
-        </div>
-
-        {/* Middle row: Large number and inline sublabel */}
-        <div className="flex items-baseline gap-2 mt-5 mb-4">
-          {loading ? (
-            <Skeleton className="h-9 w-16" />
-          ) : (
-            <>
-              <span className="text-[34px] font-extrabold text-[#101828] tracking-tight leading-none">
-                {value}
-              </span>
-              <span className="text-[14px] font-medium text-[#667085] leading-none">
-                {sublabel}
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom row: Divider and Action Link */}
-      <div className="border-t border-[#f0f3f8] pt-3.5 mt-auto">
-        <span className="text-[13px] font-semibold text-[#1787D4] group-hover:text-[#1371B5] transition-colors inline-flex items-center gap-1.5">
-          {actionText}
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-        </span>
-      </div>
+      {body}
     </Link>
   );
 }
@@ -200,7 +126,7 @@ type ServiceType = "Domain" | "Hosting" | "SSL";
 
 function ServiceTypeBadge({ type }: { type: ServiceType }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold shrink-0 bg-[#eff6fb] text-[#1787D4]">
+    <span className="shrink-0 text-xs text-[#5A6A85]">
       {type}
     </span>
   );
@@ -213,23 +139,26 @@ function AlertBadge({ severity }: { severity: AlertSeverity }) {
   const cfg = {
     expired: {
       label: "Expired",
-      color: "#dc2626", // Red text, no outline
+      dot: "bg-[#DC2626]",
+      text: "text-[#C21F1F]",
     },
     expiring: {
-      label: "Expiring Soon",
-      color: "#ea580c", // Orange text, no outline
+      label: "Expiring soon",
+      dot: "bg-[#E8900A]",
+      text: "text-[#031033]",
     },
     renewal: {
-      label: "Renewal Due",
-      color: "#ea580c", // Orange text, no outline
+      label: "Renewal due",
+      dot: "bg-[#E8900A]",
+      text: "text-[#031033]",
     },
   }[severity];
 
   return (
     <span
-      className="inline-flex items-center text-[11.5px] font-semibold shrink-0"
-      style={{ color: cfg.color }}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs ${cfg.text}`}
     >
+      <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
   );
@@ -260,39 +189,16 @@ function AttentionRequired({
   const expiredCount = items.filter((i) => i.severity === "expired").length;
 
   return (
-    <div
-      className="flex flex-col overflow-hidden"
-      style={{
-        background: T.canvas,
-        border: `1px solid ${T.hairline}`,
-        borderRadius: "14px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-      }}
-    >
+    <div className="flex flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: `1px solid ${T.hairline}` }}
-      >
-        <div className="flex items-center gap-2.5">
-          <h3
-            className="text-[15px] font-semibold"
-            style={{
-              color: T.ink,
-              fontFamily:
-                "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.2px",
-            }}
-          >
-            Attention Required
+      <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F7] px-5 py-4">
+        <div className="flex items-baseline gap-2">
+          <h3 className="text-base font-semibold text-[#031033]">
+            Attention required
           </h3>
           {!loading && items.length > 0 && (
-            <span
-              className={`text-[12px] font-bold ${
-                expiredCount > 0 ? "text-[#dc2626]" : "text-[#ea580c]"
-              }`}
-            >
-              · {items.length} {items.length === 1 ? "service" : "services"}
+            <span className="text-sm tabular-nums text-[#5A6A85]">
+              {items.length} {items.length === 1 ? "service" : "services"}
             </span>
           )}
         </div>
@@ -300,27 +206,21 @@ function AttentionRequired({
         {!loading && expiredCount > 0 && (
           <Link
             href="/dashboard/expired-services"
-            className="text-[12px] font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
+            className="flex items-center gap-1 text-sm font-medium text-[#1787D4] hover:text-[#1370B5]"
           >
-            Expired Services ({expiredCount})
-            <ChevronRight className="w-3 h-3" />
+            Expired services ({expiredCount})
+            <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         )}
       </div>
 
       {/* Body */}
       {loading ? (
-        <div
-          className="flex flex-col divide-y"
-          style={{ borderColor: T.hairline }}
-        >
+        <div className="flex flex-col divide-y divide-[#EEF2F7]">
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-5 py-4 animate-pulse"
-            >
+            <div key={i} className="flex items-center gap-3 px-5 py-3.5">
               <div className="flex-1">
-                <Skeleton className="h-3.5 w-32 mb-2" />
+                <Skeleton className="mb-2 h-4 w-40" />
                 <Skeleton className="h-3 w-24" />
               </div>
               <Skeleton className="h-8 w-16 rounded-lg" />
@@ -328,77 +228,59 @@ function AttentionRequired({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-          <span
-            className="flex items-center justify-center w-10 h-10 rounded-full mb-3"
-            style={{ background: T.blueLight }}
-          >
-            <CheckCircle2 className="w-5 h-5" style={{ color: T.blue }} />
-          </span>
-          <p className="text-[14px] font-semibold" style={{ color: T.ink }}>
-            All services look good
-          </p>
-          <p className="text-[13px] mt-1" style={{ color: T.inkMuted }}>
-            No renewals or expiries require attention.
-          </p>
+        <div className="flex items-start gap-2.5 px-5 py-5">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#0E7C3A]" />
+          <div>
+            <p className="text-sm font-medium text-[#031033]">
+              All services look good
+            </p>
+            <p className="mt-0.5 text-sm text-[#5A6A85]">
+              No renewals or expiries need attention.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col">
-          {items.slice(0, 5).map((item, i) => {
-            const ActionIcon = item.primaryAction.icon;
-            const isExpired = item.severity === "expired";
-            return (
+          <div className="divide-y divide-[#EEF2F7]">
+            {items.slice(0, 5).map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#fafafa]"
-                style={{
-                  borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
-                }}
+                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#F2F5FC]/60"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
                     <ServiceTypeBadge type={item.serviceType} />
                     <p
-                      className="text-[13.5px] font-semibold truncate max-w-[180px] sm:max-w-xs"
-                      style={{ color: T.ink }}
+                      className="max-w-[180px] truncate text-sm font-medium text-[#031033] sm:max-w-xs"
                       title={item.name}
                     >
                       {item.name}
                     </p>
                     <AlertBadge severity={item.severity} />
                   </div>
-                  <p className="text-[12px]" style={{ color: T.inkMuted }}>
-                    {item.subtitle}
-                  </p>
+                  <p className="text-xs text-[#5A6A85]">{item.subtitle}</p>
                 </div>
                 <Link
                   href={item.primaryAction.href}
-                  className="shrink-0 flex items-center px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                  style={{ background: isExpired ? T.red : T.blue }}
+                  className="inline-flex h-8 shrink-0 items-center rounded-lg border border-[#D5DCE6] bg-white px-3 text-sm font-medium text-[#031033] transition-colors hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {item.primaryAction.label}
                 </Link>
               </div>
-            );
-          })}
+            ))}
+          </div>
 
           {items.length > 5 && (
-            <div
-              className="px-5 py-3 border-t flex items-center justify-between text-[12.5px]"
-              style={{
-                borderColor: T.hairline,
-                background: T.parchment,
-              }}
-            >
-              <span style={{ color: T.inkMuted }}>
+            <div className="flex items-center justify-between border-t border-[#EEF2F7] px-5 py-3 text-sm">
+              <span className="text-[#5A6A85]">
                 Showing 5 of {items.length} items requiring attention
               </span>
               <Link
                 href="/dashboard/expired-services"
-                className="font-semibold text-[#1787D4] hover:underline flex items-center gap-1"
+                className="flex items-center gap-1 font-medium text-[#1787D4] hover:text-[#1370B5]"
               >
                 View all
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           )}
@@ -418,8 +300,6 @@ type QuickAction = {
   label: string;
   description: string;
   href: string;
-  accentColor: string;
-  accentBg: string;
   disabled?: boolean;
 };
 
@@ -427,104 +307,51 @@ const QUICK_ACTIONS: QuickAction[] = [
   {
     id: "qa-domain",
     icon: Globe,
-    label: "Register a Domain",
-    description: "Find and purchase a new domain",
+    label: "Register a domain",
+    description: "Find and buy a new domain name",
     href: "/dashboard/domains?tab=register",
-    accentColor: T.blue,
-    accentBg: T.blueLight,
   },
   {
     id: "qa-hosting",
     icon: Server,
-    label: "Buy Hosting",
-    description: "High-performance secure servers",
+    label: "Buy hosting",
+    description: "Choose a hosting plan for your site",
     href: "/dashboard/hosting",
-    accentColor: T.blue,
-    accentBg: T.blueLight,
-  },
-  {
-    id: "qa-email",
-    icon: Mail,
-    label: "Create Email",
-    description: "Set up customised business mailboxes",
-    href: "/dashboard/email/create",
-    accentColor: T.blue,
-    accentBg: T.blueLight,
-    disabled: true,
   },
   {
     id: "qa-ssl",
     icon: Shield,
-    label: "Get SSL Certificate",
-    description: "Add instant website lock protection",
+    label: "Get an SSL certificate",
+    description: "Serve your site over HTTPS",
     href: "/dashboard/ssl?tab=order",
-    accentColor: T.blue,
-    accentBg: T.blueLight,
   },
 ];
 
 function QuickActions() {
   return (
-    <div
-      className="flex flex-col overflow-hidden"
-      style={{
-        background: T.canvas,
-        border: `1px solid ${T.hairline}`,
-        borderRadius: "14px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-      }}
-    >
+    <div className="flex flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: `1px solid ${T.hairline}` }}
-      >
-        <h3
-          className="text-[15px] font-semibold"
-          style={{
-            color: T.ink,
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.2px",
-          }}
-        >
-          Quick Actions
+      <div className="flex items-center justify-between border-b border-[#EEF2F7] px-5 py-4">
+        <h3 className="text-base font-semibold text-[#031033]">
+          Quick actions
         </h3>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col">
-        {QUICK_ACTIONS.map((action, i) => {
-          // const Icon = action.icon;
-          if ((action as any).disabled) {
+      <div className="flex flex-col divide-y divide-[#EEF2F7]">
+        {QUICK_ACTIONS.map((action) => {
+          if (action.disabled) {
             return (
               <div
                 key={action.id}
                 id={action.id}
-                className="flex items-center gap-3.5 px-5 py-4 opacity-50 cursor-not-allowed select-none bg-white"
-                style={{
-                  borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
-                }}
+                className="flex cursor-not-allowed select-none items-center gap-3 px-5 py-3.5 opacity-50"
               >
-                {/* <span
-                  className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
-                  style={{ background: action.accentBg }}
-                >
-                  <Icon
-                    className="w-4 h-4"
-                    style={{ color: action.accentColor }}
-                  />
-                </span> */}
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-[13px] font-semibold flex items-center gap-2"
-                    style={{ color: T.ink, letterSpacing: "-0.1px" }}
-                  >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-[#031033]">
                     {action.label}
-                    {/* <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
-                      Soon
-                    </span> */}
                   </p>
-                  <p className="text-[12px]" style={{ color: T.inkMuted }}>
+                  <p className="text-xs text-[#5A6A85]">
                     {action.description}
                   </p>
                 </div>
@@ -537,35 +364,15 @@ function QuickActions() {
               key={action.id}
               href={action.href}
               id={action.id}
-              className="group flex items-center gap-3.5 px-5 py-4 transition-colors hover:bg-[#fafafa]"
-              style={{
-                borderTop: i > 0 ? `1px solid ${T.hairline}` : undefined,
-              }}
+              className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#F2F5FC]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1787D4]/30"
             >
-              {/* <span
-                className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 transition-transform group-hover:scale-105"
-                style={{ background: action.accentBg }}
-              >
-                <Icon
-                  className="w-4 h-4"
-                  style={{ color: action.accentColor }}
-                />
-              </span> */}
-              <div className="flex-1 min-w-0">
-                <p
-                  className="text-[13px] font-semibold"
-                  style={{ color: T.ink, letterSpacing: "-0.1px" }}
-                >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-[#031033]">
                   {action.label}
                 </p>
-                <p className="text-[12px]" style={{ color: T.inkMuted }}>
-                  {action.description}
-                </p>
+                <p className="text-xs text-[#5A6A85]">{action.description}</p>
               </div>
-              <ChevronRight
-                className="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-                style={{ color: T.inkSubtle }}
-              />
+              <ChevronRight className="h-4 w-4 shrink-0 text-[#5A6A85]" />
             </Link>
           );
         })}
@@ -683,20 +490,6 @@ function DashboardOverviewContent() {
     return statusUpper === "ACTIVE" || !statusUpper;
   }).length;
 
-  const [privateEmailCount, setPrivateEmailCount] = useState(0);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("nupat_private_mailboxes");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setPrivateEmailCount(parsed.length);
-        }
-      }
-    } catch {}
-  }, []);
-
   const activeSsl = (sslCerts ?? []).filter((c: any) => {
     const statusUpper = (c.status ?? "").toUpperCase();
     if (
@@ -713,7 +506,6 @@ function DashboardOverviewContent() {
 
   const displayDomains = activeDomains;
   const displayHosting = activeHosting;
-  const displayEmail = privateEmailCount;
   const displaySsl = activeSsl;
 
   // ── Attention Required items ────────────────────────────────────────────────
@@ -890,44 +682,28 @@ function DashboardOverviewContent() {
   const GreetIcon = hour < 12 ? Sun : hour < 17 ? CloudSun : Moon;
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
       {/* ── Welcome header ───────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
           {isLoading ? (
             <>
-              <Skeleton className="h-9 w-56 mb-2" />
+              <Skeleton className="mb-2 h-8 w-56" />
               <Skeleton className="h-4 w-80" />
             </>
           ) : (
             <>
-              <h2
-                className="text-[1.75rem] font-semibold leading-tight text-[#101828]"
-                style={{
-                  fontFamily:
-                    "SF Pro Display, system-ui, -apple-system, sans-serif",
-                  letterSpacing: "-0.03em",
-                }}
-              >
+              <h1 className="text-2xl font-semibold text-[#031033]">
                 {greeting}, {firstName || "there"}
-              </h2>
-              <p className="mt-1 text-[14px]" style={{ color: T.inkMuted }}>
-                Here&apos;s an overview of your domains, hosting, email, and
-                other services.
+              </h1>
+              <p className="mt-1 text-sm text-[#5A6A85]">
+                An overview of your domains, hosting, email and other
+                services.
               </p>
               {lastLogin && (
-                <div className="flex items-center gap-1.5 mt-2">
-                  <span
-                    className="inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-medium"
-                    style={{
-                      color: T.inkMuted,
-                      background: T.parchment,
-                      border: `1px solid ${T.hairline}`,
-                    }}
-                  >
-                    Last login: {lastLogin}
-                  </span>
-                </div>
+                <p className="mt-1 text-xs text-[#5A6A85]">
+                  Last login {lastLogin}
+                </p>
               )}
             </>
           )}
@@ -936,179 +712,113 @@ function DashboardOverviewContent() {
         <Link
           href="/dashboard/hosting"
           id="dashboard-new-order-btn"
-          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-[12.5px] sm:text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 whitespace-nowrap self-start sm:self-auto"
-          style={{
-            background: T.blue,
-            boxShadow: "0 2px 8px rgba(23,135,212,0.35)",
-          }}
+          className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-[#1787D4] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
         >
-          <ShoppingCart className="w-4 h-4" />
-          New Order
+          <ShoppingCart className="h-4 w-4" />
+          New order
         </Link>
       </div>
 
+      {/* ── Premium protection promo (hides itself when dismissed) ───────── */}
+      <PremiumProtectionBanner className="w-full" />
+
       {/* ── Promo banner ─────────────────────────────────────────────────── */}
-      <div
-        className="relative overflow-hidden"
-        style={{ minHeight: "148px", borderRadius: "16px" }}
-      >
+      <div className="relative min-h-[148px] overflow-hidden rounded-xl bg-[#031033]">
         <Image
           src="/dashboard-banner.png"
           alt="Nupat Cloud infrastructure"
           fill
+          sizes="(min-width: 1200px) 1152px, 100vw"
           className="object-cover object-center"
           priority
         />
-        {/* left-to-right gradient — text readable, image visible right */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(3,16,51,0.92) 0%, rgba(3,16,51,0.75) 45%, rgba(3,16,51,0.18) 100%)",
-          }}
-        />
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 px-7 py-7">
-          <div className="max-w-sm">
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-3 rounded-full text-[11px] text-white font-semibold tracking-wider"
-              style={{
-                background: T.blue,
-              }}
-            >
-              RECOMMENDED FOR YOU
-            </span>
-            <h2
-              className="text-[1.2rem] font-semibold text-white leading-snug mb-1.5"
-              style={{
-                fontFamily:
-                  "SF Pro Display, system-ui, -apple-system, sans-serif",
-                letterSpacing: "-0.025em",
-              }}
-            >
-              Secure your brand extension with .ai and .co domains
+        {/* flat scrim so the copy stays readable over the artwork */}
+        <div className="absolute inset-0 bg-[#031033]/60" />
+        <div className="relative z-10 flex flex-col items-start justify-between gap-5 px-6 py-6 sm:flex-row sm:items-center sm:px-8">
+          <div className="max-w-md">
+            <p className="mb-2 text-xs font-medium text-[#FFC75D]">
+              Recommended for you
+            </p>
+            <h2 className="mb-1 text-lg font-semibold text-white">
+              Secure your brand with .ai and .co domains
             </h2>
-            <p
-              className="text-[13px]"
-              style={{ color: "rgba(255,255,255,0.68)" }}
-            >
-              Expand your business reach. Search globally recognised tech
-              extensions starting from only ₦15,000/year.
+            <p className="text-sm text-white/75">
+              Search .ai, .co and other tech extensions from ₦15,000/year.
             </p>
           </div>
           <Link
             href="/dashboard/domains?tab=register"
             id="promo-banner-cta"
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 whitespace-nowrap"
-            style={{
-              background: T.blue,
-              boxShadow: "0 2px 16px rgba(23,135,212,0.5)",
-            }}
+            className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-white px-4 text-sm font-medium text-[#031033] transition-colors hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            Search Extensions
-            <ArrowRight className="w-4 h-4" />
+            Search extensions
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
 
-      {/* ── Stat cards ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── Service counts: one strip split by hairlines ─────────────────── */}
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#EEF2F7] sm:grid-cols-3">
         <StatCard
-          icon={Globe}
-          label="DOMAINS"
+          label="Domains"
           value={loadingDomains ? "—" : displayDomains}
-          sublabel="Active"
+          sublabel="active"
           href="/dashboard/domains"
-          actionText="View Domains"
-          iconBg="bg-[#eff6fb]"
+          actionText="View domains"
           loading={isLoading || loadingDomains}
         />
         <StatCard
-          icon={Server}
-          label="HOSTING"
+          label="Hosting"
           value={loadingHosting ? "—" : displayHosting}
-          sublabel="Active"
+          sublabel="active"
           href="/dashboard/hosting"
-          actionText="View Hosting"
-          iconBg="bg-[#eff6fb]"
+          actionText="View hosting"
           loading={isLoading || loadingHosting}
         />
         <StatCard
-          icon={Mail}
-          label="PRIVATE EMAIL"
-          value={displayEmail}
-          sublabel="Mailboxes"
-          href="/dashboard/email"
-          actionText="Temporarily Disabled"
-          iconBg="bg-[#eff6fb]"
-          disabled={true}
-          loading={isLoading}
-        />
-        <StatCard
-          icon={ShieldCheck}
-          label="SSL CERTIFICATES"
+          label="SSL certificates"
           value={loadingSsl ? "—" : displaySsl}
-          sublabel="Active"
+          sublabel="active"
           href="/dashboard/ssl"
-          actionText="View Certificates"
-          iconBg="bg-[#eff6fb]"
+          actionText="View certificates"
           loading={isLoading || loadingSsl}
         />
       </div>
 
       {/* ── Two-column lower section ──────────────────────────────────────── */}
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid gap-6 md:grid-cols-2">
         <AttentionRequired items={attentionItems} loading={loadingAttention} />
         <QuickActions />
       </div>
 
       {/* ── Help / knowledge base strip ──────────────────────────────────── */}
-      <div
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 py-5"
-        style={{
-          background: T.parchment,
-          border: `1px solid ${T.hairline}`,
-          borderRadius: "14px",
-        }}
-      >
+      <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-[#E2E8F0] bg-white px-5 py-4 sm:flex-row sm:items-center">
         <div>
-          <p
-            className="text-[14px] font-semibold"
-            style={{
-              color: T.ink,
-              fontFamily:
-                "SF Pro Display, system-ui, -apple-system, sans-serif",
-            }}
-          >
+          <p className="text-sm font-medium text-[#031033]">
             Need help setting up your hosting or domain?
           </p>
-          <p className="text-[13px] mt-0.5" style={{ color: T.inkMuted }}>
-            Check our step-by-step documentation guides or open a ticket with
-            our support engineers.
+          <p className="mt-0.5 text-sm text-[#5A6A85]">
+            Read the step-by-step guides or open a ticket with our support
+            engineers.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           <a
             href={DOCS_URL}
             target="_blank"
             rel="noopener noreferrer"
             id="dashboard-knowledge-base"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-            style={{ background: T.blue }}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#D5DCE6] bg-white px-4 text-sm font-medium text-[#031033] transition-colors hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Knowledge Base ↗
+            Knowledge base ↗
           </a>
           <Link
             href="/dashboard/tickets"
             id="dashboard-open-ticket"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-150 hover:bg-white active:scale-95"
-            style={{
-              color: T.ink,
-              border: `1px solid ${T.hairline}`,
-              background: T.canvas,
-            }}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-medium text-[#1787D4] transition-colors hover:bg-[#E8F4FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Open a Ticket
-            <ArrowRight className="w-3.5 h-3.5" />
+            Open a ticket
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>

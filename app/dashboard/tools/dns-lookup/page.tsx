@@ -8,14 +8,11 @@ import {
   Search,
   Loader2,
   Globe,
-  Server,
   Copy,
   Check,
   AlertCircle,
   Code,
   ShieldCheck,
-  Mail,
-  Network,
   RefreshCw,
 } from "lucide-react";
 import { lookupDns, DnsRecordsData, DnsRecordSOA } from "@/lib/api";
@@ -31,24 +28,26 @@ interface NormalizedRecord {
   badgeColor: { bg: string; text: string; border: string };
 }
 
+// Record types share one neutral chip: the type is identity, not status.
 function getBadgeColors(type: string) {
+  const neutral = { bg: "", text: "text-[#031033]", border: "border-transparent" };
   switch (type) {
     case "A":
-      return { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" };
+      return neutral;
     case "AAAA":
-      return { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-200" };
+      return neutral;
     case "CNAME":
-      return { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" };
+      return neutral;
     case "MX":
-      return { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" };
+      return neutral;
     case "TXT":
-      return { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200" };
+      return neutral;
     case "NS":
-      return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" };
+      return neutral;
     case "SOA":
-      return { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200" };
+      return neutral;
     default:
-      return { bg: "bg-gray-50", text: "text-gray-700", border: "border-gray-200" };
+      return neutral;
   }
 }
 
@@ -229,27 +228,19 @@ function DnsLookupContent() {
         <Link
           href="/dashboard/tools"
           id="btn-back-tools"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1787D4] hover:text-[#1371B5] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Tools
+          Back to tools
         </Link>
       </div>
 
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2
-            className="text-[26px] font-bold text-[#1d1d1f] tracking-tight"
-            style={{
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            DNS Lookup
-          </h2>
-          <p className="text-[14px] mt-1 text-[#6e6e73]">
-            Query live authoritative DNS records, nameservers, mail exchanges, and zone SOA parameters.
+          <h1 className="text-2xl font-semibold text-[#031033]">DNS lookup</h1>
+          <p className="text-sm mt-1 text-[#5A6A85]">
+            Query live authoritative DNS records, nameservers, mail exchanges and zone SOA parameters.
           </p>
         </div>
 
@@ -257,19 +248,19 @@ function DnsLookupContent() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowRawJson(!showRawJson)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#D5DCE6] text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium rounded-lg transition-colors cursor-pointer"
               title="Toggle JSON View"
             >
-              <Code className="w-3.5 h-3.5" />
+              <Code className="w-3.5 h-3.5 text-[#5A6A85]" />
               {showRawJson ? "Hide JSON" : "Raw JSON"}
             </button>
             <button
               onClick={() => executeLookup(domain)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#D5DCE6] text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Refresh DNS Lookup"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#5A6A85] ${loading ? "animate-spin" : ""}`} />
               Refresh
             </button>
           </div>
@@ -277,23 +268,23 @@ function DnsLookupContent() {
       </div>
 
       {/* Search Input Box */}
-      <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
-            <Globe className="w-4 h-4 text-[#8a9bb2] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Globe className="w-4 h-4 text-[#5A6A85] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Enter a domain name (e.g. yourdomain.com)"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
+              className="w-full pl-10 pr-4 h-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto h-10 px-5 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             {loading ? (
               <>
@@ -303,7 +294,7 @@ function DnsLookupContent() {
             ) : (
               <>
                 <Search className="w-4 h-4" />
-                Lookup DNS
+                Look up DNS
               </>
             )}
           </button>
@@ -312,15 +303,15 @@ function DnsLookupContent() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 text-red-700">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+        <div className="bg-[#FDECEC] border border-[#DC2626]/20 rounded-lg px-4 py-3 flex items-start gap-3 text-[#C21F1F]">
+          <AlertCircle className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-[13.5px] font-semibold">DNS Lookup Error</h4>
-            <p className="text-[12.5px] mt-0.5 text-red-600">{error}</p>
+            <h4 className="text-sm font-medium">DNS lookup failed</h4>
+            <p className="text-xs mt-0.5 text-[#C21F1F]">{error}</p>
           </div>
           <button
             onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-600 text-[12px] font-medium cursor-pointer"
+            className="text-[#C21F1F]/70 hover:text-[#C21F1F] text-xs font-medium cursor-pointer"
           >
             Dismiss
           </button>
@@ -329,25 +320,22 @@ function DnsLookupContent() {
 
       {/* Loading Skeleton */}
       {loading && !dnsData && (
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-8 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-[14px] font-medium text-[#1d1d1f]">Resolving DNS records for {domain}...</p>
-          <p className="text-[12.5px] text-[#6e6e73]">Querying nameservers, mail exchangers, and address records</p>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 flex flex-col items-center justify-center gap-3 text-center">
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm font-medium text-[#031033]">Resolving DNS records for {domain}…</p>
+          <p className="text-xs text-[#5A6A85]">Querying nameservers, mail exchangers and address records</p>
         </div>
       )}
 
       {/* Initial Empty State (When no search has been performed yet) */}
       {!loading && !dnsData && !error && !hasLookedUp && (
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-12 shadow-sm text-center">
-          <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-            <div className="w-10 h-10 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
-              <Network className="w-5 h-5" />
-            </div>
-            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] px-6 py-10 text-center">
+          <div className="flex flex-col items-center justify-center gap-1 max-w-sm mx-auto">
+            <p className="text-sm font-medium text-[#031033]">
               No DNS lookup performed yet
             </p>
-            <p className="text-[12.5px] text-[#6e6e73]">
-              Enter a domain name above and click &ldquo;Lookup DNS&rdquo; to query live records, nameservers, and mail servers.
+            <p className="text-sm text-[#5A6A85]">
+              Enter a domain name above and select &ldquo;Look up DNS&rdquo; to query live records, nameservers and mail servers.
             </p>
           </div>
         </div>
@@ -356,85 +344,65 @@ function DnsLookupContent() {
       {/* Overview Cards */}
       {dnsData && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#EEF2F7] sm:grid-cols-4">
             {/* Total Records */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Total Records</span>
-                <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
-                  <Network className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-2 text-[22px] font-bold text-[#1d1d1f]">
+            <div className="bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Total records</span>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-[#031033]">
                 {allRecords.length}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">Found across 7 record types</p>
+              <p className="mt-0.5 text-xs text-[#5A6A85]">Found across 7 record types</p>
             </div>
 
             {/* IPv4 (A) */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">IPv4 Addresses</span>
-                <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
-                  <Server className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-2 text-[22px] font-bold text-[#1d1d1f]">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">IPv4 addresses</span>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-[#031033]">
                 {dnsData.records?.A?.length || 0}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
-                {dnsData.records?.A?.[0] ? dnsData.records.A[0] : "No A record"}
+              <p className="mt-0.5 truncate text-xs text-[#5A6A85]">
+                {dnsData.records?.A?.[0] ? <span className="font-mono">{dnsData.records.A[0]}</span> : "No A record"}
               </p>
             </div>
 
             {/* Mail Exchanges (MX) */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Mail Servers</span>
-                <div className="w-7 h-7 rounded-lg bg-[#faf5ff] text-[#9333ea] flex items-center justify-center">
-                  <Mail className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-2 text-[22px] font-bold text-[#1d1d1f]">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Mail servers</span>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-[#031033]">
                 {dnsData.records?.MX?.length || 0}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
-                {dnsData.records?.MX?.[0] ? dnsData.records.MX[0].exchange : "No MX records"}
+              <p className="mt-0.5 truncate text-xs text-[#5A6A85]">
+                {dnsData.records?.MX?.[0] ? <span className="font-mono">{dnsData.records.MX[0].exchange}</span> : "No MX records"}
               </p>
             </div>
 
             {/* Nameservers (NS) */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Nameservers</span>
-                <div className="w-7 h-7 rounded-lg bg-[#ecfdf5] text-[#059669] flex items-center justify-center">
-                  <Globe className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-2 text-[22px] font-bold text-[#1d1d1f]">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Nameservers</span>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-[#031033]">
                 {dnsData.records?.NS?.length || 0}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
-                {dnsData.records?.NS?.[0] ? dnsData.records.NS[0] : "No NS records"}
+              <p className="mt-0.5 truncate text-xs text-[#5A6A85]">
+                {dnsData.records?.NS?.[0] ? <span className="font-mono">{dnsData.records.NS[0]}</span> : "No NS records"}
               </p>
             </div>
           </div>
 
           {/* Raw JSON viewer */}
           {showRawJson && (
-            <div className="bg-[#031033] text-[#e2eaff] rounded-lg p-5 shadow-sm border border-[#1e293b]">
+            <div className="bg-[#031033] text-[#E2E8F0] rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Code className="w-4 h-4 text-[#38bdf8]" />
-                  <span className="text-[13px] font-semibold text-white">JSON Response Payload</span>
+                  <Code className="w-4 h-4 text-white/60" />
+                  <span className="text-sm font-medium text-white">JSON response</span>
                 </div>
                 <button
                   onClick={() => handleCopy(JSON.stringify(dnsData, null, 2), "raw-json")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-[12px] font-medium rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
                 >
                   {copiedKey === "raw-json" ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-[#4AC3B4]" />
                       <span>Copied JSON</span>
                     </>
                   ) : (
@@ -445,7 +413,7 @@ function DnsLookupContent() {
                   )}
                 </button>
               </div>
-              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-emerald-300">
+              <pre className="text-xs font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-[#E2E8F0]">
                 {JSON.stringify(dnsData, null, 2)}
               </pre>
             </div>
@@ -453,15 +421,12 @@ function DnsLookupContent() {
 
           {/* SOA Zone Parameters Card */}
           {soa && (selectedType === "ALL" || selectedType === "SOA") && (
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3 mb-4">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div className="flex items-center justify-between border-b border-[#EEF2F7] pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 border border-violet-200 flex items-center justify-center font-bold text-[12px]">
-                    SOA
-                  </div>
                   <div>
-                    <h3 className="text-[15px] font-bold text-[#1d1d1f]">Start of Authority (SOA)</h3>
-                    <p className="text-[12px] text-[#6e6e73]">Zone authority and replication parameters</p>
+                    <h3 className="text-base font-semibold text-[#031033]">Start of Authority (SOA)</h3>
+                    <p className="text-xs text-[#5A6A85]">Zone authority and replication parameters</p>
                   </div>
                 </div>
                 <button
@@ -471,51 +436,51 @@ function DnsLookupContent() {
                       "soa-data",
                     )
                   }
-                  className="text-[12px] text-[#1787D4] hover:text-[#1371B5] font-medium inline-flex items-center gap-1 cursor-pointer"
+                  className="text-sm text-[#1787D4] hover:text-[#1370B5] font-medium inline-flex items-center gap-1 cursor-pointer"
                 >
-                  {copiedKey === "soa-data" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedKey === "soa-data" ? <Check className="w-3.5 h-3.5 text-[#0E7C3A]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copiedKey === "soa-data" ? "Copied" : "Copy SOA"}
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-[13px]">
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Primary Nameserver</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold break-all">{soa.nsname}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Primary nameserver</span>
+                  <span className="font-mono text-[#031033] font-medium break-all">{soa.nsname}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Hostmaster / Authority</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold break-all">{soa.hostmaster}</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Hostmaster / authority</span>
+                  <span className="font-mono text-[#031033] font-medium break-all">{soa.hostmaster}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Serial Number</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold">{soa.serial}</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Serial number</span>
+                  <span className="font-mono text-[#031033] font-medium">{soa.serial}</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Minimum TTL</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold">{soa.minttl}s ({Math.round(soa.minttl / 3600)}h)</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Minimum TTL</span>
+                  <span className="font-mono text-[#031033] font-medium">{soa.minttl}s ({Math.round(soa.minttl / 3600)}h)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Refresh Interval</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold">{soa.refresh}s ({Math.round(soa.refresh / 60)}m)</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Refresh interval</span>
+                  <span className="font-mono text-[#031033] font-medium">{soa.refresh}s ({Math.round(soa.refresh / 60)}m)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Retry Interval</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold">{soa.retry}s ({Math.round(soa.retry / 60)}m)</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                  <span className="text-xs text-[#5A6A85] block">Retry interval</span>
+                  <span className="font-mono text-[#031033] font-medium">{soa.retry}s ({Math.round(soa.retry / 60)}m)</span>
                 </div>
-                <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8] sm:col-span-2">
-                  <span className="text-[11.5px] text-[#6e6e73] font-medium block">Expire Limit</span>
-                  <span className="font-mono text-[#1d1d1f] font-semibold">{soa.expire}s ({Math.round(soa.expire / 86400)} days)</span>
+                <div className="bg-[#F2F5FC] p-3 rounded-lg sm:col-span-2">
+                  <span className="text-xs text-[#5A6A85] block">Expire limit</span>
+                  <span className="font-mono text-[#031033] font-medium">{soa.expire}s ({Math.round(soa.expire / 86400)} days)</span>
                 </div>
               </div>
             </div>
           )}
 
           {/* Record Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 border-b border-[#e2eaff] pb-1">
+          <div className="flex items-center gap-5 overflow-x-auto border-b border-[#E2E8F0]">
             {(
               [
-                { key: "ALL", label: "All Records" },
+                { key: "ALL", label: "All records" },
                 { key: "A", label: "A (IPv4)" },
                 { key: "AAAA", label: "AAAA (IPv6)" },
                 { key: "CNAME", label: "CNAME" },
@@ -531,20 +496,16 @@ function DnsLookupContent() {
                 <button
                   key={tab.key}
                   onClick={() => setSelectedType(tab.key)}
-                  className={`px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`-mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 py-2.5 text-sm font-medium transition-colors cursor-pointer ${
                     isActive
-                      ? "bg-[#1787D4] text-white shadow-sm"
-                      : "bg-white text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#1d1d1f] border border-transparent"
+                      ? "border-[#1787D4] text-[#031033]"
+                      : "border-transparent text-[#5A6A85] hover:text-[#031033]"
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`text-[10.5px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : count > 0
-                        ? "bg-[#eef2f8] text-[#5a6a85]"
-                        : "bg-gray-100 text-gray-400"
+                    className={`rounded-full px-1.5 text-xs font-medium tabular-nums ${
+                      count > 0 ? "bg-[#F2F5FC] text-[#5A6A85]" : "text-[#5A6A85]/70"
                     }`}
                   >
                     {count}
@@ -555,58 +516,59 @@ function DnsLookupContent() {
           </div>
 
           {/* Records Table */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] w-24">Type</th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] w-48">Host / Name</th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">Value / Target</th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right w-24">Action</th>
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85] w-24">Type</th>
+                    <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85] w-48">Host / name</th>
+                    <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85]">Value / target</th>
+                    <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85] text-right w-24"><span className="sr-only">Action</span></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f2f5fc]">
+                <tbody className="divide-y divide-[#EEF2F7]">
                   {filteredRecords.length > 0 ? (
                     filteredRecords.map((r) => {
                       const isCopied = copiedKey === r.id;
                       return (
-                        <tr key={r.id} className="hover:bg-[#fbfcfe] transition-colors group">
+                        <tr key={r.id} className="hover:bg-[#F2F5FC]/60 transition-colors group">
                           {/* Type Badge */}
-                          <td className="py-4 px-6 align-top">
+                          <td className="py-3 px-5 align-top">
                             <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${r.badgeColor.bg} ${r.badgeColor.text} ${r.badgeColor.border}`}
+                              className={`inline-flex items-center text-sm font-medium font-mono ${r.badgeColor.bg} ${r.badgeColor.text} ${r.badgeColor.border}`}
                             >
                               {r.type}
                             </span>
                           </td>
 
                           {/* Host */}
-                          <td className="py-4 px-6 text-[13px] font-medium text-[#1d1d1f] align-top font-mono">
+                          <td className="py-3 px-5 text-sm text-[#031033] align-top font-mono">
                             {r.host}
                           </td>
 
                           {/* Value */}
-                          <td className="py-4 px-6 text-[13px] text-[#1d1d1f] align-top">
-                            <div className="font-mono break-all text-[#2a3b50] leading-relaxed">
+                          <td className="py-3 px-5 text-sm text-[#031033] align-top">
+                            <div className="font-mono break-all text-[#031033]">
                               {r.value}
                             </div>
                             {r.extra && (
-                              <div className="mt-1 text-[11.5px] text-[#6e6e73] font-medium">
+                              <div className="mt-1 text-xs text-[#5A6A85]">
                                 {r.extra}
                               </div>
                             )}
                           </td>
 
                           {/* Action (Copy) */}
-                          <td className="py-4 px-6 text-right align-top">
+                          <td className="py-3 px-5 text-right align-top">
                             <button
                               onClick={() => handleCopy(r.value, r.id)}
-                              className="p-1.5 rounded-lg border border-transparent hover:border-[#e2eaff] hover:bg-[#f8fafc] text-[#8a9bb2] hover:text-[#1787D4] transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg text-[#5A6A85] hover:bg-[#F2F5FC] hover:text-[#031033] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                               title="Copy value"
+                              aria-label="Copy value"
                             >
                               {isCopied ? (
-                                <Check className="w-4 h-4 text-emerald-600" />
+                                <Check className="w-4 h-4 text-[#0E7C3A]" />
                               ) : (
                                 <Copy className="w-4 h-4" />
                               )}
@@ -617,13 +579,12 @@ function DnsLookupContent() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={4} className="py-12 px-6 text-center">
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <AlertCircle className="w-8 h-8 text-[#8a9bb2]" />
-                          <p className="text-[14px] font-medium text-[#1d1d1f]">
+                      <td colSpan={4} className="py-10 px-5 text-center">
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <p className="text-sm font-medium text-[#031033]">
                             No {selectedType === "ALL" ? "" : selectedType} records found
                           </p>
-                          <p className="text-[12.5px] text-[#6e6e73]">
+                          <p className="text-sm text-[#5A6A85]">
                             The queried domain does not currently advertise active {selectedType} records.
                           </p>
                         </div>
@@ -645,8 +606,8 @@ export default function DnsLookupToolPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-[14px] text-[#6e6e73]">Loading DNS Lookup Tool...</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading DNS lookup…</p>
         </div>
       }
     >

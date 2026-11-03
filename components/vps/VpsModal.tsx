@@ -6,8 +6,6 @@ import { X, type LucideIcon } from "lucide-react";
 export default function VpsModal({
   title,
   description,
-  icon: Icon,
-  iconClassName = "bg-[#eff6fc] text-[#1787D4] border-[#d6eaf8]",
   onClose,
   children,
   footer,
@@ -16,6 +14,7 @@ export default function VpsModal({
 }: {
   title: string;
   description?: ReactNode;
+  /** Accepted for compatibility; modal headers no longer render an icon chip. */
   icon?: LucideIcon;
   iconClassName?: string;
   onClose: () => void;
@@ -49,37 +48,28 @@ export default function VpsModal({
       aria-labelledby={titleId}
     >
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#031033]/40"
         onClick={() => {
           if (!busy) onClose();
         }}
       />
 
       <div
-        className={`relative w-full ${maxWidth} max-h-[92vh] flex flex-col bg-white rounded-xl border border-[#e8e8ed] shadow-2xl overflow-hidden`}
+        className={`relative w-full ${maxWidth} max-h-[92vh] flex flex-col bg-white rounded-xl shadow-xl overflow-hidden`}
       >
-        <div className="flex items-start justify-between gap-4 px-5 sm:px-6 py-4 border-b border-[#eef2f8]">
-          <div className="flex items-start gap-3 min-w-0">
-            {Icon && (
-              <div
-                className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${iconClassName}`}
-              >
-                <Icon className="w-[18px] h-[18px]" />
-              </div>
-            )}
-            <div className="min-w-0">
+        <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-[#EEF2F7]">
+          <div className="min-w-0">
               <h2
                 id={titleId}
-                className="text-[15.5px] font-bold text-[#1d1d1f] leading-tight"
+                className="text-lg font-semibold text-[#031033] leading-tight"
               >
                 {title}
               </h2>
               {description && (
-                <div className="text-[12.5px] text-[#6e6e73] mt-0.5 leading-snug">
+                <div className="text-sm text-[#5A6A85] mt-1 leading-snug">
                   {description}
                 </div>
               )}
-            </div>
           </div>
 
           <button
@@ -87,16 +77,16 @@ export default function VpsModal({
             onClick={onClose}
             disabled={busy}
             aria-label="Close dialog"
-            className="p-1.5 rounded-lg text-[#8a9bb2] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors disabled:opacity-50 shrink-0"
+            className="p-1.5 -mr-1.5 -mt-1 rounded-lg text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="px-5 sm:px-6 py-5 overflow-y-auto">{children}</div>
+        <div className="px-6 py-5 overflow-y-auto">{children}</div>
 
         {footer && (
-          <div className="px-5 sm:px-6 py-4 border-t border-[#eef2f8] bg-[#fbfcfe] flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+          <div className="px-6 py-4 border-t border-[#EEF2F7] flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
             {footer}
           </div>
         )}

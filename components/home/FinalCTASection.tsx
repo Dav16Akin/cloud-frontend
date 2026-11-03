@@ -1,31 +1,14 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Search } from "lucide-react";
-import { motion } from "motion/react";
 
 export default function FinalCTASection() {
   return (
     <section
       id="final-cta"
-      className="py-12 sm:py-16 relative overflow-hidden bg-linear-to-b from-[#031033] via-[#051640] to-[#020b24]"
+      className="py-16 sm:py-24 relative overflow-hidden bg-[#031033]"
     >
-      {/* Ambient background glows with pulse motion */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.18, 0.1],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-100 bg-blue-500 rounded-full blur-[100px] pointer-events-none"
-      />
-
-      {/* Background Curvelines */}
+      {/* Background curvelines */}
       <div className="absolute -top-12 -left-20 pointer-events-none select-none z-0 hidden sm:block">
         <Image
           src="/curveline.png"
@@ -48,56 +31,34 @@ export default function FinalCTASection() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <h2 className="type-h2 text-white mb-3">
-            <span className="relative inline-block pb-1">
-              Start Building Online with Confidence
-            </span>
-          </h2>
+        <h2 className="type-h2 text-white mb-3">
+          Get your business online with Nupat Cloud
+        </h2>
 
-          <p className="type-lead text-slate-300 leading-relaxed mb-6 max-w-2xl mx-auto">
-            Get ultra-fast NVMe hosting, instant domain registrations, secure
-            business emails, and African cloud infrastructure backed by 24/7
-            technical support.
-          </p>
+        <p className="type-lead text-white/70 leading-relaxed mb-8 max-w-2xl mx-auto">
+          NVMe hosting, domain registration and African cloud infrastructure,
+          backed by 24/7 technical support.
+        </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto"
-            >
-              <Link
-                href="/register"
-                id="final-cta-get-started"
-                className="btn-primary !rounded-full py-2.5 px-6 text-[14px] font-medium text-white shadow-md w-full sm:w-auto cursor-pointer inline-flex items-center justify-center gap-2"
-              >
-                Get Started Free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            href="/register"
+            id="final-cta-get-started"
+            className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium transition-colors w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#031033]"
+          >
+            Create a free account
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto"
-            >
-              <Link
-                href="/domains"
-                id="final-cta-search-domain"
-                className="btn-outline-white !rounded-full py-2.5 px-6 text-[14px] font-medium text-white backdrop-blur-md transition-all duration-200 w-full sm:w-auto cursor-pointer inline-flex items-center justify-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Search Domains
-              </Link>
-            </motion.div>
-          </div>
-        </motion.div>
+          <Link
+            href="/domains"
+            id="final-cta-search-domain"
+            className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg border border-white/25 text-white hover:bg-white/10 text-sm font-medium transition-colors w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#031033]"
+          >
+            <Search className="w-4 h-4" aria-hidden="true" />
+            Search domains
+          </Link>
+        </div>
       </div>
     </section>
   );

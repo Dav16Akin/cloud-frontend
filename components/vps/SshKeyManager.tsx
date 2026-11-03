@@ -60,10 +60,10 @@ function AddSshKeyForm({
   };
 
   return (
-    <div className="rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] p-3.5 flex flex-col gap-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] p-4 flex flex-col gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[11.5px] font-semibold text-[#1d1d1f] block mb-1.5">
+          <label className="text-sm font-medium text-[#031033] block mb-1.5">
             Key name
           </label>
           <input
@@ -72,16 +72,16 @@ function AddSshKeyForm({
             onChange={(event) => setName(event.target.value)}
             placeholder="e.g. laptop"
             maxLength={50}
-            className="w-full rounded-lg border border-[#e8e8ed] bg-white px-3 py-2 text-[13px] text-[#1d1d1f] placeholder:text-[#aeaeb2] focus:outline-none focus:border-[#1787D4] transition-colors"
+            className="w-full h-10 rounded-lg border border-[#D5DCE6] bg-white px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
           />
         </div>
-        <div className="text-[11px] text-[#6e6e73] flex items-end pb-1.5 leading-snug">
+        <div className="text-xs text-[#5A6A85] flex items-end pb-1.5 leading-snug">
           A public key is safe to share. We never see your private key.
         </div>
       </div>
 
       <div>
-        <label className="text-[11.5px] font-semibold text-[#1d1d1f] block mb-1.5">
+        <label className="text-sm font-medium text-[#031033] block mb-1.5">
           Public key
         </label>
         <textarea
@@ -89,15 +89,15 @@ function AddSshKeyForm({
           onChange={(event) => setPublicKey(event.target.value)}
           rows={compact ? 2 : 3}
           placeholder="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA… you@example"
-          className="w-full rounded-lg border border-[#e8e8ed] bg-white px-3 py-2 text-[12px] font-mono text-[#1d1d1f] placeholder:text-[#aeaeb2] focus:outline-none focus:border-[#1787D4] transition-colors resize-y"
+          className="w-full rounded-lg border border-[#D5DCE6] bg-white px-3 py-2 text-xs font-mono text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors resize-y"
         />
-        <p className="text-[10.5px] text-[#8a9bb2] mt-1">
-          Usually found at ~/.ssh/id_ed25519.pub
+        <p className="text-xs text-[#5A6A85] mt-1.5">
+          Usually found at <span className="font-mono">~/.ssh/id_ed25519.pub</span>
         </p>
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 text-[11.5px] text-red-600">
+        <div className="flex items-start gap-2 text-xs text-[#C21F1F]">
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -109,7 +109,7 @@ function AddSshKeyForm({
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors disabled:opacity-50"
+            className="inline-flex items-center h-8 px-3 rounded-lg text-sm font-medium text-[#5A6A85] hover:text-[#031033] hover:bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
@@ -118,7 +118,7 @@ function AddSshKeyForm({
           type="button"
           onClick={submit}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold transition-colors disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -161,14 +161,14 @@ export function SshKeyPicker({
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between gap-3">
-        <label className="text-[12px] font-semibold text-[#1d1d1f]">
-          SSH key {required && <span className="text-red-500">*</span>}
+        <label className="text-sm font-medium text-[#031033]">
+          SSH key {required && <span className="text-[#C21F1F]">*</span>}
         </label>
         {!noKeys && (
           <button
             type="button"
             onClick={() => setShowForm((value) => !value)}
-            className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1787D4] hover:text-[#1371B5]"
+            className="inline-flex items-center gap-1 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <Plus className="w-3.5 h-3.5" />
             {showForm ? "Close form" : "Add key"}
@@ -177,8 +177,8 @@ export function SshKeyPicker({
       </div>
 
       {noKeys && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11.5px] text-amber-800 flex items-start gap-2">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+        <div className="rounded-lg border border-[#E8900A]/25 bg-[#FFF4E0] px-4 py-3 text-sm text-[#9A5B00] flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             Add an SSH key to continue. We never store root passwords, so a key
             is the only way to log in to your server.
@@ -198,9 +198,8 @@ export function SshKeyPicker({
       )}
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-[12px] text-[#6e6e73] py-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1787D4]" />
-          Loading your keys…
+        <div className="flex flex-col gap-2" aria-label="Loading your keys">
+          <div className="h-14 rounded-lg bg-[#EEF2F7] animate-pulse" />
         </div>
       )}
 
@@ -213,29 +212,29 @@ export function SshKeyPicker({
                 key={key.id}
                 type="button"
                 onClick={() => onSelect(key.id)}
-                className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-all ${
+                className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors ${
                   selected
-                    ? "border-[#1787D4] bg-[#f6fbff] ring-2 ring-[#1787D4]/10"
-                    : "border-[#e8e8ed] bg-white hover:border-[#c9d8e8]"
+                    ? "border-[#1787D4] bg-[#E8F4FC] ring-2 ring-[#1787D4]/15"
+                    : "border-[#E2E8F0] bg-white hover:border-[#D5DCE6]"
                 }`}
               >
                 <span
                   className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
                     selected
                       ? "border-[#1787D4] bg-[#1787D4]"
-                      : "border-[#c8c8cc] bg-white"
+                      : "border-[#D5DCE6] bg-white"
                   }`}
                 >
                   {selected && (
                     <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                   )}
                 </span>
-                <KeyRound className="w-4 h-4 text-[#1787D4] shrink-0" />
+                <KeyRound className="w-4 h-4 text-[#5A6A85] shrink-0" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12.5px] font-semibold text-[#1d1d1f] truncate">
+                  <span className="block text-sm font-medium text-[#031033] truncate">
                     {key.name}
                   </span>
-                  <span className="block text-[10.5px] font-mono text-[#8a9bb2] truncate">
+                  <span className="block text-xs font-mono text-[#5A6A85] truncate">
                     {key.fingerprint ?? key.publicKey.slice(0, 42) + "…"}
                   </span>
                 </span>
@@ -261,25 +260,22 @@ export function SshKeyManager() {
     <>
       <div
         id="ssh-keys"
-        className="bg-white rounded-[14px] border border-[#e8e8ed] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden scroll-mt-24"
+        className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden scroll-mt-24"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[#eef2f8]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-[#EEF2F7]">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] text-[#1787D4] flex items-center justify-center shrink-0">
-              <KeyRound className="w-[18px] h-[18px]" />
-            </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-                  SSH Keys
+                <h3 className="text-base font-semibold text-[#031033]">
+                  SSH keys
                 </h3>
                 {keys && keys.length > 0 && (
-                  <span className="text-[10.5px] font-bold text-[#1787D4] bg-[#eff6fc] border border-[#d6eaf8] px-2 py-0.5 rounded-full">
+                  <span className="text-sm tabular-nums text-[#5A6A85]">
                     {keys.length}
                   </span>
                 )}
               </div>
-              <p className="text-[12px] text-[#6e6e73] mt-0.5">
+              <p className="text-xs text-[#5A6A85] mt-0.5">
                 Keys used to access the servers you deploy.
               </p>
             </div>
@@ -288,14 +284,14 @@ export function SshKeyManager() {
           <button
             type="button"
             onClick={() => setShowForm((value) => !value)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#e8e8ed] bg-white hover:bg-[#f8fafc] text-[12.5px] font-semibold text-[#1d1d1f] transition-colors shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
-            <Plus className="w-3.5 h-3.5 text-[#1787D4]" />
+            <Plus className="w-4 h-4 text-[#5A6A85]" />
             {showForm ? "Close" : "Add SSH key"}
           </button>
         </div>
 
-        <div className="p-5 sm:p-6">
+        <div className="p-5">
           {showForm && (
             <div className="mb-4">
               <AddSshKeyForm
@@ -306,22 +302,22 @@ export function SshKeyManager() {
           )}
 
           {isLoading && (
-            <div className="flex items-center justify-center py-8 gap-2 text-[12.5px] text-[#6e6e73]">
-              <Loader2 className="w-4 h-4 animate-spin text-[#1787D4]" />
-              Loading SSH keys…
+            <div className="flex flex-col gap-2" aria-label="Loading SSH keys">
+              <div className="h-14 rounded-lg bg-[#EEF2F7] animate-pulse" />
+              <div className="h-14 rounded-lg bg-[#EEF2F7] animate-pulse" />
             </div>
           )}
 
           {isError && !isLoading && (
             <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
-              <AlertCircle className="w-6 h-6 text-red-400" />
-              <p className="text-[12.5px] text-[#6e6e73]">
+              <AlertCircle className="w-5 h-5 text-[#DC2626]" />
+              <p className="text-sm text-[#5A6A85]">
                 Could not load your SSH keys.
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="text-[12px] font-semibold text-[#1787D4] hover:underline"
+                className="rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Try again
               </button>
@@ -330,53 +326,48 @@ export function SshKeyManager() {
 
           {!isLoading && !isError && keys && keys.length === 0 && !showForm && (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="w-11 h-11 rounded-lg bg-[#f5f5f7] flex items-center justify-center mb-2.5">
-                <KeyRound className="w-5 h-5 text-[#aeaeb2]" />
-              </div>
-              <p className="text-[13px] font-semibold text-[#1d1d1f]">
+              <p className="text-sm font-semibold text-[#031033]">
                 No SSH keys yet
               </p>
-              <p className="text-[12px] text-[#6e6e73] mt-0.5 max-w-sm">
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-sm">
                 Add one before deploying a server. We never store or email root
                 passwords.
               </p>
               <button
                 type="button"
                 onClick={() => setShowForm(true)}
-                className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold transition-colors"
+                className="mt-4 inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 Add your first key
               </button>
             </div>
           )}
 
           {!isLoading && keys && keys.length > 0 && (
-            <div className="divide-y divide-[#f2f5fc] rounded-lg border border-[#eef2f8] overflow-hidden">
+            <div className="divide-y divide-[#EEF2F7] rounded-lg border border-[#EEF2F7] overflow-hidden">
               {keys.map((key) => (
                 <div
                   key={key.id}
-                  className="flex items-center gap-3 px-3.5 py-3 bg-white hover:bg-[#fbfcfe] transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-[#F2F5FC]/60 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#f6fbff] border border-[#e2eefb] text-[#1787D4] flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
+                  <ShieldCheck className="w-4 h-4 text-[#5A6A85] shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-[#1d1d1f] truncate">
+                    <p className="text-sm font-medium text-[#031033] truncate">
                       {key.name}
                     </p>
-                    <p className="text-[10.5px] font-mono text-[#8a9bb2] truncate">
+                    <p className="text-xs font-mono text-[#5A6A85] truncate">
                       {key.fingerprint ?? key.publicKey.slice(0, 52) + "…"}
                     </p>
                   </div>
-                  <span className="hidden sm:block text-[11.5px] text-[#8a9bb2] shrink-0">
+                  <span className="hidden sm:block text-xs text-[#5A6A85] tabular-nums shrink-0">
                     {formatVpsDate(key.createdAt)}
                   </span>
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(key)}
                     aria-label={`Delete ${key.name}`}
-                    className="p-1.5 rounded-lg text-[#8a9bb2] hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+                    className="p-1.5 rounded-lg text-[#5A6A85] hover:text-[#C21F1F] hover:bg-[#FDECEC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -385,7 +376,7 @@ export function SshKeyManager() {
             </div>
           )}
 
-          <p className="text-[10.5px] text-[#8a9bb2] mt-3 leading-relaxed">
+          <p className="text-xs text-[#5A6A85] mt-3 leading-relaxed">
             Removing a key prevents future logins with it, but servers already
             built with the key keep it on their authorised-key list.
           </p>
@@ -397,7 +388,7 @@ export function SshKeyManager() {
           title="Remove SSH key?"
           description={deleteTarget.name}
           icon={Trash2}
-          iconClassName="bg-red-50 text-red-600 border-red-200"
+          iconClassName="bg-[#FDECEC] text-[#C21F1F] border-[#DC2626]/20"
           onClose={() => setDeleteTarget(null)}
           busy={removing}
           footer={
@@ -406,7 +397,7 @@ export function SshKeyManager() {
                 type="button"
                 onClick={() => setDeleteTarget(null)}
                 disabled={removing}
-                className="px-4 py-2 rounded-lg text-[12.5px] font-semibold border border-[#e8e8ed] text-[#6e6e73] hover:bg-[#f5f5f7] transition-colors disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Keep key
               </button>
@@ -418,7 +409,7 @@ export function SshKeyManager() {
                   });
                 }}
                 disabled={removing}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[12.5px] font-semibold transition-colors disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#C21F1F] hover:bg-[#A31919] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {removing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Remove key
@@ -426,7 +417,7 @@ export function SshKeyManager() {
             </>
           }
         >
-          <p className="text-[13px] text-[#5a6a85] leading-relaxed">
+          <p className="text-sm text-[#5A6A85] leading-relaxed">
             You will no longer be able to log in to servers with this key. This
             does not affect servers that were already created with it, and it
             cannot be undone.

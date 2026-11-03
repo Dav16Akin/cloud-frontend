@@ -59,17 +59,14 @@ export function AccountAvatar({
       aria-hidden="true"
       className={cn(
         "relative flex shrink-0 select-none items-center justify-center rounded-full text-white",
-        "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]",
         className,
       )}
       style={{
         width: size,
         height: size,
         fontSize: Math.round(size * 0.38),
-        fontWeight: 700,
-        letterSpacing: "0.01em",
-        background:
-          "linear-gradient(135deg, #4aa9ea 0%, #1787D4 48%, #0b5ea6 100%)",
+        fontWeight: 600,
+        background: "#1787D4",
       }}
     >
       {getInitials(account)}
@@ -108,7 +105,7 @@ function AccountIdentity({
           )}
         </div>
         {account?.email && (
-          <p className={cn("truncate text-[#5a6a85]", emailClassName)}>
+          <p className={cn("truncate text-[#5A6A85]", emailClassName)}>
             {account.email}
           </p>
         )}
@@ -136,14 +133,14 @@ export function UserMenu({
           aria-label="Open account menu"
           className={cn(
             "group inline-flex h-9 items-center gap-1.5 rounded-full pl-0.5 pr-2",
-            "text-[#5a6a85] transition-colors hover:bg-[#f2f5fc] data-[state=open]:bg-[#f2f5fc]",
-            "outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/40 focus-visible:ring-offset-2",
+            "text-[#5A6A85] transition-colors hover:bg-[#F2F5FC] data-[state=open]:bg-[#F2F5FC]",
+            "outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2",
             "cursor-pointer border-none bg-transparent",
           )}
         >
           <AccountAvatar account={account} size={30} />
           <ChevronDown
-            className="h-3.5 w-3.5 text-[#9ba8c0] transition-transform duration-200 group-data-[state=open]:rotate-180"
+            className="h-3.5 w-3.5 text-[#5A6A85] transition-transform duration-200 group-data-[state=open]:rotate-180"
             aria-hidden="true"
           />
         </button>
@@ -155,21 +152,21 @@ export function UserMenu({
           sideOffset={10}
           collisionPadding={12}
           className={cn(
-            "z-50 w-[296px] origin-top-right rounded-2xl border border-[#e2eaff] bg-white p-1.5",
-            "shadow-[0_20px_48px_-12px_rgba(15,23,42,0.24),0_2px_8px_rgba(15,23,42,0.06)]",
-            "animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150",
+            "z-50 w-[296px] origin-top-right rounded-xl border border-[#E2E8F0] bg-white p-1.5",
+            "shadow-[0_12px_32px_rgba(3,16,51,0.12)]",
+            "animate-in fade-in-0 duration-150",
           )}
         >
-          <div className="flex items-center gap-3 rounded-xl px-2.5 py-2.5">
+          <div className="flex items-center gap-3 rounded-lg px-2.5 py-2.5">
             <AccountIdentity
               account={account}
               avatarSize={38}
-              nameClassName="text-[13.5px]"
-              emailClassName="mt-0.5 text-[11.5px]"
+              nameClassName="text-sm"
+              emailClassName="mt-0.5 text-xs"
             />
           </div>
 
-          <DropdownMenu.Separator className="mx-1 my-1 h-px bg-[#edf1fa]" />
+          <DropdownMenu.Separator className="mx-1 my-1 h-px bg-[#E2E8F0]" />
 
           <DropdownMenu.Group className="flex flex-col gap-0.5">
             {ACCOUNT_LINKS.map(({ id, label, href, icon: Icon }) => (
@@ -179,13 +176,13 @@ export function UserMenu({
                   id={id}
                   className={cn(
                     "group/item flex select-none items-center gap-2.5 rounded-lg px-2.5 py-2",
-                    "text-[13px] font-medium text-[#031033] outline-none transition-colors",
-                    "data-[highlighted]:bg-[#f2f5fc] data-[highlighted]:text-[#1787D4]",
+                    "text-sm font-medium text-[#031033] outline-none transition-colors",
+                    "data-[highlighted]:bg-[#F2F5FC] data-[highlighted]:text-[#1787D4]",
                     "cursor-pointer",
                   )}
                 >
                   <Icon
-                    className="h-4 w-4 shrink-0 text-[#8a96ab] transition-colors group-data-[highlighted]/item:text-[#1787D4]"
+                    className="h-4 w-4 shrink-0 text-[#5A6A85] transition-colors group-data-[highlighted]/item:text-[#1787D4]"
                     strokeWidth={1.8}
                     aria-hidden="true"
                   />
@@ -195,7 +192,7 @@ export function UserMenu({
             ))}
           </DropdownMenu.Group>
 
-          <DropdownMenu.Separator className="mx-1 my-1 h-px bg-[#edf1fa]" />
+          <DropdownMenu.Separator className="mx-1 my-1 h-px bg-[#E2E8F0]" />
 
           <DropdownMenu.Item
             id="nav-logout"
@@ -206,8 +203,8 @@ export function UserMenu({
             }}
             className={cn(
               "group/item flex select-none items-center gap-2.5 rounded-lg px-2.5 py-2",
-              "text-[13px] font-medium text-[#031033] outline-none transition-colors cursor-pointer",
-              "data-[highlighted]:bg-red-50 data-[highlighted]:text-red-600",
+              "text-sm font-medium text-[#031033] outline-none transition-colors cursor-pointer",
+              "data-[highlighted]:bg-[#FEF2F2] data-[highlighted]:text-[#DC2626]",
               "data-[disabled]:pointer-events-none data-[disabled]:opacity-60",
             )}
           >
@@ -215,7 +212,7 @@ export function UserMenu({
               <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
             ) : (
               <LogOut
-                className="h-4 w-4 shrink-0 text-[#8a96ab] transition-colors group-data-[highlighted]/item:text-red-500"
+                className="h-4 w-4 shrink-0 text-[#5A6A85] transition-colors group-data-[highlighted]/item:text-[#DC2626]"
                 strokeWidth={1.8}
                 aria-hidden="true"
               />
@@ -239,42 +236,40 @@ export function MobileAccountPanel({
   onLogout: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e2eaff] bg-white p-1.5 shadow-[0_6px_20px_rgba(23,135,212,0.06)]">
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-1.5">
       <div className="flex items-center gap-3 px-2.5 py-2.5">
         <AccountIdentity
           account={account}
           avatarSize={40}
-          nameClassName="text-[14px]"
-          emailClassName="mt-0.5 text-[12px]"
+          nameClassName="text-sm"
+          emailClassName="mt-0.5 text-xs"
         />
       </div>
 
-      <div className="mx-1 my-1 h-px bg-[#edf1fa]" />
+      <div className="mx-1 my-1 h-px bg-[#E2E8F0]" />
 
       <div className="grid grid-cols-2 gap-1 p-1">
         {ACCOUNT_LINKS.map(({ id, label, href, icon: Icon }) => (
           <Link
             key={id}
             href={href}
-            className="flex flex-col gap-2 rounded-xl px-3 py-3 transition-colors hover:bg-[#f2f5fc] active:bg-[#eaf2fc]"
+            className="flex flex-col gap-2 rounded-lg px-3 py-3 transition-colors hover:bg-[#F2F5FC] outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1787D4]/10 text-[#1787D4]">
-              <Icon className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
-            </span>
-            <span className="text-[12.5px] font-semibold leading-tight text-[#031033]">
+            <Icon className="h-5 w-5 text-[#1787D4]" strokeWidth={1.9} aria-hidden="true" />
+            <span className="text-sm font-medium leading-tight text-[#031033]">
               {label}
             </span>
           </Link>
         ))}
       </div>
 
-      <div className="mx-1 my-1 h-px bg-[#edf1fa]" />
+      <div className="mx-1 my-1 h-px bg-[#E2E8F0]" />
 
       <button
         type="button"
         onClick={onLogout}
         disabled={isLoggingOut}
-        className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl border-none bg-transparent px-3 py-2.5 text-left text-[13px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+        className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-3 py-2.5 text-left text-sm font-medium text-[#DC2626] transition-colors hover:bg-[#FEF2F2] outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] disabled:opacity-60"
       >
         {isLoggingOut ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

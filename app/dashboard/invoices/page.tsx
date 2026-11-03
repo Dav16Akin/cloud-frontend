@@ -4,7 +4,6 @@ import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
 import {
   Search,
-  Receipt,
   Globe,
   Server,
   Shield,
@@ -60,6 +59,8 @@ function InvoicesContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusTab>("ALL");
   const [dateRange, setDateRange] = useState<"30" | "7" | "90" | "all">("30");
+  // Reference "now" for the date-range filter, captured once on mount.
+  const [nowMs] = useState(() => Date.now());
 
   // Filtering invoices by status, search, and date range
   const filteredInvoices = useMemo(() => {
@@ -79,7 +80,7 @@ function InvoicesContent() {
       // 2. Date Range Filter
       if (daysLimit !== null && inv.createdAt) {
         const invTime = new Date(inv.createdAt).getTime();
-        const cutoff = Date.parse("2026-10-07T23:59:59Z") - daysLimit * 24 * 60 * 60 * 1000;
+        const cutoff = nowMs - daysLimit * 24 * 60 * 60 * 1000;
         if (invTime < cutoff) {
           return false;
         }
@@ -102,35 +103,38 @@ function InvoicesContent() {
 
       return true;
     });
-  }, [invoices, statusFilter, dateRange, searchQuery]);
+  }, [invoices, statusFilter, dateRange, searchQuery, nowMs]);
+
+  const controlCls =
+    "h-9 appearance-none bg-white border border-[#D5DCE6] rounded-lg pl-3 pr-9 text-sm text-[#031033] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 cursor-pointer";
+  const serviceCards = [
+    { href: "/dashboard/domains?tab=register", Icon: Globe, title: "Domains", body: "Find the right address for your next idea." },
+    { href: "/dashboard/hosting/purchase", Icon: Server, title: "Web hosting", body: "Hosting plans that grow with your site." },
+    { href: "/dashboard/ssl/purchase", Icon: Shield, title: "SSL security", body: "Serve your website over HTTPS." },
+  ];
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* ── Page Header ────────────────────────────────────────────────── */}
       <div>
-        <h1
-          className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-          style={{ letterSpacing: "-0.4px" }}
-        >
-          Invoices
-        </h1>
-        <p className="text-[13.5px] text-[#6e6e73] mt-0.5">
+        <h1 className="text-2xl font-semibold text-[#031033]">Invoices</h1>
+        <p className="text-sm text-[#5A6A85] mt-1">
           View, download, and keep track of invoices for your Nupat Cloud services.
         </p>
       </div>
 
-      {/* ── Top Filters & Search Row (Matches Screen 1) ────────────────── */}
+      {/* ── Top Filters & Search Row ───────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         {/* Search input */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             id="input-search-invoices"
-            placeholder="Search invoice number..."
+            placeholder="Search invoice number"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+            className="h-9 w-full pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
           />
         </div>
 
@@ -140,14 +144,14 @@ function InvoicesContent() {
             id="select-invoice-date-range"
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as "30" | "7" | "90" | "all")}
-            className="appearance-none bg-white border border-[#e2eaff] rounded-xl px-4 py-2.5 pr-9 text-[13px] font-medium text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] cursor-pointer shadow-sm"
+            className={`w-full ${controlCls}`}
           >
             <option value="30">Last 30 days</option>
             <option value="7">Last 7 days</option>
             <option value="90">Last 90 days</option>
             <option value="all">All time</option>
           </select>
-          <ChevronDown className="w-4 h-4 text-[#6e6e73] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-4 h-4 text-[#5A6A85] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Status dropdown */}
@@ -156,7 +160,7 @@ function InvoicesContent() {
             id="select-invoice-status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusTab)}
-            className="appearance-none bg-white border border-[#e2eaff] rounded-xl px-4 py-2.5 pr-9 text-[13px] font-medium text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] cursor-pointer shadow-sm"
+            className={`w-full ${controlCls}`}
           >
             <option value="ALL">All statuses</option>
             <option value="PAID">Paid</option>
@@ -164,139 +168,104 @@ function InvoicesContent() {
             <option value="FAILED">Failed</option>
             <option value="REFUNDED">Refunded</option>
           </select>
-          <ChevronDown className="w-4 h-4 text-[#6e6e73] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-4 h-4 text-[#5A6A85] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
-      {/* ── Filter Pills (All, Paid, Pending, Failed, Refunded) ────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            { id: "ALL", label: "All" },
-            { id: "PAID", label: "Paid" },
-            { id: "PENDING", label: "Pending" },
-            { id: "FAILED", label: "Failed" },
-            { id: "REFUNDED", label: "Refunded" },
-          ] as const
-        ).map((tab) => {
-          const isActive = statusFilter === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              id={`pill-filter-${tab.id.toLowerCase()}`}
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all duration-150 cursor-pointer ${
-                isActive
-                  ? "bg-[#1787D4] text-white shadow-xs font-semibold"
-                  : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:text-[#1d1d1f] hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+      {/* ── Status segmented control (All, Paid, Pending, Failed, Refunded) ── */}
+      <div className="overflow-x-auto">
+        <div className="inline-flex items-center gap-1 rounded-lg bg-[#F2F5FC] p-1">
+          {(
+            [
+              { id: "ALL", label: "All" },
+              { id: "PAID", label: "Paid" },
+              { id: "PENDING", label: "Pending" },
+              { id: "FAILED", label: "Failed" },
+              { id: "REFUNDED", label: "Refunded" },
+            ] as const
+          ).map((tab) => {
+            const isActive = statusFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                id={`pill-filter-${tab.id.toLowerCase()}`}
+                onClick={() => setStatusFilter(tab.id)}
+                className={`h-7 px-3 rounded-md text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                  isActive
+                    ? "bg-white text-[#031033] shadow-sm"
+                    : "text-[#5A6A85] hover:text-[#031033]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Loading Skeleton ───────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 shadow-xs flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
-          <p className="text-[13px] text-[#6e6e73]">Loading invoices…</p>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+          <div className="border-b border-[#E2E8F0] px-5 py-3 flex gap-8">
+            {["Invoice", "Date", "Service", "Amount", "Status"].map((h) => (
+              <span key={h} className="text-xs font-medium text-[#5A6A85]">{h}</span>
+            ))}
+          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="px-5 py-3.5 border-b border-[#EEF2F7] last:border-0 flex items-center gap-8">
+              <span className="block h-4 w-28 animate-pulse rounded bg-[#EEF2F7]" />
+              <span className="block h-4 w-24 animate-pulse rounded bg-[#EEF2F7]" />
+              <span className="block h-4 w-32 animate-pulse rounded bg-[#EEF2F7]" />
+              <span className="ml-auto block h-4 w-20 animate-pulse rounded bg-[#EEF2F7]" />
+              <span className="block h-5 w-14 animate-pulse rounded-full bg-[#EEF2F7]" />
+            </div>
+          ))}
         </div>
       ) : invoices.length === 0 ? (
-        /* ── Screen 5: Empty State (No invoices yet) ──────────────────── */
+        /* ── Empty State (No invoices yet) ──────────────────────────────── */
         <div className="flex flex-col gap-6">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-10 sm:p-14 text-center shadow-xs flex flex-col items-center justify-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center border border-[#b8ece5]">
-              <Receipt className="w-7 h-7 stroke-[2]" />
-            </div>
-
+          <div className="bg-white rounded-xl border border-[#E2E8F0] px-5 py-12 text-center flex flex-col items-center justify-center gap-4">
             <div>
-              <h2 className="text-[18px] font-bold text-[#1d1d1f]">
-                No invoices yet
-              </h2>
-              <p className="text-[13px] text-[#6e6e73] mt-1 max-w-md mx-auto leading-relaxed">
-                Your invoices will appear here after you purchase a domain, hosting, email, SSL certificate, or other services.
+              <h2 className="text-base font-semibold text-[#031033]">No invoices yet</h2>
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-md mx-auto">
+                Invoices appear here after you buy a domain, hosting, email, an SSL certificate, or another service.
               </p>
             </div>
 
             <Link
               href="/dashboard/hosting/purchase"
-              className="mt-2 inline-flex items-center px-5 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl transition-all shadow-xs"
+              className="inline-flex h-9 items-center px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              Explore Services
+              Explore services
             </Link>
           </div>
 
           {/* 3 Quick Service Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              href="/dashboard/domains?tab=register"
-              className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs hover:border-[#1787D4] transition-all group flex flex-col justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
-                  <Globe className="w-5 h-5" />
-                </div>
+            {serviceCards.map(({ href, Icon, title, body }) => (
+              <Link
+                key={href}
+                href={href}
+                className="bg-white rounded-xl border border-[#E2E8F0] p-5 hover:border-[#D5DCE6] hover:bg-[#F2F5FC]/60 transition-colors group flex items-start gap-3"
+              >
+                <Icon className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-[14px] font-bold text-[#1d1d1f] group-hover:text-[#1787D4] transition-colors">
-                    Domains
+                  <h3 className="text-sm font-medium text-[#031033] group-hover:text-[#1787D4] transition-colors">
+                    {title}
                   </h3>
-                  <p className="text-[12px] text-[#6e6e73] mt-0.5">
-                    Find the right address for your next idea.
-                  </p>
+                  <p className="text-xs text-[#5A6A85] mt-0.5">{body}</p>
                 </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/hosting/purchase"
-              className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs hover:border-[#1787D4] transition-all group flex flex-col justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
-                  <Server className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-[14px] font-bold text-[#1d1d1f] group-hover:text-[#1787D4] transition-colors">
-                    Web Hosting
-                  </h3>
-                  <p className="text-[12px] text-[#6e6e73] mt-0.5">
-                    Fast, reliable hosting built to scale.
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/ssl/purchase"
-              className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs hover:border-[#1787D4] transition-all group flex flex-col justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#4AC3B4] flex items-center justify-center shrink-0">
-                  <Shield className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-[14px] font-bold text-[#1d1d1f] group-hover:text-[#1787D4] transition-colors">
-                    SSL Security
-                  </h3>
-                  <p className="text-[12px] text-[#6e6e73] mt-0.5">
-                    Protect your website and customers.
-                  </p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            ))}
           </div>
         </div>
       ) : filteredInvoices.length === 0 ? (
         /* Empty search results */
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-12 text-center shadow-xs">
-          <p className="text-[14.5px] font-bold text-[#1d1d1f]">
-            No invoices match your filter
-          </p>
-          <p className="text-[12.5px] text-[#6e6e73] mt-1">
-            Try adjusting your search query, status, or date range.
+        <div className="bg-white rounded-xl border border-[#E2E8F0] px-5 py-12 text-center">
+          <p className="text-sm font-medium text-[#031033]">No invoices match your filters</p>
+          <p className="text-xs text-[#5A6A85] mt-1">
+            Try a different search, status, or date range.
           </p>
           <button
             type="button"
@@ -305,39 +274,27 @@ function InvoicesContent() {
               setStatusFilter("ALL");
               setDateRange("all");
             }}
-            className="mt-3 px-4 py-2 bg-[#1787D4] text-white text-xs font-semibold rounded-xl"
+            className="mt-4 inline-flex h-8 items-center px-3 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Reset Filters
+            Reset filters
           </button>
         </div>
       ) : (
-        /* ── Screen 1: Invoices Table ─────────────────────────────────── */
-        <div className="bg-white rounded-2xl border border-[#e2eaff] shadow-xs overflow-hidden">
+        /* ── Invoices Table ───────────────────────────────────────────── */
+        <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#f0f4f9] bg-[#fbfcfe]">
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                    Invoice
-                  </th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                    Service
-                  </th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider text-right">
-                    Action
-                  </th>
+                <tr className="border-b border-[#E2E8F0]">
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Invoice</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Date</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Service</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Amount</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Status</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f2f5fc]">
+              <tbody>
                 {filteredInvoices.map((inv) => {
                   const invNumber = formatInvoiceNumber(inv);
                   const serviceLabel = getInvoiceServiceLabel(inv);
@@ -352,13 +309,14 @@ function InvoicesContent() {
                   const isPaid = inv.status === "PAID" || inv.isPaid;
                   const isPending = inv.status === "PENDING" && !inv.isPaid;
                   const isFailed = inv.status === "FAILED";
+                  const pill = "inline-flex items-center gap-2 whitespace-nowrap text-sm";
 
                   return (
                     <tr
                       key={inv.id}
-                      className="hover:bg-[#fbfcfe] transition-colors"
+                      className="border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                     >
-                      <td className="py-4 px-6 text-[13.5px] font-bold text-[#1d1d1f]">
+                      <td className="py-3 px-5 text-sm font-medium text-[#031033] font-mono whitespace-nowrap">
                         <Link
                           href={`/dashboard/invoices/${encodeURIComponent(inv.id)}`}
                           className="hover:text-[#1787D4] transition-colors"
@@ -366,41 +324,27 @@ function InvoicesContent() {
                           {invNumber}
                         </Link>
                       </td>
-                      <td className="py-4 px-6 text-[13px] text-[#6e6e73]">
+                      <td className="py-3 px-5 text-sm text-[#5A6A85] tabular-nums whitespace-nowrap">
                         {dateStr}
                       </td>
-                      <td className="py-4 px-6 text-[13px] text-[#5a6a85] font-medium">
+                      <td className="py-3 px-5 text-sm text-[#5A6A85]">
                         {serviceLabel}
                       </td>
-                      <td className="py-4 px-6 text-[13.5px] font-bold text-[#1d1d1f]">
+                      <td className="py-3 px-5 text-sm font-medium text-[#031033] text-right tabular-nums whitespace-nowrap">
                         {formatPrice(inv.amount)}
                       </td>
-                      <td className="py-4 px-6">
-                        {isPaid && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
-                            Paid
-                          </span>
-                        )}
-                        {isPending && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                            Pending
-                          </span>
-                        )}
-                        {isFailed && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200">
-                            Failed
-                          </span>
-                        )}
+                      <td className="py-3 px-5">
+                        {isPaid && <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />Paid</span>}
+                        {isPending && <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#E8900A]" />Pending</span>}
+                        {isFailed && <span className={`${pill} text-[#C21F1F]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#DC2626]" />Failed</span>}
                         {!isPaid && !isPending && !isFailed && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                            Refunded
-                          </span>
+                          <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#9AA6B8]" />Refunded</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-3 px-5 text-right">
                         <Link
                           href={`/dashboard/invoices/${encodeURIComponent(inv.id)}`}
-                          className="text-[13px] font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                          className="text-sm font-medium text-[#1787D4] hover:text-[#1370B5] cursor-pointer"
                         >
                           View
                         </Link>
@@ -412,8 +356,8 @@ function InvoicesContent() {
             </table>
           </div>
 
-          {/* Table pagination/footer matching screenshot */}
-          <div className="px-6 py-3.5 bg-[#fbfcfe] border-t border-[#f0f4f9] flex items-center justify-between text-[12px] text-[#6e6e73]">
+          {/* Table footer */}
+          <div className="px-5 py-3 border-t border-[#EEF2F7] flex items-center justify-between text-xs text-[#5A6A85] tabular-nums">
             <span>
               Showing {filteredInvoices.length} invoice
               {filteredInvoices.length === 1 ? "" : "s"}
@@ -431,8 +375,8 @@ export default function InvoicesPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-sm text-[#6e6e73]">Loading invoices…</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading invoices…</p>
         </div>
       }
     >

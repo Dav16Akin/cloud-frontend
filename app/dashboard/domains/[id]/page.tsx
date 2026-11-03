@@ -6,12 +6,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Globe,
   AlertCircle,
   Loader2,
-  CheckCircle2,
-  Clock,
-  XCircle,
   ShieldCheck,
   Plus,
   Pencil,
@@ -25,9 +21,7 @@ import {
   Eye,
   EyeOff,
   Signal,
-  Network,
   RefreshCcw,
-  ToggleRight,
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -39,16 +33,36 @@ import {
   useDeleteDomainDNSRecord,
   useUpdateNameservers,
   useGetDomainAuthCode,
+  useRenewDomain,
 } from "@/hooks/useDomains";
 import type { DNSRecord, DNSRecordType } from "@/lib/api";
+
+// ── Shared class strings ──────────────────────────────────────────────────────
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30";
+const btnPrimary = `inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`;
+const btnSecondary = `inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`;
+const btnSecondarySm = `inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors shrink-0 ${focusRing}`;
+const btnGhostSm = `inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors ${focusRing}`;
+const iconBtn = `inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] transition-colors ${focusRing}`;
+const inputCls =
+  "h-10 w-full rounded-lg border border-[#D5DCE6] bg-white px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15";
+const labelCls = "text-sm font-medium text-[#031033] mb-1.5";
+const cardCls = "rounded-xl border border-[#E2E8F0] bg-white";
+const cardHeaderCls =
+  "px-5 py-4 border-b border-[#EEF2F7] flex items-center justify-between gap-3";
+const pillBase =
+  "inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0";
+const dotBase = "h-2 w-2 shrink-0 rounded-full";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-NG", {
+  return new Date(iso).toLocaleDateString("en-GB", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 }
@@ -60,28 +74,25 @@ function StatusBadge({ status }: { status: string }) {
   const cfg =
     s === "ACTIVE"
       ? {
-          icon: CheckCircle2,
           label: "Active",
-          cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
+          dot: "bg-[#12A150]",
+          cls: "",
         }
       : s === "EXPIRED"
         ? {
-            icon: XCircle,
             label: "Expired",
-            cls: "bg-red-50 text-red-500 border-red-200",
+            dot: "bg-[#DC2626]",
+            cls: "text-[#C21F1F]",
           }
         : {
-            icon: Clock,
             label: "Pending",
-            cls: "bg-amber-50 text-amber-600 border-amber-200",
+            dot: "bg-[#E8900A]",
+            cls: "",
           };
 
-  const Icon = cfg.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 border ${cfg.cls}`}
-    >
-      <Icon className="w-3 h-3" />
+    <span className={`${pillBase} ${cfg.cls}`}>
+      <span aria-hidden className={`${dotBase} ${cfg.dot}`} />
       {cfg.label}
     </span>
   );
@@ -112,27 +123,25 @@ function ConfirmModal({
       role="dialog"
       aria-modal="true"
     >
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onCancel}
-      />
-      <div className="relative bg-white border border-[#e2eaff] w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
-        <h3 className="text-base font-bold text-[#031033]">{title}</h3>
-        <p className="text-sm text-[#5a6a85] leading-relaxed">{message}</p>
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
-          >
+      <div className="absolute inset-0 bg-[#031033]/40" onClick={onCancel} />
+      <div className="relative rounded-xl bg-white shadow-xl max-w-md w-full">
+        <div className="px-6 pt-6">
+          <h3 className="text-lg font-semibold text-[#031033]">{title}</h3>
+        </div>
+        <div className="px-6 py-4">
+          <p className="text-sm text-[#5A6A85] leading-relaxed">{message}</p>
+        </div>
+        <div className="px-6 pb-6 flex justify-end gap-2">
+          <button onClick={onCancel} className={btnSecondary}>
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className={`px-4 py-2 text-sm font-semibold flex items-center gap-2 disabled:opacity-60 transition-colors ${
+            className={`inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing} ${
               danger
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-[#1787D4] text-white hover:bg-[#1371B5]"
+                ? "bg-[#DC2626] hover:bg-[#C21F1F]"
+                : "bg-[#1787D4] hover:bg-[#1370B5]"
             }`}
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -158,16 +167,18 @@ const DNS_RECORD_TYPES: DNSRecordType[] = [
   "CAA",
 ];
 
+// Record types are a neutral tag: colour is kept for status, not categories.
+const TYPE_TAG = "text-[#031033]";
 const TYPE_COLORS: Record<string, string> = {
-  A: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  AAAA: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  CNAME: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  MX: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  TXT: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  NS: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  PTR: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  SRV: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
-  CAA: "bg-[#eff6fb] text-[#1787D4] border-[#d6e4ff]",
+  A: TYPE_TAG,
+  AAAA: TYPE_TAG,
+  CNAME: TYPE_TAG,
+  MX: TYPE_TAG,
+  TXT: TYPE_TAG,
+  NS: TYPE_TAG,
+  PTR: TYPE_TAG,
+  SRV: TYPE_TAG,
+  CAA: TYPE_TAG,
 };
 
 const BLANK_FORM = {
@@ -191,10 +202,10 @@ type DetailTab =
 
 const DETAIL_TABS: { id: DetailTab; label: string }[] = [
   { id: "overview", label: "Overview" },
-  { id: "dns", label: "DNS Management" },
+  { id: "dns", label: "DNS management" },
   { id: "nameservers", label: "Nameservers" },
   { id: "renewal", label: "Renewal" },
-  { id: "contact", label: "Contact Information" },
+  { id: "contact", label: "Contact information" },
   { id: "transfer", label: "Transfer" },
 ];
 
@@ -225,6 +236,7 @@ export default function ManageDomainPage() {
     useUpdateNameservers(id);
 
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>("overview");
+  const { mutate: renewDomain, isPending: renewing } = useRenewDomain();
 
   // ── Transfer out state ──
   const { mutate: getAuthCode, isPending: fetchingAuthCode } =
@@ -354,41 +366,35 @@ export default function ManageDomainPage() {
       <div>
         <Link
           href="/dashboard/domains"
-          className="inline-flex items-center gap-1.5 text-sm text-[#5a6a85] hover:text-[#031033] transition-colors"
+          className={`inline-flex items-center gap-1.5 rounded-md text-sm text-[#5A6A85] hover:text-[#031033] transition-colors ${focusRing}`}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Domains
+          Back to domains
         </Link>
       </div>
 
       {/* ── Domain heading ── */}
       {loadingDomain ? (
-        <div className="animate-pulse flex flex-col gap-2">
-          <div className="h-8 w-48 rounded bg-[#e8edf8]" />
-          <div className="h-4 w-24 rounded bg-[#e8edf8]" />
+        <div className="animate-pulse flex items-center gap-3">
+          <div className="h-8 w-56 rounded bg-[#EEF2F7]" />
+          <div className="h-5 w-16 rounded-full bg-[#EEF2F7]" />
         </div>
       ) : errorDomain || !domain ? (
-        <div className="bg-white border border-[#e2eaff] p-6 flex items-center gap-3 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-          <p className="text-sm text-red-500">Could not load domain details.</p>
+        <div className="rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 flex items-center gap-2 text-sm text-[#C21F1F]">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          Could not load domain details.
         </div>
       ) : (
-        <div className="flex items-center gap-3">
-          <h2
-            className="text-[26px] font-bold text-[#031033]"
-            style={{ letterSpacing: "-0.4px" }}
-          >
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-semibold text-[#031033] break-all">
             {domain.domain}
-          </h2>
+          </h1>
           <StatusBadge status={domain.status} />
         </div>
       )}
 
       {/* ── Tab bar ── */}
-      <div
-        className="flex gap-0 overflow-x-auto"
-        style={{ borderBottom: "2px solid #e8e8ed" }}
-      >
+      <div className="flex overflow-x-auto border-b border-[#E2E8F0]">
         {DETAIL_TABS.map((tab) => {
           const isActive = tab.id === activeDetailTab;
           return (
@@ -396,12 +402,12 @@ export default function ManageDomainPage() {
               key={tab.id}
               id={`domain-tab-${tab.id}`}
               onClick={() => setActiveDetailTab(tab.id)}
-              className="px-4 py-3 text-[13.5px] font-medium whitespace-nowrap transition-colors -mb-[2px] border-b-2"
-              style={{
-                color: isActive ? "#1787D4" : "#6e6e73",
-                borderBottomColor: isActive ? "#1787D4" : "transparent",
-                fontWeight: isActive ? 600 : 400,
-              }}
+              aria-current={isActive ? "page" : undefined}
+              className={`px-4 py-3 -mb-px border-b-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:bg-[#F2F5FC] ${
+                isActive
+                  ? "text-[#031033] border-[#1787D4]"
+                  : "text-[#5A6A85] border-transparent hover:text-[#031033]"
+              }`}
             >
               {tab.label}
             </button>
@@ -415,125 +421,89 @@ export default function ManageDomainPage() {
         !errorDomain &&
         domain && (
           <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-start">
-            {/* Left — info cards grid */}
-            <div className="flex-1 flex flex-col gap-4">
-              <h2 className="text-[15px] font-bold text-[#031033]">
-                Domain Overview
+            {/* Left — domain facts */}
+            <div className="flex-1 flex flex-col gap-4 min-w-0">
+              <h2 className="text-base font-semibold text-[#031033]">
+                Domain overview
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#EEF2F7]">
                 {[
                   {
-                    label: "Registration Date",
+                    label: "Registered",
                     value: formatDate(domain.registrationDate),
                   },
                   {
-                    label: "Expiry Date",
+                    label: "Expires",
                     value: formatDate(domain.expiryDate),
                   },
                   {
-                    label: "Auto-Renew",
-                    value: domain.autoRenew ? "On" : "Off",
+                    label: "Auto-renew",
+                    value: domain.autoRenew === undefined ? "—" : domain.autoRenew ? "On" : "Off",
                   },
                   { label: "Registrar", value: "NupatCloud" },
                 ].map(({ label, value }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col gap-1 p-4 rounded-lg"
-                    style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-                  >
-                    <p
-                      className="text-[12px] font-medium"
-                      style={{ color: "#6e6e73" }}
-                    >
-                      {label}
-                    </p>
-                    <p
-                      className="text-[15px] font-semibold"
-                      style={{ color: "#1d1d1f" }}
-                    >
+                  <div key={label} className="flex flex-col gap-1 bg-white p-5">
+                    <p className="text-xs text-[#5A6A85]">{label}</p>
+                    <p className="text-base font-semibold text-[#031033] tabular-nums">
                       {value}
                     </p>
                   </div>
                 ))}
               </div>
 
-              {/* Domain Registrar Lock */}
-              <div
-                className="flex items-start justify-between gap-4 p-4 rounded-lg"
-                style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-              >
+              {/* Domain registrar lock */}
+              <div className={`${cardCls} flex items-start justify-between gap-4 p-5`}>
                 <div className="flex items-start gap-3">
-                  <Lock
-                    className="w-4 h-4 mt-0.5 shrink-0"
-                    style={{ color: "#1787D4" }}
-                  />
+                  <Lock className="w-4 h-4 mt-0.5 shrink-0 text-[#5A6A85]" />
                   <div>
-                    <p
-                      className="text-[14px] font-semibold"
-                      style={{ color: "#1d1d1f" }}
-                    >
-                      Domain Registrar Lock
+                    <p className="text-sm font-medium text-[#031033]">
+                      Registrar lock
                     </p>
-                    <p
-                      className="text-[12.5px] mt-1"
-                      style={{ color: "#6e6e73" }}
-                    >
-                      Prevents unauthorized transfer requests. Keep this lock
-                      enabled unless you are planning to transfer the domain to
-                      another registrar.
+                    <p className="text-sm text-[#5A6A85] mt-1">
+                      Blocks unauthorized transfer requests. Keep it on unless
+                      you plan to move this domain to another registrar.
                     </p>
                   </div>
                 </div>
+                {/* The API does not report lock state, so don't claim one. */}
                 <span
-                  className="shrink-0 px-2.5 py-1 rounded-lg text-[12px] font-semibold"
-                  style={{ background: "#ecfdf5", color: "#059669" }}
+                  className="text-sm text-[#5A6A85] shrink-0"
+                  title="Lock status is not reported by the registrar API"
                 >
-                  Enabled
+                  —
                 </span>
               </div>
             </div>
 
-            {/* Right — Quick Operations sidebar */}
-            <div
-              className="w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5 rounded-lg"
-              style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-            >
-              <h3
-                className="text-[14px] font-bold"
-                style={{ color: "#1d1d1f" }}
-              >
-                Quick Operations
+            {/* Right — quick operations */}
+            <div className={`${cardCls} w-full lg:w-64 shrink-0 flex flex-col gap-3 p-5`}>
+              <h3 className="text-base font-semibold text-[#031033]">
+                Quick operations
               </h3>
               <button
                 id="domain-quick-renew"
                 onClick={() => setActiveDetailTab("renewal")}
-                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                style={{ background: "#1787D4" }}
+                className={`${btnPrimary} w-full`}
               >
-                Renew Domain
+                Renew domain
               </button>
               <button
                 id="domain-quick-dns"
                 onClick={() => setActiveDetailTab("dns")}
-                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
-                style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
+                className={`${btnSecondary} w-full`}
               >
                 Manage DNS
               </button>
-              <button
-                id="domain-quick-autorenew"
-                onClick={() => setActiveDetailTab("renewal")}
-                className="w-full py-2.5 px-4 rounded-lg text-[13.5px] font-medium border transition-colors hover:bg-[#f5f5f7]"
-                style={{ border: "1px solid #e8e8ed", color: "#1d1d1f" }}
-              >
-                {domain.autoRenew ? "Disable Auto-Renew" : "Enable Auto-Renew"}
-              </button>
-              <p
-                className="text-[11.5px] flex items-center gap-1.5 pt-1"
-                style={{ color: "#aeaeb2" }}
-              >
-                <Info className="w-3.5 h-3.5 shrink-0" />
-                Domain renewal incurs standard registry pricing fees.
+              <p id="domain-quick-autorenew" className="text-sm text-[#5A6A85]">
+                Auto-renew:{" "}
+                <span className="font-medium text-[#031033]">
+                  {domain.autoRenew === undefined ? "—" : domain.autoRenew ? "On" : "Off"}
+                </span>
+              </p>
+              <p className="text-xs text-[#5A6A85] flex items-start gap-1.5 pt-1">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-px" />
+                Renewal is charged at the registry&apos;s standard price for
+                this extension.
               </p>
             </div>
           </div>
@@ -551,70 +521,67 @@ export default function ManageDomainPage() {
               : ["ns1.nupatcloud.com", "ns2.nupatcloud.com"];
 
           return (
-            <div className="bg-white border border-[#e2eaff]">
+            <div className={cardCls}>
               {/* Header */}
-              <div className="px-6 py-3.5 border-b border-[#e2eaff] flex items-center justify-between">
+              <div className={cardHeaderCls}>
                 <div className="flex items-center gap-2">
-                  <Signal className="w-4 h-4 text-[#9ba8c0]" />
-                  <h2 className="text-sm font-semibold text-[#031033]">
+                  <Signal className="w-4 h-4 text-[#5A6A85]" />
+                  <h2 className="text-base font-semibold text-[#031033]">
                     Nameservers
                   </h2>
                 </div>
                 <button
                   id="domain-ns-edit"
                   onClick={() => (nsOpen ? setNsOpen(false) : openNsEdit())}
-                  className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
+                  className={btnGhostSm}
                 >
-                  <Pencil className="w-3 h-3" />
+                  <Pencil className="w-3.5 h-3.5" />
                   {nsOpen ? "Cancel" : "Change"}
                   <ChevronDown
-                    className={`w-3 h-3 transition-transform ${nsOpen ? "rotate-180" : ""}`}
+                    className={`w-3.5 h-3.5 transition-transform ${nsOpen ? "rotate-180" : ""}`}
                   />
                 </button>
               </div>
 
               {/* Current nameservers display */}
               {!nsOpen && (
-                <div className="px-6 py-4 flex flex-col gap-2">
-                  <p className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide mb-1">
-                    Current Nameservers
-                  </p>
-                  <div className="flex flex-col gap-1.5">
+                <div className="p-5 flex flex-col gap-3">
+                  <p className="text-xs text-[#5A6A85]">Current nameservers</p>
+                  <div className="flex flex-col gap-2">
                     {currentNS.map((ns, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-[#9ba8c0] w-5 shrink-0">
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-[#5A6A85] w-8 shrink-0">
                           NS{i + 1}
                         </span>
-                        <code className="text-sm font-mono text-[#031033] bg-[#f6f9ff] border border-[#e2eaff] px-3 py-1">
+                        <code className="text-sm font-mono text-[#031033] bg-[#F2F5FC] rounded-md px-2.5 py-1 break-all">
                           {ns}
                         </code>
                       </div>
                     ))}
                   </div>
-                  <p className="text-[11px] text-[#9ba8c0] mt-2">
-                    <span className="font-semibold text-amber-600">Note:</span>{" "}
-                    Domains are typically locked for 60 days after registration
-                    — nameserver changes during this window will be rejected by
-                    the registry.
+                  <p className="text-xs text-[#5A6A85] mt-1">
+                    <span className="font-medium text-[#9A5B00]">Note:</span>{" "}
+                    Domains are usually locked for 60 days after registration.
+                    The registry rejects nameserver changes during that window.
                   </p>
                 </div>
               )}
 
               {/* Edit form */}
               {nsOpen && (
-                <form
-                  onSubmit={handleNsSubmit}
-                  className="px-6 py-4 flex flex-col gap-4"
-                >
-                  <p className="text-xs text-[#5a6a85]">
+                <form onSubmit={handleNsSubmit} className="p-5 flex flex-col gap-4">
+                  <p className="text-sm text-[#5A6A85]">
                     Enter between 2 and 4 nameservers.
                   </p>
                   <div className="flex flex-col gap-2">
                     {nsFields.map((val, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-[#9ba8c0] w-5 shrink-0">
+                      <div key={i} className="flex items-center gap-3">
+                        <label
+                          htmlFor={`domain-ns-field-${i}`}
+                          className="text-xs font-medium text-[#5A6A85] w-8 shrink-0"
+                        >
                           NS{i + 1}
-                        </span>
+                        </label>
                         <input
                           id={`domain-ns-field-${i}`}
                           type="text"
@@ -626,7 +593,7 @@ export default function ManageDomainPage() {
                             next[i] = e.target.value;
                             setNsFields(next);
                           }}
-                          className="flex-1 bg-white border border-[#e2eaff] px-3 py-2 text-sm font-mono text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                          className={`${inputCls} flex-1 font-mono`}
                         />
                         {i >= 2 && (
                           <button
@@ -636,9 +603,10 @@ export default function ManageDomainPage() {
                                 f.filter((_, idx) => idx !== i),
                               )
                             }
-                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            aria-label={`Remove nameserver ${i + 1}`}
+                            className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#5A6A85] hover:text-[#C21F1F] hover:bg-[#FDECEC] transition-colors ${focusRing}`}
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -649,59 +617,61 @@ export default function ManageDomainPage() {
                     <button
                       type="button"
                       onClick={() => setNsFields((f) => [...f, ""])}
-                      className="self-start flex items-center gap-1 text-xs font-semibold text-[#5a6a85] hover:text-[#031033] transition-colors"
+                      className={`${btnGhostSm} self-start -ml-3`}
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                       Add nameserver
                     </button>
                   )}
 
-                  <div className="bg-amber-50 border border-amber-200 px-4 py-2.5 text-xs text-amber-700">
-                    <span className="font-semibold">60-day lock:</span> If your
-                    domain was registered recently, the registry may reject this
+                  <div className="rounded-lg border border-[#E8900A]/25 bg-[#FFF4E0] px-4 py-3 text-sm text-[#9A5B00]">
+                    <span className="font-medium">60-day lock:</span> if this
+                    domain was registered recently, the registry may reject the
                     change. Contact support if you see a lock error.
                   </div>
 
                   {/* Nupat Cloud default NS hint */}
-                  <div className="border border-[#e2eaff] bg-[#f6f9ff]">
+                  <div className="rounded-lg border border-[#E2E8F0]">
                     <button
                       type="button"
                       id="domain-ns-hint-toggle"
                       onClick={() => setNsHintOpen((v) => !v)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-[#5a6a85] hover:bg-[#eef2ff] transition-colors"
+                      aria-expanded={nsHintOpen}
+                      className={`w-full flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-[#031033] hover:bg-[#F2F5FC] transition-colors ${focusRing}`}
                     >
-                      <span className="flex items-center gap-1.5">
-                        <Signal className="w-3.5 h-3.5 text-[#1787D4]" />
+                      <span className="flex items-center gap-2">
+                        <Signal className="w-4 h-4 text-[#5A6A85]" />
                         Nupat Cloud nameservers (default)
                       </span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${nsHintOpen ? "rotate-180" : ""}`}
+                        className={`w-4 h-4 text-[#5A6A85] transition-transform ${nsHintOpen ? "rotate-180" : ""}`}
                       />
                     </button>
                     {nsHintOpen && (
-                      <div className="px-4 pb-3 pt-1 flex flex-col gap-2 border-t border-[#e2eaff]">
-                        <p className="text-[11px] text-[#9ba8c0] mb-1">
+                      <div className="px-4 pb-4 pt-3 flex flex-col gap-2 border-t border-[#EEF2F7]">
+                        <p className="text-xs text-[#5A6A85] mb-1">
                           Use these to point your domain back to Nupat Cloud
                           hosting.
                         </p>
                         {DEFAULT_NS.map((ns, i) => (
                           <div key={ns} className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-[#9ba8c0] w-5 shrink-0">
+                            <span className="text-xs font-medium text-[#5A6A85] w-8 shrink-0">
                               NS{i + 1}
                             </span>
-                            <code className="flex-1 text-xs font-mono text-[#031033] bg-white border border-[#e2eaff] px-3 py-1 truncate">
+                            <code className="flex-1 min-w-0 text-sm font-mono text-[#031033] bg-[#F2F5FC] rounded-md px-2.5 py-1 truncate">
                               {ns}
                             </code>
                             <button
                               type="button"
                               onClick={() => copyNS(ns)}
                               title="Copy"
-                              className="shrink-0 p-1.5 text-[#9ba8c0] hover:text-[#031033] hover:bg-[#e8edf8] transition-colors"
+                              aria-label={`Copy ${ns}`}
+                              className={`${iconBtn} shrink-0`}
                             >
                               {copiedNS === ns ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                <Check className="w-4 h-4 text-[#0E7C3A]" />
                               ) : (
-                                <Copy className="w-3.5 h-3.5" />
+                                <Copy className="w-4 h-4" />
                               )}
                             </button>
                             <button
@@ -716,7 +686,7 @@ export default function ManageDomainPage() {
                                 }
                                 setNsFields(next);
                               }}
-                              className="shrink-0 text-[10px] font-semibold text-[#1787D4] border border-[#1787D4]/30 bg-[#eff6fb] hover:bg-[#1787D4] hover:text-white px-2 py-1 transition-colors"
+                              className={btnSecondarySm}
                             >
                               Use
                             </button>
@@ -726,7 +696,7 @@ export default function ManageDomainPage() {
                           type="button"
                           id="domain-ns-use-all-defaults"
                           onClick={() => setNsFields([...DEFAULT_NS])}
-                          className="self-start mt-1 text-[10px] font-semibold text-[#031033] hover:text-[#1787D4] underline underline-offset-2 transition-colors"
+                          className={`${btnGhostSm} self-start -ml-3 mt-1`}
                         >
                           Use both (fill all fields)
                         </button>
@@ -738,7 +708,7 @@ export default function ManageDomainPage() {
                     <button
                       type="button"
                       onClick={() => setNsOpen(false)}
-                      className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+                      className={btnSecondary}
                     >
                       Cancel
                     </button>
@@ -746,12 +716,10 @@ export default function ManageDomainPage() {
                       type="submit"
                       id="domain-ns-save"
                       disabled={savingNS}
-                      className="btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
+                      className={btnPrimary}
                     >
-                      {savingNS && (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      )}
-                      Save Nameservers
+                      {savingNS && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Save nameservers
                     </button>
                   </div>
                 </form>
@@ -762,28 +730,29 @@ export default function ManageDomainPage() {
 
       {/* ══ DNS MANAGEMENT TAB ═══════════════════════════════════════════════ */}
       {activeDetailTab === "dns" && (
-        <div className="bg-white border border-[#e2eaff]">
+        <div className={`${cardCls} overflow-hidden`}>
           {/* Header */}
-          <div className="px-5 py-3.5 border-b border-[#e2eaff] flex items-center justify-between">
+          <div className={cardHeaderCls}>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#9ba8c0]" />
-              <h2 className="text-sm font-semibold text-[#031033]">
-                DNS Records
+              <ShieldCheck className="w-4 h-4 text-[#5A6A85]" />
+              <h2 className="text-base font-semibold text-[#031033]">
+                DNS records
               </h2>
               {records && (
-                <span className="text-[10px] font-bold bg-[#f2f5fc] text-[#5a6a85] px-1.5 py-0.5 border border-[#e2eaff]">
+                <span className="text-sm tabular-nums text-[#5A6A85]">
                   {records.length}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
               <button
                 id="domain-dns-refresh"
                 onClick={() => refetch()}
                 title="Refresh DNS records"
-                className="text-[#9ba8c0] hover:text-[#031033] transition-colors"
+                aria-label="Refresh DNS records"
+                className={iconBtn}
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-4 h-4" />
               </button>
               <button
                 id="domain-dns-add"
@@ -791,10 +760,10 @@ export default function ManageDomainPage() {
                   setShowCreate((p) => !p);
                   setEditTarget(null);
                 }}
-                className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] hover:underline underline-offset-2"
+                className={btnGhostSm}
               >
-                <Plus className="w-3.5 h-3.5" />
-                Add Record
+                <Plus className="w-4 h-4" />
+                Add record
               </button>
             </div>
           </div>
@@ -803,22 +772,22 @@ export default function ManageDomainPage() {
           {showCreate && (
             <form
               onSubmit={handleCreate}
-              className="px-5 py-4 border-b border-[#e2eaff] bg-[#f6f9ff] flex flex-col gap-3"
+              className="p-5 border-b border-[#EEF2F7] bg-[#F2F5FC] flex flex-col gap-4"
             >
-              <p className="text-xs font-semibold text-[#031033]">
-                New DNS Record
+              <p className="text-sm font-medium text-[#031033]">
+                New DNS record
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Type */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-create-type" className={labelCls}>
                     Type
                   </label>
                   <select
                     id="domain-dns-create-type"
                     value={form.type}
                     onChange={(e) => patch("type", e.target.value)}
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
+                    className={inputCls}
                   >
                     {DNS_RECORD_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -828,9 +797,9 @@ export default function ManageDomainPage() {
                   </select>
                 </div>
                 {/* Name */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
-                    Name / Host
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-create-name" className={labelCls}>
+                    Name / host
                   </label>
                   <input
                     id="domain-dns-create-name"
@@ -839,17 +808,20 @@ export default function ManageDomainPage() {
                     onChange={(e) => patch("name", e.target.value)}
                     placeholder="@ or subdomain"
                     required
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} font-mono`}
                   />
                 </div>
                 {/* Address */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="domain-dns-create-address"
+                    className={labelCls}
+                  >
                     {form.type === "MX"
-                      ? "Mail Server"
+                      ? "Mail server"
                       : form.type === "CNAME"
-                        ? "Alias / Target"
-                        : "Value / Address"}
+                        ? "Alias / target"
+                        : "Value / address"}
                   </label>
                   <input
                     id="domain-dns-create-address"
@@ -864,12 +836,12 @@ export default function ManageDomainPage() {
                           : "1.2.3.4"
                     }
                     required
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} font-mono`}
                   />
                 </div>
                 {/* TTL */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-create-ttl" className={labelCls}>
                     TTL (seconds)
                   </label>
                   <input
@@ -878,13 +850,16 @@ export default function ManageDomainPage() {
                     min={300}
                     value={form.ttl}
                     onChange={(e) => patch("ttl", e.target.value)}
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} tabular-nums`}
                   />
                 </div>
                 {/* Priority (MX/SRV only) */}
                 {needsPriority(form.type) && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="domain-dns-create-priority"
+                      className={labelCls}
+                    >
                       Priority
                     </label>
                     <input
@@ -894,7 +869,7 @@ export default function ManageDomainPage() {
                       value={form.priority}
                       onChange={(e) => patch("priority", e.target.value)}
                       placeholder="10"
-                      className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                      className={`${inputCls} tabular-nums`}
                     />
                   </div>
                 )}
@@ -906,17 +881,13 @@ export default function ManageDomainPage() {
                     setShowCreate(false);
                     setForm(BLANK_FORM);
                   }}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+                  className={btnSecondary}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
-                >
-                  {creating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Add Record
+                <button type="submit" disabled={creating} className={btnPrimary}>
+                  {creating && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Add record
                 </button>
               </div>
             </form>
@@ -926,33 +897,32 @@ export default function ManageDomainPage() {
           {editTarget && (
             <form
               onSubmit={handleUpdate}
-              className="px-5 py-4 border-b border-[#e2eaff] bg-[#eff6fb] flex flex-col gap-3"
+              className="p-5 border-b border-[#EEF2F7] bg-[#E8F4FC]/60 flex flex-col gap-4"
             >
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-[#031033]">
-                  Edit Record —{" "}
-                  <span className="text-[#1787D4] font-mono">
-                    {editTarget.name}
-                  </span>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium text-[#031033] min-w-0 truncate">
+                  Edit record:{" "}
+                  <span className="font-mono">{editTarget.name}</span>
                 </p>
                 <button
                   type="button"
                   onClick={() => setEditTarget(null)}
-                  className="text-[#9ba8c0] hover:text-[#031033]"
+                  aria-label="Close edit form"
+                  className={iconBtn}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-edit-type" className={labelCls}>
                     Type
                   </label>
                   <select
                     id="domain-dns-edit-type"
                     value={editForm.type}
                     onChange={(e) => patchEdit("type", e.target.value)}
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
+                    className={inputCls}
                   >
                     {DNS_RECORD_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -961,9 +931,9 @@ export default function ManageDomainPage() {
                     ))}
                   </select>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
-                    Name / Host
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-edit-name" className={labelCls}>
+                    Name / host
                   </label>
                   <input
                     id="domain-dns-edit-name"
@@ -971,12 +941,12 @@ export default function ManageDomainPage() {
                     value={editForm.name}
                     onChange={(e) => patchEdit("name", e.target.value)}
                     required
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} font-mono`}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
-                    Value / Address
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-edit-address" className={labelCls}>
+                    Value / address
                   </label>
                   <input
                     id="domain-dns-edit-address"
@@ -984,11 +954,11 @@ export default function ManageDomainPage() {
                     value={editForm.address}
                     onChange={(e) => patchEdit("address", e.target.value)}
                     required
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} font-mono`}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                <div className="flex flex-col">
+                  <label htmlFor="domain-dns-edit-ttl" className={labelCls}>
                     TTL (seconds)
                   </label>
                   <input
@@ -997,12 +967,15 @@ export default function ManageDomainPage() {
                     min={300}
                     value={editForm.ttl}
                     onChange={(e) => patchEdit("ttl", e.target.value)}
-                    className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] outline-none focus:border-[#1787D4] transition-colors"
+                    className={`${inputCls} tabular-nums`}
                   />
                 </div>
                 {needsPriority(editForm.type) && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="domain-dns-edit-priority"
+                      className={labelCls}
+                    >
                       Priority
                     </label>
                     <input
@@ -1011,7 +984,7 @@ export default function ManageDomainPage() {
                       min={0}
                       value={editForm.priority}
                       onChange={(e) => patchEdit("priority", e.target.value)}
-                      className="bg-white border border-[#e2eaff] px-3 py-2 text-sm text-[#031033] placeholder:text-[#c0cad8] outline-none focus:border-[#1787D4] transition-colors"
+                      className={`${inputCls} tabular-nums`}
                     />
                   </div>
                 )}
@@ -1020,17 +993,13 @@ export default function ManageDomainPage() {
                 <button
                   type="button"
                   onClick={() => setEditTarget(null)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors"
+                  className={btnSecondary}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
-                >
-                  {updating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Save Changes
+                <button type="submit" disabled={updating} className={btnPrimary}>
+                  {updating && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Save changes
                 </button>
               </div>
             </form>
@@ -1038,24 +1007,40 @@ export default function ManageDomainPage() {
 
           {/* ── Records list ── */}
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+            <div className="animate-pulse">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-6 px-5 py-3 border-b border-[#EEF2F7] last:border-0"
+                >
+                  <div className="h-5 w-12 rounded-md bg-[#EEF2F7]" />
+                  <div className="h-4 w-24 rounded bg-[#EEF2F7]" />
+                  <div className="h-4 flex-1 max-w-[220px] rounded bg-[#EEF2F7]" />
+                  <div className="h-4 w-14 rounded bg-[#EEF2F7] ml-auto" />
+                </div>
+              ))}
             </div>
           )}
           {isError && (
-            <div className="flex items-center gap-2 px-5 py-4">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <p className="text-sm text-red-500">
-                Could not load DNS records.
-              </p>
+            <div className="flex items-center gap-2 px-5 py-4 text-sm text-[#C21F1F]">
+              <AlertCircle className="w-4 h-4 shrink-0 text-[#DC2626]" />
+              Could not load DNS records.
+              <button
+                onClick={() => refetch()}
+                className="font-medium text-[#1787D4] hover:underline underline-offset-2"
+              >
+                Retry
+              </button>
             </div>
           )}
           {!isLoading && !isError && (!records || records.length === 0) && (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-              <ShieldCheck className="w-8 h-8 text-[#9ba8c0] mb-2" />
-              <p className="text-sm text-[#5a6a85]">No DNS records found.</p>
-              <p className="text-xs text-[#9ba8c0] mt-1">
-                Click "Add Record" to create your first DNS entry.
+            <div className="flex flex-col items-center justify-center py-12 text-center px-5">
+              <p className="text-sm font-medium text-[#031033]">
+                No DNS records yet
+              </p>
+              <p className="text-sm text-[#5A6A85] mt-1">
+                Use Add record to point this domain at a server or mail
+                provider.
               </p>
             </div>
           )}
@@ -1063,83 +1048,80 @@ export default function ManageDomainPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-sm">
                 <thead>
-                  <tr className="border-b border-[#e2eaff] bg-[#f6f9ff]">
-                    <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-[#5A6A85]">
                       Type
                     </th>
-                    <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-[#5A6A85]">
                       Name
                     </th>
-                    <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-[#5A6A85]">
                       Value
                     </th>
-                    <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                    <th className="px-5 py-3 text-right text-xs font-medium text-[#5A6A85]">
                       TTL
                     </th>
-                    <th className="px-5 py-2.5 text-left text-[10px] font-semibold text-[#9ba8c0] uppercase tracking-wide">
+                    <th className="px-5 py-3 text-right text-xs font-medium text-[#5A6A85]">
                       Priority
                     </th>
-                    <th className="px-5 py-2.5" />
+                    <th className="px-5 py-3">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e2eaff]">
+                <tbody>
                   {records.map((r: DNSRecord, index) => {
                     const typeCls =
-                      TYPE_COLORS[r.type] ??
-                      "bg-gray-100 text-gray-600 border-gray-200";
+                      TYPE_COLORS[r.type] ?? "text-[#031033]";
                     return (
                       <tr
                         key={index}
-                        className="hover:bg-[#f6f9ff] transition-colors group"
+                        className="group border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                       >
-                        <td className="px-5 py-2.5">
+                        <td className="px-5 py-3">
                           <span
-                            className={`inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 border ${typeCls}`}
+                            className={`font-mono text-xs font-medium ${typeCls}`}
                           >
                             {r.type}
                           </span>
                         </td>
-                        <td className="px-5 py-2.5">
-                          <code className="text-xs text-[#031033] font-mono break-all">
+                        <td className="px-5 py-3">
+                          <code className="text-sm font-mono text-[#031033] break-all">
                             {r.name}
                           </code>
                         </td>
-                        <td className="px-5 py-2.5 max-w-[220px]">
-                          <span
-                            className="text-xs text-[#5a6a85] truncate block"
+                        <td className="px-5 py-3 max-w-[260px]">
+                          <code
+                            className="text-sm font-mono text-[#5A6A85] truncate block"
                             title={r.address}
                           >
                             {r.address}
-                          </span>
+                          </code>
                         </td>
-                        <td className="px-5 py-2.5">
-                          <span className="text-xs text-[#9ba8c0]">
-                            {r.ttl}s
-                          </span>
+                        <td className="px-5 py-3 text-right tabular-nums text-[#5A6A85] whitespace-nowrap">
+                          {r.ttl}s
                         </td>
-                        <td className="px-5 py-2.5">
-                          <span className="text-xs text-[#9ba8c0]">
-                            {r.priority ?? "—"}
-                          </span>
+                        <td className="px-5 py-3 text-right tabular-nums text-[#5A6A85]">
+                          {r.priority ?? "—"}
                         </td>
-                        <td className="px-5 py-2.5">
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-1 justify-end opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                             <button
                               id={`domain-dns-edit-${r.line}`}
                               onClick={() => openEdit(r)}
-                              className="text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] p-1.5 transition-colors"
+                              className={iconBtn}
                               aria-label={`Edit DNS record line ${r.line}`}
                             >
-                              <Pencil className="w-3.5 h-3.5" />
+                              <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               id={`domain-dns-delete-${r.line}`}
                               onClick={() => setDeleteTarget(r)}
                               disabled={deleting}
-                              className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 transition-colors"
+                              className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#5A6A85] hover:text-[#C21F1F] hover:bg-[#FDECEC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`}
                               aria-label={`Delete DNS record line ${r.line}`}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
@@ -1158,73 +1140,70 @@ export default function ManageDomainPage() {
         !loadingDomain &&
         !errorDomain &&
         domain && (
-          <div className="flex flex-col gap-5">
-            <h2 className="text-[15px] font-bold" style={{ color: "#1d1d1f" }}>
-              Domain Renewal
+          <div className="flex flex-col gap-4">
+            <h2 className="text-base font-semibold text-[#031033]">
+              Domain renewal
             </h2>
-            <div
-              className="flex flex-col gap-4 p-6 rounded-lg"
-              style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p
-                    className="text-[14px] font-semibold"
-                    style={{ color: "#1d1d1f" }}
-                  >
+            <div className={`${cardCls} flex flex-col gap-4 p-5`}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#031033] break-all">
                     Renew {domain.domain}
                   </p>
-                  <p
-                    className="text-[13px] mt-0.5"
-                    style={{ color: "#6e6e73" }}
-                  >
-                    Current expiry: {formatDate(domain.expiryDate)}
+                  <p className="text-sm text-[#5A6A85] mt-0.5 tabular-nums">
+                    Expires {formatDate(domain.expiryDate)}
                   </p>
                 </div>
-                <RefreshCcw className="w-5 h-5" style={{ color: "#1787D4" }} />
+                <RefreshCcw className="w-4 h-4 shrink-0 text-[#5A6A85]" />
               </div>
-              <p
-                className="text-[13px] leading-relaxed"
-                style={{ color: "#6e6e73" }}
-              >
-                Renewing your domain extends its registration period and
-                prevents it from expiring. Standard registry pricing applies
-                based on your TLD.
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                Renewing extends the registration period so the domain does
+                not expire. The registry&apos;s standard price for this
+                extension applies.
               </p>
               <button
                 id="domain-renew-cta"
-                className="self-start flex items-center gap-2 px-5 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                style={{ background: "#1787D4" }}
+                type="button"
+                onClick={() => renewDomain(id)}
+                disabled={renewing}
+                className={`${btnPrimary} self-start`}
               >
-                <RefreshCcw className="w-4 h-4" />
-                Renew Domain
+                {renewing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="w-4 h-4" />
+                )}
+                {renewing ? "Starting renewal…" : "Renew domain"}
               </button>
             </div>
-            <div
-              className="flex items-center justify-between p-5 rounded-lg"
-              style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-            >
+            <div className={`${cardCls} flex items-center justify-between gap-4 p-5`}>
               <div>
-                <p
-                  className="text-[14px] font-semibold"
-                  style={{ color: "#1d1d1f" }}
-                >
-                  Auto-Renew
+                <p className="text-sm font-medium text-[#031033]">
+                  Auto-renew
                 </p>
-                <p className="text-[13px] mt-0.5" style={{ color: "#6e6e73" }}>
-                  {domain.autoRenew
-                    ? "Auto-renew is enabled. Your domain will renew automatically."
-                    : "Auto-renew is off. Enable it to avoid accidental expiry."}
+                <p className="text-sm text-[#5A6A85] mt-0.5">
+                  {domain.autoRenew === undefined
+                    ? "Auto-renew status isn't available for this domain. Renew manually before the expiry date."
+                    : domain.autoRenew
+                      ? "Auto-renew is on. The domain renews before it expires."
+                      : "Auto-renew is off. Renew manually before the expiry date."}
+                </p>
+                <p className="text-xs text-[#5A6A85] mt-1">
+                  Changing auto-renew from the dashboard is not available yet.
                 </p>
               </div>
-              <span
-                className="px-3 py-1.5 rounded-lg text-[12.5px] font-semibold"
-                style={{
-                  background: domain.autoRenew ? "#ecfdf5" : "#fef2f2",
-                  color: domain.autoRenew ? "#059669" : "#dc2626",
-                }}
-              >
-                {domain.autoRenew ? "Enabled" : "Disabled"}
+              <span className={pillBase}>
+                <span
+                  aria-hidden
+                  className={`${dotBase} ${
+                    domain.autoRenew === undefined
+                      ? "bg-[#9AA6B8]"
+                      : domain.autoRenew
+                        ? "bg-[#12A150]"
+                        : "bg-[#E8900A]"
+                  }`}
+                />
+                {domain.autoRenew === undefined ? "—" : domain.autoRenew ? "On" : "Off"}
               </span>
             </div>
           </div>
@@ -1232,24 +1211,23 @@ export default function ManageDomainPage() {
 
       {/* ══ CONTACT INFORMATION TAB ══════════════════════════════════════════ */}
       {activeDetailTab === "contact" && (
-        <div className="flex flex-col gap-5">
-          <h2 className="text-[15px] font-bold" style={{ color: "#1d1d1f" }}>
-            Contact Information
+        <div className="flex flex-col gap-4">
+          <h2 className="text-base font-semibold text-[#031033]">
+            Contact information
           </h2>
-          <div
-            className="flex flex-col items-center justify-center py-14 gap-3 rounded-lg"
-            style={{ border: "1px solid #e8e8ed", background: "#fff" }}
-          >
-            <Info className="w-8 h-8" style={{ color: "#aeaeb2" }} />
-            <p className="text-[14px] font-medium" style={{ color: "#6e6e73" }}>
-              Contact details are managed via the domain registrar.
+          <div className={`${cardCls} flex flex-col items-center justify-center py-12 px-5 gap-1 text-center`}>
+            <p className="text-sm font-medium text-[#031033]">
+              Contact details are managed through the domain registrar.
             </p>
-            <p className="text-[13px]" style={{ color: "#aeaeb2" }}>
+            <p className="text-sm text-[#5A6A85]">
               Contact{" "}
-              <span className="font-semibold" style={{ color: "#1787D4" }}>
+              <Link
+                href="/dashboard/tickets/create"
+                className={`rounded-sm font-medium text-[#1787D4] hover:underline underline-offset-2 ${focusRing}`}
+              >
                 support
-              </span>{" "}
-              if you need to update WHOIS information.
+              </Link>{" "}
+              to update WHOIS information.
             </p>
           </div>
         </div>
@@ -1260,33 +1238,46 @@ export default function ManageDomainPage() {
         !loadingDomain &&
         !errorDomain &&
         domain &&
+        domain.status !== "ACTIVE" && (
+          <div className={`${cardCls} p-5`}>
+            <p className="text-sm text-[#5A6A85]">
+              {domain.status === "EXPIRED"
+                ? "Transfer is unavailable because this domain has expired. Renew it first, then request the authorization code."
+                : "Transfer is unavailable until this domain is active. Registration may still be in progress."}
+            </p>
+          </div>
+        )}
+      {activeDetailTab === "transfer" &&
+        !loadingDomain &&
+        !errorDomain &&
+        domain &&
         domain.status === "ACTIVE" && (
-          <div className="bg-white border border-[#e2eaff]">
+          <div className={cardCls}>
             {/* Header */}
-            <div className="px-5 py-3.5 border-b border-[#e2eaff] flex items-center justify-between">
+            <div className={cardHeaderCls}>
               <div className="flex items-center gap-2">
-                <ArrowRightLeft className="w-4 h-4 text-[#9ba8c0]" />
-                <h2 className="text-sm font-semibold text-[#031033]">
-                  Transfer Domain Out
+                <ArrowRightLeft className="w-4 h-4 text-[#5A6A85]" />
+                <h2 className="text-base font-semibold text-[#031033]">
+                  Transfer domain out
                 </h2>
               </div>
             </div>
 
-            <div className="px-6 py-5 flex flex-col gap-4">
-              <p className="text-xs text-[#5a6a85] leading-relaxed">
-                If you want to transfer your domain name to another registrar,
-                you will need an authorization code (also known as EPP code or
-                transfer key).
+            <div className="p-5 flex flex-col gap-4">
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                To move this domain to another registrar you need its
+                authorization code, also called the EPP code or transfer key.
               </p>
 
               {authCode ? (
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-[#9ba8c0] uppercase tracking-wide">
-                    Authorization Code
+                <div className="flex flex-col">
+                  <label htmlFor="domain-auth-code" className={labelCls}>
+                    Authorization code
                   </label>
                   <div className="flex items-center gap-2 max-w-md">
-                    <div className="relative flex-1 flex items-center border border-[#dce4f7] bg-[#f6f9ff] px-3 py-2">
+                    <div className="relative flex-1 flex items-center h-10 rounded-lg border border-[#D5DCE6] bg-[#F2F5FC] pl-3 pr-1">
                       <input
+                        id="domain-auth-code"
                         type={showAuthCode ? "text" : "password"}
                         value={authCode}
                         readOnly
@@ -1295,8 +1286,13 @@ export default function ManageDomainPage() {
                       <button
                         type="button"
                         onClick={() => setShowAuthCode(!showAuthCode)}
-                        className="text-[#9ba8c0] hover:text-[#031033] p-1.5 transition-colors"
+                        className={iconBtn}
                         title={
+                          showAuthCode
+                            ? "Hide authorization code"
+                            : "Show authorization code"
+                        }
+                        aria-label={
                           showAuthCode
                             ? "Hide authorization code"
                             : "Show authorization code"
@@ -1319,24 +1315,24 @@ export default function ManageDomainPage() {
                         );
                         setTimeout(() => setCopiedAuthCode(false), 1500);
                       }}
-                      className="flex items-center gap-1 text-xs font-semibold text-[#1787D4] border border-[#1787D4]/30 bg-[#eff6fb] hover:bg-[#1787D4] hover:text-white px-3 py-2.5 transition-colors shrink-0"
+                      className={`${btnSecondary} h-10`}
                     >
                       {copiedAuthCode ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <Check className="w-4 h-4 text-[#0E7C3A]" />
                           Copied
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5" />
-                          Copy Code
+                          <Copy className="w-4 h-4 text-[#5A6A85]" />
+                          Copy code
                         </>
                       )}
                     </button>
                   </div>
-                  <p className="text-[10px] text-[#9ba8c0] mt-1">
-                    Keep this code confidential. Anyone with access to it can
-                    transfer your domain name.
+                  <p className="text-xs text-[#5A6A85] mt-1.5">
+                    Keep this code private. Anyone who has it can transfer
+                    your domain.
                   </p>
                 </div>
               ) : (
@@ -1344,12 +1340,12 @@ export default function ManageDomainPage() {
                   type="button"
                   onClick={handleRequestAuthCode}
                   disabled={fetchingAuthCode}
-                  className="self-start btn-primary text-xs px-4 py-2 flex items-center gap-2 disabled:opacity-60"
+                  className={`${btnPrimary} self-start`}
                 >
                   {fetchingAuthCode && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   )}
-                  Request Authorization (EPP) Code
+                  Request authorization (EPP) code
                 </button>
               )}
             </div>
@@ -1358,17 +1354,17 @@ export default function ManageDomainPage() {
 
       {/* ── Propagation notice (DNS tab only) ── */}
       {activeDetailTab === "dns" && (
-        <p className="text-xs text-[#9ba8c0] text-center pb-2">
-          DNS changes can take up to 24–48 hours to propagate globally.
+        <p className="text-xs text-[#5A6A85] text-center pb-2">
+          DNS changes can take 24–48 hours to propagate globally.
         </p>
       )}
 
       {/* ── Delete confirm ── */}
       {deleteTarget && (
         <ConfirmModal
-          title="Delete DNS Record"
+          title="Delete DNS record"
           message={`Delete the ${deleteTarget.type} record for "${deleteTarget.name}"? DNS changes may take time to propagate.`}
-          confirmLabel="Delete Record"
+          confirmLabel="Delete record"
           danger
           loading={deleting}
           onConfirm={() =>

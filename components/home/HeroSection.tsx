@@ -51,24 +51,24 @@ export default function HeroSection() {
       </div>
 
       {/* ── Bottom-center wavy squiggle ── */}
-      <div
-        className="absolute z-20 pointer-events-none"
-        style={{ bottom: "10%", left: "22%" }}
-      >
+      <div className="absolute z-20 pointer-events-none bottom-3 right-4 lg:right-auto lg:bottom-[10%] lg:left-[22%]">
         <Image
           src="/curveline.png"
           alt=""
           width={140}
           height={58}
-          className="w-64 h-auto"
+          className="w-28 sm:w-40 lg:w-64 h-auto"
           aria-hidden
         />
       </div>
 
       {/* ── Main content: left text column ── */}
       <div className="relative z-30 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-full">
-        <div className="max-w-lg lg:max-w-[46%]">
-          <h1 className="type-display text-white mb-5">
+        <div className="max-w-xl lg:max-w-[56%]">
+          <h1
+            className="type-display text-white mb-5"
+            style={{ fontSize: "clamp(2.5rem, 4.4vw, 3.375rem)" }}
+          >
             One <span className="text-[#FFC75D]">Platform</span> to Build,
             <br />
             Launch, and Run Your
@@ -76,25 +76,25 @@ export default function HeroSection() {
             <span className="text-[#FFC75D]">Digital Business.</span>
           </h1>
 
-          <p className="text-white/90 text-[15px] sm:text-[16px] leading-relaxed max-w-md mb-8">
+          <p className="text-white/90 text-base sm:text-lg leading-relaxed max-w-lg mb-8">
             We bring domains, hosting, AI website creation, cloud
-            infrastructure, email, payments, and business tools together giving
+            infrastructure, payments, and business tools together giving
             you everything you need to grow online.
           </p>
 
-          {/* Apple Pill CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-3.5">
+          {/* CTA buttons: same sizes and radius as buttons across the site */}
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/register"
               id="hero-get-started"
-              className="btn-white !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-semibold cursor-pointer"
+              className="inline-flex h-11 items-center justify-center rounded-lg bg-white px-5 text-sm font-medium text-[#031033] transition-colors hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1787D4]"
             >
               Get Started
             </Link>
             <Link
               href="/hosting"
               id="hero-explore-products"
-              className="btn-outline-white !rounded-full px-7 py-3 text-[14px] sm:text-[15px] font-semibold cursor-pointer"
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-white/40 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1787D4]"
             >
               Explore Hosting
             </Link>

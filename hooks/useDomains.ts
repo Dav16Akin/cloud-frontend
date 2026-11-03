@@ -47,7 +47,7 @@ export const useGetRegisteredDomains = () => {
                 status: d.status,
                 registrationDate: d.registeredAt ?? d.registrationDate ?? d.createdAt,
                 expiryDate: d.expiresAt ?? d.expiryDate ?? d.expirationDate,
-                autoRenew: d.autoRenew ?? true,
+                autoRenew: typeof d.autoRenew === "boolean" ? d.autoRenew : undefined,
               });
             }
           });
@@ -67,10 +67,12 @@ export const useGetRegisteredDomains = () => {
               domains.push({
                 id: `local-${index}`,
                 domain: domainStr,
-                status: "ACTIVE",
+                // Bought in this browser but not yet returned by the API: don't invent
+                // an active status, expiry date or auto-renew setting.
+                status: "PENDING",
                 registrationDate: new Date().toISOString().split("T")[0],
-                expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                autoRenew: true,
+                expiryDate: "",
+                autoRenew: undefined,
               });
             }
           });
@@ -103,7 +105,7 @@ export const useGetDomainById = (id: string | null) => {
         // Backend may return registeredAt/expiresAt — normalise to our type
         registrationDate: d.registeredAt ?? d.registrationDate ?? "",
         expiryDate: d.expiresAt ?? d.expiryDate ?? "",
-        autoRenew: d.autoRenew ?? true,
+        autoRenew: typeof d.autoRenew === "boolean" ? d.autoRenew : undefined,
         // Pass through nameservers array if present
         nameservers: Array.isArray(d.nameservers) ? d.nameservers : undefined,
       };

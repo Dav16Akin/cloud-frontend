@@ -97,6 +97,7 @@ export default function SslPurchaseWizard({
   // Step 5: Payment (Paystack)
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
   const [paymentReference, setPaymentReference] = useState<string>("");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // Step 6: Activation progress
   const [activationProgress, setActivationProgress] = useState<number>(15);
@@ -208,8 +209,7 @@ export default function SslPurchaseWizard({
     }
 
     setIsProcessingPayment(true);
-    const ref = `NC-SSL-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    setPaymentReference(ref);
+    setPaymentError(null);
 
     try {
       const res = await initializeCartPayment({
@@ -226,17 +226,21 @@ export default function SslPurchaseWizard({
       });
 
       if (res?.data?.paymentUrl) {
-        // Official Paystack payment URL
+        if (res.data.reference) setPaymentReference(res.data.reference);
+        // Official Paystack payment URL — activation continues after payment
         window.location.href = res.data.paymentUrl;
-      } else {
-        // Advance to activation step
-        setCurrentStep(6);
+        return;
       }
+      // No gateway URL means payment was not initialised: stay on this step.
+      const msg = "Payment could not be started: no Paystack payment link was returned. Please try again.";
+      setPaymentError(msg);
+      toast.error(msg);
+      setIsProcessingPayment(false);
     } catch (err: any) {
-      // In dev or sandbox, advance gracefully to the activation step with the reference
-      console.warn("Paystack initialize warning:", err?.message || err);
-      setCurrentStep(6);
-    } finally {
+      // Initialisation failed: show the error and stay on the payment step.
+      const msg = err?.message || "Failed to initialize payment. Please try again.";
+      setPaymentError(msg);
+      toast.error(msg);
       setIsProcessingPayment(false);
     }
   };
@@ -283,7 +287,7 @@ export default function SslPurchaseWizard({
   const backLabel = useMemo(() => {
     switch (currentStep) {
       case 1:
-        return "Back to SSL Certificates";
+        return "Back to SSL certificates";
       case 2:
         return "Back to domain selection";
       case 3:
@@ -308,7 +312,7 @@ export default function SslPurchaseWizard({
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{backLabel}</span>
@@ -318,20 +322,19 @@ export default function SslPurchaseWizard({
       {/* ── Heading & Subtitle ────────────────────────────────────────────── */}
       <div>
         <h1
-          className="text-[24px] sm:text-[28px] font-bold text-[#1d1d1f] tracking-tight"
-          style={{ letterSpacing: "-0.4px" }}
+          className="text-2xl font-semibold text-[#031033]"
         >
           {currentStep === 1 && "Secure your website"}
           {currentStep === 2 && "Choose your SSL certificate"}
           {currentStep === 3 && "Configure your certificate"}
           {currentStep === 4 && "Review your SSL certificate"}
           {currentStep === 5 && "Complete your payment"}
-          {currentStep === 6 && "Setting up your SSL certificate..."}
+          {currentStep === 6 && "Setting up your SSL certificate…"}
           {currentStep === 7 && "Your website is now protected"}
         </h1>
-        <p className="text-[13.5px] sm:text-[14px] text-[#6e6e73] mt-1 leading-relaxed">
+        <p className="text-sm text-[#5A6A85] mt-1">
           {currentStep === 1 &&
-            "Protect your website and give your visitors a secure, trusted browsing experience."}
+            "Encrypt traffic to your website and show visitors a valid HTTPS padlock."}
           {currentStep === 2 &&
             "Select the certificate that matches your website's security needs."}
           {currentStep === 3 &&
@@ -348,7 +351,7 @@ export default function SslPurchaseWizard({
       </div>
 
       {/* ── 7-Step Progress Stepper ───────────────────────────────────────── */}
-      <div className="w-full bg-white rounded-xl border border-[#e2eaff] p-3 sm:p-4 overflow-x-auto shadow-2xs">
+      <div className="w-full bg-white rounded-xl border border-[#E2E8F0] px-5 py-4 overflow-x-auto">
         <div className="flex items-center justify-between min-w-[620px] gap-2">
           {STEP_LABELS.map((label, idx) => {
             const stepNum = (idx + 1) as WizardStep;
@@ -359,23 +362,23 @@ export default function SslPurchaseWizard({
               <React.Fragment key={label}>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium tabular-nums transition-colors ${
                       isCompleted
-                        ? "bg-[#12a150] text-white"
+                        ? "bg-[#0E7C3A] text-white"
                         : isActive
-                        ? "bg-[#1787D4] text-white shadow-xs"
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                        ? "bg-[#1787D4] text-white"
+                        : "bg-[#EEF2F7] text-[#5A6A85]"
                     }`}
                   >
-                    {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : stepNum}
+                    {isCompleted ? <Check className="w-3.5 h-3.5" /> : stepNum}
                   </div>
                   <span
-                    className={`text-[12px] font-medium transition-colors ${
+                    className={`text-xs font-medium transition-colors ${
                       isActive
-                        ? "text-[#1787D4] font-semibold"
+                        ? "text-[#031033]"
                         : isCompleted
-                        ? "text-gray-900"
-                        : "text-gray-400"
+                        ? "text-[#031033]"
+                        : "text-[#5A6A85]"
                     }`}
                   >
                     {label}
@@ -384,8 +387,8 @@ export default function SslPurchaseWizard({
 
                 {idx < STEP_LABELS.length - 1 && (
                   <div
-                    className={`flex-1 h-[2px] transition-colors ${
-                      stepNum < currentStep ? "bg-[#12a150]" : "bg-gray-200"
+                    className={`flex-1 h-0.5 transition-colors ${
+                      stepNum < currentStep ? "bg-[#0E7C3A]" : "bg-[#EEF2F7]"
                     }`}
                   />
                 )}
@@ -402,20 +405,20 @@ export default function SslPurchaseWizard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Domain List / Custom Domain */}
           <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-4">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
               <div>
-                <h2 className="text-[16px] font-bold text-[#1d1d1f]">
+                <h2 className="text-base font-semibold text-[#031033]">
                   Choose a domain
                 </h2>
-                <p className="text-[13px] text-[#6e6e73] mt-0.5">
+                <p className="text-sm text-[#5A6A85] mt-0.5">
                   Select the active domain you want to protect.
                 </p>
               </div>
 
               {isLoadingDomains ? (
-                <div className="flex flex-col gap-3 py-4">
-                  <div className="h-14 rounded-xl bg-gray-100 animate-pulse" />
-                  <div className="h-14 rounded-xl bg-gray-100 animate-pulse" />
+                <div className="flex flex-col gap-2.5">
+                  <div className="h-16 rounded-lg bg-[#EEF2F7] animate-pulse" />
+                  <div className="h-16 rounded-lg bg-[#EEF2F7] animate-pulse" />
                 </div>
               ) : userDomains.length > 0 ? (
                 <div className="flex flex-col gap-2.5">
@@ -428,10 +431,10 @@ export default function SslPurchaseWizard({
                           setIsUsingCustomDomain(false);
                           setSelectedDomain(dom);
                         }}
-                        className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`flex items-center justify-between p-4 rounded-lg border transition-colors cursor-pointer ${
                           isSelected
-                            ? "border-[#1787D4] bg-[#f0f8ff] ring-1 ring-[#1787D4]/50 shadow-xs"
-                            : "border-[#e2eaff] bg-white hover:border-gray-300"
+                            ? "border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]/50"
+                            : "border-[#E2E8F0] bg-white hover:border-[#D5DCE6]"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -439,7 +442,7 @@ export default function SslPurchaseWizard({
                             className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
                               isSelected
                                 ? "border-[#1787D4] bg-[#1787D4]"
-                                : "border-gray-300 bg-white"
+                                : "border-[#D5DCE6] bg-white"
                             }`}
                           >
                             {isSelected && (
@@ -447,16 +450,17 @@ export default function SslPurchaseWizard({
                             )}
                           </div>
                           <div>
-                            <span className="text-[14px] font-bold text-[#1d1d1f]">
+                            <span className="text-sm font-medium text-[#031033]">
                               {dom}
                             </span>
-                            <span className="block text-[11.5px] text-[#6e6e73]">
+                            <span className="block text-xs text-[#5A6A85]">
                               Primary domain • DNS connected
                             </span>
                           </div>
                         </div>
 
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                        <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                          <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                           Active
                         </span>
                       </div>
@@ -464,33 +468,33 @@ export default function SslPurchaseWizard({
                   })}
                 </div>
               ) : (
-                <div className="p-4 rounded-xl bg-[#f8faff] border border-[#e2eaff] text-[13px] text-[#5a6a85]">
-                  No domains currently registered in your account. You can enter an external domain below.
+                <div className="p-4 rounded-lg bg-[#F2F5FC] text-sm text-[#5A6A85]">
+                  You have no registered domains. Enter a domain you own below.
                 </div>
               )}
 
               {/* Option to enter external / custom domain (Not auto-filled!) */}
-              <div className="pt-2 border-t border-[#f0f4f9] flex flex-col gap-3">
+              <div className="pt-4 border-t border-[#EEF2F7] flex flex-col gap-3">
                 <div
                   onClick={() => setIsUsingCustomDomain(true)}
-                  className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 p-3.5 rounded-lg border cursor-pointer transition-colors ${
                     isUsingCustomDomain
-                      ? "border-[#1787D4] bg-[#f0f8ff] ring-1 ring-[#1787D4]/50"
-                      : "border-[#e2eaff] bg-white hover:border-gray-300"
+                      ? "border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]/50"
+                      : "border-[#E2E8F0] bg-white hover:border-[#D5DCE6]"
                   }`}
                 >
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
                       isUsingCustomDomain
                         ? "border-[#1787D4] bg-[#1787D4]"
-                        : "border-gray-300 bg-white"
+                        : "border-[#D5DCE6] bg-white"
                     }`}
                   >
                     {isUsingCustomDomain && (
                       <div className="w-1.5 h-1.5 rounded-full bg-white" />
                     )}
                   </div>
-                  <span className="text-[13.5px] font-medium text-[#1d1d1f]">
+                  <span className="text-sm font-medium text-[#031033]">
                     Enter another domain name or subdomain
                   </span>
                 </div>
@@ -503,10 +507,10 @@ export default function SslPurchaseWizard({
                       value={customDomainInput}
                       onChange={(e) => setCustomDomainInput(e.target.value)}
                       placeholder="e.g. yourwebsite.com or shop.yourwebsite.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#cbd5e1] text-[13.5px] text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-[#1787D4]/30 focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                       autoFocus
                     />
-                    <span className="text-[11px] text-[#6e6e73]">
+                    <span className="text-xs text-[#5A6A85]">
                       Enter any domain you own to issue and configure an SSL certificate.
                     </span>
                   </div>
@@ -517,16 +521,16 @@ export default function SslPurchaseWizard({
 
           {/* Right Column: Selection Summary & Register CTA */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Your selection
               </h3>
 
-              <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                <span className="text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider block">
+              <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
+                <span className="text-xs text-[#5A6A85] block">
                   Domain
                 </span>
-                <span className="text-[15px] font-bold text-[#1d1d1f] block mt-1 truncate">
+                <span className="text-sm font-medium text-[#031033] block mt-1 truncate">
                   {isUsingCustomDomain
                     ? customDomainInput.trim() || "Enter domain name"
                     : selectedDomain || "No domain selected"}
@@ -542,25 +546,25 @@ export default function SslPurchaseWizard({
                     ? !customDomainInput.trim()
                     : !selectedDomain
                 }
-                className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-40 text-white text-[13.5px] font-semibold rounded-xl shadow-xs transition-all active:scale-98 cursor-pointer"
+                className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
               >
                 Continue
               </button>
             </div>
 
             {/* Don't have a domain CTA (matches screenshot) */}
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 shadow-xs flex flex-col gap-2.5">
-              <h4 className="text-[13.5px] font-bold text-[#1d1d1f]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-2.5">
+              <h4 className="text-sm font-semibold text-[#031033]">
                 Don&apos;t have a domain yet?
               </h4>
-              <p className="text-[12px] text-[#6e6e73] leading-relaxed">
+              <p className="text-xs text-[#5A6A85]">
                 Find the right name for your website and manage it in Nupat Cloud.
               </p>
               <Link
                 href="/dashboard/domains?tab=register"
-                className="inline-flex items-center justify-center py-2 px-3.5 mt-1 rounded-xl border border-[#e2eaff] bg-white hover:bg-gray-50 text-[12.5px] font-semibold text-[#1d1d1f] transition-colors"
+                className="inline-flex h-8 items-center justify-center px-3 mt-1 rounded-lg border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-sm font-medium text-[#031033] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Register a Domain
+                Register a domain
               </Link>
             </div>
           </div>
@@ -573,41 +577,41 @@ export default function SslPurchaseWizard({
       {currentStep === 2 && (
         <div className="flex flex-col gap-6">
           {isLoadingProducts ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="bg-white border border-[#e2eaff] rounded-2xl p-6 h-80 animate-pulse flex flex-col justify-between"
+                  className="bg-white border border-[#E2E8F0] rounded-lg p-6 h-80 animate-pulse flex flex-col justify-between"
                 >
                   <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-gray-200" />
-                    <div className="w-3/4 h-5 rounded bg-gray-200" />
-                    <div className="w-full h-12 rounded bg-gray-100" />
+                    <div className="w-24 h-5 rounded-full bg-[#EEF2F7]" />
+                    <div className="w-3/4 h-5 rounded bg-[#EEF2F7]" />
+                    <div className="w-full h-12 rounded bg-[#EEF2F7]" />
                   </div>
-                  <div className="w-full h-10 rounded-xl bg-gray-200" />
+                  <div className="w-full h-9 rounded-lg bg-[#EEF2F7]" />
                 </div>
               ))}
             </div>
           ) : isProductsError || products.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 text-center flex flex-col items-center justify-center gap-3">
-              <AlertCircle className="w-10 h-10 text-amber-500" />
-              <h3 className="text-base font-bold text-[#1d1d1f]">
-                No SSL products currently returned by the server
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 text-center flex flex-col items-center justify-center gap-2">
+              <AlertCircle className="w-5 h-5 text-[#E8900A]" />
+              <h3 className="text-base font-semibold text-[#031033]">
+                No SSL certificates available right now
               </h3>
-              <p className="text-sm text-[#6e6e73] max-w-md">
-                Unable to load SSL catalog from the API endpoint. Please retry or check back shortly.
+              <p className="text-sm text-[#5A6A85] max-w-md">
+                We couldn&apos;t load the SSL catalogue. Try again in a moment.
               </p>
               <button
                 type="button"
                 onClick={() => refetchProducts()}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#1787D4] text-white rounded-xl text-xs font-semibold hover:bg-[#1371B5] transition-colors"
+                className="mt-2 inline-flex h-8 items-center gap-2 px-3 border border-[#D5DCE6] bg-white text-[#031033] rounded-lg text-sm font-medium hover:bg-[#F2F5FC] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Retry
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
               {products.map((prod) => {
                 const isSelected = activeProduct?.id === prod.id;
                 const priceVal = prod.price || prod.prices?.[0]?.price || 0;
@@ -623,51 +627,48 @@ export default function SslPurchaseWizard({
                     key={prod.id}
                     id={`ssl-wizard-prod-${prod.id}`}
                     onClick={() => setSelectedProductId(prod.id)}
-                    className={`bg-white rounded-2xl p-6 transition-all border flex flex-col justify-between cursor-pointer relative ${
+                    className={`bg-white rounded-xl p-6 transition-colors border flex flex-col justify-between cursor-pointer relative ${
                       isSelected
-                        ? "border-[#1787D4] ring-2 ring-[#1787D4]/40 shadow-md"
-                        : "border-[#e2eaff] hover:border-gray-300 shadow-xs"
+                        ? "border-[#1787D4] ring-2 ring-[#1787D4]/40"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6]"
                     }`}
                   >
                     <div>
-                      {/* Shield icon & Validation badge */}
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center shrink-0 border border-[#b8ece5]">
-                          <Shield className="w-5 h-5 stroke-[2.2]" />
-                        </div>
-                        <span className="text-[10.5px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-[#5a6a85]">
+                      {/* Validation badge */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className="text-xs text-[#5A6A85] whitespace-nowrap">
                           {prod.isWildcard ? "Wildcard" : validationLabel}
                         </span>
                       </div>
 
                       {/* Product Name */}
-                      <h3 className="text-[18px] font-bold text-[#1d1d1f] tracking-tight">
+                      <h3 className="text-base font-semibold text-[#031033]">
                         {prod.name}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-[12.5px] text-[#6e6e73] mt-2 leading-relaxed">
+                      <p className="text-sm text-[#5A6A85] mt-2">
                         {prod.isWildcard
-                          ? "Secures your primary domain and unlimited subdomains with robust encryption."
-                          : "A straightforward, high-assurance certificate option for securing your website."}
+                          ? "Secures your primary domain and unlimited subdomains."
+                          : "A single-domain certificate for securing your website over HTTPS."}
                       </p>
 
                       {/* Price */}
-                      <div className="mt-4 pt-4 border-t border-[#f0f4f9]">
+                      <div className="mt-4 pt-4 border-t border-[#EEF2F7]">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-[24px] font-extrabold text-[#1d1d1f] tracking-tight">
+                          <span className="text-2xl font-semibold text-[#031033] tabular-nums">
                             {formatPrice(priceVal)}
                           </span>
-                          <span className="text-[12px] text-[#6e6e73] font-medium">
-                            yearly
+                          <span className="text-xs text-[#5A6A85]">
+                            / year
                           </span>
                         </div>
                       </div>
 
                       {/* Real Feature Bullets */}
-                      <div className="mt-4 flex flex-col gap-2 text-[12px] text-[#5a6a85]">
+                      <div className="mt-4 flex flex-col gap-2 text-sm text-[#5A6A85]">
                         <div className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5 text-[#12a150] shrink-0 stroke-[2.5]" />
+                          <Check className="w-3.5 h-3.5 text-[#0E7C3A] shrink-0" />
                           <span>
                             {prod.isWildcard
                               ? "Unlimited subdomains (*.domain.com)"
@@ -675,37 +676,37 @@ export default function SslPurchaseWizard({
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5 text-[#12a150] shrink-0 stroke-[2.5]" />
+                          <Check className="w-3.5 h-3.5 text-[#0E7C3A] shrink-0" />
                           <span>{validationLabel} workflow</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5 text-[#12a150] shrink-0 stroke-[2.5]" />
+                          <Check className="w-3.5 h-3.5 text-[#0E7C3A] shrink-0" />
                           <span>
                             Issuance: {prod.deliveryTime || "Fast automated delivery"}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5 text-[#12a150] shrink-0 stroke-[2.5]" />
+                          <Check className="w-3.5 h-3.5 text-[#0E7C3A] shrink-0" />
                           <span>Annual validity and renewal controls</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Action button */}
-                    <div className="mt-6 pt-3">
+                    <div className="mt-6">
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCertificateChoose(prod.id);
                         }}
-                        className={`w-full py-2.5 px-4 rounded-xl text-[13px] font-semibold transition-all active:scale-98 cursor-pointer ${
+                        className={`w-full h-9 px-4 rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                           isSelected
-                            ? "bg-[#1787D4] text-white hover:bg-[#1371B5] shadow-xs"
-                            : "bg-[#f8faff] text-[#1d1d1f] border border-[#e2eaff] hover:bg-[#edf4fc]"
+                            ? "bg-[#1787D4] text-white hover:bg-[#1370B5]"
+                            : "bg-white text-[#031033] border border-[#D5DCE6] hover:bg-[#F2F5FC]"
                         }`}
                       >
-                        Choose Certificate
+                        Choose certificate
                       </button>
                     </div>
                   </div>
@@ -723,18 +724,16 @@ export default function SslPurchaseWizard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Configuration card */}
           <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-5">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-5">
               {/* Header with change certificate button */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#f0f4f9]">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center shrink-0 border border-[#b8ece5]">
-                    <Shield className="w-5 h-5 stroke-[2.2]" />
-                  </div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#EEF2F7]">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-1" />
                   <div>
-                    <h2 className="text-[16px] font-bold text-[#1d1d1f]">
+                    <h2 className="text-base font-semibold text-[#031033]">
                       {activeProduct?.name || "Standard SSL"}
                     </h2>
-                    <p className="text-[12px] text-[#6e6e73]">
+                    <p className="text-xs text-[#5A6A85]">
                       Certificate configuration for {selectedDomain}
                     </p>
                   </div>
@@ -743,7 +742,7 @@ export default function SslPurchaseWizard({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="text-[12.5px] font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                  className="text-sm font-medium text-[#1787D4] hover:text-[#1370B5] cursor-pointer"
                 >
                   Change certificate
                 </button>
@@ -751,29 +750,29 @@ export default function SslPurchaseWizard({
 
               {/* 3 Detail Tiles (Domain, Certificate, Validity) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                  <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                <div className="bg-[#F2F5FC] rounded-lg p-3.5">
+                  <span className="text-xs font-medium text-[#5A6A85] block">
                     Domain
                   </span>
-                  <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block truncate">
+                  <span className="text-sm font-medium text-[#031033] mt-1 block truncate">
                     {selectedDomain}
                   </span>
                 </div>
 
-                <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                  <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                <div className="bg-[#F2F5FC] rounded-lg p-3.5">
+                  <span className="text-xs font-medium text-[#5A6A85] block">
                     Certificate
                   </span>
-                  <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block truncate">
+                  <span className="text-sm font-medium text-[#031033] mt-1 block truncate">
                     {activeProduct?.name || "SSL Certificate"}
                   </span>
                 </div>
 
-                <div className="bg-[#f8faff] rounded-xl border border-[#e2eaff] p-3.5">
-                  <span className="text-[11px] font-medium text-[#6e6e73] block uppercase tracking-wider">
+                <div className="bg-[#F2F5FC] rounded-lg p-3.5">
+                  <span className="text-xs font-medium text-[#5A6A85] block">
                     Validity
                   </span>
-                  <span className="text-[13.5px] font-bold text-[#1d1d1f] mt-1 block">
+                  <span className="text-sm font-medium text-[#031033] mt-1 block">
                     {selectedPeriod} year{selectedPeriod > 1 ? "s" : ""}
                   </span>
                 </div>
@@ -782,8 +781,8 @@ export default function SslPurchaseWizard({
               {/* Duration selector if multi-year prices exist in product */}
               {activeProduct?.prices && activeProduct.prices.length > 1 && (
                 <div className="flex flex-col gap-2">
-                  <label className="text-[12.5px] font-semibold text-[#1d1d1f]">
-                    Choose certificate duration:
+                  <label className="text-sm font-medium text-[#031033]">
+                    Certificate duration
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {activeProduct.prices.map((pr) => (
@@ -791,14 +790,14 @@ export default function SslPurchaseWizard({
                         key={pr.period}
                         type="button"
                         onClick={() => setSelectedPeriod(pr.period)}
-                        className={`p-2.5 rounded-xl border text-[12.5px] font-medium transition-all text-left ${
+                        className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors text-left cursor-pointer ${
                           selectedPeriod === pr.period
-                            ? "border-[#1787D4] bg-[#f0f8ff] text-[#1787D4] font-bold ring-1 ring-[#1787D4]"
-                            : "border-[#e2eaff] bg-white text-[#1d1d1f] hover:border-gray-300"
+                            ? "border-[#1787D4] bg-[#E8F4FC] text-[#031033] ring-1 ring-[#1787D4]"
+                            : "border-[#E2E8F0] bg-white text-[#031033] hover:border-[#D5DCE6]"
                         }`}
                       >
-                        <div>{pr.period} Year{pr.period > 1 ? "s" : ""}</div>
-                        <div className="text-[11px] text-gray-500 font-normal">
+                        <div>{pr.period} year{pr.period > 1 ? "s" : ""}</div>
+                        <div className="text-xs text-[#5A6A85] font-normal tabular-nums">
                           {formatPrice(pr.price)}
                         </div>
                       </button>
@@ -808,12 +807,12 @@ export default function SslPurchaseWizard({
               )}
 
               {/* Auto-Renewal Toggle (matches screenshot) */}
-              <div className="flex items-center justify-between p-4 rounded-xl border border-[#e2eaff] bg-white">
+              <div className="flex items-center justify-between p-4 rounded-lg border border-[#E2E8F0] bg-white">
                 <div className="pr-4">
-                  <span className="text-[14px] font-bold text-[#1d1d1f] block">
-                    Auto-Renewal
+                  <span className="text-sm font-medium text-[#031033] block">
+                    Auto-renewal
                   </span>
-                  <span className="text-[12px] text-[#6e6e73] mt-0.5 block leading-relaxed">
+                  <span className="text-xs text-[#5A6A85] mt-0.5 block">
                     Automatically renew this certificate before it expires to help avoid interruptions in website protection.
                   </span>
                 </div>
@@ -821,12 +820,12 @@ export default function SslPurchaseWizard({
                 <button
                   type="button"
                   onClick={() => setAutoRenew((prev) => !prev)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    autoRenew ? "bg-[#12a150]" : "bg-gray-200"
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                    autoRenew ? "bg-[#0E7C3A]" : "bg-[#D5DCE6]"
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white ring-0 transition duration-200 ease-in-out ${
                       autoRenew ? "translate-x-5" : "translate-x-0"
                     }`}
                   />
@@ -834,33 +833,33 @@ export default function SslPurchaseWizard({
               </div>
 
               {/* Optional Advanced Settings (CSR & Email) - NOT AUTO-FILLED! */}
-              <details className="text-[12.5px] text-[#5a6a85] pt-1">
-                <summary className="font-semibold text-[#1787D4] cursor-pointer hover:underline">
-                  Optional: Advanced verification settings (CSR / Approver Email)
+              <details className="text-sm text-[#5A6A85]">
+                <summary className="font-medium text-[#1787D4] cursor-pointer hover:text-[#1370B5]">
+                  Advanced verification settings (CSR, approver email), optional
                 </summary>
-                <div className="mt-3 flex flex-col gap-3 p-3.5 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
+                <div className="mt-3 flex flex-col gap-4 p-4 rounded-lg bg-[#F2F5FC]">
                   <div>
-                    <label className="block text-[11.5px] font-semibold text-[#1d1d1f] mb-1">
-                      Approver Email (Optional)
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
+                      Approver email (optional)
                     </label>
                     <input
                       type="email"
                       value={approverEmail}
                       onChange={(e) => setApproverEmail(e.target.value)}
                       placeholder="e.g. admin@yourdomain.com"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 text-xs focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11.5px] font-semibold text-[#1d1d1f] mb-1">
-                      Custom CSR (Optional)
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
+                      Custom CSR (optional)
                     </label>
                     <textarea
                       value={csr}
                       onChange={(e) => setCsr(e.target.value)}
-                      placeholder="Paste your CSR if you generate your own private key..."
+                      placeholder="Paste your CSR if you generate your own private key"
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 font-mono text-xs focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D5DCE6] bg-white font-mono text-xs text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                 </div>
@@ -870,29 +869,29 @@ export default function SslPurchaseWizard({
 
           {/* Right Column: Ready to continue summary */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Ready to continue
               </h3>
 
-              <div className="flex flex-col gap-2.5 text-[13px] bg-[#f8faff] rounded-xl border border-[#e2eaff] p-4">
-                <div className="flex justify-between">
-                  <span className="text-[#6e6e73]">Domain</span>
-                  <span className="font-bold text-[#1d1d1f] truncate max-w-[150px]">
+              <div className="flex flex-col text-sm divide-y divide-[#EEF2F7]">
+                <div className="flex justify-between gap-4 py-2.5 first:pt-0">
+                  <span className="text-[#5A6A85]">Domain</span>
+                  <span className="font-medium text-[#031033] truncate max-w-[150px] text-right">
                     {selectedDomain}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6e6e73]">Validity</span>
-                  <span className="font-bold text-[#1d1d1f]">
+                <div className="flex justify-between gap-4 py-2.5">
+                  <span className="text-[#5A6A85]">Validity</span>
+                  <span className="font-medium text-[#031033] tabular-nums">
                     {selectedPeriod} year{selectedPeriod > 1 ? "s" : ""}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6e6e73]">Auto-Renewal</span>
+                <div className="flex justify-between gap-4 py-2.5 last:pb-0">
+                  <span className="text-[#5A6A85]">Auto-renewal</span>
                   <span
-                    className={`font-bold ${
-                      autoRenew ? "text-[#12a150]" : "text-gray-500"
+                    className={`font-medium ${
+                      autoRenew ? "text-[#0E7C3A]" : "text-[#5A6A85]"
                     }`}
                   >
                     {autoRenew ? "On" : "Off"}
@@ -904,12 +903,12 @@ export default function SslPurchaseWizard({
                 type="button"
                 id="btn-continue-configure"
                 onClick={() => setCurrentStep(4)}
-                className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-xl shadow-xs transition-all active:scale-98 cursor-pointer"
+                className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
               >
-                Continue to Review
+                Continue to review
               </button>
 
-              <p className="text-[11.5px] text-[#6e6e73] text-center leading-relaxed">
+              <p className="text-xs text-[#5A6A85] text-center">
                 You can manage renewal settings after activation.
               </p>
             </div>
@@ -924,79 +923,77 @@ export default function SslPurchaseWizard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Review card */}
           <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-5">
-              <div className="flex items-center justify-between pb-3 border-b border-[#f0f4f9]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-5">
+              <div className="flex items-center justify-between pb-3 border-b border-[#EEF2F7]">
                 <div>
-                  <h2 className="text-[16px] font-bold text-[#1d1d1f]">
+                  <h2 className="text-base font-semibold text-[#031033]">
                     {activeProduct?.name || "Standard SSL"}
                   </h2>
-                  <p className="text-[12px] text-[#6e6e73]">
-                    One-year certificate configuration
+                  <p className="text-xs text-[#5A6A85]">
+                    {selectedPeriod}-year certificate configuration
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(3)}
-                  className="text-[12.5px] font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                  className="text-sm font-medium text-[#1787D4] hover:text-[#1370B5] cursor-pointer"
                 >
                   Edit
                 </button>
               </div>
 
               {/* Main detail pill card */}
-              <div className="p-4 rounded-xl border border-[#e2eaff] bg-[#f8faff] flex flex-col gap-3">
+              <div className="p-4 rounded-lg bg-[#F2F5FC] flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#e6f9ed] text-[#12a150] flex items-center justify-center">
-                      <Shield className="w-4 h-4 stroke-[2.2]" />
-                    </div>
-                    <div>
-                      <span className="text-[14px] font-bold text-[#1d1d1f]">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <span className="text-sm font-medium text-[#031033] block truncate">
                         {selectedDomain}
                       </span>
-                      <span className="block text-[11px] text-[#6e6e73]">
-                        {activeProduct?.name || "SSL Certificate"} • {selectedPeriod} year
+                      <span className="block text-xs text-[#5A6A85]">
+                        {activeProduct?.name || "SSL Certificate"} · {selectedPeriod} year{selectedPeriod > 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-[16px] font-extrabold text-[#1d1d1f]">
+                  <span className="text-base font-semibold text-[#031033] tabular-nums">
                     {formatPrice(activePrice)}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#e2eaff] text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#E2E8F0] text-xs">
                   <div>
-                    <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                    <span className="text-xs text-[#5A6A85] block">
                       Domain
                     </span>
-                    <span className="font-bold text-[#1d1d1f] truncate block">
+                    <span className="font-medium text-[#031033] truncate block">
                       {selectedDomain}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                    <span className="text-xs text-[#5A6A85] block">
                       Certificate
                     </span>
-                    <span className="font-bold text-[#1d1d1f] truncate block">
+                    <span className="font-medium text-[#031033] truncate block">
                       {activeProduct?.name}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                    <span className="text-xs text-[#5A6A85] block">
                       Validity
                     </span>
-                    <span className="font-bold text-[#1d1d1f] block">
+                    <span className="font-medium text-[#031033] block tabular-nums">
                       {selectedPeriod} year{selectedPeriod > 1 ? "s" : ""}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
-                      Auto-Renewal
+                    <span className="text-xs text-[#5A6A85] block">
+                      Auto-renewal
                     </span>
                     <span
-                      className={`font-bold block ${
-                        autoRenew ? "text-[#12a150]" : "text-gray-500"
+                      className={`font-medium block ${
+                        autoRenew ? "text-[#0E7C3A]" : "text-[#5A6A85]"
                       }`}
                     >
                       {autoRenew ? "On" : "Off"}
@@ -1006,11 +1003,11 @@ export default function SslPurchaseWizard({
               </div>
 
               {/* What happens next box (matches screenshot) */}
-              <div className="p-4 rounded-xl bg-gray-50 border border-gray-200/80">
-                <h4 className="text-[13px] font-bold text-[#1d1d1f]">
+              <div className="p-4 rounded-lg bg-[#F2F5FC]">
+                <h4 className="text-sm font-semibold text-[#031033]">
                   What happens next
                 </h4>
-                <p className="text-[12px] text-[#6e6e73] mt-1 leading-relaxed">
+                <p className="text-xs text-[#5A6A85] mt-1">
                   After payment, Nupat Cloud will request the certificate, validate {selectedDomain}, and activate it when validation completes.
                 </p>
               </div>
@@ -1019,42 +1016,41 @@ export default function SslPurchaseWizard({
 
           {/* Right Column: Order summary */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Order summary
               </h3>
 
-              <div className="flex flex-col gap-2.5 text-[13px] pb-3 border-b border-[#f0f4f9]">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6e6e73] truncate max-w-[170px]">
-                    {activeProduct?.name} • {selectedPeriod} yr
-                  </span>
-                  <span className="font-bold text-[#1d1d1f]">
+              <dl className="flex flex-col text-sm">
+                <div className="flex justify-between items-center gap-4 pb-2.5">
+                  <dt className="text-[#5A6A85] truncate">
+                    {activeProduct?.name} · {selectedPeriod} yr
+                  </dt>
+                  <dd className="font-medium text-[#031033] tabular-nums text-right">
                     {formatPrice(activePrice)}
-                  </span>
+                  </dd>
                 </div>
-                <div className="flex justify-between items-center text-xs text-[#6e6e73]">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(activePrice)}</span>
+                <div className="flex justify-between items-center gap-4 py-2.5 border-t border-[#EEF2F7]">
+                  <dt className="text-[#5A6A85]">Subtotal</dt>
+                  <dd className="text-[#031033] tabular-nums text-right">{formatPrice(activePrice)}</dd>
                 </div>
-              </div>
-
-              <div className="flex justify-between items-center text-[15px] font-extrabold text-[#1d1d1f]">
-                <span>Total due today</span>
-                <span className="text-[#1787D4] text-[18px]">
-                  {formatPrice(activePrice)}
-                </span>
-              </div>
+                <div className="flex justify-between items-baseline gap-4 pt-3 mt-1 border-t border-[#E2E8F0]">
+                  <dt className="font-semibold text-[#031033]">Total due today</dt>
+                  <dd className="text-lg font-semibold text-[#031033] tabular-nums text-right">
+                    {formatPrice(activePrice)}
+                  </dd>
+                </div>
+              </dl>
 
               {/* Terms agreement checkbox */}
-              <label className="flex items-start gap-2.5 text-[11.5px] text-[#5a6a85] cursor-pointer mt-1 select-none">
+              <label className="flex items-start gap-2.5 text-xs text-[#5A6A85] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-0.5 rounded text-[#1787D4] focus:ring-[#1787D4]"
+                  className="mt-0.5 rounded accent-[#1787D4] focus:ring-[#1787D4]"
                 />
-                <span className="leading-relaxed">
+                <span>
                   I confirm these certificate details are accurate and agree to the SSL Certificate Terms.
                 </span>
               </label>
@@ -1064,12 +1060,12 @@ export default function SslPurchaseWizard({
                 id="btn-proceed-to-payment"
                 onClick={() => setCurrentStep(5)}
                 disabled={!agreedToTerms}
-                className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-40 text-white text-[13.5px] font-semibold rounded-xl shadow-xs transition-all active:scale-98 cursor-pointer"
+                className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
               >
-                Proceed to Payment
+                Proceed to payment
               </button>
 
-              <p className="text-[11.5px] text-[#6e6e73] text-center leading-relaxed">
+              <p className="text-xs text-[#5A6A85] text-center">
                 Certificate setup starts immediately after payment is confirmed.
               </p>
             </div>
@@ -1084,20 +1080,20 @@ export default function SslPurchaseWizard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Payment Method Selection */}
           <div className="lg:col-span-8 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-5">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-5">
               <div>
-                <h2 className="text-[16px] font-bold text-[#1d1d1f]">
+                <h2 className="text-base font-semibold text-[#031033]">
                   Payment method
                 </h2>
-                <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                <p className="text-xs text-[#5A6A85] mt-0.5">
                   Your payment details are encrypted and handled securely.
                 </p>
               </div>
 
               {/* Paystack official checkout card */}
-              <div className="p-4 rounded-xl border border-[#1787D4] bg-[#f0f8ff] ring-1 ring-[#1787D4]/40 flex items-center justify-between">
+              <div className="p-4 rounded-lg border border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]/40 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-[#d8eaf8] flex items-center justify-center p-1.5 shadow-2xs">
+                  <div className="w-10 h-10 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center shrink-0">
                     <Image
                       src="/paystack-logo.svg"
                       alt="Paystack"
@@ -1107,25 +1103,26 @@ export default function SslPurchaseWizard({
                     />
                   </div>
                   <div>
-                    <span className="text-[14px] font-bold text-[#1d1d1f] block">
-                      Paystack Secure Checkout
+                    <span className="text-sm font-medium text-[#031033] block">
+                      Paystack secure checkout
                     </span>
-                    <span className="text-[12px] text-[#6e6e73] block mt-0.5">
-                      Debit / Credit Card, Bank Transfer, USSD
+                    <span className="text-xs text-[#5A6A85] block mt-0.5">
+                      Debit/credit card, bank transfer, USSD
                     </span>
                   </div>
                 </div>
 
-                <span className="text-xs font-bold text-[#1787D4] bg-white px-2.5 py-1 rounded-full border border-[#d8eaf8]">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                   Connected
                 </span>
               </div>
 
               {/* Security info notice (No fake auto-filled inputs) */}
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-[#5a6a85] leading-relaxed">
-                <Lock className="w-4 h-4 text-[#12a150] shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-[#F2F5FC] text-sm text-[#5A6A85]">
+                <Lock className="w-4 h-4 text-[#0E7C3A] shrink-0 mt-0.5" />
                 <span>
-                  Secured with 256-bit bank-grade encryption via Paystack. Your card credentials are never stored on our servers.
+                  Payments are encrypted and processed by Paystack. Your card details are never stored on our servers.
                 </span>
               </div>
             </div>
@@ -1133,53 +1130,64 @@ export default function SslPurchaseWizard({
 
           {/* Right Column: Payment trigger */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Order summary
               </h3>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#f8faff] border border-[#e2eaff]">
-                <Shield className="w-5 h-5 text-[#4AC3B4] shrink-0" />
-                <div className="truncate">
-                  <span className="text-[13px] font-bold text-[#1d1d1f] block truncate">
+              <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-[#F2F5FC]">
+                <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <span className="text-sm font-medium text-[#031033] block truncate">
                     {activeProduct?.name}
                   </span>
-                  <span className="text-[11px] text-[#6e6e73] block truncate">
-                    {selectedDomain} • {selectedPeriod} yr
+                  <span className="text-xs text-[#5A6A85] block truncate">
+                    {selectedDomain} · {selectedPeriod} yr
                   </span>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-[#6e6e73] pt-2">
-                <span>Subtotal</span>
-                <span>{formatPrice(activePrice)}</span>
-              </div>
-
-              <div className="flex justify-between items-center text-[15px] font-extrabold text-[#1d1d1f] pt-2 border-t border-[#f0f4f9]">
-                <span>Total</span>
-                <span className="text-[#1787D4] text-[18px]">
-                  {formatPrice(activePrice)}
-                </span>
-              </div>
+              <dl className="flex flex-col text-sm">
+                <div className="flex justify-between items-center gap-4 pb-2.5">
+                  <dt className="text-[#5A6A85]">Subtotal</dt>
+                  <dd className="text-[#031033] tabular-nums text-right">{formatPrice(activePrice)}</dd>
+                </div>
+                <div className="flex justify-between items-baseline gap-4 pt-3 border-t border-[#E2E8F0]">
+                  <dt className="font-semibold text-[#031033]">Total</dt>
+                  <dd className="text-lg font-semibold text-[#031033] tabular-nums text-right">
+                    {formatPrice(activePrice)}
+                  </dd>
+                </div>
+              </dl>
 
               <button
                 type="button"
                 id="btn-pay-ssl"
                 onClick={handlePaystackPayment}
                 disabled={isProcessingPayment}
-                className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 text-white text-[13.5px] font-semibold rounded-xl shadow-xs transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isProcessingPayment ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Connecting to Paystack...</span>
+                    <span>Connecting to Paystack…</span>
                   </>
                 ) : (
                   <span>Pay {formatPrice(activePrice)}</span>
                 )}
               </button>
 
-              <p className="text-[11px] text-[#6e6e73] text-center leading-relaxed">
+              {paymentError && (
+                <div
+                  role="alert"
+                  className="bg-[#FDECEC] border border-[#DC2626]/20 rounded-lg px-3 py-2.5 flex items-start gap-2 text-[#C21F1F] text-sm"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{paymentError}</span>
+                </div>
+              )}
+
+              <p className="text-xs text-[#5A6A85] text-center">
                 By clicking pay, you authorize this charge and agree to the SSL Certificate terms.
               </p>
             </div>
@@ -1192,25 +1200,23 @@ export default function SslPurchaseWizard({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {currentStep === 6 && (
         <div className="max-w-2xl mx-auto w-full">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-7 sm:p-9 shadow-sm flex flex-col items-center text-center gap-6">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-7 sm:p-9 flex flex-col items-center text-center gap-6">
             {/* Spinning Indicator */}
-            <div className="w-14 h-14 rounded-full bg-[#f0f8ff] text-[#1787D4] flex items-center justify-center relative">
-              <Loader2 className="w-8 h-8 animate-spin stroke-[2.2]" />
-            </div>
+            <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
 
             <div>
-              <h2 className="text-[20px] font-bold text-[#1d1d1f]">
+              <h2 className="text-lg font-semibold text-[#031033]">
                 Validating {selectedDomain}
               </h2>
-              <p className="text-[13px] text-[#6e6e73] mt-1">
+              <p className="text-sm text-[#5A6A85] mt-1">
                 Your payment is confirmed. We&apos;re validating the domain before activation.
               </p>
             </div>
 
             {/* Dynamic Progress Bar */}
-            <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-[#EEF2F7] h-2 rounded-full overflow-hidden">
               <div
-                className="bg-[#1787D4] h-full transition-all duration-700 ease-out rounded-full"
+                className="bg-[#1787D4] h-full transition-[width] duration-700 ease-out rounded-full"
                 style={{ width: `${activationProgress}%` }}
               />
             </div>
@@ -1218,12 +1224,12 @@ export default function SslPurchaseWizard({
             {/* Checklist items (matches screenshot) */}
             <div className="w-full flex flex-col gap-3 text-left pt-2">
               <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-4 h-4 text-[#12a150] shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                 <div>
-                  <span className="text-[13px] font-semibold text-[#1d1d1f] block">
+                  <span className="text-sm font-medium text-[#031033] block">
                     Payment confirmed
                   </span>
-                  <span className="text-[11px] text-[#6e6e73] block">
+                  <span className="text-xs text-[#5A6A85] block">
                     Payment received securely
                   </span>
                 </div>
@@ -1232,14 +1238,14 @@ export default function SslPurchaseWizard({
               <div className="flex items-center gap-3">
                 <CheckCircle2
                   className={`w-4 h-4 shrink-0 ${
-                    activationSubstep >= 2 ? "text-[#12a150]" : "text-gray-300"
+                    activationSubstep >= 2 ? "text-[#0E7C3A]" : "text-[#D5DCE6]"
                   }`}
                 />
                 <div>
-                  <span className="text-[13px] font-semibold text-[#1d1d1f] block">
+                  <span className="text-sm font-medium text-[#031033] block">
                     Certificate requested
                   </span>
-                  <span className="text-[11px] text-[#6e6e73] block">
+                  <span className="text-xs text-[#5A6A85] block">
                     {activeProduct?.name} request submitted
                   </span>
                 </div>
@@ -1247,15 +1253,15 @@ export default function SslPurchaseWizard({
 
               <div className="flex items-center gap-3">
                 {activationSubstep >= 3 ? (
-                  <CheckCircle2 className="w-4 h-4 text-[#12a150] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                 ) : (
                   <Loader2 className="w-4 h-4 text-[#1787D4] animate-spin shrink-0" />
                 )}
                 <div>
-                  <span className="text-[13px] font-semibold text-[#1d1d1f] block">
+                  <span className="text-sm font-medium text-[#031033] block">
                     Validating domain
                   </span>
-                  <span className="text-[11px] text-[#6e6e73] block">
+                  <span className="text-xs text-[#5A6A85] block">
                     Checking control of {selectedDomain}
                   </span>
                 </div>
@@ -1265,19 +1271,19 @@ export default function SslPurchaseWizard({
                 <div
                   className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${
                     activationSubstep >= 4
-                      ? "border-[#12a150] bg-[#12a150] text-white"
-                      : "border-gray-300 bg-white"
+                      ? "border-[#0E7C3A] bg-[#0E7C3A] text-white"
+                      : "border-[#D5DCE6] bg-white"
                   }`}
                 >
                   {activationSubstep >= 4 && <Check className="w-2.5 h-2.5" />}
                 </div>
                 <div>
-                  <span className="text-[13px] font-semibold text-[#1d1d1f] block">
+                  <span className="text-sm font-medium text-[#031033] block">
                     Activating certificate
                   </span>
-                  <span className="text-[11px] text-[#6e6e73] block">
+                  <span className="text-xs text-[#5A6A85] block">
                     {activationSubstep >= 4
-                      ? "Certificate activated!"
+                      ? "Certificate activated"
                       : "Pending domain validation"}
                   </span>
                 </div>
@@ -1285,14 +1291,14 @@ export default function SslPurchaseWizard({
             </div>
 
             {/* Reference Box */}
-            <div className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-[11.5px] text-[#6e6e73] flex items-center justify-between">
-              <span>Order reference:</span>
-              <span className="font-mono font-bold text-[#1d1d1f]">
-                {paymentReference || "NC-SSL-PROCESSING"}
+            <div className="w-full px-4 py-3 rounded-lg bg-[#F2F5FC] text-sm text-[#5A6A85] flex items-center justify-between gap-4">
+              <span>Order reference</span>
+              <span className={`font-mono text-sm truncate ${paymentReference ? "text-[#031033]" : "text-[#5A6A85]"}`}>
+                {paymentReference || "—"}
               </span>
             </div>
 
-            <p className="text-[11.5px] text-gray-400">
+            <p className="text-xs text-[#5A6A85]">
               This usually takes less than a minute. You can safely leave this screen while it completes.
             </p>
           </div>
@@ -1304,81 +1310,81 @@ export default function SslPurchaseWizard({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {currentStep === 7 && (
         <div className="max-w-2xl mx-auto w-full">
-          <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 sm:p-10 shadow-sm flex flex-col items-center text-center gap-6">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 sm:p-10 flex flex-col items-center text-center gap-6">
             {/* Official /checkmark.svg icon requested by user */}
             <div className="relative w-16 h-16 sm:w-20 sm:h-20">
               <Image
                 src="/checkmark.svg"
                 alt="Protected"
                 fill
+                sizes="80px"
                 className="object-contain"
                 priority
               />
             </div>
 
             <div>
-              <h2 className="text-[22px] sm:text-[24px] font-bold text-[#1d1d1f] tracking-tight">
+              <h2 className="text-lg font-semibold text-[#031033]">
                 Your website is now protected
               </h2>
-              <p className="text-[13.5px] text-[#6e6e73] mt-1 max-w-md">
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-md">
                 {activeProduct?.name || "Standard SSL"} has been activated and is now protecting {selectedDomain}.
               </p>
             </div>
 
             {/* Summary card pill */}
-            <div className="w-full p-4 sm:p-5 rounded-2xl border border-[#e2eaff] bg-[#f8faff] flex flex-col gap-3 text-left">
+            <div className="w-full p-4 sm:p-5 rounded-lg bg-[#F2F5FC] flex flex-col gap-3 text-left">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center">
-                    <Shield className="w-4 h-4 stroke-[2.2]" />
-                  </div>
-                  <div>
-                    <span className="text-[14px] font-bold text-[#1d1d1f]">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-[#031033] block truncate">
                       {activeProduct?.name || "Standard SSL"}
                     </span>
-                    <span className="block text-[11.5px] text-[#6e6e73]">
+                    <span className="block text-xs text-[#5A6A85]">
                       {selectedDomain}
                     </span>
                   </div>
                 </div>
 
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                   Active
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#e2eaff] text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#E2E8F0] text-xs">
                 <div>
-                  <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                  <span className="text-xs text-[#5A6A85] block">
                     Domain
                   </span>
-                  <span className="font-bold text-[#1d1d1f] truncate block">
+                  <span className="font-medium text-[#031033] truncate block">
                     {selectedDomain}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                  <span className="text-xs text-[#5A6A85] block">
                     Issued
                   </span>
-                  <span className="font-bold text-[#1d1d1f] block">
+                  <span className="font-medium text-[#031033] block tabular-nums">
                     {todayStr}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
+                  <span className="text-xs text-[#5A6A85] block">
                     Expires
                   </span>
-                  <span className="font-bold text-[#1d1d1f] block">
+                  <span className="font-medium text-[#031033] block tabular-nums">
                     {nextYearStr}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10.5px] text-[#6e6e73] block uppercase tracking-wider">
-                    Auto-Renew
+                  <span className="text-xs text-[#5A6A85] block">
+                    Auto-renewal
                   </span>
                   <span
-                    className={`font-bold block ${
-                      autoRenew ? "text-[#12a150]" : "text-gray-500"
+                    className={`font-medium block ${
+                      autoRenew ? "text-[#0E7C3A]" : "text-[#5A6A85]"
                     }`}
                   >
                     {autoRenew ? "On" : "Off"}
@@ -1391,27 +1397,27 @@ export default function SslPurchaseWizard({
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
               <Link
                 href={`/dashboard/ssl/${encodeURIComponent(selectedDomain)}`}
-                className="w-full sm:flex-1 py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl text-center transition-colors shadow-xs"
+                className="w-full sm:flex-1 inline-flex h-9 items-center justify-center px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Manage Certificate
+                Manage certificate
               </Link>
               <Link
                 href={`/dashboard/ssl/${encodeURIComponent(selectedDomain)}`}
-                className="w-full sm:flex-1 py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-xl text-center transition-colors"
+                className="w-full sm:flex-1 inline-flex h-9 items-center justify-center px-4 bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] text-[#031033] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                View Certificate Details
+                View certificate details
               </Link>
               <Link
                 href="/dashboard/ssl"
-                className="w-full sm:flex-1 py-2.5 px-4 text-[#1787D4] hover:bg-blue-50/50 text-[13px] font-semibold rounded-xl text-center transition-colors"
+                className="w-full sm:flex-1 inline-flex h-9 items-center justify-center px-4 text-[#1787D4] hover:bg-[#E8F4FC] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Go to SSL Certificates
+                Go to SSL certificates
               </Link>
             </div>
 
             {/* Green info alert at bottom */}
-            <div className="w-full p-3 rounded-xl bg-[#e6f9ed]/70 border border-[#b7eed0] text-[12px] text-[#12a150] flex items-center gap-2">
-              <Check className="w-4 h-4 stroke-[2.5] shrink-0" />
+            <div className="w-full px-4 py-3 rounded-lg border border-[#0E7C3A]/20 bg-[#E7F6EC] text-sm text-[#0E7C3A] flex items-center gap-2 text-left">
+              <Check className="w-4 h-4 shrink-0" />
               <span>
                 A certificate receipt and activation details were sent to your account email.
               </span>

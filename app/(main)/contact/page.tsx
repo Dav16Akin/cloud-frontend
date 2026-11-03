@@ -1,18 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   Mail,
   MapPin,
   Phone,
-  MessageSquare,
-  Key,
-  Users,
-  BookOpen,
   Plus,
   Minus,
+  Check,
   CheckCircle2,
   ArrowRight,
   Send,
@@ -53,13 +49,13 @@ function XIcon({ className }: { className?: string }) {
 }
 
 const TOPIC_OPTIONS = [
-  "General Inquiry",
+  "General inquiry",
   "Sales",
-  "Technical Support",
+  "Technical support",
   "Domains",
-  "Web Hosting",
-  "Cloud Infrastructure",
-  "Business Solutions",
+  "Web hosting",
+  "Cloud infrastructure",
+  "Business solutions",
   "Partnerships",
   "Other",
 ];
@@ -67,21 +63,72 @@ const TOPIC_OPTIONS = [
 const FAQS = [
   {
     q: "How quickly will I get a response?",
-    a: "Our team will respond as soon as possible during support hours (typically within 1–2 hours for general inquiries, and immediately via 24/7 priority channels).",
+    a: "During support hours we usually reply to general inquiries within 1–2 hours. Priority channels are staffed 24/7.",
   },
   {
     q: "Can I contact support about my domain or hosting?",
-    a: "Yes. Our support team can assist with questions related to your domain setup, DNS records, cPanel hosting, SSL certificates, and digital services.",
+    a: "Yes. Our support team can help with domain setup, DNS records, cPanel hosting, SSL certificates and our other services.",
   },
   {
     q: "Can I speak with someone about choosing a solution?",
-    a: "Yes. Contact our sales team for personalized help finding the right hosting plan, cloud infrastructure, or enterprise setup for your business.",
+    a: "Yes. Our sales team can help you pick the right hosting plan, cloud infrastructure or enterprise setup for your business.",
   },
   {
     q: "Where can I find technical documentation?",
-    a: "Visit our documentation portal (docs.nupatcloud.com) for comprehensive product guides, tutorials, API references, and developer resources.",
+    a: "Our documentation site (docs.nupatcloud.com) has product guides, tutorials, API references and developer resources.",
   },
 ];
+
+const BTN_PRIMARY =
+  "inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium bg-[#1787D4] text-white hover:bg-[#1370B5] transition-colors disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
+
+const INPUT =
+  "w-full h-11 px-4 rounded-lg border border-[#D5DCE6] bg-white text-base sm:text-sm text-[#031033] placeholder:text-[#8A97AD] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/20 transition-colors";
+
+const LABEL = "block text-sm font-medium text-[#031033] mb-1.5";
+
+const CARD_LINK =
+  "text-sm font-medium text-[#1787D4] hover:text-[#1370B5] hover:underline inline-flex items-center gap-1 mt-auto pt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] rounded";
+
+const HELP_CARDS = [
+  {
+    image: "/contact-1.png",
+    title: "Talk to our team",
+    body: "Questions about our products, pricing or the right setup for your business.",
+    href: "#send-message",
+    label: "Talk to sales",
+    external: false,
+  },
+  {
+    image: "/conatct-2.png",
+    title: "Get technical support",
+    body: "Help with your account, website, domain, hosting or cloud services.",
+    href: "https://wa.me/2349076646154?text=Hi,%20I%20need%20technical%20support%20with%20my%20Nupat%20account",
+    label: "Message support on WhatsApp",
+    external: true,
+  },
+  {
+    image: "/contact-3.png",
+    title: "Partner with us",
+    body: "Interested in working together or exploring a partnership?",
+    href: "#send-message",
+    label: "Discuss a partnership",
+    external: false,
+  },
+  {
+    image: "/contact-4.png",
+    title: "Find an answer yourself",
+    body: "Guides and documentation that cover the most common questions.",
+    href: "https://docs.nupatcloud.com",
+    label: "Read the documentation",
+    external: true,
+  },
+];
+
+const SUPPORT_EMAIL = "support@nupatcloud.com";
+
+const SOCIAL_LINK =
+  "w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -89,11 +136,10 @@ export default function ContactPage() {
     lastName: "",
     email: "",
     company: "",
-    topic: "General Inquiry",
+    topic: "General inquiry",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const toggleFaq = (index: number) => {
@@ -106,41 +152,53 @@ export default function ContactPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // The API has no public contact endpoint, so the form hands the message off
+  // to the visitor's email app, prefilled, instead of claiming it was sent.
+  const buildMailto = () => {
+    const name = `${form.firstName} ${form.lastName}`.trim();
+    const lines = [
+      `Name: ${name}`,
+      `Email: ${form.email}`,
+      ...(form.company.trim() ? [`Company: ${form.company.trim()}`] : []),
+      "",
+      form.message,
+    ];
+    return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+      form.topic
+    )}&body=${encodeURIComponent(lines.join("\n"))}`;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    // Simulate submission delay
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
+    window.location.href = buildMailto();
     setSubmitted(true);
   };
 
   return (
     <div className="flex flex-col bg-white overflow-hidden">
-      {/* ── 1. Hero Section ── */}
-      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20 overflow-hidden bg-gradient-to-b from-[#f2f7fc] via-[#f8faff] to-white border-b border-[#e2eaff]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Hero */}
+      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 bg-[#F2F5FC] border-b border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-            {/* Left Column */}
             <div className="lg:col-span-6 text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#031033] tracking-tight mb-5">
-                Contact Us
+              <h1 className="text-4xl sm:text-5xl font-semibold text-[#031033] mb-5">
+                Contact us
               </h1>
-              <p className="text-base sm:text-lg text-[#5a6a85] leading-relaxed mb-8 max-w-lg">
-                Whether you need help choosing a solution, have a question about our services, or need support, our team is here to help.
+              <p className="text-lg text-[#5A6A85] leading-relaxed mb-8 max-w-lg">
+                Ask us about choosing a plan, a question about our services, or
+                help with an account you already have.
               </p>
               <div className="flex items-center gap-4">
                 <a
                   href="#send-message"
                   id="hero-send-message-btn"
-                  className="btn-primary px-8 py-3.5 rounded-lg font-semibold text-sm shadow-xs transition-all active:scale-98"
+                  className={BTN_PRIMARY}
                 >
-                  Send Message
+                  Send a message
                 </a>
               </div>
             </div>
 
-            {/* Right Column (Hero Photo) */}
             <div className="lg:col-span-6 relative flex items-center justify-center">
               <div className="relative w-full max-w-[480px] lg:max-w-[520px]">
                 <Image
@@ -149,6 +207,7 @@ export default function ContactPage() {
                   width={520}
                   height={520}
                   priority
+                  sizes="(min-width: 1024px) 520px, (min-width: 640px) 480px, 90vw"
                   style={{ height: "auto" }}
                   className="w-full h-auto object-contain select-none"
                 />
@@ -158,171 +217,94 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── 2. "How can we help?" 4-Card Section ── */}
-      <section className="py-16 sm:py-20 bg-white">
+      {/* How can we help */}
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] tracking-tight">
+          <div className="max-w-2xl mb-10 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033]">
               How can we help?
             </h2>
-            <p className="text-sm sm:text-base text-[#5a6a85] mt-2.5">
-              Choose the best route and we&apos;ll connect you with the right Nupat Cloud team.
+            <p className="text-base text-[#5A6A85] mt-3">
+              Pick the closest match and we&apos;ll put you through to the
+              right Nupat Cloud team.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {/* Card 1: Talk to our team */}
-            <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
-              <div>
-                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
-                  <MessageSquare className="w-4.5 h-4.5" />
-                </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
+            {HELP_CARDS.map((card) => (
+              <div
+                key={card.title}
+                className="bg-white rounded-xl border border-[#E2E8F0] p-6 flex flex-col"
+              >
+                <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-5 bg-[#F2F5FC]">
                   <Image
-                    src="/contact-1.png"
-                    alt="Talk to our team"
+                    src={card.image}
+                    alt={card.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover group-hover:scale-102 transition-transform duration-300"
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
                   />
                 </div>
-                <h3 className="font-bold text-base text-[#031033] mb-1.5">
-                  Talk to our team
+                <h3 className="font-semibold text-lg text-[#031033] mb-1.5">
+                  {card.title}
                 </h3>
-                <p className="text-xs text-[#5a6a85] leading-relaxed mb-4">
-                  Have questions about our products, pricing, or the right solution for your business?
+                <p className="text-sm text-[#5A6A85] leading-relaxed mb-4">
+                  {card.body}
                 </p>
+                <a
+                  href={card.href}
+                  {...(card.external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  className={CARD_LINK}
+                >
+                  {card.label}
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               </div>
-              <a
-                href="#send-message"
-                className="text-xs font-bold text-[#1787D4] group-hover:text-[#1370B5] inline-flex items-center gap-1 mt-auto pt-2 hover:underline"
-              >
-                Talk to Sales &rarr;
-              </a>
-            </div>
-
-            {/* Card 2: Get technical support */}
-            <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
-              <div>
-                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
-                  <Key className="w-4.5 h-4.5" />
-                </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
-                  <Image
-                    src="/conatct-2.png"
-                    alt="Get technical support"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover group-hover:scale-102 transition-transform duration-300"
-                  />
-                </div>
-                <h3 className="font-bold text-base text-[#031033] mb-1.5">
-                  Get technical support
-                </h3>
-                <p className="text-xs text-[#5a6a85] leading-relaxed mb-4">
-                  Need help with your account, website, domain, hosting, or cloud services?
-                </p>
-              </div>
-              <a
-                href="https://wa.me/2349076646154?text=Hi,%20I%20need%20technical%20support%20with%20my%20Nupat%20account"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-bold text-[#1787D4] group-hover:text-[#1370B5] inline-flex items-center gap-1 mt-auto pt-2 hover:underline"
-              >
-                Get Support &rarr;
-              </a>
-            </div>
-
-            {/* Card 3: Partner with us */}
-            <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
-              <div>
-                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
-                  <Users className="w-4.5 h-4.5" />
-                </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
-                  <Image
-                    src="/contact-3.png"
-                    alt="Partner with us"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover group-hover:scale-102 transition-transform duration-300"
-                  />
-                </div>
-                <h3 className="font-bold text-base text-[#031033] mb-1.5">
-                  Partner with us
-                </h3>
-                <p className="text-xs text-[#5a6a85] leading-relaxed mb-4">
-                  Interested in working together or exploring a partnership opportunity?
-                </p>
-              </div>
-              <a
-                href="#send-message"
-                className="text-xs font-bold text-[#1787D4] group-hover:text-[#1370B5] inline-flex items-center gap-1 mt-auto pt-2 hover:underline"
-              >
-                Explore Partnerships &rarr;
-              </a>
-            </div>
-
-            {/* Card 4: Find an answer yourself */}
-            <div className="bg-white rounded-3xl border border-[#e2eaff] p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group">
-              <div>
-                <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center mb-3.5">
-                  <BookOpen className="w-4.5 h-4.5" />
-                </div>
-                <div className="relative w-full h-44 sm:h-48 rounded-lg overflow-hidden mb-4 bg-slate-100">
-                  <Image
-                    src="/contact-4.png"
-                    alt="Find an answer yourself"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover group-hover:scale-102 transition-transform duration-300"
-                  />
-                </div>
-                <h3 className="font-bold text-base text-[#031033] mb-1.5">
-                  Find an answer yourself
-                </h3>
-                <p className="text-xs text-[#5a6a85] leading-relaxed mb-4">
-                  Browse guides and documentation for quick answers to common questions.
-                </p>
-              </div>
-              <a
-                href="https://docs.nupatcloud.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-bold text-[#1787D4] group-hover:text-[#1370B5] inline-flex items-center gap-1 mt-auto pt-2 hover:underline"
-              >
-                Visit Documentation &rarr;
-              </a>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── 3. "Send us a message" Form & "Get in Touch" Card ── */}
-      <section id="send-message" className="py-16 sm:py-20 bg-[#f8faff] border-t border-[#e2eaff] scroll-mt-20">
+      {/* Form and contact details */}
+      <section id="send-message" className="py-16 sm:py-24 bg-[#F2F5FC] border-t border-[#E2E8F0] scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-10">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033]">
               Send us a message
             </h2>
-            <p className="text-sm sm:text-base text-[#5a6a85] mt-2">
-              Tell us what you need help with and we&apos;ll get back to you as soon as possible.
+            <p className="text-base text-[#5A6A85] mt-3">
+              Tell us what you need and we&apos;ll reply by email.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Form Card (Left) */}
-            <div className="lg:col-span-8 bg-white rounded-3xl border border-[#e2eaff] p-6 sm:p-8 md:p-10 shadow-xs">
+            <div className="lg:col-span-8 bg-white rounded-xl border border-[#E2E8F0] p-6 sm:p-8 md:p-10">
               {submitted ? (
                 <div className="py-12 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#031033] mb-2">Message Sent!</h3>
-                  <p className="text-sm text-[#5a6a85] max-w-md mb-6">
-                    Thank you for reaching out. One of our team members will review your message and reply via email shortly.
+                  <CheckCircle2 className="w-10 h-10 text-[#12A150] mb-4" />
+                  <h3 className="text-2xl font-semibold text-[#031033] mb-2">Your email app is open</h3>
+                  <p className="text-base text-[#5A6A85] max-w-md mb-6">
+                    We opened your email app with your message ready to send to{" "}
+                    {SUPPORT_EMAIL}. Press send there and we&apos;ll reply by
+                    email. If nothing opened,{" "}
+                    <a href={buildMailto()} className="text-[#1787D4] hover:underline">
+                      try again
+                    </a>{" "}
+                    or{" "}
+                    <a
+                      href="https://wa.me/2349076646154"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1787D4] hover:underline"
+                    >
+                      message us on WhatsApp
+                    </a>
+                    .
                   </p>
                   <button
+                    type="button"
                     onClick={() => {
                       setSubmitted(false);
                       setForm({
@@ -330,85 +312,87 @@ export default function ContactPage() {
                         lastName: "",
                         email: "",
                         company: "",
-                        topic: "General Inquiry",
+                        topic: "General inquiry",
                         message: "",
                       });
                     }}
-                    className="btn-primary py-2.5 px-6 rounded-lg text-xs font-semibold"
+                    className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-medium border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
                   >
-                    Send Another Message
+                    Write another message
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Row 1: Name fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#031033] mb-1.5">
-                        First Name
+                      <label htmlFor="contact-first-name" className={LABEL}>
+                        First name
                       </label>
                       <input
+                        id="contact-first-name"
                         type="text"
                         name="firstName"
                         required
+                        autoComplete="given-name"
                         value={form.firstName}
                         onChange={handleChange}
-                        placeholder="Enter your first name"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className={INPUT}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#031033] mb-1.5">
-                        Last Name
+                      <label htmlFor="contact-last-name" className={LABEL}>
+                        Last name
                       </label>
                       <input
+                        id="contact-last-name"
                         type="text"
                         name="lastName"
                         required
+                        autoComplete="family-name"
                         value={form.lastName}
                         onChange={handleChange}
-                        placeholder="Enter your last name"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className={INPUT}
                       />
                     </div>
                   </div>
 
-                  {/* Row 2: Email & Company */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#031033] mb-1.5">
-                        Work Email
+                      <label htmlFor="contact-email" className={LABEL}>
+                        Work email
                       </label>
                       <input
+                        id="contact-email"
                         type="email"
                         name="email"
                         required
+                        autoComplete="email"
                         value={form.email}
                         onChange={handleChange}
                         placeholder="you@company.com"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className={INPUT}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#031033] mb-1.5">
-                        Company Name (Optional)
+                      <label htmlFor="contact-company" className={LABEL}>
+                        Company name <span className="font-normal text-[#5A6A85]">(optional)</span>
                       </label>
                       <input
+                        id="contact-company"
                         type="text"
                         name="company"
+                        autoComplete="organization"
                         value={form.company}
                         onChange={handleChange}
-                        placeholder="Enter your company name"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors"
+                        className={INPUT}
                       />
                     </div>
                   </div>
 
-                  {/* Row 3: Topic selection */}
-                  <div>
-                    <label className="block text-xs font-bold text-[#031033] mb-2">
+                  <fieldset>
+                    <legend className="block text-sm font-medium text-[#031033] mb-2">
                       What can we help you with?
-                    </label>
+                    </legend>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                       {TOPIC_OPTIONS.map((item) => {
                         const isSelected = form.topic === item;
@@ -416,130 +400,112 @@ export default function ContactPage() {
                           <button
                             key={item}
                             type="button"
+                            aria-pressed={isSelected}
                             onClick={() => setForm((prev) => ({ ...prev, topic: item }))}
-                            className={`px-3.5 py-2.5 rounded-lg border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                            className={`h-10 px-3.5 rounded-lg border text-left text-sm transition-colors flex items-center justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] ${
                               isSelected
-                                ? "border-[#1787D4] bg-[#e8f4fc] text-[#1787D4] font-semibold"
-                                : "border-slate-200 bg-white text-[#5a6a85] hover:border-slate-300 hover:text-[#031033]"
+                                ? "border-[#1787D4] bg-[#E8F4FC] text-[#031033] font-medium"
+                                : "border-[#D5DCE6] bg-white text-[#5A6A85] hover:border-[#B8C3D3] hover:text-[#031033]"
                             }`}
                           >
                             <span>{item}</span>
-                            {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#1787D4] shrink-0" />}
+                            {isSelected && <Check className="w-4 h-4 text-[#1787D4] shrink-0" />}
                           </button>
                         );
                       })}
                     </div>
-                  </div>
+                  </fieldset>
 
-                  {/* Row 4: Message */}
                   <div>
-                    <label className="block text-xs font-bold text-[#031033] mb-1.5">
+                    <label htmlFor="contact-message" className={LABEL}>
                       Message
                     </label>
                     <textarea
+                      id="contact-message"
                       name="message"
                       rows={4}
                       required
                       value={form.message}
                       onChange={handleChange}
-                      placeholder="Tell us how we can help..."
-                      className="w-full px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/10 transition-colors resize-y"
+                      placeholder="Tell us how we can help"
+                      className="w-full px-4 py-3 rounded-lg border border-[#D5DCE6] bg-white text-base sm:text-sm text-[#031033] placeholder:text-[#8A97AD] focus:outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/20 transition-colors resize-y"
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <div>
                     <button
                       type="submit"
-                      disabled={loading}
                       id="contact-form-submit"
-                      className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-lg shadow-xs transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer flex items-center gap-2"
+                      className={BTN_PRIMARY}
                     >
-                      {loading ? "Sending..." : "Send Message"}
-                      <Send className="w-3.5 h-3.5" />
+                      Continue in email app
+                      <Send className="w-4 h-4" />
                     </button>
+                    <p className="text-xs text-[#5A6A85] mt-2">
+                      Opens your email app with this message addressed to{" "}
+                      {SUPPORT_EMAIL}.
+                    </p>
                   </div>
                 </form>
               )}
             </div>
 
-            {/* "Get in Touch" Card (Right) */}
-            <div className="lg:col-span-4 bg-[#0B66A3] rounded-3xl p-7 sm:p-8 text-white flex flex-col justify-between shadow-lg relative overflow-hidden">
-              {/* Subtle ambient light */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="relative z-10">
-                {/* Badge Icon */}
-                <div className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-white mb-6">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-
-                <h3 className="text-2xl font-extrabold text-white mb-1.5">
-                  Get in Touch
+            {/* Contact details */}
+            <div className="lg:col-span-4 bg-[#031033] rounded-xl p-6 sm:p-8 text-white flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-1.5">
+                  Get in touch
                 </h3>
-                <p className="text-xs text-white/80 mb-8 leading-relaxed">
-                  Reach us through any channel below.
+                <p className="text-sm text-white/70 mb-8 leading-relaxed">
+                  Reach us through any of these channels.
                 </p>
 
-                {/* Contact List */}
-                <div className="space-y-6">
-                  {/* Head Office */}
+                <dl className="space-y-6">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
+                    <MapPin className="w-5 h-5 text-white/70 shrink-0 mt-0.5" />
                     <div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-                        HEAD OFFICE
-                      </div>
-                      <div className="text-sm font-semibold text-white mt-0.5">
+                      <dt className="text-sm text-white/70">Head office</dt>
+                      <dd className="text-base font-medium text-white mt-0.5">
                         Lagos, Nigeria
-                      </div>
+                      </dd>
                     </div>
                   </div>
 
-                  {/* Email */}
                   <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <Mail className="w-4 h-4 text-white" />
-                    </div>
+                    <Mail className="w-5 h-5 text-white/70 shrink-0 mt-0.5" />
                     <div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-                        EMAIL
-                      </div>
-                      <a
-                        href="mailto:support@nupatcloud.com"
-                        className="text-sm font-semibold text-white mt-0.5 hover:underline block"
-                      >
-                        support@nupatcloud.com
-                      </a>
+                      <dt className="text-sm text-white/70">Email</dt>
+                      <dd>
+                        <a
+                          href={`mailto:${SUPPORT_EMAIL}`}
+                          className="text-base font-medium text-white mt-0.5 hover:underline block"
+                        >
+                          support@nupatcloud.com
+                        </a>
+                      </dd>
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <Phone className="w-4 h-4 text-white" />
-                    </div>
+                    <Phone className="w-5 h-5 text-white/70 shrink-0 mt-0.5" />
                     <div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-                        PHONE
-                      </div>
-                      <a
-                        href="tel:+2349076646154"
-                        className="text-sm font-semibold text-white mt-0.5 hover:underline block"
-                      >
-                        +234 907 664 6154
-                      </a>
+                      <dt className="text-sm text-white/70">Phone</dt>
+                      <dd>
+                        <a
+                          href="tel:+2349076646154"
+                          className="text-base font-medium text-white mt-0.5 hover:underline block tabular-nums"
+                        >
+                          +234 907 664 6154
+                        </a>
+                      </dd>
                     </div>
                   </div>
-                </div>
+                </dl>
               </div>
 
-              {/* Social Channels */}
-              <div className="pt-8 mt-8 border-t border-white/15 relative z-10">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-3.5">
-                  SOCIAL CHANNELS
+              <div className="pt-8 mt-8 border-t border-white/15">
+                <div className="text-sm text-white/70 mb-3.5">
+                  Follow us
                 </div>
                 <div className="flex items-center gap-2.5">
                   <a
@@ -547,7 +513,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    className={SOCIAL_LINK}
                   >
                     <FacebookIcon className="w-4 h-4" />
                   </a>
@@ -556,7 +522,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    className={SOCIAL_LINK}
                   >
                     <InstagramIcon className="w-4 h-4" />
                   </a>
@@ -565,7 +531,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X Twitter"
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    className={SOCIAL_LINK}
                   >
                     <XIcon className="w-3.5 h-3.5" />
                   </a>
@@ -574,7 +540,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    className={SOCIAL_LINK}
                   >
                     <LinkedInIcon className="w-4 h-4" />
                   </a>
@@ -585,44 +551,45 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── 4. "Before you reach out" (FAQ Accordion) ── */}
-      <section className="py-16 sm:py-24 bg-white border-t border-[#e2eaff]">
+      {/* FAQ */}
+      <section className="py-16 sm:py-24 bg-white border-t border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left Header */}
             <div className="lg:col-span-5">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#031033] tracking-tight mb-3">
+              <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033] mb-3">
                 Before you reach out
               </h2>
-              <p className="text-sm sm:text-base text-[#5a6a85] leading-relaxed max-w-md">
-                Find quick answers to the questions our team hears most often.
+              <p className="text-base text-[#5A6A85] leading-relaxed max-w-md">
+                Answers to the questions our team hears most often.
               </p>
             </div>
 
-            {/* Right Accordion List */}
             <div className="lg:col-span-7 space-y-3">
               {FAQS.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
                   <div
                     key={faq.q}
-                    className="bg-[#f8faff] rounded-lg border border-[#e2eaff] overflow-hidden transition-all shadow-2xs"
+                    className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden"
                   >
                     <button
                       type="button"
                       onClick={() => toggleFaq(index)}
-                      className="w-full py-4.5 px-5 sm:px-6 flex items-center justify-between text-left gap-4 cursor-pointer hover:bg-[#f2f7fc] transition-colors"
+                      aria-expanded={isOpen}
+                      className="w-full py-4 px-5 sm:px-6 flex items-center justify-between text-left gap-4 cursor-pointer hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1787D4]"
                     >
-                      <span className="font-bold text-sm sm:text-[15px] text-[#031033]">
+                      <span className="font-medium text-base text-[#031033]">
                         {faq.q}
                       </span>
-                      <div className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[#1787D4] shrink-0">
-                        {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                      </div>
+                      {isOpen ? (
+                        <Minus className="w-4 h-4 text-[#1787D4] shrink-0" />
+                      ) : (
+                        <Plus className="w-4 h-4 text-[#1787D4] shrink-0" />
+                      )}
                     </button>
 
                     {isOpen && (
-                      <div className="px-5 sm:px-6 pb-5 pt-1 text-xs sm:text-sm text-[#5a6a85] leading-relaxed border-t border-slate-100/80">
+                      <div className="px-5 sm:px-6 pb-5 pt-1 text-sm text-[#5A6A85] leading-relaxed">
                         {faq.a}
                       </div>
                     )}
@@ -634,38 +601,36 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── 5. Bottom Banner ("Need help getting started?") ── */}
-      <section className="relative overflow-hidden bg-[#FEC603] min-h-[380px] sm:min-h-[420px] md:min-h-[460px] flex items-center justify-center">
-        {/* Centered Image Background matching mockup framing */}
+      {/* Bottom banner */}
+      <section className="relative overflow-hidden bg-[#FFC75D] min-h-[380px] sm:min-h-[420px] md:min-h-[460px] flex items-center justify-center">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
           <div className="relative w-full max-w-[540px] sm:max-w-[620px] md:max-w-[720px] h-full">
             <Image
               src="/conatct-5.png"
               alt="Need help getting started"
               fill
-              priority
+              sizes="(min-width: 768px) 720px, (min-width: 640px) 620px, 100vw"
               className="object-cover object-top"
             />
           </div>
         </div>
 
-        {/* Transparent Dark Overlay for enhanced text pop & contrast */}
-        <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-[#031033]/45 pointer-events-none" />
 
-        {/* Centered Content Overlay matching design mockup */}
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-20 pb-12 sm:pt-28 sm:pb-16 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-extrabold text-white tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-2.5">
-            Need help getting started?
+          <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-3">
+            Not sure where to start?
           </h2>
-          <p className="text-sm sm:text-base md:text-lg text-white/95 font-medium max-w-lg mx-auto leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)] mb-6">
-            Explore our solutions or contact our team to find the right place to begin.
+          <p className="text-lg text-white max-w-lg mx-auto leading-relaxed mb-6">
+            Tell us what you&apos;re building and we&apos;ll point you to the
+            right service.
           </p>
           <div>
             <a
               href="#send-message"
-              className="inline-flex items-center justify-center bg-white text-[#0B66A3] hover:text-[#031033] hover:bg-slate-50 font-semibold px-7 py-3 rounded-lg text-sm sm:text-base shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-lg text-sm font-medium bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#031033]"
             >
-              Get in Touch
+              Send us a message
             </a>
           </div>
         </div>

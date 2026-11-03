@@ -43,32 +43,17 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Nupat Cloud on WhatsApp"
-      className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[980] flex items-center gap-3 bg-white/95 backdrop-blur-xl border border-slate-200/90 p-2 pr-2 sm:pr-4.5 rounded-full shadow-[0_10px_35px_rgba(3,16,51,0.14)] hover:shadow-[0_14px_40px_rgba(37,211,102,0.25)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] group cursor-pointer"
+      className="group fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[980] flex flex-row-reverse items-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(3,16,51,0.18)] transition-colors hover:bg-[#1EBE5A] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
     >
-      {/* WhatsApp Circular Icon with Live Indicator */}
-      <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#1ebe5d] to-[#25D366] text-white flex items-center justify-center shadow-md shadow-[#25D366]/35 group-hover:scale-105 transition-transform duration-300 shrink-0">
-        <WhatsAppIcon className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
-        
-        {/* Animated Online Pulse Indicator */}
-        <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white" />
-        </span>
-      </div>
+      {/* WhatsApp logo: the only thing shown until hover/focus */}
+      <span className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center">
+        <WhatsAppIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+      </span>
 
-      {/* Label (Pill content for desktop / larger viewports) */}
-      <div className="hidden sm:flex flex-col text-left select-none pr-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold text-emerald-600 tracking-wide uppercase">
-            Online
-          </span>
-          <span className="text-slate-300 text-[9px]">•</span>
-          <span className="text-[10.5px] text-[#5a6a85] font-medium">Instant Help</span>
-        </div>
-        <span className="text-[13px] font-bold text-[#031033] leading-tight group-hover:text-[#1787D4] transition-colors">
-          Chat on WhatsApp
-        </span>
-      </div>
+      {/* Label slides out to the left on hover or keyboard focus */}
+      <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-[max-width,opacity,padding] duration-200 ease-out group-hover:max-w-48 group-hover:pl-5 group-hover:opacity-100 group-focus-visible:max-w-48 group-focus-visible:pl-5 group-focus-visible:opacity-100 motion-reduce:transition-none select-none">
+        Chat on WhatsApp
+      </span>
     </a>
   );
 }

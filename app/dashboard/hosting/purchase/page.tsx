@@ -26,7 +26,7 @@ import {
   setRecentHostingPurchase,
 } from "@/hooks/useHosting";
 import { useGetMe } from "@/hooks/useUser";
-import { searchDomains, type Plan, type DomainResult } from "@/lib/api";
+import { searchDomains, type DomainResult } from "@/lib/api";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -68,8 +68,8 @@ const HOSTING_TYPES: HostingTypeOption[] = [
     title: "Web Hosting",
     description:
       "Fast, dependable hosting for websites of every size, with an easy control panel and built-in security.",
-    idealFor: "Blogs • portfolios • small business sites",
-    iconBg: "bg-blue-50 text-[#1787D4]",
+    idealFor: "Blogs, portfolios, small business sites",
+    iconBg: "text-[#5A6A85]",
     available: true,
   },
   {
@@ -77,8 +77,8 @@ const HOSTING_TYPES: HostingTypeOption[] = [
     title: "VPS Hosting",
     description:
       "Dedicated virtual resources and flexible server control for growing applications and advanced workloads.",
-    idealFor: "Developers • ecommerce • custom apps",
-    iconBg: "bg-indigo-50 text-indigo-600",
+    idealFor: "Developers, ecommerce, custom apps",
+    iconBg: "text-[#5A6A85]",
     available: false,
   },
   {
@@ -86,8 +86,8 @@ const HOSTING_TYPES: HostingTypeOption[] = [
     title: "Cloud Hosting",
     description:
       "Elastic infrastructure that scales with traffic and keeps business-critical experiences available.",
-    idealFor: "High-traffic sites • SaaS • growing teams",
-    iconBg: "bg-sky-50 text-sky-500",
+    idealFor: "High-traffic sites, SaaS, growing teams",
+    iconBg: "text-[#5A6A85]",
     available: false,
   },
   {
@@ -95,8 +95,8 @@ const HOSTING_TYPES: HostingTypeOption[] = [
     title: "Managed WordPress",
     description:
       "Optimized WordPress hosting with updates, backups, performance, and security managed for you.",
-    idealFor: "WordPress sites • agencies • publishers",
-    iconBg: "bg-teal-50 text-teal-600",
+    idealFor: "WordPress sites, agencies, publishers",
+    iconBg: "text-[#5A6A85]",
     available: false,
   },
 ];
@@ -109,20 +109,20 @@ function formatPrice(n: number) {
 
 function WebsiteBuilderIllustration() {
   return (
-    <div className="w-full h-32 bg-gradient-to-br from-blue-50 to-indigo-50/60 rounded-t-xl flex items-center justify-center p-3 relative overflow-hidden border-b border-gray-100">
-      <div className="w-48 bg-white rounded-lg shadow-sm border border-gray-200/80 p-2 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1 border-b border-gray-100 pb-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-          <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-          <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-          <div className="ml-2 w-20 h-1.5 bg-gray-100 rounded" />
+    <div className="w-full h-32 bg-[#F2F5FC] flex items-center justify-center p-3 relative overflow-hidden border-b border-[#EEF2F7]">
+      <div className="w-48 bg-white rounded-lg border border-[#E2E8F0] p-2 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1 border-b border-[#EEF2F7] pb-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#D5DCE6]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#D5DCE6]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#D5DCE6]" />
+          <div className="ml-2 w-20 h-1.5 bg-[#F2F5FC] rounded" />
         </div>
-        <div className="h-9 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded flex items-center justify-center">
-          <div className="w-14 h-2 bg-blue-500/30 rounded" />
+        <div className="h-9 bg-[#E8F4FC] rounded flex items-center justify-center">
+          <div className="w-14 h-2 bg-[#1787D4]/30 rounded" />
         </div>
         <div className="grid grid-cols-2 gap-1.5">
-          <div className="h-6 bg-gray-50 border border-gray-100 rounded" />
-          <div className="h-6 bg-gray-50 border border-gray-100 rounded" />
+          <div className="h-6 bg-[#F2F5FC] border border-[#EEF2F7] rounded" />
+          <div className="h-6 bg-[#F2F5FC] border border-[#EEF2F7] rounded" />
         </div>
       </div>
     </div>
@@ -131,45 +131,18 @@ function WebsiteBuilderIllustration() {
 
 function DomainSetupIllustration() {
   return (
-    <div className="w-full h-32 bg-gradient-to-br from-emerald-50/70 to-teal-50/70 rounded-t-xl flex items-center justify-center p-3 relative overflow-hidden border-b border-gray-100">
-      <div className="w-48 bg-white rounded-lg shadow-sm border border-gray-200/80 p-2.5 flex items-center justify-between gap-2">
-        <div className="w-9 h-9 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600">
-          <Globe className="w-4 h-4" />
-        </div>
+    <div className="w-full h-32 bg-[#F2F5FC] flex items-center justify-center p-3 relative overflow-hidden border-b border-[#EEF2F7]">
+      <div className="w-48 bg-white rounded-lg border border-[#E2E8F0] p-2.5 flex items-center justify-between gap-2">
+        <Globe className="w-4 h-4 text-[#5A6A85] shrink-0" />
         <div className="flex-1 flex flex-col gap-1">
-          <div className="w-20 h-2 bg-gray-200 rounded" />
-          <div className="w-12 h-1.5 bg-teal-500/40 rounded" />
+          <div className="w-20 h-2 bg-[#EEF2F7] rounded" />
+          <div className="w-12 h-1.5 bg-[#1787D4]/30 rounded" />
         </div>
-        <div className="w-7 h-7 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold">
-          ✓
-        </div>
+        <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0" />
       </div>
     </div>
   );
 }
-
-function EmailSetupIllustration() {
-  return (
-    <div className="w-full h-32 bg-gradient-to-br from-sky-50/80 to-blue-50/80 rounded-t-xl flex items-center justify-center p-3 relative overflow-hidden border-b border-gray-100">
-      <div className="w-48 bg-white rounded-lg shadow-sm border border-gray-200/80 p-2.5 flex flex-col gap-1.5">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
-            @
-          </div>
-          <div className="flex-1">
-            <div className="w-16 h-2 bg-gray-200 rounded" />
-          </div>
-        </div>
-        <div className="space-y-1">
-          <div className="h-2 bg-gray-100 rounded w-full" />
-          <div className="h-2 bg-gray-100 rounded w-4/5" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Horizontal Stepper (Matching Domain Registration Wizard Design) ────────────
 
 function StepperBar({ currentStep }: { currentStep: StepId }) {
   const getActiveStepNumber = (): number => {
@@ -197,8 +170,8 @@ function StepperBar({ currentStep }: { currentStep: StepId }) {
   const activeNum = getActiveStepNumber();
 
   return (
-    <div className="w-full bg-white rounded-lg border border-[#e8e8ed] px-4 sm:px-8 py-3.5 shadow-sm">
-      <div className="flex items-center justify-between overflow-x-auto gap-2">
+    <div className="w-full bg-white rounded-xl border border-[#E2E8F0] px-4 sm:px-6 py-3.5">
+      <ol className="flex items-center justify-between overflow-x-auto gap-2">
         {[
           { num: 1, label: "Hosting" },
           { num: 2, label: "Plan" },
@@ -211,29 +184,26 @@ function StepperBar({ currentStep }: { currentStep: StepId }) {
           const isActive = activeNum === s.num;
 
           return (
-            <div
+            <li
               key={s.num}
               className="flex items-center flex-1 last:flex-none"
+              aria-current={isActive ? "step" : undefined}
             >
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 transition-colors ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0 tabular-nums transition-colors ${
                     isCompleted
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-[#E8F4FC] text-[#1787D4]"
                       : isActive
                         ? "bg-[#1787D4] text-white"
-                        : "bg-[#e5e7eb] text-[#6b7280]"
+                        : "bg-[#EEF2F7] text-[#5A6A85]"
                   }`}
                 >
-                  {isCompleted ? "✓" : s.num}
+                  {isCompleted ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : s.num}
                 </div>
                 <span
-                  className={`text-[13px] font-medium whitespace-nowrap hidden sm:inline ${
-                    isActive
-                      ? "text-[#1787D4] font-semibold"
-                      : isCompleted
-                        ? "text-[#1d1d1f]"
-                        : "text-[#9ca3af]"
+                  className={`text-sm font-medium whitespace-nowrap hidden sm:inline ${
+                    isActive || isCompleted ? "text-[#031033]" : "text-[#5A6A85]"
                   }`}
                 >
                   {s.label}
@@ -241,15 +211,15 @@ function StepperBar({ currentStep }: { currentStep: StepId }) {
               </div>
               {idx < arr.length - 1 && (
                 <div
-                  className={`flex-1 h-[2px] mx-3 transition-colors ${
-                    isCompleted ? "bg-[#1787D4]" : "bg-[#e5e7eb]"
+                  className={`flex-1 h-px mx-3 transition-colors ${
+                    isCompleted ? "bg-[#1787D4]" : "bg-[#E2E8F0]"
                   }`}
                 />
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </div>
   );
 }
@@ -450,12 +420,12 @@ function HostingPurchaseFlow() {
       const t2 = setTimeout(() => setActivatingStep(3), 2600);
       const t3 = setTimeout(() => setActivatingStep(4), 3800);
       const t4 = setTimeout(() => {
-        if (selectedPlan) {
+        if (selectedPlan && orderReference) {
           setRecentHostingPurchase({
             domain: domainName,
             planName: `${selectedPlan.name} Hosting`,
             planId: selectedPlan.id,
-            reference: orderReference || "HOST-ORDER",
+            reference: orderReference,
           });
         }
         setCurrentStep("ready");
@@ -483,15 +453,15 @@ function HostingPurchaseFlow() {
       <button
         type="button"
         onClick={backAction}
-        className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer mb-3"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer mb-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
       >
         <ArrowLeft className="w-4 h-4" />
         {backText}
       </button>
-      <h2 className="text-[22px] sm:text-[24px] font-bold text-[#1d1d1f] tracking-tight">
+      <h1 className="text-2xl font-semibold text-[#031033]">
         {title}
-      </h2>
-      <p className="text-[13.5px] text-[#6e6e73] mt-0.5">{subtitle}</p>
+      </h1>
+      <p className="text-sm text-[#5A6A85] mt-1">{subtitle}</p>
     </div>
   );
 
@@ -511,18 +481,16 @@ function HostingPurchaseFlow() {
 
           <StepperBar currentStep={currentStep} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {HOSTING_TYPES.map((h) => (
               <div
                 key={h.id}
-                className="bg-white border border-[#e8e8ed] rounded-xl p-6 sm:p-7 shadow-xs flex flex-col justify-between hover:border-[#1787D4]/40 transition-all"
+                className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between transition-colors hover:border-[#D5DCE6]"
               >
                 <div>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${h.iconBg}`}
-                      >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`shrink-0 ${h.iconBg}`}>
                         {h.id === "web" && <Globe className="w-5 h-5" />}
                         {h.id === "vps" && <Server className="w-5 h-5" />}
                         {h.id === "cloud" && <Cloud className="w-5 h-5" />}
@@ -531,51 +499,49 @@ function HostingPurchaseFlow() {
                             className="w-5 h-5"
                             viewBox="0 0 24 24"
                             fill="currentColor"
+                            aria-hidden="true"
                           >
                             <path d="M12.002 0a12 12 0 1 0 12 12 12.013 12.013 0 0 0-12-12zm0 23.04a11.04 11.04 0 1 1 11.04-11.04 11.053 11.053 0 0 1-11.04 11.04zm7.986-12.87c.07.493.104.996.104 1.503a8.1 8.1 0 0 1-1.636 4.908l-3.32-9.617c.563-.03 1.096-.062 1.096-.062a.455.455 0 0 0 0-.91s-1.396.114-2.302.114c-.875 0-2.27-.114-2.27-.114a.455.455 0 0 0 0 .91s.503.032 1.034.062l1.53 4.218-2.148 6.438-3.568-10.656c.563-.03 1.096-.062 1.096-.062a.455.455 0 1 0 0-.91s-1.396.114-2.302.114c-.219 0-.479-.008-.75-.018A8.136 8.136 0 0 1 12 3.868a8.1 8.1 0 0 1 6.55 3.332l-1.385 4.021a6.6 6.6 0 0 1 2.823-.051z" />
                           </svg>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+                      </span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-base font-semibold text-[#031033]">
                           {h.title}
                         </h3>
                         {!h.available && (
-                          <span className="bg-gray-100 text-[#64748b] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Coming Soon
+                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#5A6A85]">
+                            <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9AA6B8]" />
+                            Coming soon
                           </span>
                         )}
                       </div>
                     </div>
-                    {h.available ? (
-                      <button
-                        type="button"
-                        className="text-xs text-[#1787D4] font-medium hover:underline"
+                    {h.available && (
+                      <Link
+                        href="/hosting"
+                        className="text-sm text-[#1787D4] font-medium hover:underline shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                       >
                         Learn more
-                      </button>
-                    ) : (
-                      <span className="text-xs text-[#94a3b8] font-medium">
-                        Soon
-                      </span>
+                      </Link>
                     )}
                   </div>
 
-                  <p className="text-[13px] text-[#6e6e73] mt-4 leading-relaxed">
+                  <p className="text-sm text-[#5A6A85] mt-3 leading-relaxed">
                     {h.description}
                   </p>
 
-                  <div className="mt-5">
-                    <span className="text-[10px] font-semibold text-[#8a9bb5] uppercase tracking-wider block">
-                      IDEAL FOR
+                  <div className="mt-4">
+                    <span className="text-xs text-[#5A6A85] block">
+                      Ideal for
                     </span>
-                    <p className="text-xs text-[#334155] mt-0.5 font-medium">
+                    <p className="text-sm text-[#031033] mt-0.5">
                       {h.idealFor}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-2">
+                <div className="mt-6">
                   {h.available ? (
                     <button
                       type="button"
@@ -583,17 +549,17 @@ function HostingPurchaseFlow() {
                         setSelectedHostingType(h.id);
                         setCurrentStep("plan");
                       }}
-                      className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-[#1787D4] hover:bg-[#1372b5] text-white shadow-xs cursor-pointer"
+                      className="w-full h-9 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 transition-colors bg-[#1787D4] hover:bg-[#1370B5] text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                     >
-                      View Plans →
+                      View plans →
                     </button>
                   ) : (
                     <button
                       type="button"
                       disabled
-                      className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 bg-[#f8fafc] border border-gray-200 text-[#94a3b8] cursor-not-allowed"
+                      className="w-full h-9 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 bg-[#F2F5FC] border border-[#E2E8F0] text-[#5A6A85] cursor-not-allowed"
                     >
-                      Coming Soon
+                      Coming soon
                     </button>
                   )}
                 </div>
@@ -619,24 +585,24 @@ function HostingPurchaseFlow() {
 
           {/* Loading Skeleton */}
           {loadingPlans && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch w-full">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-xl p-6 sm:p-7 border border-[#e8e8ed] shadow-xs animate-pulse flex flex-col justify-between min-h-[420px]"
+                  className="bg-white rounded-xl p-6 border border-[#E2E8F0] animate-pulse flex flex-col justify-between min-h-[420px]"
                 >
                   <div className="space-y-4">
-                    <div className="h-6 w-28 bg-gray-200 rounded" />
-                    <div className="h-8 w-36 bg-gray-200 rounded" />
-                    <div className="h-4 w-48 bg-gray-100 rounded" />
+                    <div className="h-5 w-28 bg-[#EEF2F7] rounded" />
+                    <div className="h-7 w-36 bg-[#EEF2F7] rounded" />
+                    <div className="h-4 w-48 bg-[#EEF2F7] rounded" />
                     <div className="pt-4 space-y-3">
-                      <div className="h-4 w-3/4 bg-gray-100 rounded" />
-                      <div className="h-4 w-2/3 bg-gray-100 rounded" />
-                      <div className="h-4 w-4/5 bg-gray-100 rounded" />
-                      <div className="h-4 w-1/2 bg-gray-100 rounded" />
+                      <div className="h-4 w-3/4 bg-[#EEF2F7] rounded" />
+                      <div className="h-4 w-2/3 bg-[#EEF2F7] rounded" />
+                      <div className="h-4 w-4/5 bg-[#EEF2F7] rounded" />
+                      <div className="h-4 w-1/2 bg-[#EEF2F7] rounded" />
                     </div>
                   </div>
-                  <div className="h-10 w-full bg-gray-200 rounded-lg mt-6" />
+                  <div className="h-9 w-full bg-[#EEF2F7] rounded-lg mt-6" />
                 </div>
               ))}
             </div>
@@ -644,30 +610,32 @@ function HostingPurchaseFlow() {
 
           {/* Error State */}
           {!loadingPlans && (plansError || !plans || plans.length === 0) && (
-            <div className="bg-white rounded-xl border border-red-200 p-8 text-center max-w-lg mx-auto w-full shadow-xs">
-              <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 mx-auto flex items-center justify-center mb-3">
-                <Info className="w-6 h-6" />
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-6 max-w-lg mx-auto w-full">
+              <div className="flex items-start gap-3">
+                <Info className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    Unable to load hosting plans
+                  </h3>
+                  <p className="text-sm text-[#5A6A85] mt-1 leading-relaxed">
+                    We couldn&apos;t retrieve the current hosting plans from the
+                    server. Please check your network and try again.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => refetchPlans()}
+                    className="mt-4 h-9 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
+                  >
+                    Retry
+                  </button>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#1d1d1f]">
-                Unable to load hosting plans
-              </h3>
-              <p className="text-xs text-[#6e6e73] mt-1.5 leading-relaxed">
-                We couldn&apos;t retrieve the current hosting plans from the
-                server. Please check your network and try again.
-              </p>
-              <button
-                type="button"
-                onClick={() => refetchPlans()}
-                className="mt-4 px-5 py-2.5 bg-[#1787D4] hover:bg-[#1372b5] text-white text-xs font-semibold rounded-lg transition-all cursor-pointer"
-              >
-                Retry
-              </button>
             </div>
           )}
 
           {/* Real API Plans */}
           {!loadingPlans && plans && plans.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch w-full">
               {plans.map((p) => {
                 const isRecommended = p.isPopular;
                 const subtitle =
@@ -677,83 +645,83 @@ function HostingPurchaseFlow() {
                 return (
                   <div
                     key={p.id}
-                    className={`bg-white rounded-xl p-6 sm:p-7 flex flex-col justify-between transition-all relative ${
+                    className={`bg-white rounded-xl p-6 flex flex-col justify-between relative border ${
                       isRecommended
-                        ? "border-2 border-[#1787D4] shadow-md ring-4 ring-[#1787D4]/5"
-                        : "border border-[#e8e8ed] shadow-xs"
+                        ? "border-[#1787D4] ring-1 ring-[#1787D4]"
+                        : "border-[#E2E8F0]"
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between min-h-[24px]">
-                        <h3 className="text-[17px] font-bold text-[#1d1d1f]">
+                      <div className="flex items-center justify-between min-h-6">
+                        <h3 className="text-base font-semibold text-[#031033]">
                           {p.name}
                         </h3>
                         {isRecommended && (
-                          <span className="bg-[#e0f2fe] text-[#0284c7] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-medium text-[#1370B5] whitespace-nowrap">
                             Recommended
                           </span>
                         )}
                       </div>
 
                       <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-[#1d1d1f]">
+                        <span className="text-2xl font-semibold text-[#031033] tabular-nums">
                           {formatPrice(p.price)}
                         </span>
-                        <span className="text-xs text-[#64748b] font-normal">
+                        <span className="text-sm text-[#5A6A85]">
                           /year
                         </span>
                       </div>
 
-                      <p className="text-[13px] text-[#6e6e73] mt-2 pb-4 border-b border-[#f0f4fc]">
+                      <p className="text-sm text-[#5A6A85] mt-2 pb-4 border-b border-[#EEF2F7]">
                         {subtitle}
                       </p>
 
-                      <div className="mt-4 space-y-2.5">
-                        <div className="flex items-center gap-2 text-xs text-[#334155]">
-                          <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0 stroke-[2.5]" />
+                      <ul className="mt-4 space-y-2.5">
+                        <li className="flex items-center gap-2 text-sm text-[#031033]">
+                          <Check className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                           <span>
                             {p.websites >= 999
                               ? "Unlimited websites"
                               : `${p.websites} website${p.websites > 1 ? "s" : ""}`}
                           </span>
-                        </div>
+                        </li>
 
-                        <div className="flex items-center gap-2 text-xs text-[#334155]">
-                          <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0 stroke-[2.5]" />
+                        <li className="flex items-center gap-2 text-sm text-[#031033]">
+                          <Check className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                           <span>{p.storage} storage</span>
-                        </div>
+                        </li>
 
-                        <div className="flex items-center gap-2 text-xs text-[#334155]">
-                          <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0 stroke-[2.5]" />
+                        <li className="flex items-center gap-2 text-sm text-[#031033]">
+                          <Check className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                           <span>{p.bandwidth} monthly traffic</span>
-                        </div>
+                        </li>
 
                         {p.features?.map((feat, idx) => (
-                          <div
+                          <li
                             key={idx}
-                            className="flex items-center gap-2 text-xs text-[#334155]"
+                            className="flex items-center gap-2 text-sm text-[#031033]"
                           >
-                            <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0 stroke-[2.5]" />
+                            <Check className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                             <span>{feat}</span>
-                          </div>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
                     </div>
 
-                    <div className="mt-7">
+                    <div className="mt-6">
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedPlanId(p.id);
                           setCurrentStep("domain");
                         }}
-                        className={`w-full py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`w-full h-9 rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                           isRecommended
-                            ? "bg-[#1787D4] hover:bg-[#1372b5] text-white shadow-xs"
-                            : "bg-white border border-[#dce4f7] text-[#1d1d1f] hover:bg-gray-50"
+                            ? "bg-[#1787D4] hover:bg-[#1370B5] text-white"
+                            : "bg-white border border-[#D5DCE6] text-[#031033] hover:bg-[#F2F5FC]"
                         }`}
                       >
-                        Choose Plan
+                        Choose plan
                       </button>
                     </div>
                   </div>
@@ -784,45 +752,38 @@ function HostingPurchaseFlow() {
               {/* Option 1: I already have a domain */}
               <div
                 onClick={() => setDomainOption("existing")}
-                className={`bg-white rounded-xl p-5 sm:p-6 border cursor-pointer transition-all ${
+                className={`bg-white rounded-xl p-5 border cursor-pointer transition-colors ${
                   domainOption === "existing"
-                    ? "border-[#1787D4] shadow-xs ring-2 ring-[#1787D4]/10"
-                    : "border-[#e8e8ed] hover:border-gray-300"
+                    ? "border-[#1787D4] ring-1 ring-[#1787D4]"
+                    : "border-[#E2E8F0] hover:border-[#D5DCE6]"
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        domainOption === "existing"
-                          ? "border-[#1787D4] bg-[#1787D4]"
-                          : "border-gray-300 bg-white"
-                      }`}
-                    >
-                      {domainOption === "existing" && (
-                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                      )}
-                    </div>
-                    <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-                      I already have a domain
-                    </h3>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                      domainOption === "existing"
+                        ? "border-[#1787D4] bg-[#1787D4]"
+                        : "border-[#D5DCE6] bg-white"
+                    }`}
+                  >
+                    {domainOption === "existing" && (
+                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                    )}
                   </div>
-                  {domainOption === "existing" && (
-                    <span className="bg-[#dcfce7] text-[#15803d] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                      Selected
-                    </span>
-                  )}
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    I already have a domain
+                  </h3>
                 </div>
 
-                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6">
+                <p className="text-sm text-[#5A6A85] mt-1.5 ml-6.5">
                   Connect a domain you own to this {selectedPlan?.name || "Web"}{" "}
                   hosting plan.
                 </p>
 
                 {domainOption === "existing" && (
-                  <div className="mt-4 ml-6 space-y-3">
+                  <div className="mt-4 ml-6.5 space-y-3">
                     <div>
-                      <label className="text-[11.5px] font-semibold text-[#1d1d1f] block mb-1.5">
+                      <label className="text-sm font-medium text-[#031033] block mb-1.5">
                         Domain name
                       </label>
                       <input
@@ -830,14 +791,14 @@ function HostingPurchaseFlow() {
                         value={domainName}
                         onChange={(e) => setDomainName(e.target.value)}
                         placeholder="yourbusiness.com"
-                        className="w-full bg-[#f8fafc] border border-[#dce4f7] focus:border-[#1787D4] focus:bg-white rounded-lg px-3.5 py-2.5 text-xs text-[#1d1d1f] outline-none transition-all"
+                        className="w-full h-10 bg-white border border-[#D5DCE6] focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 rounded-lg px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors"
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 text-[11.5px] text-[#64748b]">
-                      <Shield className="w-3.5 h-3.5 text-[#1787D4] shrink-0" />
+                    <div className="flex items-center gap-2 text-xs text-[#5A6A85]">
+                      <Shield className="w-3.5 h-3.5 text-[#5A6A85] shrink-0" />
                       <span>
-                        We'll verify ownership and guide you through nameserver
+                        We&apos;ll verify ownership and guide you through nameserver
                         updates after activation.
                       </span>
                     </div>
@@ -848,46 +809,46 @@ function HostingPurchaseFlow() {
               {/* Option 2: I need a domain */}
               <div
                 onClick={() => setDomainOption("new")}
-                className={`bg-white rounded-xl p-5 sm:p-6 border cursor-pointer transition-all ${
+                className={`bg-white rounded-xl p-5 border cursor-pointer transition-colors ${
                   domainOption === "new"
-                    ? "border-[#1787D4] shadow-xs ring-2 ring-[#1787D4]/10"
-                    : "border-[#e8e8ed] hover:border-gray-300"
+                    ? "border-[#1787D4] ring-1 ring-[#1787D4]"
+                    : "border-[#E2E8F0] hover:border-[#D5DCE6]"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <div
-                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
                       domainOption === "new"
                         ? "border-[#1787D4] bg-[#1787D4]"
-                        : "border-gray-300 bg-white"
+                        : "border-[#D5DCE6] bg-white"
                     }`}
                   >
                     {domainOption === "new" && (
                       <div className="w-1.5 h-1.5 bg-white rounded-full" />
                     )}
                   </div>
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     I need a domain
                   </h3>
                 </div>
-                <p className="text-[13px] text-[#6e6e73] mt-1.5 ml-6">
+                <p className="text-sm text-[#5A6A85] mt-1.5 ml-6.5">
                   Search Nupat Cloud and add an available domain to this order.
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-3">
-                <span className="text-[13px] text-[#6e6e73]">
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <span className="text-sm text-[#5A6A85] min-w-0 truncate">
                   {domainName.trim() ? (
                     <>
                       {domainOption === "new"
                         ? "New domain: "
                         : "Existing domain: "}
-                      <span className="font-semibold text-[#1d1d1f]">
+                      <span className="font-medium text-[#031033]">
                         {domainName.trim()}
                       </span>
                     </>
                   ) : (
-                    <span className="text-[#8a9bb2] italic">
+                    <span className="text-[#5A6A85]">
                       No domain entered yet
                     </span>
                   )}
@@ -908,7 +869,7 @@ function HostingPurchaseFlow() {
                     }
                     setCurrentStep("details");
                   }}
-                  className="bg-[#1787D4] hover:bg-[#1372b5] text-white px-7 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                  className="bg-[#1787D4] hover:bg-[#1370B5] text-white h-9 px-6 rounded-lg text-sm font-medium transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Continue
                 </button>
@@ -916,23 +877,18 @@ function HostingPurchaseFlow() {
             </div>
 
             {/* Right Column (4 cols): Search Domain Card */}
-            <div className="lg:col-span-4 bg-white border border-[#e8e8ed] rounded-xl p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-blue-50 text-[#1787D4] flex items-center justify-center">
-                  <Globe className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-[#1d1d1f]">
-                    Need a new domain?
-                  </h3>
-                  <p className="text-[11px] text-[#6e6e73]">
-                    Connect it straight to this order.
-                  </p>
-                </div>
+            <div className="lg:col-span-4 bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col gap-4">
+              <div>
+                <h3 className="text-base font-semibold text-[#031033]">
+                  Need a new domain?
+                </h3>
+                <p className="text-sm text-[#5A6A85] mt-0.5">
+                  Connect it straight to this order.
+                </p>
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-[#1d1d1f] block mb-1">
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
                   Search a domain
                 </label>
                 <div className="flex gap-2">
@@ -944,36 +900,49 @@ function HostingPurchaseFlow() {
                       if (e.key === "Enter") handleDomainSearch();
                     }}
                     placeholder="e.g. mynewbrand.com"
-                    className="flex-1 bg-[#f8fafc] border border-[#dce4f7] focus:border-[#1787D4] focus:bg-white rounded-lg px-3 py-2 text-xs text-[#1d1d1f] outline-none transition-all"
+                    className="flex-1 min-w-0 h-10 bg-white border border-[#D5DCE6] focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 rounded-lg px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors"
                   />
                   <button
                     type="button"
                     onClick={handleDomainSearch}
                     disabled={isSearchingDomain || !domainSearchQuery.trim()}
-                    className="px-3 py-2 bg-[#1787D4] hover:bg-[#1372b5] text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-60 flex items-center justify-center shrink-0 cursor-pointer"
+                    aria-label="Search domain"
+                    className="w-10 h-10 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {isSearchingDomain ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin text-[#1787D4]" />
                     ) : (
-                      <Search className="w-3.5 h-3.5" />
+                      <Search className="w-4 h-4" />
                     )}
                   </button>
                 </div>
               </div>
 
               {domainSearchResult && (
-                <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#16a34a]" />
-                      <span className="text-xs font-bold text-[#166534]">
-                        {domainSearchResult.domain}
-                      </span>
-                    </div>
+                <div
+                  className={`rounded-lg border px-4 py-3 ${
+                    domainSearchResult.available
+                      ? "bg-[#E7F6EC] border-[#0E7C3A]/20"
+                      : "bg-[#FDECEC] border-[#DC2626]/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    {domainSearchResult.available ? (
+                      <CheckCircle2 className="w-4 h-4 text-[#0E7C3A] shrink-0" />
+                    ) : (
+                      <Info className="w-4 h-4 text-[#DC2626] shrink-0" />
+                    )}
+                    <span className="text-sm font-medium text-[#031033] truncate">
+                      {domainSearchResult.domain}
+                    </span>
                   </div>
-                  <p className="text-[11px] text-[#15803d] mt-1">
+                  <p
+                    className={`text-xs mt-1 tabular-nums ${
+                      domainSearchResult.available ? "text-[#0E7C3A]" : "text-[#C21F1F]"
+                    }`}
+                  >
                     {domainSearchResult.available
-                      ? `Available • ${formatPrice(newDomainPrice)}/yr`
+                      ? `Available · ${formatPrice(newDomainPrice)}/yr`
                       : "Unavailable"}
                   </p>
                 </div>
@@ -987,7 +956,7 @@ function HostingPurchaseFlow() {
                     setDomainOption("new");
                     setCurrentStep("details");
                   }}
-                  className="w-full py-2.5 bg-white border border-[#1787D4] hover:bg-blue-50 text-[#1787D4] font-semibold rounded-lg text-xs transition-all cursor-pointer"
+                  className="w-full h-9 text-[#1787D4] hover:bg-[#E8F4FC] font-medium rounded-lg text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Use {domainSearchResult.domain} →
                 </button>
@@ -996,9 +965,9 @@ function HostingPurchaseFlow() {
                   type="button"
                   onClick={handleDomainSearch}
                   disabled={isSearchingDomain || !domainSearchQuery.trim()}
-                  className="w-full py-2.5 bg-white border border-[#dce4f7] hover:bg-gray-50 text-[#1d1d1f] rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full h-9 bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] text-[#031033] rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
-                  Continue to Domain Search →
+                  Continue to domain search →
                 </button>
               )}
             </div>
@@ -1020,215 +989,212 @@ function HostingPurchaseFlow() {
 
           <StepperBar currentStep={currentStep} />
 
-          <div className="w-full bg-white border border-[#e8e8ed] rounded-xl p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="w-full bg-white border border-[#E2E8F0] rounded-xl">
             {/* Header: Plan & Domain */}
-            <div className="flex items-center justify-between pb-5 border-b border-[#f0f4fc]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
-                  <Server className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[#1d1d1f]">
+            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[#EEF2F7]">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Server className="w-4 h-4 text-[#5A6A85] shrink-0" />
+                <div className="min-w-0">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     {selectedPlan?.name || "Web"} Hosting
                   </h3>
-                  <p className="text-xs text-[#6e6e73]">
-                    {selectedHostingTypeObj.title} • {domainName}
+                  <p className="text-sm text-[#5A6A85] truncate">
+                    {selectedHostingTypeObj.title} · {domainName}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setCurrentStep("plan")}
-                className="text-xs font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                className="text-sm font-medium text-[#1787D4] hover:underline cursor-pointer shrink-0"
               >
                 Change plan
               </button>
             </div>
 
-            {/* 3 Durations: Monthly, Quarterly, Yearly */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-bold text-[#1d1d1f]">
-                  Billing cycle
-                </h3>
-                <span className="text-[11px] text-[#6e6e73]">
-                  Choose from 3 billing durations
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                {/* 1. Monthly */}
-                <div
-                  onClick={() => setBillingCycle("monthly")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    billingCycle === "monthly"
-                      ? "border-[#1787D4] bg-[#eff6fb]/40 ring-2 ring-[#1787D4]/10"
-                      : "border-[#e8e8ed] hover:border-gray-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-[#1d1d1f]">Monthly</p>
-                    <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        billingCycle === "monthly"
-                          ? "border-[#1787D4] bg-[#1787D4]"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {billingCycle === "monthly" && (
-                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <span className="text-sm font-bold text-[#1d1d1f]">
-                      {selectedPlan
-                        ? formatPrice(selectedPlan.monthlyPrice)
-                        : "—"}
-                    </span>
-                    <span className="text-[11px] text-[#6e6e73]"> /month</span>
-                    <p className="text-[10.5px] text-[#8a9bb2] mt-0.5">
-                      Billed monthly
-                    </p>
-                  </div>
-                </div>
-
-                {/* 2. Quarterly */}
-                <div
-                  onClick={() => setBillingCycle("quarterly")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    billingCycle === "quarterly"
-                      ? "border-[#1787D4] bg-[#eff6fb]/40 ring-2 ring-[#1787D4]/10"
-                      : "border-[#e8e8ed] hover:border-gray-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-[#1d1d1f]">
-                      Quarterly
-                    </p>
-                    <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        billingCycle === "quarterly"
-                          ? "border-[#1787D4] bg-[#1787D4]"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {billingCycle === "quarterly" && (
-                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <span className="text-sm font-bold text-[#1d1d1f]">
-                      {selectedPlan
-                        ? formatPrice(selectedPlan.quarterlyPrice)
-                        : "—"}
-                    </span>
-                    <span className="text-[11px] text-[#6e6e73]">
-                      {" "}
-                      /3 months
-                    </span>
-                    <p className="text-[10.5px] text-[#8a9bb2] mt-0.5">
-                      ~
-                      {selectedPlan
-                        ? formatPrice(
-                            Math.round(selectedPlan.quarterlyPrice / 3),
-                          )
-                        : "—"}
-                      /mo equivalent
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Yearly */}
-                <div
-                  onClick={() => setBillingCycle("yearly")}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    billingCycle === "yearly"
-                      ? "border-[#1787D4] bg-[#eff6fb]/40 ring-2 ring-[#1787D4]/10"
-                      : "border-[#e8e8ed] hover:border-gray-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-bold text-[#1d1d1f]">Yearly</p>
-                      <span className="text-[9.5px] font-bold bg-[#e0f2fe] text-[#0284c7] px-1.5 py-0.2 rounded">
-                        Best value
-                      </span>
-                    </div>
-                    <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        billingCycle === "yearly"
-                          ? "border-[#1787D4] bg-[#1787D4]"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {billingCycle === "yearly" && (
-                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <span className="text-sm font-bold text-[#1d1d1f]">
-                      {selectedPlan ? formatPrice(selectedPlan.price) : "—"}
-                    </span>
-                    <span className="text-[11px] text-[#6e6e73]"> /year</span>
-                    <p className="text-[10.5px] text-[#16a34a] font-medium mt-0.5">
-                      Includes 1 free SSL certificate
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Auto-Renewal Section */}
-            <div className="pt-4 border-t border-[#f0f4fc] flex items-center justify-between">
-              <div className="flex items-start gap-3 max-w-xl">
-                <div className="w-8 h-8 rounded-full bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0 mt-0.5">
-                  <RefreshCw className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-[#1d1d1f]">
-                    Auto-Renewal
+            <div className="p-5 space-y-6">
+              {/* 3 Durations: Monthly, Quarterly, Yearly */}
+              <div>
+                <div className="flex items-center justify-between gap-4 mb-3">
+                  <h3 className="text-sm font-medium text-[#031033]">
+                    Billing cycle
                   </h3>
-                  <p className="text-[11.5px] text-[#6e6e73] mt-0.5 leading-relaxed">
-                    Would you like to renew your hosting automatically before it
-                    expires using your saved payment method?
-                  </p>
+                  <span className="text-xs text-[#5A6A85]">
+                    Choose from 3 billing durations
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* 1. Monthly */}
+                  <div
+                    onClick={() => setBillingCycle("monthly")}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors flex flex-col justify-between ${
+                      billingCycle === "monthly"
+                        ? "border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6] bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-[#031033]">Monthly</p>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          billingCycle === "monthly"
+                            ? "border-[#1787D4] bg-[#1787D4]"
+                            : "border-[#D5DCE6] bg-white"
+                        }`}
+                      >
+                        {billingCycle === "monthly" && (
+                          <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-base font-semibold text-[#031033] tabular-nums">
+                        {selectedPlan
+                          ? formatPrice(selectedPlan.monthlyPrice)
+                          : "—"}
+                      </span>
+                      <span className="text-xs text-[#5A6A85]"> /month</span>
+                      <p className="text-xs text-[#5A6A85] mt-0.5">
+                        Billed monthly
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 2. Quarterly */}
+                  <div
+                    onClick={() => setBillingCycle("quarterly")}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors flex flex-col justify-between ${
+                      billingCycle === "quarterly"
+                        ? "border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6] bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-[#031033]">
+                        Quarterly
+                      </p>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          billingCycle === "quarterly"
+                            ? "border-[#1787D4] bg-[#1787D4]"
+                            : "border-[#D5DCE6] bg-white"
+                        }`}
+                      >
+                        {billingCycle === "quarterly" && (
+                          <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-base font-semibold text-[#031033] tabular-nums">
+                        {selectedPlan
+                          ? formatPrice(selectedPlan.quarterlyPrice)
+                          : "—"}
+                      </span>
+                      <span className="text-xs text-[#5A6A85]">
+                        {" "}
+                        /3 months
+                      </span>
+                      <p className="text-xs text-[#5A6A85] mt-0.5 tabular-nums">
+                        ~
+                        {selectedPlan
+                          ? formatPrice(
+                              Math.round(selectedPlan.quarterlyPrice / 3),
+                            )
+                          : "—"}
+                        /mo equivalent
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 3. Yearly */}
+                  <div
+                    onClick={() => setBillingCycle("yearly")}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors flex flex-col justify-between ${
+                      billingCycle === "yearly"
+                        ? "border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6] bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-[#031033]">Yearly</p>
+                        <span className="text-xs font-medium text-[#1370B5] whitespace-nowrap">
+                          Best value
+                        </span>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          billingCycle === "yearly"
+                            ? "border-[#1787D4] bg-[#1787D4]"
+                            : "border-[#D5DCE6] bg-white"
+                        }`}
+                      >
+                        {billingCycle === "yearly" && (
+                          <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-base font-semibold text-[#031033] tabular-nums">
+                        {selectedPlan ? formatPrice(selectedPlan.price) : "—"}
+                      </span>
+                      <span className="text-xs text-[#5A6A85]"> /year</span>
+                      <p className="text-xs text-[#0E7C3A] mt-0.5">
+                        Includes 1 free SSL certificate
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setAutoRenew(!autoRenew)}
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                  autoRenew ? "bg-[#1787D4]" : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                    autoRenew ? "translate-x-5" : "translate-x-0"
+              {/* Auto-Renewal Section */}
+              <div className="pt-5 border-t border-[#EEF2F7] flex items-center justify-between gap-6">
+                <div className="flex items-start gap-2.5 max-w-xl">
+                  <RefreshCw className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-medium text-[#031033]">
+                      Auto-renewal
+                    </h3>
+                    <p className="text-sm text-[#5A6A85] mt-0.5 leading-relaxed">
+                      Renew your hosting automatically before it expires, using your
+                      saved payment method.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={autoRenew}
+                  aria-label="Auto-renewal"
+                  onClick={() => setAutoRenew(!autoRenew)}
+                  className={`w-9 h-5 shrink-0 flex items-center rounded-full p-0.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                    autoRenew ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                   }`}
-                />
-              </button>
+                >
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full transform transition-transform ${
+                      autoRenew ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Footer Bar */}
-            <div className="pt-4 border-t border-[#f0f4fc] flex items-center justify-between">
-              <span
-                className={`text-xs font-medium ${
-                  autoRenew ? "text-[#16a34a]" : "text-gray-400"
-                }`}
-              >
-                {autoRenew ? "Auto-Renewal is on" : "Auto-Renewal is off"}
+            <div className="px-5 py-4 border-t border-[#EEF2F7] flex items-center justify-between gap-4">
+              <span className="text-sm text-[#5A6A85]">
+                {autoRenew ? "Auto-renew on" : "Auto-renew off"}
               </span>
 
               <button
                 type="button"
                 onClick={() => setCurrentStep("review")}
-                className="bg-[#1787D4] hover:bg-[#1372b5] text-white px-6 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                className="bg-[#1787D4] hover:bg-[#1370B5] text-white h-9 px-4 rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Continue to Review
+                Continue to review
               </button>
             </div>
           </div>
@@ -1251,78 +1217,72 @@ function HostingPurchaseFlow() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
             {/* Left Column (8 cols): Plan Details */}
-            <div className="lg:col-span-8 flex flex-col gap-5">
-              <div className="bg-white border border-[#e8e8ed] rounded-xl p-6 sm:p-7 shadow-xs">
-                <div className="flex items-center justify-between">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl">
+                <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[#EEF2F7]">
                   <div>
-                    <h3 className="text-[17px] font-bold text-[#1d1d1f]">
+                    <h3 className="text-base font-semibold text-[#031033]">
                       {selectedPlan?.name || "Web"} Hosting
                     </h3>
-                    <p className="text-xs text-[#6e6e73] mt-0.5">
-                      {selectedHostingTypeObj.title} • {cycleText} billing
+                    <p className="text-sm text-[#5A6A85] mt-0.5">
+                      {selectedHostingTypeObj.title} · {cycleText} billing
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setCurrentStep("details")}
-                    className="text-xs font-semibold text-[#1787D4] hover:underline cursor-pointer"
+                    className="text-sm font-medium text-[#1787D4] hover:underline cursor-pointer"
                   >
                     Edit
                   </button>
                 </div>
 
-                <div className="bg-[#f8fafc] border border-[#e8e8ed] rounded-lg p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5">
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                      Domain
-                    </span>
-                    <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block truncate">
-                      {domainName}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                      Plan
-                    </span>
-                    <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block">
-                      {selectedPlan?.name || "Web"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                      Billing
-                    </span>
-                    <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block capitalize">
-                      {billingCycle}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                      Auto-Renewal
-                    </span>
-                    <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block">
-                      {autoRenew ? "On" : "Off"}
-                    </span>
-                  </div>
-                </div>
+                <div className="p-5">
+                  <dl className="rounded-lg border border-[#E2E8F0] grid grid-cols-2 sm:grid-cols-4 divide-[#EEF2F7] sm:divide-x">
+                    <div className="px-4 py-3 min-w-0">
+                      <dt className="text-xs text-[#5A6A85]">Domain</dt>
+                      <dd className="text-sm font-medium text-[#031033] mt-0.5 truncate">
+                        {domainName}
+                      </dd>
+                    </div>
+                    <div className="px-4 py-3">
+                      <dt className="text-xs text-[#5A6A85]">Plan</dt>
+                      <dd className="text-sm font-medium text-[#031033] mt-0.5">
+                        {selectedPlan?.name || "Web"}
+                      </dd>
+                    </div>
+                    <div className="px-4 py-3">
+                      <dt className="text-xs text-[#5A6A85]">Billing</dt>
+                      <dd className="text-sm font-medium text-[#031033] mt-0.5 capitalize">
+                        {billingCycle}
+                      </dd>
+                    </div>
+                    <div className="px-4 py-3">
+                      <dt className="text-xs text-[#5A6A85]">Auto-renewal</dt>
+                      <dd className="text-sm font-medium text-[#031033] mt-0.5">
+                        {autoRenew ? "On" : "Off"}
+                      </dd>
+                    </div>
+                  </dl>
 
-                <div className="mt-5 pt-4 border-t border-[#f0f4fc]">
-                  <span className="text-[11px] font-bold text-[#1d1d1f] block mb-2.5">
-                    Included with your plan
-                  </span>
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-[#334155]">
-                    <div className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#16a34a] stroke-[2.5]" />
-                      <span>Free SSL Certificate</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#16a34a] stroke-[2.5]" />
-                      <span>Daily backups</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#16a34a] stroke-[2.5]" />
-                      <span>Priority support</span>
-                    </div>
+                  <div className="mt-5">
+                    <span className="text-sm font-medium text-[#031033] block mb-2.5">
+                      Included with your plan
+                    </span>
+                    <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#031033]">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-[#0E7C3A]" />
+                        <span>Free SSL certificate</span>
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-[#0E7C3A]" />
+                        <span>Daily backups</span>
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-[#0E7C3A]" />
+                        <span>Priority support</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -1330,68 +1290,70 @@ function HostingPurchaseFlow() {
 
             {/* Right Column (4 cols): Order Summary (NO TAX!) */}
             <div className="lg:col-span-4 flex flex-col gap-3">
-              <div className="bg-white border border-[#e8e8ed] rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
-                <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl">
+                <h3 className="text-base font-semibold text-[#031033] px-5 py-4 border-b border-[#EEF2F7]">
                   Order summary
                 </h3>
 
-                <div className="space-y-2.5 text-[13px]">
-                  <div className="flex justify-between items-center text-[#6e6e73]">
-                    <span>
-                      {selectedPlan?.name || "Web"} Hosting • {cycleText}
-                    </span>
-                    <span className="font-semibold text-[#1d1d1f]">
-                      {formatPrice(hostingCost)}
-                    </span>
-                  </div>
-
-                  {domainOption === "new" ? (
-                    <div className="flex justify-between items-center text-[#6e6e73]">
-                      <span>{domainName} • 1 year</span>
-                      <span className="font-semibold text-[#1d1d1f]">
-                        {formatPrice(newDomainPrice)}
+                <div className="p-5 space-y-4">
+                  <div className="space-y-2.5 text-sm">
+                    <div className="flex justify-between items-center gap-4 text-[#5A6A85]">
+                      <span>
+                        {selectedPlan?.name || "Web"} Hosting · {cycleText}
+                      </span>
+                      <span className="font-medium text-[#031033] tabular-nums">
+                        {formatPrice(hostingCost)}
                       </span>
                     </div>
-                  ) : (
-                    <div className="flex justify-between items-center text-[#6e6e73]">
-                      <span>{domainName}</span>
-                      <span className="text-[#16a34a] font-medium">
-                        Existing
+
+                    {domainOption === "new" ? (
+                      <div className="flex justify-between items-center gap-4 text-[#5A6A85]">
+                        <span className="truncate">{domainName} · 1 year</span>
+                        <span className="font-medium text-[#031033] tabular-nums">
+                          {formatPrice(newDomainPrice)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center gap-4 text-[#5A6A85]">
+                        <span className="truncate">{domainName}</span>
+                        <span className="text-[#5A6A85]">
+                          Existing
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center gap-4 text-[#5A6A85]">
+                      <span>SSL certificate</span>
+                      <span className="text-[#0E7C3A]">Included</span>
+                    </div>
+
+                    <div className="border-t border-[#EEF2F7] pt-2.5 flex justify-between items-center gap-4 text-[#5A6A85]">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-[#031033] tabular-nums">
+                        {formatPrice(grandTotal)}
                       </span>
                     </div>
-                  )}
 
-                  <div className="flex justify-between items-center text-[#6e6e73]">
-                    <span>SSL Certificate</span>
-                    <span className="text-[#16a34a] font-medium">Included</span>
+                    <div className="border-t border-[#E2E8F0] pt-3 flex justify-between items-baseline gap-4">
+                      <span className="text-sm font-medium text-[#031033]">Total</span>
+                      <span className="text-2xl font-semibold text-[#031033] tabular-nums">
+                        {formatPrice(grandTotal)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="border-t border-[#f0f4fc] pt-2 flex justify-between items-center text-[#6e6e73]">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-[#1d1d1f]">
-                      {formatPrice(grandTotal)}
-                    </span>
-                  </div>
-
-                  <div className="border-t border-[#e8e8ed] pt-2.5 flex justify-between items-center text-[16px]">
-                    <span className="font-bold text-[#1d1d1f]">Total</span>
-                    <span className="font-bold text-[#1787D4]">
-                      {formatPrice(grandTotal)}
-                    </span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep("payment")}
+                    className="w-full h-10 bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
+                  >
+                    Proceed to payment
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep("payment")}
-                  className="w-full py-3 bg-[#1787D4] hover:bg-[#1372b5] text-white rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
-                >
-                  Proceed to Payment
-                </button>
               </div>
 
-              <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-3 text-[11px] text-[#166534] flex items-center gap-2">
-                <CheckCircle className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+              <div className="rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033] flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
                 <span>
                   Hosting setup starts immediately after payment is confirmed.
                 </span>
@@ -1410,7 +1372,7 @@ function HostingPurchaseFlow() {
             "Complete your payment",
             "Choose your preferred payment method to activate your hosting.",
             () => setCurrentStep("review"),
-            "Back to Review",
+            "Back to review",
           )}
 
           <StepperBar currentStep={currentStep} />
@@ -1418,33 +1380,35 @@ function HostingPurchaseFlow() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
             {/* Left Column (8 cols): Paystack Payment Method Card */}
             <div className="lg:col-span-8 flex flex-col gap-4">
-              <div className="bg-white border border-[#e8e8ed] rounded-xl p-6 sm:p-7 shadow-xs space-y-5">
-                <div>
-                  <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl">
+                <div className="px-5 py-4 border-b border-[#EEF2F7]">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     Payment method
                   </h3>
-                  <p className="text-[13px] text-[#6e6e73] mt-0.5">
+                  <p className="text-sm text-[#5A6A85] mt-0.5">
                     Your payment details are encrypted and handled securely.
                   </p>
+                </div>
 
-                  <div className="mt-4 p-4 sm:p-5 rounded-xl border-2 border-[#1787D4] bg-[#f8fbfe] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="p-5 space-y-4">
+                  <div className="p-4 rounded-lg border border-[#1787D4] ring-1 ring-[#1787D4] bg-[#E8F4FC] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-5 h-5 rounded-full border-4 border-[#1787D4] bg-white flex items-center justify-center shrink-0" />
+                      <div className="w-4 h-4 rounded-full border-[5px] border-[#1787D4] bg-white shrink-0" />
                       <div className="flex items-center gap-3">
-                        <div className="h-7 w-auto flex items-center shrink-0">
+                        <div className="h-8 w-24 rounded-lg bg-white flex items-center justify-center px-2 shrink-0">
                           <Image
                             src="/paystack-logo.png"
                             alt="Paystack"
                             width={110}
                             height={28}
-                            className="h-7 w-auto object-contain"
+                            className="h-6 w-auto object-contain"
                           />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-[#1d1d1f]">
+                          <p className="text-sm font-medium text-[#031033]">
                             Paystack
                           </p>
-                          <p className="text-xs text-[#6e6e73]">
+                          <p className="text-xs text-[#5A6A85]">
                             Pay with debit/credit card, bank transfer, USSD, or
                             Apple Pay
                           </p>
@@ -1452,89 +1416,89 @@ function HostingPurchaseFlow() {
                       </div>
                     </div>
 
-                    <span className="self-start sm:self-center text-[11px] font-bold text-[#1787D4] bg-[#e6f4fc] px-2.5 py-1 rounded-full shrink-0">
-                      Primary Gateway
+                    <span className="self-start sm:self-center text-xs text-[#5A6A85] whitespace-nowrap shrink-0">
+                      Primary gateway
                     </span>
                   </div>
-                </div>
 
-                <div className="p-4 rounded-lg bg-[#f9fafb] border border-[#e5e7eb] flex items-start gap-3 text-xs text-[#6e6e73]">
-                  <Shield className="w-5 h-5 text-[#1787D4] shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-[#1d1d1f]">
-                      Direct & Secure Paystack Checkout
-                    </p>
-                    <p className="mt-0.5 leading-relaxed">
-                      Clicking &ldquo;Pay with Paystack&rdquo; will direct you
-                      straight to Paystack&apos;s certified payment gateway to
-                      complete the transaction. No card details are ever stored
-                      on our servers.
-                    </p>
+                  <div className="px-4 py-3 rounded-lg bg-[#F2F5FC] border border-[#E2E8F0] flex items-start gap-3 text-sm text-[#5A6A85]">
+                    <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-[#031033]">
+                        Direct and secure Paystack checkout
+                      </p>
+                      <p className="mt-0.5 leading-relaxed">
+                        Clicking &ldquo;Pay with Paystack&rdquo; will direct you
+                        straight to Paystack&apos;s certified payment gateway to
+                        complete the transaction. No card details are ever stored
+                        on our servers.
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 text-xs text-[#6e6e73]">
-                  <Lock className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Secured with encrypted payment processing.</span>
+                  <div className="flex items-center gap-2 text-xs text-[#5A6A85]">
+                    <Lock className="w-3.5 h-3.5 text-[#5A6A85] shrink-0" />
+                    <span>Secured with encrypted payment processing.</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Right Column (4 cols): Order Summary (NO TAX!) */}
-            <div className="lg:col-span-4 bg-white border border-[#e8e8ed] rounded-xl p-5 sm:p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+            <div className="lg:col-span-4 bg-white border border-[#E2E8F0] rounded-xl">
+              <h3 className="text-base font-semibold text-[#031033] px-5 py-4 border-b border-[#EEF2F7]">
                 Order summary
               </h3>
 
-              <div className="flex items-start gap-3 pb-3 border-b border-[#f0f4fc]">
-                <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 shrink-0">
-                  <Server className="w-4 h-4" />
+              <div className="p-5 flex flex-col gap-4">
+                <div className="flex items-start gap-2.5 pb-4 border-b border-[#EEF2F7]">
+                  <Server className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[#031033] truncate">
+                      {selectedPlan?.name || "Web"} Hosting
+                    </p>
+                    <p className="text-xs text-[#5A6A85] truncate">
+                      {domainName} · {cycleText}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-[#1d1d1f] truncate">
-                    {selectedPlan?.name || "Web"} Hosting
-                  </p>
-                  <p className="text-[11px] text-[#6e6e73] truncate">
-                    {domainName} • {cycleText}
-                  </p>
+
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex justify-between text-[#5A6A85]">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-[#031033] tabular-nums">
+                      {formatPrice(grandTotal)}
+                    </span>
+                  </div>
+                  <div className="border-t border-[#E2E8F0] pt-3 flex justify-between items-baseline">
+                    <span className="text-sm font-medium text-[#031033]">Total</span>
+                    <span className="text-2xl font-semibold text-[#031033] tabular-nums">
+                      {formatPrice(grandTotal)}
+                    </span>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  disabled={isRedirectingToPaystack || isPurchasing}
+                  onClick={handlePaystackCheckout}
+                  className="w-full h-10 bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 tabular-nums"
+                >
+                  {isRedirectingToPaystack || isPurchasing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Connecting to Paystack…
+                    </>
+                  ) : (
+                    `Pay ${formatPrice(grandTotal)} with Paystack`
+                  )}
+                </button>
+
+                <p className="text-xs text-center text-[#5A6A85] leading-snug">
+                  By paying, you authorize this charge and agree to the hosting
+                  terms.
+                </p>
               </div>
-
-              <div className="space-y-2 text-[13px]">
-                <div className="flex justify-between text-[#6e6e73]">
-                  <span>Subtotal</span>
-                  <span className="font-semibold text-[#1d1d1f]">
-                    {formatPrice(grandTotal)}
-                  </span>
-                </div>
-                <div className="border-t border-[#e8e8ed] pt-2 flex justify-between items-center text-[16px]">
-                  <span className="font-bold text-[#1d1d1f]">Total</span>
-                  <span className="font-bold text-[#1787D4]">
-                    {formatPrice(grandTotal)}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                disabled={isRedirectingToPaystack || isPurchasing}
-                onClick={handlePaystackCheckout}
-                className="w-full py-3 bg-[#1787D4] hover:bg-[#1372b5] text-white rounded-lg text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
-              >
-                {isRedirectingToPaystack || isPurchasing ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Connecting to Paystack…
-                  </>
-                ) : (
-                  `Pay ${formatPrice(grandTotal)} with Paystack`
-                )}
-              </button>
-
-              <p className="text-[10px] text-center text-[#94a3b8] leading-tight">
-                By paying, you authorize this charge and agree to the hosting
-                terms.
-              </p>
             </div>
           </div>
         </>
@@ -1547,123 +1511,115 @@ function HostingPurchaseFlow() {
         <div className="w-full flex flex-col gap-6 items-center">
           <div className="w-full text-left">
             {renderHeader(
-              "Activating your hosting...",
+              "Activating your hosting",
               "We're setting up your hosting environment. This may take a moment.",
               () => setCurrentStep("payment"),
-              "Back to Payment",
+              "Back to payment",
             )}
           </div>
 
           <StepperBar currentStep={currentStep} />
 
-          <div className="w-full max-w-2xl bg-white border border-[#e8e8ed] rounded-xl p-8 sm:p-10 shadow-xs text-center">
-            <div className="w-16 h-16 rounded-full bg-blue-50 mx-auto flex items-center justify-center text-[#1787D4] mb-4">
-              <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
+          <div className="w-full max-w-2xl bg-white border border-[#E2E8F0] rounded-xl p-8 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-[#1787D4] mx-auto mb-4" />
 
-            <h3 className="text-[19px] font-bold text-[#1d1d1f]">
+            <h3 className="text-lg font-semibold text-[#031033]">
               Preparing {selectedPlan?.name || "Web"} Hosting
             </h3>
-            <p className="text-[13px] text-[#6e6e73] max-w-md mx-auto mt-1 leading-relaxed">
-              Your order is confirmed. We're securely provisioning resources and
+            <p className="text-sm text-[#5A6A85] max-w-md mx-auto mt-1 leading-relaxed">
+              Your order is confirmed. We&apos;re provisioning resources and
               connecting your domain.
             </p>
 
-            <div className="mt-8 space-y-3.5 text-left max-w-md mx-auto">
+            <ol className="mt-8 space-y-4 text-left max-w-md mx-auto">
               {/* Step 1: Payment confirmed */}
-              <div className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                  ✓
-                </div>
+              <li className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0" />
                 <div>
-                  <p className="text-xs font-bold text-[#1d1d1f]">
+                  <p className="text-sm font-medium text-[#031033]">
                     Payment confirmed
                   </p>
-                  <p className="text-[10px] text-[#64748b]">
+                  <p className="text-xs text-[#5A6A85] tabular-nums">
                     {formatPrice(grandTotal)} received via Paystack
                   </p>
                 </div>
-              </div>
+              </li>
 
               {/* Step 2: Creating hosting account */}
-              <div className="flex items-center gap-3">
+              <li className="flex items-center gap-3">
                 {activatingStep > 1 ? (
-                  <div className="w-5 h-5 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                    ✓
-                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#1787D4] text-[#1787D4] flex items-center justify-center shrink-0">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  </div>
+                  <Loader2 className="w-5 h-5 animate-spin text-[#1787D4] shrink-0" />
                 )}
                 <div>
-                  <p className="text-xs font-bold text-[#1d1d1f]">
+                  <p className="text-sm font-medium text-[#031033]">
                     Creating hosting account
                   </p>
-                  <p className="text-[10px] text-[#64748b]">
-                    Provisioning {selectedPlan?.name || "Web"} hosting...
+                  <p className="text-xs text-[#5A6A85]">
+                    Provisioning {selectedPlan?.name || "Web"} hosting…
                   </p>
                 </div>
-              </div>
+              </li>
 
               {/* Step 3: Connecting domain */}
-              <div className="flex items-center gap-3">
+              <li className="flex items-center gap-3">
                 {activatingStep > 2 ? (
-                  <div className="w-5 h-5 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                    ✓
-                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0" />
                 ) : activatingStep === 2 ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#1787D4] text-[#1787D4] flex items-center justify-center shrink-0">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  </div>
+                  <Loader2 className="w-5 h-5 animate-spin text-[#1787D4] shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border border-gray-300 shrink-0" />
+                  <div className="w-5 h-5 rounded-full border border-[#D5DCE6] shrink-0" />
                 )}
                 <div>
-                  <p className="text-xs font-bold text-[#1d1d1f]">
+                  <p
+                    className={`text-sm font-medium ${
+                      activatingStep >= 2 ? "text-[#031033]" : "text-[#5A6A85]"
+                    }`}
+                  >
                     Connecting domain
                   </p>
-                  <p className="text-[10px] text-[#64748b]">
+                  <p className="text-xs text-[#5A6A85]">
                     Preparing {domainName}
                   </p>
                 </div>
-              </div>
+              </li>
 
               {/* Step 4: Activating services */}
-              <div className="flex items-center gap-3">
+              <li className="flex items-center gap-3">
                 {activatingStep > 3 ? (
-                  <div className="w-5 h-5 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                    ✓
-                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0" />
                 ) : activatingStep === 3 ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#1787D4] text-[#1787D4] flex items-center justify-center shrink-0">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  </div>
+                  <Loader2 className="w-5 h-5 animate-spin text-[#1787D4] shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border border-gray-300 shrink-0" />
+                  <div className="w-5 h-5 rounded-full border border-[#D5DCE6] shrink-0" />
                 )}
                 <div>
-                  <p className="text-xs font-bold text-[#1d1d1f]">
+                  <p
+                    className={`text-sm font-medium ${
+                      activatingStep >= 3 ? "text-[#031033]" : "text-[#5A6A85]"
+                    }`}
+                  >
                     Activating services
                   </p>
-                  <p className="text-[10px] text-[#64748b]">
+                  <p className="text-xs text-[#5A6A85]">
                     SSL, backups, and control panel
                   </p>
                 </div>
-              </div>
-            </div>
+              </li>
+            </ol>
 
             {orderReference && (
-              <div className="mt-8 bg-[#f8fafc] border border-[#e8e8ed] rounded-lg p-3 flex items-center justify-between text-xs max-w-md mx-auto">
-                <span className="text-[#64748b]">Order reference</span>
-                <span className="font-mono font-bold text-[#1d1d1f]">
+              <div className="mt-8 bg-[#F2F5FC] border border-[#E2E8F0] rounded-lg px-4 py-3 flex items-center justify-between gap-4 text-sm max-w-md mx-auto">
+                <span className="text-[#5A6A85]">Order reference</span>
+                <span className="font-mono text-[#031033] truncate">
                   {orderReference}
                 </span>
               </div>
             )}
           </div>
 
-          <p className="text-[11px] text-center text-[#94a3b8]">
+          <p className="text-xs text-center text-[#5A6A85]">
             This usually takes less than a minute. You can safely leave this
             page once activation is complete.
           </p>
@@ -1677,118 +1633,108 @@ function HostingPurchaseFlow() {
         <div className="w-full flex flex-col gap-6 items-center">
           <div className="w-full text-left">
             {renderHeader(
-              "Your hosting is ready!",
-              `${selectedPlan?.name || "Web"} Hosting is active and connected to ${domainName}.`,
-              () => setCurrentStep("activating"),
-              "Back to activation",
+              "Payment complete",
+              `We're setting up your hosting${domainName ? ` for ${domainName}` : ""}. It shows as active in your hosting list once setup finishes.`,
+              () => router.push("/dashboard/hosting"),
+              "Back to hosting",
             )}
           </div>
 
           <StepperBar currentStep={currentStep} />
 
-          <div className="w-full max-w-3xl bg-white border border-[#e8e8ed] rounded-xl p-8 sm:p-10 shadow-xs text-center flex flex-col items-center">
+          <div className="w-full max-w-3xl bg-white border border-[#E2E8F0] rounded-xl p-8 text-center flex flex-col items-center">
             {/* The 3D checkmark SVG (matches Domain registration completed screen) */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
               <Image
                 src="/checkmark.svg"
-                alt="Hosting Ready"
-                width={96}
-                height={96}
-                className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                alt="Hosting ready"
+                width={80}
+                height={80}
+                className="w-20 h-20 object-contain"
                 priority
               />
             </div>
 
-            <h3 className="text-[20px] sm:text-[23px] font-bold text-[#1d1d1f]">
-              Your hosting is ready!
-            </h3>
-            <p className="text-[13.5px] text-[#6e6e73] mt-1 max-w-lg leading-relaxed">
+            <h2 className="text-lg font-semibold text-[#031033]">
+              Your hosting is ready
+            </h2>
+            <p className="text-sm text-[#5A6A85] mt-1 max-w-lg leading-relaxed">
               Your website now has a secure, reliable home on Nupat Cloud.
             </p>
 
-            <div className="w-full mt-6 bg-[#f8fafc] border border-[#e8e8ed] rounded-xl p-5 text-left">
-              <div className="flex items-center justify-between pb-3 border-b border-[#e8e8ed]">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
-                    <Server className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-[#1d1d1f]">
+            <div className="w-full mt-6 border border-[#E2E8F0] rounded-lg text-left">
+              <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[#EEF2F7]">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Server className="w-4 h-4 text-[#5A6A85] shrink-0" />
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-medium text-[#031033]">
                       {selectedPlan?.name || "Web"} Hosting
                     </h4>
-                    <p className="text-[11px] text-[#64748b]">{domainName}</p>
+                    <p className="text-xs text-[#5A6A85] truncate">{domainName}</p>
                   </div>
                 </div>
-                <span className="bg-[#dcfce7] text-[#15803d] text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                   Active
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                <div>
-                  <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                    Domain
-                  </span>
-                  <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block truncate">
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-4 py-3">
+                <div className="min-w-0">
+                  <dt className="text-xs text-[#5A6A85]">Domain</dt>
+                  <dd className="text-sm font-medium text-[#031033] mt-0.5 truncate">
                     {domainName}
-                  </span>
+                  </dd>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                    Plan
-                  </span>
-                  <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block">
+                  <dt className="text-xs text-[#5A6A85]">Plan</dt>
+                  <dd className="text-sm font-medium text-[#031033] mt-0.5">
                     {selectedPlan?.name || "Web"}
-                  </span>
+                  </dd>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                    Renewal
-                  </span>
-                  <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block">
+                  <dt className="text-xs text-[#5A6A85]">Renews</dt>
+                  <dd className="text-sm font-medium text-[#031033] mt-0.5 tabular-nums">
                     {renewalDateFormatted}
-                  </span>
+                  </dd>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-semibold text-[#8a9bb5] block">
-                    Auto-Renew
-                  </span>
-                  <span className="text-xs font-bold text-[#1d1d1f] mt-0.5 block">
+                  <dt className="text-xs text-[#5A6A85]">Auto-renew</dt>
+                  <dd className="text-sm font-medium text-[#031033] mt-0.5">
                     {autoRenew ? "On" : "Off"}
-                  </span>
+                  </dd>
                 </div>
-              </div>
+              </dl>
             </div>
 
-            <div className="flex flex-wrap sm:flex-nowrap gap-3 justify-center mt-6 w-full sm:w-auto">
+            <div className="flex flex-wrap sm:flex-nowrap gap-2 justify-center mt-6 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setCurrentStep("next-steps")}
-                className="w-full sm:w-auto px-5 py-2.5 bg-[#1787D4] hover:bg-[#1372b5] text-white rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                className="w-full sm:w-auto h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Manage Hosting
+                Manage hosting
               </button>
               <Link
                 href="/dashboard/hosting"
-                className="w-full sm:w-auto px-5 py-2.5 bg-white border border-[#dce4f7] hover:bg-gray-50 text-[#1d1d1f] rounded-lg text-xs font-semibold transition-all inline-flex items-center justify-center"
+                className="w-full sm:w-auto h-9 px-4 bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] text-[#031033] rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Open Control Panel
+                Open control panel
               </Link>
               <Link
                 href="/dashboard"
-                className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-[#6e6e73] hover:text-[#1d1d1f] transition-all inline-flex items-center justify-center"
+                className="w-full sm:w-auto h-9 px-4 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Go to Dashboard
+                Go to dashboard
               </Link>
             </div>
           </div>
 
-          <div className="w-full max-w-3xl bg-[#ecfdf5] border border-[#a7f3d0] rounded-lg p-3 text-xs text-[#065f46] flex items-center justify-center gap-2 text-center">
-            <CheckCircle className="w-4 h-4 text-[#10b981] shrink-0" />
+          <div className="w-full max-w-3xl rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033] flex items-center justify-center gap-2 text-center">
+            <CheckCircle className="w-4 h-4 text-[#1787D4] shrink-0" />
             <span>
               A hosting receipt and access details were sent to{" "}
-              {userEmail ||
-                (domainName ? `admin@${domainName}` : "your registered email")}
+              {userEmail || "your registered email"}
               .
             </span>
           </div>
@@ -1801,42 +1747,41 @@ function HostingPurchaseFlow() {
       {currentStep === "next-steps" && (
         <>
           {renderHeader(
-            "Your website is ready for the next step.",
+            "Your website is ready for the next step",
             `Choose what you'd like to set up next for ${domainName}.`,
             () => router.push("/dashboard/hosting"),
-            "Back to Hosting",
+            "Back to hosting",
           )}
 
-          <div className="bg-white border border-[#e8e8ed] rounded-xl p-4 flex items-center justify-between shadow-xs mt-2 w-full">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
-                <Server className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-[#1d1d1f]">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4 flex items-center justify-between gap-4 w-full">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Server className="w-4 h-4 text-[#5A6A85] shrink-0" />
+              <div className="min-w-0">
+                <h3 className="text-sm font-medium text-[#031033]">
                   {selectedPlan?.name || "Web"} Hosting
                 </h3>
-                <p className="text-[11px] text-[#6e6e73]">
-                  {domainName} • activated {todayFormatted}
+                <p className="text-xs text-[#5A6A85] truncate">
+                  {domainName} · activated {todayFormatted}
                 </p>
               </div>
             </div>
 
-            <span className="bg-[#dcfce7] text-[#15803d] text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0">
+              <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
               Active
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Card 1: Build Your Website */}
-            <div className="bg-white border border-[#e8e8ed] rounded-xl shadow-xs flex flex-col justify-between overflow-hidden hover:border-[#1787D4]/40 transition-all">
+            <div className="bg-white border border-[#E2E8F0] rounded-xl flex flex-col justify-between overflow-hidden">
               <WebsiteBuilderIllustration />
               <div className="p-5 flex flex-col justify-between flex-1">
                 <div>
-                  <h3 className="text-sm font-bold text-[#1d1d1f]">
-                    Build Your Website
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    Build your website
                   </h3>
-                  <p className="text-xs text-[#6e6e73] mt-2 leading-relaxed">
+                  <p className="text-sm text-[#5A6A85] mt-1.5 leading-relaxed">
                     Choose a professionally designed template and publish your
                     first pages without writing code.
                   </p>
@@ -1845,23 +1790,24 @@ function HostingPurchaseFlow() {
                   <button
                     type="button"
                     onClick={() => router.push("/dashboard/hosting")}
-                    className="w-full py-2.5 bg-[#1787D4] hover:bg-[#1372b5] text-white rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                    className="w-full h-9 bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
-                    Create Website
+                    {/* The purchase response has no hosting id to deep-link to. */}
+                    Go to hosting
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Card 2: Set Up Your Domain */}
-            <div className="bg-white border border-[#e8e8ed] rounded-xl shadow-xs flex flex-col justify-between overflow-hidden hover:border-[#1787D4]/40 transition-all">
+            <div className="bg-white border border-[#E2E8F0] rounded-xl flex flex-col justify-between overflow-hidden">
               <DomainSetupIllustration />
               <div className="p-5 flex flex-col justify-between flex-1">
                 <div>
-                  <h3 className="text-sm font-bold text-[#1d1d1f]">
-                    Set Up Your Domain
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    Set up your domain
                   </h3>
-                  <p className="text-xs text-[#6e6e73] mt-2 leading-relaxed">
+                  <p className="text-sm text-[#5A6A85] mt-1.5 leading-relaxed">
                     Review DNS, nameservers, redirects, and connection settings
                     for {domainName}.
                   </p>
@@ -1869,54 +1815,31 @@ function HostingPurchaseFlow() {
                 <div className="mt-6">
                   <Link
                     href="/dashboard/domains"
-                    className="w-full py-2.5 bg-white border border-[#dce4f7] hover:bg-gray-50 text-[#1d1d1f] rounded-lg text-xs font-semibold transition-all inline-flex items-center justify-center"
+                    className="w-full h-9 bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] text-[#031033] rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
-                    Manage Domain
+                    Manage domain
                   </Link>
                 </div>
               </div>
             </div>
 
-            {/* Card 3: Set Up Email */}
-            <div className="bg-white border border-[#e8e8ed] rounded-xl shadow-xs flex flex-col justify-between overflow-hidden hover:border-[#1787D4]/40 transition-all">
-              <EmailSetupIllustration />
-              <div className="p-5 flex flex-col justify-between flex-1">
-                <div>
-                  <h3 className="text-sm font-bold text-[#1d1d1f]">
-                    Set Up Email
-                  </h3>
-                  <p className="text-xs text-[#6e6e73] mt-2 leading-relaxed">
-                    Build trust with a professional address like hello@
-                    {domainName}.
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <Link
-                    href="/dashboard/email"
-                    className="w-full py-2.5 bg-white border border-[#dce4f7] hover:bg-gray-50 text-[#1d1d1f] rounded-lg text-xs font-semibold transition-all inline-flex items-center justify-center"
-                  >
-                    Set Up Email
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <div className="bg-white border border-[#e8e8ed] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs w-full">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
             <div>
-              <h3 className="text-xs font-bold text-[#1d1d1f]">
+              <h3 className="text-sm font-medium text-[#031033]">
                 Prefer to explore first?
               </h3>
-              <p className="text-[11px] text-[#6e6e73]">
+              <p className="text-sm text-[#5A6A85]">
                 You can return to these setup options anytime from your hosting
                 dashboard.
               </p>
             </div>
             <Link
               href="/dashboard/hosting"
-              className="text-xs font-semibold text-[#1787D4] hover:underline shrink-0"
+              className="text-sm font-medium text-[#1787D4] hover:underline shrink-0"
             >
-              Go to Dashboard →
+              Go to dashboard →
             </Link>
           </div>
         </>
@@ -1933,7 +1856,7 @@ export default function HostingPurchasePage() {
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-4">
           <Loader2 className="w-7 h-7 animate-spin text-[#1787D4]" />
-          <p className="text-sm text-[#5a6a85]">Loading hosting setup...</p>
+          <p className="text-sm text-[#5A6A85]">Loading hosting setup...</p>
         </div>
       }
     >

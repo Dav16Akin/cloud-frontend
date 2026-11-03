@@ -6,11 +6,7 @@ import Link from "next/link";
 import {
   Search,
   Plus,
-  Shield,
-  ShieldAlert,
   Loader2,
-  CheckCircle2,
-  AlertCircle,
   Clock,
   ArrowRight,
 } from "lucide-react";
@@ -107,22 +103,16 @@ function SslPageContent() {
     );
   }
 
+  const statusLabel = (s: string) => (s === "Expiring Soon" ? "Expiring soon" : s);
+
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1
-            className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-            style={{
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            SSL certificates
-          </h1>
-          <p className="text-[14px] mt-0.5 text-[#6e6e73]">
-            Manage installed certificates or order new high-assurance SSL/TLS encryption.
+          <h1 className="text-2xl font-semibold text-[#031033]">SSL certificates</h1>
+          <p className="text-sm mt-1 text-[#5A6A85]">
+            Manage installed certificates or order a new SSL/TLS certificate.
           </p>
         </div>
 
@@ -131,7 +121,7 @@ function SslPageContent() {
           type="button"
           id="btn-header-order-ssl"
           onClick={() => setActiveTab("order")}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm cursor-pointer"
+          className="inline-flex h-9 items-center gap-2 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
         >
           <Plus className="w-4 h-4" />
           Order new certificate
@@ -139,23 +129,23 @@ function SslPageContent() {
       </div>
 
       {/* Tabs / Sub-Navigation */}
-      <div className="flex border-b border-[#e2eaff] gap-8">
+      <div className="flex border-b border-[#E2E8F0] gap-8">
         <button
           type="button"
           id="tab-orders-overview"
           onClick={() => setActiveTab("overview")}
-          className={`pb-3 text-[14px] font-semibold transition-colors relative cursor-pointer ${
+          className={`pb-3 text-sm font-medium transition-colors relative cursor-pointer ${
             activeTab === "overview"
-              ? "text-[#1787D4]"
-              : "text-[#6e6e73] hover:text-[#1d1d1f]"
+              ? "text-[#031033]"
+              : "text-[#5A6A85] hover:text-[#031033]"
           }`}
         >
           Orders overview
-          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-[#f0f4f9] text-[#5a6a85] font-medium">
+          <span className="ml-1.5 text-[#5A6A85] font-normal tabular-nums">
             {isLoading ? "…" : certificates.length}
           </span>
           {activeTab === "overview" && (
-            <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#1787D4] rounded-t-full" />
+            <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-[#1787D4]" />
           )}
         </button>
 
@@ -163,7 +153,7 @@ function SslPageContent() {
           type="button"
           id="tab-order-new-certificate"
           onClick={() => setActiveTab("order")}
-          className="pb-3 text-[14px] font-semibold text-[#6e6e73] hover:text-[#1d1d1f] transition-colors relative cursor-pointer"
+          className="pb-3 text-sm font-medium text-[#5A6A85] hover:text-[#031033] transition-colors relative cursor-pointer"
         >
           Order new certificate
         </button>
@@ -173,36 +163,29 @@ function SslPageContent() {
           TAB: ORDERS OVERVIEW (Existing User Certificates)
          ───────────────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
-        {/* Top 3 Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Active */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-            <span className="text-[13px] font-medium text-[#6e6e73]">Active</span>
-            <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-              {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : activeCount}
+        {/* Stat row: one container split by hairlines */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 rounded-xl border border-[#E2E8F0] bg-white divide-y sm:divide-y-0 sm:divide-x divide-[#EEF2F7]">
+          {[
+            { label: "Active", value: activeCount },
+            { label: "Expiring soon", value: expiringSoonCount },
+            { label: "Expired", value: expiredCount },
+          ].map((stat) => (
+            <div key={stat.label} className="px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">{stat.label}</span>
+              <div className="mt-1 text-2xl font-semibold text-[#031033] tabular-nums">
+                {isLoading ? (
+                  <span className="block h-8 w-10 animate-pulse rounded bg-[#EEF2F7]" />
+                ) : (
+                  stat.value
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Expiring Soon */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-            <span className="text-[13px] font-medium text-[#6e6e73]">Expiring Soon</span>
-            <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-              {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : expiringSoonCount}
-            </div>
-          </div>
-
-          {/* Expired */}
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-            <span className="text-[13px] font-medium text-[#6e6e73]">Expired</span>
-            <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-              {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" /> : expiredCount}
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Filter Tabs & Search Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-1 self-start rounded-lg bg-[#F2F5FC] p-1">
             {(["All", "Active", "Expiring Soon"] as const).map((filter) => {
               const isActive = statusFilter === filter;
               return (
@@ -211,13 +194,13 @@ function SslPageContent() {
                   id={`btn-ssl-filter-${filter.toLowerCase().replace(/\s+/g, "-")}`}
                   type="button"
                   onClick={() => setStatusFilter(filter)}
-                  className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 cursor-pointer ${
+                  className={`h-7 px-3 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                     isActive
-                      ? "bg-[#1787D4] text-white shadow-sm"
-                      : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:text-[#1d1d1f]"
+                      ? "bg-white text-[#031033] shadow-sm"
+                      : "text-[#5A6A85] hover:text-[#031033]"
                   }`}
                 >
-                  {filter}
+                  {statusLabel(filter)}
                 </button>
               );
             })}
@@ -225,73 +208,56 @@ function SslPageContent() {
 
           <div className="flex items-center gap-3 flex-1 sm:justify-end">
             <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search certificates..."
+                placeholder="Search certificates"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-sm"
+                className="h-9 w-full pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
               />
             </div>
           </div>
         </div>
 
         {/* Certificates Table */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Certificate
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Domain
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Status
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                    Expires
-                  </th>
-                  <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
-                    Action
-                  </th>
+                <tr className="border-b border-[#E2E8F0]">
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Certificate</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Domain</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Status</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Expires</th>
+                  <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f2f5fc]">
+              <tbody>
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center text-[13.5px] text-[#6e6e73]">
-                      <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
-                        <span>Loading SSL certificates…</span>
-                      </div>
-                    </td>
-                  </tr>
+                  [0, 1, 2].map((i) => (
+                    <tr key={i} className="border-b border-[#EEF2F7] last:border-0">
+                      <td className="py-3 px-5"><span className="block h-4 w-32 animate-pulse rounded bg-[#EEF2F7]" /></td>
+                      <td className="py-3 px-5"><span className="block h-4 w-40 animate-pulse rounded bg-[#EEF2F7]" /></td>
+                      <td className="py-3 px-5"><span className="block h-5 w-16 animate-pulse rounded-full bg-[#EEF2F7]" /></td>
+                      <td className="py-3 px-5"><span className="ml-auto block h-4 w-24 animate-pulse rounded bg-[#EEF2F7]" /></td>
+                      <td className="py-3 px-5"><span className="ml-auto block h-8 w-20 animate-pulse rounded-lg bg-[#EEF2F7]" /></td>
+                    </tr>
+                  ))
                 ) : filteredCerts.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-16 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-                        <div className="w-12 h-12 rounded-lg bg-[#eff6fc] flex items-center justify-center text-[#1787D4]">
-                          <Shield className="w-6 h-6 stroke-[2]" />
-                        </div>
-                        <p className="text-[14.5px] font-bold text-[#1d1d1f] mt-1">
-                          No SSL certificates found
-                        </p>
-                        <p className="text-[13px] text-[#6e6e73] text-center">
-                          Protect your websites with instant SSL/TLS certificates.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab("order")}
-                          className="mt-3 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-                        >
-                          Order New Certificate
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <td colSpan={5} className="py-12 px-5 text-center">
+                      <p className="text-sm text-[#5A6A85]">
+                        No SSL certificates yet. Order one to secure your site over HTTPS.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("order")}
+                        className="mt-4 inline-flex h-9 items-center gap-2 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
+                      >
+                        Order new certificate
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ) : (
@@ -303,61 +269,58 @@ function SslPageContent() {
                     return (
                       <tr
                         key={cert.id}
-                        className="hover:bg-[#fbfcfe] transition-colors duration-150"
+                        className="border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                       >
-                        <td className="py-4 px-6 text-[13.5px] font-semibold text-[#1d1d1f]">
+                        <td className="py-3 px-5 text-sm font-medium text-[#031033]">
                           {cert.certificate}
                         </td>
-                        <td className="py-4 px-6 text-[13.5px] text-[#1d1d1f] font-mono">
+                        <td className="py-3 px-5 text-sm text-[#5A6A85]">
                           {cert.domain}
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-3 px-5">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold ${
-                              isActive
-                                ? "bg-[#eaf8ee] text-[#1e824c]"
-                                : isExpiring
-                                ? "bg-[#fff8ea] text-[#b37400]"
-                                : isExpired
-                                ? "bg-[#fdeaea] text-[#d92d20]"
-                                : "bg-[#eff6fc] text-[#1787D4]"
+                            className={`inline-flex items-center gap-2 whitespace-nowrap text-sm ${
+                              isExpired ? "text-[#C21F1F]" : "text-[#031033]"
                             }`}
                           >
-                            {isActive ? (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            ) : isExpiring ? (
-                              <ShieldAlert className="w-3.5 h-3.5" />
-                            ) : isExpired ? (
-                              <AlertCircle className="w-3.5 h-3.5" />
-                            ) : (
-                              <Clock className="w-3.5 h-3.5 animate-pulse" />
-                            )}
-                            {cert.status}
+                            <span
+                              aria-hidden
+                              className={`h-2 w-2 shrink-0 rounded-full ${
+                                isActive
+                                  ? "bg-[#12A150]"
+                                  : isExpiring
+                                  ? "bg-[#E8900A]"
+                                  : isExpired
+                                  ? "bg-[#DC2626]"
+                                  : "bg-[#1787D4]"
+                              }`}
+                            />
+                            {statusLabel(cert.status)}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-[13.5px] text-[#6e6e73]">
+                        <td className="py-3 px-5 text-sm text-[#5A6A85] text-right tabular-nums whitespace-nowrap">
                           {cert.expires}
                         </td>
-                        <td className="py-4 px-6 text-right">
+                        <td className="py-3 px-5 text-right">
                           {isExpired ? (
                             <Link
                               href={`/dashboard/ssl/purchase?domain=${encodeURIComponent(cert.domain)}`}
-                              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+                              className="inline-flex h-8 items-center gap-1.5 px-3 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#1787D4] text-sm font-medium rounded-lg transition-colors cursor-pointer"
                             >
                               Renew
                             </Link>
                           ) : cert.status === "Pending" ? (
                             <Link
                               href={`/dashboard/ssl/${encodeURIComponent(cert.id || cert.domain)}`}
-                              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 text-[12.5px] font-bold rounded-lg transition-colors"
+                              className="inline-flex h-8 items-center gap-1.5 px-3 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors"
                             >
-                              <Clock className="w-3.5 h-3.5 animate-pulse text-amber-600" />
+                              <Clock className="w-3.5 h-3.5 text-[#9A5B00]" />
                               Verify DNS
                             </Link>
                           ) : (
                             <Link
                               href={`/dashboard/ssl/${encodeURIComponent(cert.id || cert.domain)}`}
-                              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-[#e2eaff] hover:bg-[#f2f5fc] text-[#1787D4] text-[12.5px] font-semibold rounded-lg transition-colors"
+                              className="inline-flex h-8 items-center gap-1.5 px-3 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors"
                             >
                               Manage
                             </Link>
@@ -381,8 +344,8 @@ export default function SslCertificatesPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-sm text-[#6e6e73]">Loading SSL certificates…</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading SSL certificates…</p>
         </div>
       }
     >

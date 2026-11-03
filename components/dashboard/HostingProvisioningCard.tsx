@@ -14,7 +14,6 @@ import {
   Zap,
   Globe,
   ArrowRight,
-  Sparkles,
   Info,
   X,
 } from "lucide-react";
@@ -99,29 +98,29 @@ export function HostingProvisioningCard({
   const steps = [
     {
       id: 1,
-      title: "Payment Confirmed",
+      title: "Payment confirmed",
       desc: "Order verified via Paystack",
       done: true,
       active: false,
     },
     {
       id: 2,
-      title: "Allocating Cloud Resources",
-      desc: "Provisioning CPU, RAM & SSD storage",
+      title: "Allocating cloud resources",
+      desc: "Provisioning CPU, RAM and SSD storage",
       done: currentStep > 2 || isCompleted,
       active: currentStep === 2 && !isCompleted,
     },
     {
       id: 3,
-      title: "Creating cPanel & VHost",
-      desc: "Generating filesystem & credentials",
+      title: "Creating cPanel and vhost",
+      desc: "Generating filesystem and credentials",
       done: currentStep > 3 || isCompleted,
       active: currentStep === 3 && !isCompleted,
     },
     {
       id: 4,
-      title: "Configuring DNS & SSL",
-      desc: "Setting nameservers & security certificates",
+      title: "Configuring DNS and SSL",
+      desc: "Setting nameservers and certificates",
       done: isCompleted,
       active: currentStep === 4 && !isCompleted,
     },
@@ -129,81 +128,66 @@ export function HostingProvisioningCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border transition-all ${
-        isCompleted
-          ? "bg-gradient-to-br from-emerald-50/70 via-white to-emerald-50/40 border-emerald-200 shadow-sm"
-          : "bg-gradient-to-br from-[#f8faff] via-white to-[#eff6fc] border-[#d4e4fc] shadow-sm"
-      } ${className}`}
+      className={`overflow-hidden rounded-xl border border-[#E2E8F0] bg-white ${className}`}
     >
-      {/* Background radial highlight */}
-      <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-[#1787D4]/5 rounded-full blur-2xl pointer-events-none" />
-
       {/* Header bar */}
-      <div className="p-5 sm:p-6 border-b border-[#e6effb]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-start sm:items-center gap-3.5">
-          {/* Animated pulsing icon */}
+      <div className="px-5 py-4 border-b border-[#EEF2F7] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3">
           <div className="relative shrink-0">
-            <div
-              className={`w-12 h-12 rounded-lg flex items-center justify-center border shadow-xs ${
-                isCompleted
-                  ? "bg-emerald-100/70 border-emerald-300 text-emerald-600"
-                  : "bg-[#eaf3fe] border-[#cbe1fb] text-[#1787D4]"
-              }`}
-            >
+            <div className="w-10 h-10 rounded-lg bg-[#F2F5FC] flex items-center justify-center">
               {isCompleted ? (
                 <Image
                   src="/checkmark.svg"
                   alt="Completed"
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 object-contain"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6 object-contain"
                 />
               ) : (
-                <Server className="w-6 h-6 animate-pulse" />
+                <Server className="w-5 h-5 text-[#5A6A85]" />
               )}
             </div>
             {!isCompleted && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1787D4] opacity-75" />
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#1787D4]" />
+              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1787D4] opacity-60" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#1787D4]" />
               </span>
             )}
           </div>
 
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base sm:text-[17px] font-bold text-[#031033] tracking-tight flex items-center gap-2">
-                {isCompleted ? (
-                  <>
-                    <span>Hosting Provisioned & Active</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                      Live
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>Provisioning Your Cloud Hosting</span>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#1787D4] bg-[#eff6fc] px-2.5 py-0.5 rounded-full border border-[#d6eaf8]">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      In Progress
-                    </span>
-                  </>
-                )}
-              </h3>
-            </div>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold text-[#031033] flex items-center gap-2 flex-wrap">
+              {isCompleted ? (
+                <>
+                  <span>Hosting provisioned and active</span>
+                  <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm font-normal text-[#031033]">
+                    <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
+                    Live
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>Provisioning your cloud hosting</span>
+                  <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm font-normal text-[#031033]">
+                    <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#1787D4]" />
+                    In progress
+                  </span>
+                </>
+              )}
+            </h3>
 
-            <p className="text-[13px] text-[#5a6a85] mt-1 flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-[#031033] font-mono">
+            <p className="text-sm text-[#5A6A85] mt-1 flex items-center gap-2 flex-wrap">
+              <span className="font-medium text-[#031033] font-mono">
                 {domain}
               </span>
-              <span>•</span>
-              <span className="text-[#1787D4] font-medium">{planName}</span>
+              <span aria-hidden="true">·</span>
+              <span>{planName}</span>
               {!isCompleted && elapsedSeconds > 0 && (
                 <>
-                  <span>•</span>
-                  <span className="text-[#8a9bb2] flex items-center gap-1 text-[12px]">
+                  <span aria-hidden="true">·</span>
+                  <span className="flex items-center gap-1 text-xs tabular-nums">
                     <Clock className="w-3 h-3" />
-                    Elapsed: {elapsedSeconds}s
+                    Elapsed {elapsedSeconds}s
                   </span>
                 </>
               )}
@@ -218,21 +202,21 @@ export function HostingProvisioningCard({
               type="button"
               onClick={handleRefresh}
               disabled={isRefreshingActive}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold text-[#1787D4] bg-white border border-[#d6eaf8] hover:bg-[#eff6fc] active:scale-95 transition-all shadow-2xs disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${isRefreshingActive ? "animate-spin" : ""}`}
               />
-              <span>{isRefreshingActive ? "Checking…" : "Check Status"}</span>
+              <span>{isRefreshingActive ? "Checking…" : "Check status"}</span>
             </button>
           )}
 
           {isCompleted && hostingId && (
             <Link
               href={`/dashboard/hosting/${hostingId}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-95 transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              <span>Manage Account</span>
+              <span>Manage account</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           )}
@@ -241,8 +225,9 @@ export function HostingProvisioningCard({
             <button
               type="button"
               onClick={onDismiss}
-              className="p-1.5 rounded-lg text-[#8a9bb2] hover:text-[#031033] hover:bg-slate-100 transition-colors"
+              className="p-1.5 rounded-lg text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               title="Dismiss"
+              aria-label="Dismiss"
             >
               <X className="w-4 h-4" />
             </button>
@@ -251,22 +236,20 @@ export function HostingProvisioningCard({
       </div>
 
       {/* Main Body */}
-      <div className="p-5 sm:p-6 flex flex-col gap-5">
+      <div className="p-5 flex flex-col gap-5">
         {/* Progress bar */}
         <div>
-          <div className="flex items-center justify-between text-xs font-semibold text-[#5a6a85] mb-2">
-            <span>Provisioning Progress</span>
-            <span className={isCompleted ? "text-emerald-600 font-bold" : "text-[#1787D4] font-bold"}>
-              {progressPercent}% Complete
+          <div className="flex items-center justify-between text-xs text-[#5A6A85] mb-2">
+            <span>Provisioning progress</span>
+            <span className="font-medium text-[#031033] tabular-nums">
+              {progressPercent}% complete
             </span>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-[#e8eef8] overflow-hidden">
+          <div className="w-full h-1.5 rounded-full bg-[#EEF2F7] overflow-hidden">
             <div
-              className={`h-full transition-all duration-700 ease-out rounded-full ${
-                isCompleted
-                  ? "bg-emerald-500"
-                  : "bg-gradient-to-r from-[#1787D4] to-[#4da7e8]"
+              className={`h-full transition-[width] duration-700 ease-out rounded-full ${
+                isCompleted ? "bg-[#0E7C3A]" : "bg-[#1787D4]"
               }`}
               style={{ width: `${progressPercent}%` }}
             />
@@ -274,95 +257,90 @@ export function HostingProvisioningCard({
         </div>
 
         {/* Stepper Timeline */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {steps.map((step) => {
             return (
-              <div
+              <li
                 key={step.id}
-                className={`p-3.5 rounded-lg border transition-all flex items-start gap-3 ${
-                  step.done
-                    ? "bg-white/90 border-emerald-200"
-                    : step.active
-                    ? "bg-white border-[#1787D4] ring-2 ring-[#1787D4]/10 shadow-xs"
-                    : "bg-slate-50/60 border-slate-200/70 opacity-60"
+                className={`p-3 rounded-lg border flex items-start gap-3 ${
+                  step.active
+                    ? "bg-white border-[#1787D4]"
+                    : "bg-white border-[#E2E8F0]"
                 }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 ${
+                  className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-medium mt-px ${
                     step.done
-                      ? "bg-emerald-100 text-emerald-700"
+                      ? "text-[#0E7C3A]"
                       : step.active
-                      ? "bg-[#1787D4] text-white"
-                      : "bg-slate-200 text-slate-500"
+                      ? "text-[#1787D4]"
+                      : "bg-[#EEF2F7] text-[#5A6A85]"
                   }`}
                 >
                   {step.done ? (
                     <CheckCircle2 className="w-4 h-4" />
                   ) : step.active ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <span>{step.id}</span>
+                    <span className="tabular-nums">{step.id}</span>
                   )}
                 </div>
 
                 <div className="min-w-0">
                   <p
-                    className={`text-[13px] font-bold leading-tight ${
-                      step.active
+                    className={`text-sm font-medium leading-tight ${
+                      step.done || step.active
                         ? "text-[#031033]"
-                        : step.done
-                        ? "text-emerald-800"
-                        : "text-[#5a6a85]"
+                        : "text-[#5A6A85]"
                     }`}
                   >
                     {step.title}
                   </p>
-                  <p className="text-[11.5px] text-[#8a9bb2] mt-0.5 leading-snug">
+                  <p className="text-xs text-[#5A6A85] mt-1 leading-snug">
                     {step.desc}
                   </p>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
 
-        {/* Informational reassurance banner */}
+        {/* Informational banner */}
         {!isCompleted ? (
-          <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#eff6fc]/80 border border-[#d6eaf8] text-[#1e4a7a]">
+          <div className="flex items-start gap-3 rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033]">
             <Info className="w-4 h-4 shrink-0 text-[#1787D4] mt-0.5" />
-            <div className="text-[12.5px] leading-relaxed">
-              <span className="font-semibold text-[#031033]">
-                Automated Cloud Provisioning in progress.{" "}
+            <p className="leading-relaxed">
+              <span className="font-medium">Provisioning is running. </span>
+              <span className="text-[#5A6A85]">
+                We are setting up your virtual host, cPanel account and security policies.
+                This usually takes 1 to 3 minutes. You can leave this page; we will email your
+                cPanel login and server IP when it is done.
               </span>
-              Our servers are configuring your virtual host, cPanel account, and security policies.
-              This typically finishes within <strong>1 to 3 minutes</strong>. You do not have to stay on this screen—we will also email your cPanel login credentials and server IP once complete.
-            </div>
+            </p>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-lg bg-emerald-50/80 border border-emerald-200 text-emerald-900">
-            <div className="flex items-center gap-2.5">
-              <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
-              <div className="text-[12.5px]">
-                <span className="font-bold">Your server environment is fully activated!</span>
-                {cpanelUsername && (
-                  <span className="ml-2 font-mono text-emerald-800 bg-white/80 px-2 py-0.5 rounded border border-emerald-200 text-[11.5px]">
-                    user: {cpanelUsername}
-                  </span>
-                )}
-                {serverIp && (
-                  <span className="ml-2 font-mono text-emerald-800 bg-white/80 px-2 py-0.5 rounded border border-emerald-200 text-[11.5px]">
-                    ip: {serverIp}
-                  </span>
-                )}
-              </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-[#0E7C3A]/20 bg-[#E7F6EC] px-4 py-3 text-sm text-[#031033]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#0E7C3A]" />
+              <span className="font-medium">Your hosting account is active.</span>
+              {cpanelUsername && (
+                <span className="font-mono text-xs text-[#031033] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
+                  user: {cpanelUsername}
+                </span>
+              )}
+              {serverIp && (
+                <span className="font-mono text-xs text-[#031033] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
+                  ip: {serverIp}
+                </span>
+              )}
             </div>
 
             {hostingId && (
               <Link
                 href={`/dashboard/hosting/${hostingId}`}
-                className="text-[12.5px] font-bold text-emerald-700 hover:underline shrink-0"
+                className="text-sm font-medium text-[#0E7C3A] hover:underline shrink-0"
               >
-                Access Hosting Features →
+                Open hosting tools →
               </Link>
             )}
           </div>

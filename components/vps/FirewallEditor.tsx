@@ -3,12 +3,10 @@
 import { useMemo, useState } from "react";
 import {
   AlertCircle,
-  CheckCircle2,
   Loader2,
   Plus,
   RefreshCw,
   Save,
-  ShieldCheck,
   Trash2,
 } from "lucide-react";
 import {
@@ -159,7 +157,7 @@ function toPayload(rules: EditableRule[]): VpsFirewallRule[] {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-[#e8e8ed] bg-white px-2.5 py-2 text-[12.5px] text-[#1d1d1f] placeholder:text-[#aeaeb2] focus:outline-none focus:border-[#1787D4] transition-colors";
+  "w-full h-10 rounded-lg border border-[#D5DCE6] bg-white px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors";
 
 export default function FirewallEditor({
   vpsId,
@@ -232,26 +230,25 @@ export default function FirewallEditor({
   };
 
   return (
-    <div className="bg-white rounded-[14px] border border-[#e8e8ed] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[#eef2f8]">
+    <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-[#EEF2F7]">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] text-[#1787D4] flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-[18px] h-[18px]" />
-          </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-[15px] font-bold text-[#1d1d1f]">Firewall</h3>
+              <h3 className="text-base font-semibold text-[#031033]">Firewall</h3>
               {data?.applied ? (
-                <span className="inline-flex items-center gap-1 text-[10.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                  <CheckCircle2 className="w-3 h-3" /> Applied
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
+                  Applied
                 </span>
               ) : (
-                <span className="text-[10.5px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#E8900A]" />
                   Not applied
                 </span>
               )}
             </div>
-            <p className="text-[12px] text-[#6e6e73] mt-0.5">
+            <p className="text-xs text-[#5A6A85] mt-0.5">
               Control which traffic can reach your server.
             </p>
           </div>
@@ -263,7 +260,7 @@ export default function FirewallEditor({
               type="button"
               onClick={reset}
               disabled={isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#e8e8ed] bg-white hover:bg-[#f8fafc] text-[12px] font-semibold text-[#6e6e73] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed text-[#5A6A85]"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reset
@@ -273,40 +270,40 @@ export default function FirewallEditor({
             type="button"
             onClick={addRule}
             disabled={disabled || isPending}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#e8e8ed] bg-white hover:bg-[#f8fafc] text-[12px] font-semibold text-[#1d1d1f] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed text-[#031033]"
           >
-            <Plus className="w-3.5 h-3.5 text-[#1787D4]" />
+            <Plus className="w-3.5 h-3.5 text-[#5A6A85]" />
             Add rule
           </button>
         </div>
       </div>
 
-      <div className="p-5 sm:p-6">
+      <div className="p-5">
         {disabled && (
-          <div className="mb-4 flex items-start gap-2 rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] px-3.5 py-2.5 text-[12px] text-[#6e6e73]">
-            <AlertCircle className="w-4 h-4 shrink-0 text-[#8a9bb2] mt-0.5" />
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] px-4 py-3 text-sm text-[#5A6A85]">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#5A6A85] mt-0.5" />
             The firewall can be changed once your server has finished
             provisioning.
           </div>
         )}
 
         {!disabled && isLoading && (
-          <div className="flex items-center justify-center py-8 gap-2 text-[12.5px] text-[#6e6e73]">
-            <Loader2 className="w-4 h-4 animate-spin text-[#1787D4]" />
-            Loading firewall rules…
+          <div className="flex flex-col gap-3" aria-label="Loading firewall rules">
+            <div className="h-36 rounded-lg bg-[#EEF2F7] animate-pulse" />
+            <div className="h-36 rounded-lg bg-[#EEF2F7] animate-pulse" />
           </div>
         )}
 
         {!disabled && isError && (
           <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
-            <AlertCircle className="w-6 h-6 text-red-400" />
-            <p className="text-[12.5px] text-[#6e6e73]">
+            <AlertCircle className="w-5 h-5 text-[#DC2626]" />
+            <p className="text-sm text-[#5A6A85]">
               Could not load the firewall.
             </p>
             <button
               type="button"
               onClick={() => refetch()}
-              className="text-[12px] font-semibold text-[#1787D4] hover:underline"
+              className="rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
               Try again
             </button>
@@ -316,8 +313,8 @@ export default function FirewallEditor({
         {!disabled && !isLoading && !isError && (
           <div className="flex flex-col gap-3">
             {data && !data.applied && (
-              <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[11.5px] text-amber-800">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 rounded-lg border border-[#E8900A]/25 bg-[#FFF4E0] px-4 py-3 text-sm text-[#9A5B00]">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
                   This server does not have a firewall attached right now. These
                   are the recommended defaults. Saving applies them at the
@@ -327,8 +324,8 @@ export default function FirewallEditor({
             )}
 
             {rules.length === 0 && (
-              <div className="rounded-lg border border-dashed border-[#d9d9de] bg-[#fbfcfe] px-4 py-8 text-center">
-                <p className="text-[12.5px] text-[#6e6e73]">
+              <div className="rounded-lg border border-dashed border-[#E2E8F0] bg-[#F2F5FC] px-4 py-8 text-center">
+                <p className="text-sm text-[#5A6A85]">
                   No rules yet. Add at least one rule to protect the server.
                 </p>
               </div>
@@ -341,20 +338,18 @@ export default function FirewallEditor({
               return (
                 <div
                   key={rule.key}
-                  className="rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] p-3.5"
+                  className="rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] p-4"
                 >
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[10.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                          inbound
-                            ? "bg-[#eff6fc] text-[#1787D4] border-[#d6eaf8]"
-                            : "bg-slate-100 text-slate-600 border-slate-200"
+                        className={`whitespace-nowrap text-xs font-medium ${
+                          inbound ? "text-[#031033]" : "text-[#5A6A85]"
                         }`}
                       >
                         {inbound ? "Inbound" : "Outbound"}
                       </span>
-                      <span className="text-[11px] font-semibold text-[#8a9bb2]">
+                      <span className="text-xs text-[#5A6A85] tabular-nums">
                         Rule {index + 1}
                       </span>
                     </div>
@@ -362,15 +357,15 @@ export default function FirewallEditor({
                       type="button"
                       onClick={() => removeRule(rule.key)}
                       aria-label={`Remove rule ${index + 1}`}
-                      className="p-1.5 rounded-lg text-[#8a9bb2] hover:text-red-600 hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded-lg text-[#5A6A85] hover:text-[#C21F1F] hover:bg-[#FDECEC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
-                      <label className="text-[10.5px] font-semibold text-[#6e6e73] block mb-1">
+                      <label className="text-xs font-medium text-[#5A6A85] block mb-1.5">
                         Direction
                       </label>
                       <select
@@ -387,7 +382,7 @@ export default function FirewallEditor({
                     </div>
 
                     <div>
-                      <label className="text-[10.5px] font-semibold text-[#6e6e73] block mb-1">
+                      <label className="text-xs font-medium text-[#5A6A85] block mb-1.5">
                         Protocol
                       </label>
                       <select
@@ -412,7 +407,7 @@ export default function FirewallEditor({
                     </div>
 
                     <div>
-                      <label className="text-[10.5px] font-semibold text-[#6e6e73] block mb-1">
+                      <label className="text-xs font-medium text-[#5A6A85] block mb-1.5">
                         Port {needsPort && inbound ? "*" : "(optional)"}
                       </label>
                       <input
@@ -423,12 +418,12 @@ export default function FirewallEditor({
                         }
                         disabled={!needsPort}
                         placeholder={needsPort ? "22 or 8000-8100" : "—"}
-                        className={`${inputClass} disabled:bg-[#f3f4f6] disabled:text-[#9ba8c0]`}
+                        className={`${inputClass} disabled:bg-[#F2F5FC] disabled:text-[#5A6A85]`}
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10.5px] font-semibold text-[#6e6e73] block mb-1">
+                      <label className="text-xs font-medium text-[#5A6A85] block mb-1.5">
                         Description
                       </label>
                       <input
@@ -444,7 +439,7 @@ export default function FirewallEditor({
                     </div>
 
                     <div className="col-span-2 sm:col-span-4">
-                      <label className="text-[10.5px] font-semibold text-[#6e6e73] block mb-1">
+                      <label className="text-xs font-medium text-[#5A6A85] block mb-1.5">
                         {inbound ? "Source IPs" : "Destination IPs"} *
                       </label>
                       <input
@@ -456,9 +451,10 @@ export default function FirewallEditor({
                         placeholder="0.0.0.0/0, ::/0"
                         className={`${inputClass} font-mono`}
                       />
-                      <p className="text-[10px] text-[#8a9bb2] mt-1">
-                        Comma-separated CIDR blocks. Use 0.0.0.0/0 for all IPv4
-                        and ::/0 for all IPv6.
+                      <p className="text-xs text-[#5A6A85] mt-1.5">
+                        Comma-separated CIDR blocks. Use{" "}
+                        <span className="font-mono">0.0.0.0/0</span> for all IPv4
+                        and <span className="font-mono">::/0</span> for all IPv6.
                       </p>
                     </div>
                   </div>
@@ -467,21 +463,21 @@ export default function FirewallEditor({
             })}
 
             {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12px] text-red-700">
+              <div className="flex items-start gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 text-sm text-[#C21F1F]">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
             <div className="flex items-center justify-between gap-3 pt-1">
-              <p className="text-[10.5px] text-[#8a9bb2]">
+              <p className="text-xs text-[#5A6A85]">
                 Changes are applied to the provider firewall immediately.
               </p>
               <button
                 type="button"
                 onClick={save}
                 disabled={isPending || !dirty}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12px] font-semibold transition-colors disabled:opacity-50 shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
                 {isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

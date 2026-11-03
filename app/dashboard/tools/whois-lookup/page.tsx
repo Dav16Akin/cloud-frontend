@@ -9,7 +9,6 @@ import {
   Loader2,
   Globe,
   Calendar,
-  Building,
   ShieldCheck,
   Server,
   User,
@@ -19,7 +18,6 @@ import {
   Code,
   ExternalLink,
   RefreshCw,
-  Clock,
   List,
 } from "lucide-react";
 import { lookupWhois, WhoisData } from "@/lib/api";
@@ -215,27 +213,19 @@ function WhoisContent() {
         <Link
           href="/dashboard/tools"
           id="btn-back-tools"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1787D4] hover:text-[#1371B5] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Tools
+          Back to tools
         </Link>
       </div>
 
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2
-            className="text-[26px] font-bold text-[#1d1d1f] tracking-tight"
-            style={{
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            WHOIS Lookup
-          </h2>
-          <p className="text-[14px] mt-1 text-[#6e6e73]">
-            Inspect domain registration details, registrar authority, active nameservers, and expiration dates.
+          <h1 className="text-2xl font-semibold text-[#031033]">WHOIS lookup</h1>
+          <p className="text-sm mt-1 text-[#5A6A85]">
+            Inspect domain registration details, registrar, active nameservers and expiry dates.
           </p>
         </div>
 
@@ -243,17 +233,17 @@ function WhoisContent() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowRawJson(!showRawJson)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#D5DCE6] text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium rounded-lg transition-colors cursor-pointer"
             >
-              <Code className="w-3.5 h-3.5" />
+              <Code className="w-3.5 h-3.5 text-[#5A6A85]" />
               {showRawJson ? "Hide JSON" : "Raw JSON"}
             </button>
             <button
               onClick={() => executeLookup(domain)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#e2eaff] hover:border-[#1787D4] text-[#5a6a85] hover:text-[#1787D4] text-[12.5px] font-medium rounded-lg transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#D5DCE6] text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#5A6A85] ${loading ? "animate-spin" : ""}`} />
               Refresh
             </button>
           </div>
@@ -261,32 +251,32 @@ function WhoisContent() {
       </div>
 
       {/* Input Form */}
-      <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
-            <Globe className="w-4 h-4 text-[#8a9bb2] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Globe className="w-4 h-4 text-[#5A6A85] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Enter a domain name (e.g. yourdomain.com)"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] placeholder:text-[#8a9bb2] focus:outline-none focus:border-[#1787D4] transition-colors"
+              className="w-full pl-10 pr-4 h-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={loading || !domain.trim()}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto h-10 px-5 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Querying WHOIS...
+                Querying WHOIS…
               </>
             ) : (
               <>
                 <Search className="w-4 h-4" />
-                Lookup WHOIS
+                Look up WHOIS
               </>
             )}
           </button>
@@ -295,15 +285,15 @@ function WhoisContent() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 text-red-700">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+        <div className="bg-[#FDECEC] border border-[#DC2626]/20 rounded-lg px-4 py-3 flex items-start gap-3 text-[#C21F1F]">
+          <AlertCircle className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-[13.5px] font-semibold">WHOIS Query Failed</h4>
-            <p className="text-[12.5px] mt-0.5 text-red-600">{error}</p>
+            <h4 className="text-sm font-medium">WHOIS query failed</h4>
+            <p className="text-xs mt-0.5 text-[#C21F1F]">{error}</p>
           </div>
           <button
             onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-600 text-[12px] font-medium cursor-pointer"
+            className="text-[#C21F1F]/70 hover:text-[#C21F1F] text-xs font-medium cursor-pointer"
           >
             Dismiss
           </button>
@@ -312,25 +302,22 @@ function WhoisContent() {
 
       {/* Loading Skeleton */}
       {loading && !whoisData && (
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-10 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-[14px] font-semibold text-[#1d1d1f]">Querying WHOIS registry for {domain}...</p>
-          <p className="text-[12.5px] text-[#6e6e73]">Retrieving registrar credentials, expiration dates, and nameserver delegation.</p>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 flex flex-col items-center justify-center gap-3 text-center">
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm font-medium text-[#031033]">Querying WHOIS registry for {domain}…</p>
+          <p className="text-xs text-[#5A6A85]">Retrieving registrar details, expiry dates and nameserver delegation.</p>
         </div>
       )}
 
       {/* Initial Empty State */}
       {!loading && !whoisData && !error && !hasLookedUp && (
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-12 shadow-sm text-center">
-          <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-            <div className="w-10 h-10 rounded-lg bg-[#eff6ff] text-[#1787D4] flex items-center justify-center">
-              <Globe className="w-5 h-5" />
-            </div>
-            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
+        <div className="bg-white rounded-xl border border-[#E2E8F0] px-6 py-10 text-center">
+          <div className="flex flex-col items-center justify-center gap-1 max-w-sm mx-auto">
+            <p className="text-sm font-medium text-[#031033]">
               No WHOIS lookup performed yet
             </p>
-            <p className="text-[12.5px] text-[#6e6e73]">
-              Enter a domain name above and click &ldquo;Lookup WHOIS&rdquo; to query live registration authority and status.
+            <p className="text-sm text-[#5A6A85]">
+              Enter a domain name above and select &ldquo;Look up WHOIS&rdquo; to query live registration details and status.
             </p>
           </div>
         </div>
@@ -340,59 +327,47 @@ function WhoisContent() {
       {whoisData && (
         <>
           {/* Overview Metric Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#EEF2F7] sm:grid-cols-4">
             {/* Domain Status */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Domain</span>
-                <Globe className="w-4 h-4 text-[#1787D4]" />
-              </div>
-              <div className="mt-2 text-[15px] font-bold text-[#1d1d1f] truncate font-mono">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Domain</span>
+              <div className="mt-1 truncate font-mono text-base font-semibold text-[#031033]">
                 {domainName}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
-                DNSSEC: <span className="font-semibold text-[#5a6a85] uppercase">{dnssec}</span>
+              <p className="mt-0.5 text-xs text-[#5A6A85]">
+                DNSSEC: <span className="font-medium text-[#031033]">{dnssec}</span>
               </p>
             </div>
 
             {/* Registrar */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Registrar</span>
-                <Building className="w-4 h-4 text-[#9333ea]" />
-              </div>
-              <div className="mt-2 text-[15px] font-bold text-[#1d1d1f] truncate">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Registrar</span>
+              <div className="mt-1 truncate text-base font-semibold text-[#031033]">
                 {registrar}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
+              <p className="mt-0.5 text-xs tabular-nums text-[#5A6A85]">
                 IANA ID: {registrarIana || "—"}
               </p>
             </div>
 
             {/* Registered On */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Registered On</span>
-                <Calendar className="w-4 h-4 text-[#059669]" />
-              </div>
-              <div className="mt-2 text-[15px] font-bold text-[#1d1d1f]">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Registered</span>
+              <div className="mt-1 text-base font-semibold tabular-nums text-[#031033]">
                 {formatDate(creationDate)}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
-                Updated: {formatDate(updatedDate)}
+              <p className="mt-0.5 text-xs tabular-nums text-[#5A6A85]">
+                Updated {formatDate(updatedDate)}
               </p>
             </div>
 
             {/* Expires On */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[#6e6e73]">Expires On</span>
-                <Clock className="w-4 h-4 text-[#d97706]" />
-              </div>
-              <div className="mt-2 text-[15px] font-bold text-[#059669]">
+            <div className="min-w-0 bg-white px-5 py-4">
+              <span className="text-xs text-[#5A6A85]">Expires</span>
+              <div className="mt-1 text-base font-semibold tabular-nums text-[#031033]">
                 {formatDate(expiryDate)}
               </div>
-              <p className="text-[11px] text-[#8a9bb2] mt-0.5">
+              <p className="mt-0.5 text-xs text-[#5A6A85]">
                 Active registration
               </p>
             </div>
@@ -400,19 +375,19 @@ function WhoisContent() {
 
           {/* Raw JSON View */}
           {showRawJson && (
-            <div className="bg-[#031033] text-[#e2eaff] rounded-lg p-5 shadow-sm border border-[#1e293b]">
+            <div className="bg-[#031033] text-[#E2E8F0] rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Code className="w-4 h-4 text-[#38bdf8]" />
-                  <span className="text-[13px] font-semibold text-white">Raw WHOIS JSON Payload</span>
+                  <Code className="w-4 h-4 text-white/60" />
+                  <span className="text-sm font-medium text-white">Raw WHOIS JSON</span>
                 </div>
                 <button
                   onClick={() => handleCopy(JSON.stringify(whoisData, null, 2), "whois-json")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-[12px] font-medium rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
                 >
                   {copiedKey === "whois-json" ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-[#4AC3B4]" />
                       <span>Copied JSON</span>
                     </>
                   ) : (
@@ -423,20 +398,20 @@ function WhoisContent() {
                   )}
                 </button>
               </div>
-              <pre className="text-[12px] font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-emerald-300">
+              <pre className="text-xs font-mono overflow-x-auto p-3 bg-black/30 rounded-lg max-h-96 text-[#E2E8F0]">
                 {JSON.stringify(whoisData, null, 2)}
               </pre>
             </div>
           )}
 
           {/* Information Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Registration & Authority Overview */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
-                <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-[#1787D4]" />
-                  Registration & Authority
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-[#EEF2F7] pb-3">
+                <h3 className="text-base font-semibold text-[#031033] flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-[#5A6A85]" />
+                  Registration and authority
                 </h3>
                 <button
                   onClick={() =>
@@ -445,39 +420,39 @@ function WhoisContent() {
                       "reg-overview",
                     )
                   }
-                  className="text-[12px] text-[#1787D4] hover:text-[#1371B5] font-medium inline-flex items-center gap-1 cursor-pointer"
+                  className="text-sm text-[#1787D4] hover:text-[#1370B5] font-medium inline-flex items-center gap-1 cursor-pointer"
                 >
-                  {copiedKey === "reg-overview" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedKey === "reg-overview" ? <Check className="w-3.5 h-3.5 text-[#0E7C3A]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copiedKey === "reg-overview" ? "Copied" : "Copy"}
                 </button>
               </div>
 
-              <div className="flex flex-col gap-3 text-[13px]">
-                <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                  <span className="text-[#6e6e73]">Domain Name</span>
-                  <span className="font-bold text-[#1d1d1f] font-mono">{domainName}</span>
+              <div className="flex flex-col gap-3 text-sm">
+                <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                  <span className="text-[#5A6A85]">Domain name</span>
+                  <span className="font-medium text-[#031033] font-mono">{domainName}</span>
                 </div>
 
                 {registryDomainId && (
-                  <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                    <span className="text-[#6e6e73]">Registry Domain ID</span>
-                    <span className="font-mono text-[12px] text-[#5a6a85]">{registryDomainId}</span>
+                  <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                    <span className="text-[#5A6A85]">Registry domain ID</span>
+                    <span className="font-mono text-xs text-right break-all text-[#031033]">{registryDomainId}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                  <span className="text-[#6e6e73]">Registrar</span>
-                  <span className="font-semibold text-[#1d1d1f] text-right">{registrar}</span>
+                <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                  <span className="text-[#5A6A85]">Registrar</span>
+                  <span className="text-[#031033] text-right">{registrar}</span>
                 </div>
 
                 {registrarUrl && (
-                  <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                    <span className="text-[#6e6e73]">Registrar URL</span>
+                  <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                    <span className="text-[#5A6A85]">Registrar URL</span>
                     <a
                       href={registrarUrl.startsWith("http") ? registrarUrl : `http://${registrarUrl}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#1787D4] hover:underline flex items-center gap-1 font-mono text-[12px]"
+                      className="text-[#1787D4] hover:underline flex items-center gap-1 font-mono text-xs"
                     >
                       {registrarUrl.replace(/^https?:\/\//, "")}
                       <ExternalLink className="w-3 h-3" />
@@ -486,40 +461,41 @@ function WhoisContent() {
                 )}
 
                 {registrarWhoisServer && (
-                  <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                    <span className="text-[#6e6e73]">Registrar WHOIS</span>
-                    <span className="font-mono text-[12px] text-[#5a6a85]">{registrarWhoisServer}</span>
+                  <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                    <span className="text-[#5A6A85]">Registrar WHOIS</span>
+                    <span className="font-mono text-xs text-[#031033]">{registrarWhoisServer}</span>
                   </div>
                 )}
 
                 {abuseEmail && (
-                  <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                    <span className="text-[#6e6e73]">Abuse Email</span>
-                    <span className="font-mono text-[#1d1d1f] text-[12px]">{abuseEmail}</span>
+                  <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                    <span className="text-[#5A6A85]">Abuse email</span>
+                    <span className="font-mono text-[#031033] text-xs">{abuseEmail}</span>
                   </div>
                 )}
 
                 {abusePhone && (
-                  <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                    <span className="text-[#6e6e73]">Abuse Phone</span>
-                    <span className="font-mono text-[#1d1d1f] text-[12px]">{abusePhone}</span>
+                  <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                    <span className="text-[#5A6A85]">Abuse phone</span>
+                    <span className="font-mono text-[#031033] text-xs">{abusePhone}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-start pt-1">
-                  <span className="text-[#6e6e73] shrink-0">Domain Status</span>
-                  <div className="flex flex-wrap gap-1 justify-end max-w-[280px]">
+                  <span className="text-[#5A6A85] shrink-0">Domain status</span>
+                  <div className="flex flex-col items-end gap-1 max-w-[280px]">
                     {statuses.length > 0 ? (
                       statuses.map((st) => (
                         <span
                           key={st}
-                          className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#eff6ff] text-[#1787D4] border border-[#d6e4ff]"
+                          className="inline-flex items-center gap-2 text-sm text-[#031033] break-all"
                         >
+                          <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#9AA6B8]" />
                           {st}
                         </span>
                       ))
                     ) : (
-                      <span className="text-[#6e6e73] font-medium">active / ok</span>
+                      <span className="text-[#5A6A85]">active / ok</span>
                     )}
                   </div>
                 </div>
@@ -527,11 +503,11 @@ function WhoisContent() {
             </div>
 
             {/* Dates & Active Nameservers */}
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
-                <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#1787D4]" />
-                  Dates & Delegation
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-[#EEF2F7] pb-3">
+                <h3 className="text-base font-semibold text-[#031033] flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#5A6A85]" />
+                  Dates and delegation
                 </h3>
                 <button
                   onClick={() =>
@@ -540,58 +516,58 @@ function WhoisContent() {
                       "dates-ns",
                     )
                   }
-                  className="text-[12px] text-[#1787D4] hover:text-[#1371B5] font-medium inline-flex items-center gap-1 cursor-pointer"
+                  className="text-sm text-[#1787D4] hover:text-[#1370B5] font-medium inline-flex items-center gap-1 cursor-pointer"
                 >
-                  {copiedKey === "dates-ns" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedKey === "dates-ns" ? <Check className="w-3.5 h-3.5 text-[#0E7C3A]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copiedKey === "dates-ns" ? "Copied" : "Copy"}
                 </button>
               </div>
 
-              <div className="flex flex-col gap-3 text-[13px]">
-                <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                  <span className="text-[#6e6e73]">Registered On</span>
+              <div className="flex flex-col gap-3 text-sm">
+                <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                  <span className="text-[#5A6A85]">Registered</span>
                   <div className="text-right">
-                    <span className="font-semibold text-[#1d1d1f] block">{formatDate(creationDate)}</span>
+                    <span className="font-medium tabular-nums text-[#031033] block">{formatDate(creationDate)}</span>
                     {creationDate && (
-                      <span className="text-[11px] text-[#8a9bb2] font-mono block">{creationDate}</span>
+                      <span className="text-xs text-[#5A6A85] font-mono block">{creationDate}</span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                  <span className="text-[#6e6e73]">Expires On</span>
+                <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                  <span className="text-[#5A6A85]">Expires</span>
                   <div className="text-right">
-                    <span className="font-bold text-[#059669] block">{formatDate(expiryDate)}</span>
+                    <span className="font-medium tabular-nums text-[#031033] block">{formatDate(expiryDate)}</span>
                     {expiryDate && (
-                      <span className="text-[11px] text-[#8a9bb2] font-mono block">{expiryDate}</span>
+                      <span className="text-xs text-[#5A6A85] font-mono block">{expiryDate}</span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center border-b border-[#f2f5fc] pb-2">
-                  <span className="text-[#6e6e73]">Updated On</span>
+                <div className="flex justify-between items-center gap-4 border-b border-[#EEF2F7] pb-3">
+                  <span className="text-[#5A6A85]">Updated</span>
                   <div className="text-right">
-                    <span className="font-medium text-[#1d1d1f] block">{formatDate(updatedDate)}</span>
+                    <span className="font-medium tabular-nums text-[#031033] block">{formatDate(updatedDate)}</span>
                     {updatedDate && (
-                      <span className="text-[11px] text-[#8a9bb2] font-mono block">{updatedDate}</span>
+                      <span className="text-xs text-[#5A6A85] font-mono block">{updatedDate}</span>
                     )}
                   </div>
                 </div>
 
                 <div className="flex justify-between items-start pt-1">
-                  <span className="text-[#6e6e73] shrink-0">Nameservers</span>
-                  <div className="flex flex-col items-end gap-1.5 font-mono text-[12px] text-[#1d1d1f]">
+                  <span className="text-[#5A6A85] shrink-0">Nameservers</span>
+                  <div className="flex flex-col items-end gap-1.5 font-mono text-xs text-[#031033]">
                     {nameServers.length > 0 ? (
                       nameServers.map((ns) => (
                         <span
                           key={ns}
-                          className="px-2.5 py-0.5 rounded-md bg-[#fbfcfe] border border-[#eef2f8] font-semibold text-[#2a3b50]"
+                          className="px-2 py-0.5 rounded-md bg-[#F2F5FC] text-[#031033]"
                         >
                           {ns}
                         </span>
                       ))
                     ) : (
-                      <span className="text-[#8a9bb2] font-sans">No nameservers listed in WHOIS</span>
+                      <span className="text-[#5A6A85] font-sans">No nameservers listed in WHOIS</span>
                     )}
                   </div>
                 </div>
@@ -600,49 +576,49 @@ function WhoisContent() {
 
             {/* Registrant / Contact Information (if present) */}
             {(registrantOrg || registrantName || registrantCountry || registrantState || registrantEmail) && (
-              <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4 md:col-span-2">
-                <div className="flex items-center justify-between border-b border-[#f2f5fc] pb-3">
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f] flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#1787D4]" />
-                    Registrant & Contact Information
+              <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4 md:col-span-2">
+                <div className="flex items-center justify-between border-b border-[#EEF2F7] pb-3">
+                  <h3 className="text-base font-semibold text-[#031033] flex items-center gap-2">
+                    <User className="w-4 h-4 text-[#5A6A85]" />
+                    Registrant and contact information
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-[13px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   {registrantOrg && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                      <span className="text-[11.5px] text-[#6e6e73] font-medium block">Organization</span>
-                      <span className="font-semibold text-[#1d1d1f] mt-0.5 block">{registrantOrg}</span>
+                    <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                      <span className="text-xs text-[#5A6A85] block">Organisation</span>
+                      <span className="font-medium text-[#031033] mt-0.5 block">{registrantOrg}</span>
                     </div>
                   )}
                   {registrantName && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                      <span className="text-[11.5px] text-[#6e6e73] font-medium block">Name</span>
-                      <span className="font-semibold text-[#1d1d1f] mt-0.5 block">{registrantName}</span>
+                    <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                      <span className="text-xs text-[#5A6A85] block">Name</span>
+                      <span className="font-medium text-[#031033] mt-0.5 block">{registrantName}</span>
                     </div>
                   )}
                   {(registrantState || registrantCountry) && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                      <span className="text-[11.5px] text-[#6e6e73] font-medium block">Location</span>
-                      <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
+                    <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                      <span className="text-xs text-[#5A6A85] block">Location</span>
+                      <span className="font-medium text-[#031033] mt-0.5 block">
                         {[registrantCity, registrantState, registrantCountry].filter(Boolean).join(", ")}
                       </span>
                     </div>
                   )}
                   {registrantEmail && (
-                    <div className="bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
-                      <span className="text-[11.5px] text-[#6e6e73] font-medium block">Contact / Email Form</span>
+                    <div className="bg-[#F2F5FC] p-3 rounded-lg">
+                      <span className="text-xs text-[#5A6A85] block">Contact / email form</span>
                       {registrantEmail.startsWith("http") ? (
                         <a
                           href={registrantEmail}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[#1787D4] hover:underline text-[12px] font-mono break-all inline-flex items-center gap-1 mt-0.5"
+                          className="text-[#1787D4] hover:underline text-xs font-mono break-all inline-flex items-center gap-1 mt-0.5"
                         >
-                          Contact Form <ExternalLink className="w-3 h-3" />
+                          Contact form <ExternalLink className="w-3 h-3" />
                         </a>
                       ) : (
-                        <span className="font-mono text-[#1d1d1f] text-[12px] break-all mt-0.5 block">
+                        <span className="font-mono text-[#031033] text-xs break-all mt-0.5 block">
                           {registrantEmail}
                         </span>
                       )}
@@ -655,16 +631,16 @@ function WhoisContent() {
 
           {/* All Parsed WHOIS Attributes Table */}
           {allAttributes.length > 0 && (
-            <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-2">
-              <div className="p-5 border-b border-[#f2f5fc] flex items-center justify-between bg-[#fbfcfe]">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+              <div className="px-5 py-4 border-b border-[#EEF2F7] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <List className="w-4 h-4 text-[#1787D4]" />
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-                    All WHOIS Record Fields ({allAttributes.length})
+                  <List className="w-4 h-4 text-[#5A6A85]" />
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    All WHOIS record fields <span className="font-normal tabular-nums text-[#5A6A85]">({allAttributes.length})</span>
                   </h3>
                 </div>
 
-                <span className="text-[12px] text-[#8a9bb2] font-mono">
+                <span className="text-xs text-[#5A6A85] font-mono">
                   {domainName}
                 </span>
               </div>
@@ -672,19 +648,19 @@ function WhoisContent() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#eef2f8] bg-[#fafbfd]">
-                      <th className="py-3 px-6 text-[12px] font-semibold text-[#5a6a85] w-64">
-                        Field Name
+                    <tr className="border-b border-[#E2E8F0]">
+                      <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85] w-64">
+                        Field name
                       </th>
-                      <th className="py-3 px-6 text-[12px] font-semibold text-[#5a6a85]">
+                      <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85]">
                         Value
                       </th>
-                      <th className="py-3 px-6 text-[12px] font-semibold text-[#5a6a85] text-right w-20">
-                        Action
+                      <th className="py-2.5 px-5 text-xs font-medium text-[#5A6A85] text-right w-20">
+                        <span className="sr-only">Action</span>
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f2f5fc]">
+                  <tbody className="divide-y divide-[#EEF2F7]">
                     {allAttributes.map(([key, val]) => {
                       let displayVal = "";
                       if (Array.isArray(val)) {
@@ -697,24 +673,25 @@ function WhoisContent() {
 
                       const isCopied = copiedKey === `attr-${key}`;
                       return (
-                        <tr key={key} className="hover:bg-[#fbfcfe] transition-colors">
-                          <td className="py-3.5 px-6 font-mono text-[12.5px] font-medium text-[#5a6a85] align-top">
+                        <tr key={key} className="hover:bg-[#F2F5FC]/60 transition-colors">
+                          <td className="py-3 px-5 text-sm text-[#031033] align-top">
                             {formatFieldKey(key)}
-                            <span className="block text-[10.5px] text-[#8a9bb2] font-mono mt-0.5">{key}</span>
+                            <span className="block text-xs text-[#5A6A85] font-mono mt-0.5">{key}</span>
                           </td>
-                          <td className="py-3.5 px-6 text-[13px] text-[#1d1d1f] align-top">
-                            <span className="font-mono text-[12.5px] break-all whitespace-pre-line leading-relaxed text-[#2a3b50]">
+                          <td className="py-3 px-5 text-sm text-[#031033] align-top">
+                            <span className="font-mono text-xs break-all whitespace-pre-line text-[#031033]">
                               {displayVal}
                             </span>
                           </td>
-                          <td className="py-3.5 px-6 text-right align-top">
+                          <td className="py-3 px-5 text-right align-top">
                             <button
                               onClick={() => handleCopy(displayVal, `attr-${key}`)}
-                              className="p-1 rounded-md hover:bg-[#f2f5fc] text-[#8a9bb2] hover:text-[#1787D4] transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg hover:bg-[#F2F5FC] text-[#5A6A85] hover:text-[#031033] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                               title={`Copy ${key}`}
+                              aria-label={`Copy ${key}`}
                             >
                               {isCopied ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <Check className="w-3.5 h-3.5 text-[#0E7C3A]" />
                               ) : (
                                 <Copy className="w-3.5 h-3.5" />
                               )}
@@ -739,8 +716,8 @@ export default function WhoisLookupPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-[14px] text-[#6e6e73]">Loading WHOIS tool...</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading WHOIS lookup…</p>
         </div>
       }
     >

@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
-  Receipt,
   ShoppingCart,
   ArrowRight,
   AlertCircle,
@@ -50,36 +49,27 @@ function orderSummary(items: OrderItem[]): string {
 
 function ItemTypeIcon({ type }: { type: OrderItem["type"] }) {
   if (type === "HOSTING")
-    return <Server className="w-3.5 h-3.5 text-[#1787D4]" />;
+    return <Server className="w-4 h-4 text-[#5A6A85]" />;
   if (type === "DOMAIN")
-    return <Globe className="w-3.5 h-3.5 text-[#1787D4]" />;
+    return <Globe className="w-4 h-4 text-[#5A6A85]" />;
   if (type === "VPS" || type === "VPS_RENEWAL")
-    return <Cpu className="w-3.5 h-3.5 text-[#1787D4]" />;
-  return <Shield className="w-3.5 h-3.5 text-[#1787D4]" />;
+    return <Cpu className="w-4 h-4 text-[#5A6A85]" />;
+  return <Shield className="w-4 h-4 text-[#5A6A85]" />;
 }
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
 
+const PILL =
+  "inline-flex items-center gap-2 whitespace-nowrap text-sm";
+
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   if (status === "PAID") {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
-        Paid
-      </span>
-    );
+    return <span className={`${PILL} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />Paid</span>;
   }
   if (status === "PENDING") {
-    return (
-      <span className="text-[12px] font-semibold text-orange-600">
-        Pending
-      </span>
-    );
+    return <span className={`${PILL} text-[#031033]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#E8900A]" />Pending</span>;
   }
-  return (
-    <span className="text-[12px] font-semibold text-red-600">
-      Failed
-    </span>
-  );
+  return <span className={`${PILL} text-[#C21F1F]`}><span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#DC2626]" />Failed</span>;
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
@@ -122,84 +112,53 @@ export default function OrdersPage() {
     });
   }, [orders, statusFilter, searchQuery]);
 
+  const focusCls =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30";
+
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2
-            className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-            style={{
-              fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            Orders
-          </h2>
-          <p className="text-[14px] mt-1 text-[#6e6e73]">
-            Track your payment transactions and automatically provisioned services.
+          <h1 className="text-2xl font-semibold text-[#031033]">Orders</h1>
+          <p className="text-sm mt-1 text-[#5A6A85]">
+            Track your payments and the services provisioned from them.
           </p>
         </div>
 
         <Link
           href="/dashboard/hosting"
           id="orders-new-order"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all duration-150 shadow-sm self-start sm:self-auto active:scale-95 shrink-0"
+          className={`inline-flex h-9 items-center gap-1.5 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors self-start sm:self-auto shrink-0 ${focusCls}`}
         >
           <ShoppingCart className="w-4 h-4" />
-          New Order
+          New order
         </Link>
       </div>
 
-      {/* Top 3 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Total Orders */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
-            Total Orders
-          </span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : (
-              totalOrders
-            )}
+      {/* Metric row: one container split by hairlines */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 rounded-xl border border-[#E2E8F0] bg-white divide-y sm:divide-y-0 sm:divide-x divide-[#EEF2F7]">
+        {[
+          { label: "Total orders", value: totalOrders },
+          { label: "Completed (paid)", value: paidCount },
+          { label: "Pending or in review", value: pendingCount },
+        ].map((stat) => (
+          <div key={stat.label} className="px-5 py-4">
+            <span className="text-xs text-[#5A6A85]">{stat.label}</span>
+            <div className="mt-1 text-2xl font-semibold text-[#031033] tabular-nums">
+              {isLoading ? (
+                <span className="block h-8 w-10 animate-pulse rounded bg-[#EEF2F7]" />
+              ) : (
+                stat.value
+              )}
+            </div>
           </div>
-        </div>
-
-        {/* Paid Orders */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
-            Completed (Paid)
-          </span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : (
-              paidCount
-            )}
-          </div>
-        </div>
-
-        {/* Pending Orders */}
-        <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm min-h-[108px] flex flex-col justify-between">
-          <span className="text-[13px] font-medium text-[#6e6e73]">
-            Pending / In Review
-          </span>
-          <div className="text-[28px] font-bold text-[#1d1d1f] tracking-tight mt-1">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
-            ) : (
-              pendingCount
-            )}
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Filter Row: Pills + Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
+      {/* Filter Row: Segmented control + Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-1 self-start rounded-lg bg-[#F2F5FC] p-1">
           {(
             [
               { label: "All", val: "All" },
@@ -213,10 +172,10 @@ export default function OrdersPage() {
               <button
                 key={val}
                 onClick={() => setStatusFilter(val)}
-                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150 cursor-pointer ${
+                className={`h-7 px-3 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? "bg-[#1787D4] text-white shadow-xs"
-                    : "bg-white border border-[#e2eaff] text-[#6e6e73] hover:bg-[#f8fafc]"
+                    ? "bg-white text-[#031033] shadow-sm"
+                    : "text-[#5A6A85] hover:text-[#031033]"
                 }`}
               >
                 {label}
@@ -227,27 +186,24 @@ export default function OrdersPage() {
 
         {/* Search */}
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-[#9ba8c0] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#5A6A85] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by ref or item…"
+            placeholder="Search by reference or item"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-xs"
+            className="h-9 w-full pl-9 pr-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
           />
         </div>
       </div>
 
       {/* Orders Table Container */}
-      <div className="bg-white rounded-lg border border-[#e2eaff] shadow-sm overflow-hidden mt-1">
-        <div className="px-6 py-4 border-b border-[#eef2f8] bg-[#fbfcfe] flex items-center justify-between">
+      <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#EEF2F7] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Receipt className="w-4 h-4 text-[#1787D4]" />
-            <h3 className="text-[14.5px] font-bold text-[#1d1d1f]">
-              Payment History
-            </h3>
+            <h3 className="text-base font-semibold text-[#031033]">Payment history</h3>
             {hasOrders && (
-              <span className="text-[11px] font-bold bg-[#eff6fc] text-[#1787D4] border border-[#d6eaf8] px-2 py-0.5 rounded-full">
+              <span className="text-sm text-[#5A6A85] tabular-nums">
                 {orders.length}
               </span>
             )}
@@ -257,7 +213,7 @@ export default function OrdersPage() {
             type="button"
             onClick={() => refetch()}
             disabled={isLoading}
-            className="text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
+            className={`inline-flex h-8 items-center gap-1.5 px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${focusCls}`}
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
@@ -268,49 +224,48 @@ export default function OrdersPage() {
 
         {/* Table Body */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2">
-            <Loader2 className="w-6 h-6 text-[#1787D4] animate-spin" />
-            <p className="text-[13px] text-[#6e6e73]">Loading your orders…</p>
+          <div>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="px-5 py-3.5 border-b border-[#EEF2F7] last:border-0 flex items-center gap-6">
+                <span className="block h-4 w-48 animate-pulse rounded bg-[#EEF2F7]" />
+                <span className="block h-4 w-28 animate-pulse rounded bg-[#EEF2F7]" />
+                <span className="ml-auto block h-4 w-20 animate-pulse rounded bg-[#EEF2F7]" />
+                <span className="block h-5 w-14 animate-pulse rounded-full bg-[#EEF2F7]" />
+              </div>
+            ))}
           </div>
         ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center gap-2">
-            <AlertCircle className="w-8 h-8 text-red-400" />
-            <p className="text-[14px] font-semibold text-red-600">
-              Could not load your orders.
-            </p>
+          <div className="flex flex-col items-center justify-center py-12 px-5 text-center gap-2">
+            <AlertCircle className="w-5 h-5 text-[#DC2626]" />
+            <p className="text-sm text-[#031033]">Couldn&apos;t load your orders.</p>
             <button
               onClick={() => refetch()}
-              className="mt-2 text-xs font-semibold text-[#1787D4] hover:underline"
+              className={`mt-1 inline-flex h-8 items-center px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors cursor-pointer ${focusCls}`}
             >
-              Try Again
+              Try again
             </button>
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-lg bg-[#eff6fc] flex items-center justify-center text-[#1787D4] mb-2">
-              <Receipt className="w-6 h-6 stroke-[2]" />
-            </div>
-            <p className="text-[14px] font-semibold text-[#1d1d1f] mt-1">
-              No orders found
-            </p>
-            <p className="text-[12.5px] text-[#6e6e73] max-w-sm mt-0.5">
+          <div className="flex flex-col items-center justify-center py-12 px-5 text-center">
+            <p className="text-sm font-medium text-[#031033]">No orders found</p>
+            <p className="text-xs text-[#5A6A85] max-w-sm mt-1">
               {searchQuery || statusFilter !== "All"
                 ? "No transactions match your current filters."
-                : "You have not placed any orders yet. Purchase a domain or hosting plan to get started."}
+                : "You haven't placed any orders yet. Buy a domain or hosting plan to get started."}
             </p>
             {!searchQuery && statusFilter === "All" && (
               <Link
                 href="/dashboard/hosting"
-                className="mt-3 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-all shadow-sm"
+                className={`mt-4 inline-flex h-9 items-center px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors ${focusCls}`}
               >
-                Browse Services
+                Browse services
               </Link>
             )}
           </div>
         ) : (
           <>
             {/* Mobile View: Touch-Friendly Cards */}
-            <div className="md:hidden divide-y divide-[#f2f5fc]">
+            <div className="md:hidden divide-y divide-[#EEF2F7]">
               {filteredOrders.map((order) => {
                 const summary = orderSummary(order.items);
                 const itemTypes = [
@@ -320,7 +275,7 @@ export default function OrdersPage() {
                   order.status === "PAID" && !!order.whmcsInvoiceId;
 
                 return (
-                  <div key={order.id} className="p-4 flex flex-col gap-3">
+                  <div key={order.id} className="px-5 py-4 flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="flex items-center gap-1 shrink-0">
@@ -328,33 +283,33 @@ export default function OrdersPage() {
                             <ItemTypeIcon key={t} type={t} />
                           ))}
                         </div>
-                        <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate">
+                        <span className="text-sm font-medium text-[#031033] truncate">
                           {summary}
                         </span>
                       </div>
                       <OrderStatusBadge status={order.status} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[12px] bg-[#fbfcfe] p-3 rounded-lg border border-[#eef2f8]">
+                    <dl className="grid grid-cols-2 gap-2 text-xs bg-[#F2F5FC] px-4 py-3 rounded-lg">
                       <div>
-                        <span className="text-[#6e6e73] block text-[11px]">Amount</span>
-                        <span className="font-bold text-[#1d1d1f] text-[13px]">
+                        <dt className="text-[#5A6A85]">Amount</dt>
+                        <dd className="font-semibold text-[#031033] text-sm tabular-nums">
                           {formatPrice(order.amount)}
-                        </span>
+                        </dd>
                       </div>
                       <div>
-                        <span className="text-[#6e6e73] block text-[11px]">Date</span>
-                        <span className="text-[#1d1d1f]">{formatDate(order.createdAt)}</span>
+                        <dt className="text-[#5A6A85]">Date</dt>
+                        <dd className="text-[#031033] text-sm tabular-nums">{formatDate(order.createdAt)}</dd>
                       </div>
                       {order.paystackRef && (
-                        <div className="col-span-2 pt-1.5 border-t border-[#eef2f8] flex items-center justify-between gap-2">
-                          <span className="text-[#6e6e73] text-[11px] shrink-0">Ref:</span>
-                          <span className="font-mono text-[#6e6e73] text-[11px] truncate">
+                        <div className="col-span-2 pt-2 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
+                          <dt className="text-[#5A6A85] shrink-0">Reference</dt>
+                          <dd className="font-mono text-[#031033] truncate">
                             {order.paystackRef}
-                          </span>
+                          </dd>
                         </div>
                       )}
-                    </div>
+                    </dl>
 
                     <div className="flex items-center">
                       {canDownload ? (
@@ -364,17 +319,17 @@ export default function OrdersPage() {
                           disabled={
                             isDownloading && downloadingId === order.id
                           }
-                          className="w-full inline-flex items-center justify-center gap-1.5 text-[12.5px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                          className={`w-full inline-flex h-9 items-center justify-center gap-1.5 text-sm font-medium text-[#031033] border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${focusCls}`}
                         >
                           {isDownloading && downloadingId === order.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : (
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <ExternalLink className="w-3.5 h-3.5 text-[#5A6A85]" />
                           )}
-                          View Invoice
+                          View invoice
                         </button>
                       ) : (
-                        <span className="text-[11.5px] text-[#9ba8c0] italic">No invoice available</span>
+                        <span className="text-xs text-[#5A6A85]">No invoice available</span>
                       )}
                     </div>
                   </div>
@@ -386,28 +341,16 @@ export default function OrdersPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[640px]">
                 <thead>
-                  <tr className="border-b border-[#eef2f8] bg-[#fbfcfe]">
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                      Items
-                    </th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                      Reference
-                    </th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                      Amount
-                    </th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                      Status
-                    </th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85]">
-                      Date
-                    </th>
-                    <th className="py-4 px-6 text-[12.5px] font-semibold text-[#5a6a85] text-right">
-                      Invoice
-                    </th>
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Items</th>
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Reference</th>
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Amount</th>
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85]">Status</th>
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Date</th>
+                    <th className="py-3 px-5 text-xs font-medium text-[#5A6A85] text-right">Invoice</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f2f5fc]">
+                <tbody>
                   {filteredOrders.map((order) => {
                     const summary = orderSummary(order.items);
                     const itemTypes = [
@@ -419,37 +362,37 @@ export default function OrdersPage() {
                     return (
                       <tr
                         key={order.id}
-                        className="hover:bg-[#fbfcfe] transition-colors"
+                        className="border-b border-[#EEF2F7] last:border-0 hover:bg-[#F2F5FC]/60 transition-colors"
                       >
-                        <td className="py-4.5 px-6">
+                        <td className="py-3 px-5">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1 shrink-0">
                               {itemTypes.map((t) => (
                                 <ItemTypeIcon key={t} type={t} />
                               ))}
                             </div>
-                            <span className="text-[13.5px] font-bold text-[#1d1d1f] truncate max-w-xs">
+                            <span className="text-sm font-medium text-[#031033] truncate max-w-xs">
                               {summary}
                             </span>
                           </div>
                         </td>
-                        <td className="py-4.5 px-6">
-                          <span className="text-[12px] font-mono text-[#6e6e73]">
+                        <td className="py-3 px-5">
+                          <span className="text-sm font-mono text-[#5A6A85]">
                             {order.paystackRef || "—"}
                           </span>
                         </td>
-                        <td className="py-4.5 px-6">
-                          <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+                        <td className="py-3 px-5 text-right">
+                          <span className="text-sm font-medium text-[#031033] tabular-nums whitespace-nowrap">
                             {formatPrice(order.amount)}
                           </span>
                         </td>
-                        <td className="py-4.5 px-6">
+                        <td className="py-3 px-5">
                           <OrderStatusBadge status={order.status} />
                         </td>
-                        <td className="py-4.5 px-6 text-[12.5px] text-[#6e6e73]">
+                        <td className="py-3 px-5 text-sm text-[#5A6A85] text-right tabular-nums whitespace-nowrap">
                           {formatDate(order.createdAt)}
                         </td>
-                        <td className="py-4.5 px-6 text-right">
+                        <td className="py-3 px-5 text-right">
                           {canDownload ? (
                             <button
                               id={`order-view-invoice-${order.id}`}
@@ -457,18 +400,18 @@ export default function OrdersPage() {
                               disabled={
                                 isDownloading && downloadingId === order.id
                               }
-                              title="View Invoice"
-                              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1787D4] hover:text-[#1371B5] bg-[#eff6fc] hover:bg-[#e4f0fa] px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                              title="View invoice"
+                              className={`inline-flex h-8 items-center gap-1.5 px-3 text-sm font-medium text-[#031033] border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${focusCls}`}
                             >
                               {isDownloading && downloadingId === order.id ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                               ) : (
-                                <ExternalLink className="w-3 h-3" />
+                                <ExternalLink className="w-3.5 h-3.5 text-[#5A6A85]" />
                               )}
                               Invoice
                             </button>
                           ) : (
-                            <span className="text-[12px] text-[#9ba8c0]">—</span>
+                            <span className="text-sm text-[#5A6A85]">—</span>
                           )}
                         </td>
                       </tr>
@@ -482,22 +425,22 @@ export default function OrdersPage() {
       </div>
 
       {/* Help / Support Strip */}
-      <div className="bg-[#eff6fb] border border-[#d3e7f8] rounded-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-[#E8F4FC] border border-[#1787D4]/20 rounded-lg px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h4 className="text-[14px] font-bold text-[#1d1d1f]">
+          <h4 className="text-sm font-semibold text-[#031033]">
             Payment inquiry or missing order?
           </h4>
-          <p className="text-[12.5px] text-[#4b5563] mt-0.5">
-            If your funds were debited but your order remains pending, please
-            contact support with your payment reference.
+          <p className="text-xs text-[#5A6A85] mt-0.5">
+            If you were debited but your order is still pending, contact support
+            with your payment reference.
           </p>
         </div>
         <Link
           href="/dashboard/tickets"
           id="orders-contact-support"
-          className="text-[13px] font-semibold text-[#1787D4] hover:text-[#1371B5] whitespace-nowrap inline-flex items-center gap-1 shrink-0"
+          className={`inline-flex h-8 items-center gap-1 px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-white transition-colors whitespace-nowrap shrink-0 ${focusCls}`}
         >
-          Contact Support <ArrowRight className="w-3.5 h-3.5" />
+          Contact support <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
     </div>

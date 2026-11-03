@@ -30,27 +30,28 @@ import { useGetSslProducts } from "@/hooks/useSsl";
 import { toast } from "sonner";
 import DomainRegistrationWizard from "@/components/dashboard/DomainRegistrationWizard";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
-const T = {
-  ink: "#1d1d1f",
-  inkMuted: "#6e6e73",
-  inkSubtle: "#aeaeb2",
-  canvas: "#ffffff",
-  parchment: "#f5f5f7",
-  hairline: "#e8e8ed",
-  blue: "#1787D4",
-  blueLight: "#e8f4fc",
-  emerald: "#059669",
-  emeraldLight: "#ecfdf5",
-  red: "#dc2626",
-  redLight: "#fef2f2",
-  amber: "#d97706",
-  amberLight: "#fffbeb",
-};
+// ─── Shared class strings ─────────────────────────────────────────────────────
+const btnPrimary =
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 shrink-0";
+const btnSecondary =
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 shrink-0";
+const btnSecondarySm =
+  "inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30";
+const pillBase =
+  "inline-flex items-center gap-2 whitespace-nowrap text-sm shrink-0";
+const dotBase = "h-2 w-2 shrink-0 rounded-full";
 
 type SearchState = "idle" | "searching" | "done" | "error";
 type Tab = "registered" | "hosted" | "register";
 type StatusFilter = "All" | "Active" | "Expiring Soon" | "Expired";
+
+// Display labels (sentence case); filter values stay as they are.
+const FILTER_LABEL: Record<StatusFilter, string> = {
+  All: "All",
+  Active: "Active",
+  "Expiring Soon": "Expiring soon",
+  Expired: "Expired",
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function daysUntil(dateStr: string) {
@@ -61,9 +62,9 @@ function daysUntil(dateStr: string) {
 
 function formatDate(dateStr: string) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
+  return new Date(dateStr).toLocaleDateString("en-GB", {
     day: "numeric",
+    month: "short",
     year: "numeric",
   });
 }
@@ -82,18 +83,23 @@ function StatusPill({
 
   if (isExpired) {
     return (
-      <span className="text-[12px] font-semibold text-red-600">Expired</span>
+      <span className={`${pillBase} text-[#C21F1F]`}>
+        <span aria-hidden className={`${dotBase} bg-[#DC2626]`} />
+        Expired
+      </span>
     );
   }
   if (isExpiring) {
     return (
-      <span className="text-[12px] font-semibold text-orange-600">
-        Expiring Soon
+      <span className={`${pillBase} text-[#031033]`}>
+        <span aria-hidden className={`${dotBase} bg-[#E8900A]`} />
+        Expiring soon
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-[#eff6fb] text-[#1787D4]">
+    <span className={`${pillBase} text-[#031033]`}>
+      <span aria-hidden className={`${dotBase} bg-[#12A150]`} />
       Active
     </span>
   );
@@ -102,15 +108,12 @@ function StatusPill({
 // ─── Skeleton row ─────────────────────────────────────────────────────────────
 function SkeletonRow() {
   return (
-    <div
-      className="flex items-center gap-4 px-6 py-4 animate-pulse"
-      style={{ borderTop: `1px solid ${T.hairline}` }}
-    >
-      <div className="h-3.5 w-40 rounded bg-[#f0f0f3] flex-1" />
-      <div className="h-6 w-24 rounded-full bg-[#f0f0f3] shrink-0" />
-      <div className="h-3.5 w-10 rounded bg-[#f0f0f3] w-20 shrink-0" />
-      <div className="h-3.5 w-24 rounded bg-[#f0f0f3] shrink-0" />
-      <div className="h-8 w-20 rounded-lg bg-[#f0f0f3] shrink-0" />
+    <div className="flex items-center gap-4 px-5 py-3 border-b border-[#EEF2F7] last:border-0 animate-pulse">
+      <div className="h-4 w-40 rounded bg-[#EEF2F7] flex-1" />
+      <div className="h-5 w-16 rounded-full bg-[#EEF2F7] shrink-0" />
+      <div className="h-4 w-12 rounded bg-[#EEF2F7] shrink-0" />
+      <div className="h-4 w-24 rounded bg-[#EEF2F7] shrink-0" />
+      <div className="h-8 w-20 rounded-lg bg-[#EEF2F7] shrink-0" />
     </div>
   );
 }
@@ -212,7 +215,7 @@ function DomainsDashboardPageContent() {
       currency: result.price.currency ?? "USD",
       isPremium: result.isPremium,
     });
-    toast.success(`${result.domain} added to cart!`);
+    toast.success(`${result.domain} added to cart.`);
     openDrawer();
   };
 
@@ -256,53 +259,42 @@ function DomainsDashboardPageContent() {
         activeTab === "register" ? "" : "max-w-6xl mx-auto"
       }`}
     >
-      {/* ── Registered tab (Figma "Your Domains" design) ─────────────────── */}
+      {/* ── Registered tab ──────────────────────────────────────────────── */}
       {activeTab === "registered" && (
         <>
           {/* Header row */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
-              <h2
-                className="text-[24px] font-bold"
-                style={{
-                  color: T.ink,
-                  fontFamily:
-                    "SF Pro Display, system-ui, -apple-system, sans-serif",
-                  letterSpacing: "-0.4px",
-                }}
-              >
-                Your Domains
-              </h2>
-              <p className="text-[14px] mt-0.5" style={{ color: T.inkMuted }}>
-                Manage your domains, renewals, DNS settings, and domain details
-                from one place.
+              <h1 className="text-2xl font-semibold text-[#031033]">
+                Your domains
+              </h1>
+              <p className="text-sm text-[#5A6A85] mt-1">
+                Manage renewals, DNS settings and domain details in one place.
               </p>
             </div>
-            <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
               <Link
                 href="/dashboard/domain-transfer"
                 id="domains-transfer-in"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-[13px] font-semibold text-[#1d1d1f] bg-white border border-[#e2eaff] hover:bg-[#f8fafc] transition-all duration-150 active:scale-95 shrink-0 shadow-xs"
+                className={`${btnSecondary} flex-1 sm:flex-initial`}
               >
-                <ArrowRightLeft className="w-4 h-4 text-[#1787D4]" />
-                Transfer In
+                <ArrowRightLeft className="w-4 h-4 text-[#5A6A85]" />
+                Transfer in
               </Link>
               <button
                 id="domains-register-new"
                 onClick={() => handleTabChange("register")}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-[13.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95 shrink-0 shadow-xs"
-                style={{ background: T.blue }}
+                className={`${btnPrimary} flex-1 sm:flex-initial`}
               >
                 <Plus className="w-4 h-4" />
-                Register New Domain
+                Register a domain
               </button>
             </div>
           </div>
 
-          {/* Filter row: pills + search */}
+          {/* Filter row: segmented status filter + search */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            {/* Status filter pills */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-[#F2F5FC] w-fit max-w-full overflow-x-auto">
               {STATUS_FILTERS.map((f) => {
                 const isActive = f === statusFilter;
                 return (
@@ -310,67 +302,44 @@ function DomainsDashboardPageContent() {
                     key={f}
                     id={`domain-filter-${f.toLowerCase().replace(/\s+/g, "-")}`}
                     onClick={() => setStatusFilter(f)}
-                    className="px-4 py-1.5 rounded-full text-[13px] font-medium transition-all duration-150"
-                    style={{
-                      background: isActive ? T.blue : T.canvas,
-                      color: isActive ? "#fff" : T.inkMuted,
-                      border: `1px solid ${isActive ? T.blue : T.hairline}`,
-                    }}
+                    aria-pressed={isActive}
+                    className={`h-8 px-3 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                      isActive
+                        ? "bg-white text-[#031033] shadow-sm"
+                        : "text-[#5A6A85] hover:text-[#031033]"
+                    }`}
                   >
-                    {f}
+                    {FILTER_LABEL[f]}
                   </button>
                 );
               })}
             </div>
 
             {/* Domain search */}
-            <div
-              className="flex items-center gap-2 w-full sm:w-auto sm:max-w-xs sm:ml-auto px-3 py-2 rounded-lg"
-              style={{
-                background: T.canvas,
-                border: `1px solid ${T.hairline}`,
-              }}
-            >
-              <Search
-                className="w-4 h-4 shrink-0"
-                style={{ color: T.inkSubtle }}
-              />
+            <div className="relative w-full sm:w-72 sm:ml-auto">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#5A6A85] pointer-events-none" />
               <input
                 id="domain-search-filter"
                 type="text"
-                placeholder="Search by domain name..."
+                placeholder="Search by domain name"
                 value={domainSearch}
                 onChange={(e) => setDomainSearch(e.target.value)}
-                className="flex-1 text-[13px] outline-none bg-transparent"
-                style={{ color: T.ink }}
+                className="w-full h-10 rounded-lg border border-[#D5DCE6] bg-white pl-9 pr-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
               />
             </div>
           </div>
 
           {/* Table card */}
-          <div
-            className="flex flex-col overflow-hidden"
-            style={{
-              background: T.canvas,
-              border: `1px solid ${T.hairline}`,
-              borderRadius: "14px",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-            }}
-          >
+          <div className="flex flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
             {/* Table header */}
             <div
-              className="grid items-center px-6 py-3 text-[12px] font-semibold"
-              style={{
-                gridTemplateColumns: "1fr 160px 100px 140px 100px",
-                borderBottom: `1px solid ${T.hairline}`,
-                background: T.parchment,
-                color: T.inkMuted,
-              }}
+              className="hidden md:grid items-center px-5 py-3 text-xs font-medium text-[#5A6A85] border-b border-[#E2E8F0]"
+              style={{ gridTemplateColumns: "1fr 160px 100px 140px 100px" }}
             >
-              <span>Service</span>
+              <span>Domain</span>
               <span>Status</span>
-              <span>Auto-Renew</span>
-              <span>Expiry Date</span>
+              <span>Auto-renew</span>
+              <span className="text-right">Expires</span>
               <span className="text-right">Action</span>
             </div>
 
@@ -382,67 +351,44 @@ function DomainsDashboardPageContent() {
                 ))}
               </>
             ) : filteredDomains.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                <Globe
-                  className="w-8 h-8 mb-3"
-                  style={{ color: T.inkSubtle }}
-                />
-                <p
-                  className="text-[15px] font-semibold"
-                  style={{ color: T.ink }}
-                >
+              <div className="flex flex-col items-center justify-center py-12 text-center px-5">
+                <p className="text-sm font-medium text-[#031033]">
                   {domainSearch || statusFilter !== "All"
                     ? "No domains match your filter"
-                    : "No registered domains"}
+                    : "You have no registered domains yet"}
                 </p>
-                <p
-                  className="text-[13px] mt-1 mb-4"
-                  style={{ color: T.inkMuted }}
-                >
+                <p className="text-sm text-[#5A6A85] mt-1">
                   {domainSearch || statusFilter !== "All"
-                    ? "Try adjusting your search or filter."
-                    : "Register your first domain to get started."}
+                    ? "Try a different search or status."
+                    : "Search for a name to register your first domain."}
                 </p>
                 {!domainSearch && statusFilter === "All" && (
                   <button
                     onClick={() => handleTabChange("register")}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white"
-                    style={{ background: T.blue }}
+                    className={`${btnSecondary} mt-4`}
                   >
-                    <Search className="w-3.5 h-3.5" />
-                    Search Domain
+                    <Search className="w-4 h-4 text-[#5A6A85]" />
+                    Search domains
                   </button>
                 )}
               </div>
             ) : (
               <>
-                {/* Desktop / Tablet Table View */}
+                {/* Desktop / tablet table view */}
                 <div className="hidden md:block overflow-x-auto w-full">
                   <div className="min-w-[580px]">
                     {filteredDomains.map((domain) => (
                       <div
                         key={domain.id}
-                        className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                        className="grid items-center px-5 py-3 text-sm border-b border-[#EEF2F7] last:border-0 transition-colors hover:bg-[#F2F5FC]/60"
                         style={{
                           gridTemplateColumns: "1fr 160px 100px 140px 100px",
-                          borderTop: `1px solid ${T.hairline}`,
                         }}
                       >
                         {/* Domain name */}
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
-                            style={{ background: T.parchment }}
-                          >
-                            <Globe
-                              className="w-3.5 h-3.5"
-                              style={{ color: T.inkMuted }}
-                            />
-                          </span>
-                          <span
-                            className="text-[14px] font-semibold truncate"
-                            style={{ color: T.ink }}
-                          >
+                          <Globe className="w-4 h-4 shrink-0 text-[#5A6A85]" />
+                          <span className="font-medium text-[#031033] truncate">
                             {domain.domain}
                           </span>
                         </div>
@@ -455,19 +401,13 @@ function DomainsDashboardPageContent() {
                           />
                         </div>
 
-                        {/* Auto-Renew */}
-                        <span
-                          className="text-[13px]"
-                          style={{ color: T.inkMuted }}
-                        >
-                          {domain.autoRenew ? "On" : "Off"}
+                        {/* Auto-renew */}
+                        <span className="text-[#5A6A85]">
+                          {domain.autoRenew === undefined ? "—" : domain.autoRenew ? "On" : "Off"}
                         </span>
 
                         {/* Expiry date */}
-                        <span
-                          className="text-[13px]"
-                          style={{ color: T.inkMuted }}
-                        >
+                        <span className="text-right tabular-nums text-[#5A6A85]">
                           {formatDate(domain.expiryDate)}
                         </span>
 
@@ -475,8 +415,7 @@ function DomainsDashboardPageContent() {
                         <div className="flex justify-end">
                           <Link
                             href={`/dashboard/domains/${domain.id}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                            style={{ background: T.blue }}
+                            className={btnSecondarySm}
                           >
                             Manage
                           </Link>
@@ -486,28 +425,17 @@ function DomainsDashboardPageContent() {
                   </div>
                 </div>
 
-                {/* Mobile Card View (Cards stack nicely, buttons fully accessible) */}
-                <div className="md:hidden flex flex-col divide-y divide-[#f2f5fc]">
+                {/* Mobile list view */}
+                <div className="md:hidden flex flex-col divide-y divide-[#EEF2F7]">
                   {filteredDomains.map((domain) => (
                     <div
                       key={`mobile-${domain.id}`}
-                      className="p-4 flex flex-col gap-3 hover:bg-[#fafafa] transition-colors"
+                      className="px-4 py-3.5 flex flex-col gap-3"
                     >
-                      <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span
-                            className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
-                            style={{ background: T.parchment }}
-                          >
-                            <Globe
-                              className="w-3.5 h-3.5"
-                              style={{ color: T.inkMuted }}
-                            />
-                          </span>
-                          <span
-                            className="text-[14.5px] font-bold truncate"
-                            style={{ color: T.ink }}
-                          >
+                          <Globe className="w-4 h-4 shrink-0 text-[#5A6A85]" />
+                          <span className="text-sm font-medium text-[#031033] truncate">
                             {domain.domain}
                           </span>
                         </div>
@@ -517,32 +445,29 @@ function DomainsDashboardPageContent() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 text-xs py-1 px-2.5 rounded-lg bg-[#fbfcfe] border border-[#eef2f8]">
+                      <dl className="grid grid-cols-2 gap-3">
                         <div>
-                          <span className="text-[#8a9bb2] block text-[10.5px] uppercase font-semibold">
-                            Auto-Renew
-                          </span>
-                          <span className="font-medium text-[#1d1d1f]">
-                            {domain.autoRenew ? "Enabled" : "Disabled"}
-                          </span>
+                          <dt className="text-xs text-[#5A6A85]">
+                            Auto-renew
+                          </dt>
+                          <dd className="text-sm text-[#031033]">
+                            {domain.autoRenew === undefined ? "—" : domain.autoRenew ? "On" : "Off"}
+                          </dd>
                         </div>
                         <div>
-                          <span className="text-[#8a9bb2] block text-[10.5px] uppercase font-semibold">
-                            Expiry Date
-                          </span>
-                          <span className="font-medium text-[#1d1d1f]">
+                          <dt className="text-xs text-[#5A6A85]">Expires</dt>
+                          <dd className="text-sm text-[#031033] tabular-nums">
                             {formatDate(domain.expiryDate)}
-                          </span>
+                          </dd>
                         </div>
-                      </div>
+                      </dl>
 
                       <Link
                         href={`/dashboard/domains/${domain.id}`}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
-                        style={{ background: T.blue }}
+                        className={`${btnSecondary} w-full`}
                       >
-                        Manage Domain
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        Manage domain
+                        <ChevronRight className="w-4 h-4 text-[#5A6A85]" />
                       </Link>
                     </div>
                   ))}
@@ -551,17 +476,18 @@ function DomainsDashboardPageContent() {
             )}
           </div>
 
-          {/* Also show hosted domains & register tabs as secondary nav */}
-          <div className="flex items-center gap-3 pt-2">
+          {/* Secondary nav to hosted domains */}
+          <div className="flex items-center gap-3">
             <button
               id="domains-tab-hosted"
               onClick={() => handleTabChange("hosted")}
-              className="flex items-center gap-1.5 text-[13px] font-medium transition-colors"
-              style={{ color: T.inkMuted }}
+              className="inline-flex items-center gap-1.5 h-8 px-3 -ml-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              <Server className="w-3.5 h-3.5" />
-              Hosted Domains (
-              {loadingHosting ? "…" : (hostingAccounts?.length ?? 0)})
+              <Server className="w-4 h-4" />
+              Hosted domains
+              <span className="tabular-nums text-[#5A6A85]">
+                {loadingHosting ? "…" : (hostingAccounts?.length ?? 0)}
+              </span>
             </button>
           </div>
         </>
@@ -572,52 +498,30 @@ function DomainsDashboardPageContent() {
         <>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2
-                className="text-[24px] font-bold"
-                style={{
-                  color: T.ink,
-                  fontFamily:
-                    "SF Pro Display, system-ui, -apple-system, sans-serif",
-                  letterSpacing: "-0.4px",
-                }}
-              >
-                Hosted Domains
-              </h2>
-              <p className="text-[14px] mt-0.5" style={{ color: T.inkMuted }}>
+              <h1 className="text-2xl font-semibold text-[#031033]">
+                Hosted domains
+              </h1>
+              <p className="text-sm text-[#5A6A85] mt-1">
                 Domains tied to your active hosting accounts.
               </p>
             </div>
             <button
               onClick={() => handleTabChange("registered")}
-              className="flex items-center gap-1.5 text-[13px] font-medium transition-colors shrink-0"
-              style={{ color: T.blue }}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              ← Registered Domains
+              ← Registered domains
             </button>
           </div>
 
-          <div
-            className="flex flex-col overflow-hidden"
-            style={{
-              background: T.canvas,
-              border: `1px solid ${T.hairline}`,
-              borderRadius: "14px",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-            }}
-          >
+          <div className="flex flex-col overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
             {/* Header */}
             <div
-              className="grid items-center px-6 py-3 text-[12px] font-semibold"
-              style={{
-                gridTemplateColumns: "1fr 180px 160px 120px 120px",
-                borderBottom: `1px solid ${T.hairline}`,
-                background: T.parchment,
-                color: T.inkMuted,
-              }}
+              className="hidden md:grid items-center px-5 py-3 text-xs font-medium text-[#5A6A85] border-b border-[#E2E8F0]"
+              style={{ gridTemplateColumns: "1fr 180px 160px 120px 120px" }}
             >
               <span>Domain</span>
-              <span>Hosting Plan</span>
-              <span>cPanel Username</span>
+              <span>Hosting plan</span>
+              <span>cPanel username</span>
               <span>Status</span>
               <span className="text-right">Action</span>
             </div>
@@ -629,84 +533,65 @@ function DomainsDashboardPageContent() {
                 ))}
               </>
             ) : !hostingAccounts || hostingAccounts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                <Server
-                  className="w-8 h-8 mb-3"
-                  style={{ color: T.inkSubtle }}
-                />
-                <p
-                  className="text-[15px] font-semibold"
-                  style={{ color: T.ink }}
-                >
+              <div className="flex flex-col items-center justify-center py-12 text-center px-5">
+                <p className="text-sm font-medium text-[#031033]">
                   No hosted domains
                 </p>
-                <p
-                  className="text-[13px] mt-1 mb-4"
-                  style={{ color: T.inkMuted }}
-                >
-                  Purchase a hosting plan to get started.
+                <p className="text-sm text-[#5A6A85] mt-1">
+                  Order a hosting plan and its domain will appear here.
                 </p>
-                <Link
-                  href="/dashboard/hosting"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold text-white"
-                  style={{ background: T.blue }}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Order Hosting Plan
+                <Link href="/dashboard/hosting" className={`${btnSecondary} mt-4`}>
+                  <Plus className="w-4 h-4 text-[#5A6A85]" />
+                  Order a hosting plan
                 </Link>
               </div>
             ) : (
               <>
-                {/* Desktop / Tablet Table View */}
+                {/* Desktop / tablet table view */}
                 <div className="hidden md:block overflow-x-auto w-full">
                   <div className="min-w-[580px]">
                     {hostingAccounts.map((account) => (
                       <div
                         key={account.id}
-                        className="grid items-center px-6 py-4 transition-colors hover:bg-[#fafafa]"
+                        className="grid items-center px-5 py-3 text-sm border-b border-[#EEF2F7] last:border-0 transition-colors hover:bg-[#F2F5FC]/60"
                         style={{
                           gridTemplateColumns: "1fr 180px 160px 120px 120px",
-                          borderTop: `1px solid ${T.hairline}`,
                         }}
                       >
-                        <span
-                          className="text-[14px] font-semibold truncate"
-                          style={{ color: T.ink }}
-                        >
+                        <span className="font-medium text-[#031033] truncate">
                           {account.domain}
                         </span>
-                        <span
-                          className="text-[13px]"
-                          style={{ color: T.inkMuted }}
-                        >
-                          {account.plan?.name ?? "Hosting"} Plan
+                        <span className="text-[#5A6A85] truncate">
+                          {account.plan?.name ?? "Hosting"} plan
                         </span>
-                        <code
-                          className="text-[12px] font-mono"
-                          style={{ color: T.inkMuted }}
-                        >
+                        <code className="font-mono text-sm text-[#5A6A85] truncate">
                           {account.cpanelUsername ?? "—"}
                         </code>
-                        <span
-                          className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold w-fit"
-                          style={{
-                            background:
+                        <span>
+                          <span
+                            className={`${pillBase} ${
                               account.status === "ACTIVE"
-                                ? T.emeraldLight
-                                : T.redLight,
-                            color:
-                              account.status === "ACTIVE" ? T.emerald : T.red,
-                          }}
-                        >
-                          {account.status === "ACTIVE"
-                            ? "Active"
-                            : account.status}
+                                ? "text-[#031033]"
+                                : "text-[#C21F1F]"
+                            }`}
+                          >
+                            <span
+                              aria-hidden
+                              className={`${dotBase} ${
+                                account.status === "ACTIVE"
+                                  ? "bg-[#12A150]"
+                                  : "bg-[#DC2626]"
+                              }`}
+                            />
+                            {account.status === "ACTIVE"
+                              ? "Active"
+                              : account.status}
+                          </span>
                         </span>
                         <div className="flex justify-end">
                           <Link
                             href={`/dashboard/hosting/${account.id}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12.5px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-95"
-                            style={{ background: T.blue }}
+                            className={btnSecondarySm}
                           >
                             Manage
                           </Link>
@@ -716,55 +601,58 @@ function DomainsDashboardPageContent() {
                   </div>
                 </div>
 
-                {/* Mobile Card View */}
-                <div className="md:hidden flex flex-col divide-y divide-[#f2f5fc]">
+                {/* Mobile list view */}
+                <div className="md:hidden flex flex-col divide-y divide-[#EEF2F7]">
                   {hostingAccounts.map((account) => (
                     <div
                       key={`mobile-hosted-${account.id}`}
-                      className="p-4 flex flex-col gap-3 hover:bg-[#fafafa] transition-colors"
+                      className="px-4 py-3.5 flex flex-col gap-3"
                     >
-                      <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <span className="text-[14.5px] font-bold text-[#1d1d1f] block truncate">
+                          <span className="text-sm font-medium text-[#031033] block truncate">
                             {account.domain}
                           </span>
-                          <span className="text-xs text-[#6e6e73] mt-0.5 block">
-                            {account.plan?.name ?? "Hosting"} Plan
+                          <span className="text-xs text-[#5A6A85] mt-0.5 block">
+                            {account.plan?.name ?? "Hosting"} plan
                           </span>
                         </div>
                         <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold shrink-0"
-                          style={{
-                            background:
-                              account.status === "ACTIVE"
-                                ? T.emeraldLight
-                                : T.redLight,
-                            color:
-                              account.status === "ACTIVE" ? T.emerald : T.red,
-                          }}
+                          className={`${pillBase} ${
+                            account.status === "ACTIVE"
+                              ? "text-[#031033]"
+                              : "text-[#C21F1F]"
+                          }`}
                         >
+                          <span
+                            aria-hidden
+                            className={`${dotBase} ${
+                              account.status === "ACTIVE"
+                                ? "bg-[#12A150]"
+                                : "bg-[#DC2626]"
+                            }`}
+                          />
                           {account.status === "ACTIVE"
                             ? "Active"
                             : account.status}
                         </span>
                       </div>
 
-                      <div className="text-xs bg-[#fbfcfe] border border-[#eef2f8] p-2.5 rounded-lg flex items-center justify-between">
-                        <span className="text-[#8a9bb2] text-[11px]">
-                          cPanel Username:
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-[#5A6A85]">
+                          cPanel username
                         </span>
-                        <code className="font-mono text-[#1d1d1f] font-semibold">
+                        <code className="font-mono text-sm text-[#031033] truncate">
                           {account.cpanelUsername ?? "—"}
                         </code>
                       </div>
 
                       <Link
                         href={`/dashboard/hosting/${account.id}`}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg text-[13px] font-semibold text-white transition-all shadow-xs active:scale-98"
-                        style={{ background: T.blue }}
+                        className={`${btnSecondary} w-full`}
                       >
-                        Manage Hosting
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        Manage hosting
+                        <ChevronRight className="w-4 h-4 text-[#5A6A85]" />
                       </Link>
                     </div>
                   ))}
@@ -775,7 +663,7 @@ function DomainsDashboardPageContent() {
         </>
       )}
 
-      {/* ── Register / Search tab ─────────────────────────────────────────── */}
+      {/* ── Register / search tab ─────────────────────────────────────────── */}
       {activeTab === "register" && (
         <DomainRegistrationWizard
           onBackToDomains={() => handleTabChange("registered")}
@@ -791,10 +679,7 @@ export default function DomainsDashboardPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-24">
-          <Loader2
-            className="w-8 h-8 animate-spin"
-            style={{ color: "#1787D4" }}
-          />
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
         </div>
       }
     >

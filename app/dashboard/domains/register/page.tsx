@@ -19,7 +19,7 @@ function RegisterDomainRedirect() {
 
   return (
     <div className="flex items-center justify-center py-24">
-      <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1787D4" }} />
+      <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
     </div>
   );
 }
@@ -29,10 +29,7 @@ export default function RegisterDomainPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-24">
-          <Loader2
-            className="w-8 h-8 animate-spin"
-            style={{ color: "#1787D4" }}
-          />
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
         </div>
       }
     >

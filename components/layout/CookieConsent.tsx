@@ -138,28 +138,23 @@ export function CookieConsent() {
       role="dialog"
       aria-live="polite"
       aria-modal="false"
-      aria-label="Privacy & Cookie Preferences"
-      className="fixed z-[990] bottom-4 left-4 right-4 sm:right-auto sm:left-6 sm:bottom-6 sm:w-[420px] max-w-[calc(100vw-2rem)] transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-5"
+      aria-label="Cookie preferences"
+      className="fixed z-[990] bottom-4 left-4 right-4 sm:right-auto sm:left-6 sm:bottom-6 sm:w-[420px] max-w-[calc(100vw-2rem)] animate-in fade-in duration-200"
     >
-      <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-lg shadow-[0_20px_45px_rgba(3,16,51,0.16)] p-5 text-[#031033]">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-[0_12px_32px_rgba(3,16,51,0.12)] p-5 text-[#031033]">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#e8f4fc] border border-[#d0e6f9] flex items-center justify-center text-[#1787D4] shrink-0">
-              <Cookie className="w-4 h-4" />
-            </div>
+            <Cookie className="w-5 h-5 text-[#1787D4] shrink-0" />
             <div>
-              <h3 className="text-[15px] font-bold text-[#031033] tracking-tight leading-snug">
-                Privacy & Cookie Choices
+              <h3 className="text-base font-semibold text-[#031033] leading-snug">
+                Cookie preferences
               </h3>
-              <p className="text-[11px] text-[#5a6a85] font-medium">
-                Nupat Cloud Experience
-              </p>
             </div>
           </div>
           <button
             onClick={handleAcceptEssential}
-            className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg p-1.5 transition-colors cursor-pointer"
+            className="text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] rounded-lg p-1.5 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]"
             aria-label="Close cookie banner"
           >
             <X className="w-4 h-4" />
@@ -167,10 +162,10 @@ export function CookieConsent() {
         </div>
 
         {/* Description */}
-        <p className="text-[12.5px] text-[#5a6a85] leading-relaxed mb-4">
-          We use cookies to maintain your session security, analyze site traffic,
-          and ensure smooth hosting operations. You can customize your preferences
-          or read our{" "}
+        <p className="text-sm text-[#5A6A85] leading-relaxed mb-4">
+          We use cookies to keep you signed in securely, measure site traffic
+          and run checkout. You can choose which ones we use, or read our
+          {" "}
           <Link
             href="/privacy"
             className="text-[#1787D4] font-medium hover:underline underline-offset-2"
@@ -182,33 +177,34 @@ export function CookieConsent() {
 
         {/* Detailed Preferences Accordion */}
         {showPreferences && (
-          <div className="mb-4 pt-3.5 border-t border-slate-100 space-y-3 animate-in fade-in duration-200">
+          <div className="mb-4 pt-3.5 border-t border-[#E2E8F0] space-y-3">
             {/* Essential */}
-            <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-50/80 border border-slate-100">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[#F2F5FC]">
               <div className="flex-1 pr-2">
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-[12px] font-semibold text-[#031033]">
-                    Strictly Necessary
+                  <ShieldCheck className="w-4 h-4 text-[#12A150]" />
+                  <span className="text-sm font-medium text-[#031033]">
+                    Strictly necessary
                   </span>
                 </div>
-                <p className="text-[11px] text-[#5a6a85] mt-0.5 leading-snug">
-                  Required for authentication, security, and cart checkout.
+                <p className="text-xs text-[#5A6A85] mt-0.5 leading-snug">
+                  Required for sign-in, security and checkout.
                 </p>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md shrink-0">
-                Active
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#0E7C3A] shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#12A150]" aria-hidden="true" />
+                Always on
               </span>
             </div>
 
             {/* Analytics */}
-            <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-50/80 border border-slate-100">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[#F2F5FC]">
               <div className="flex-1 pr-2">
-                <span className="text-[12px] font-semibold text-[#031033]">
-                  Analytics & Speed
+                <span className="text-sm font-medium text-[#031033]">
+                  Analytics
                 </span>
-                <p className="text-[11px] text-[#5a6a85] mt-0.5 leading-snug">
-                  Anonymous metrics to measure performance and optimize user flows.
+                <p className="text-xs text-[#5A6A85] mt-0.5 leading-snug">
+                  Anonymous usage data that shows us which pages are slow or confusing.
                 </p>
               </div>
               <button
@@ -218,12 +214,12 @@ export function CookieConsent() {
                 onClick={() =>
                   setPreferences((p) => ({ ...p, analytics: !p.analytics }))
                 }
-                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 ${
-                  preferences.analytics ? "bg-[#1787D4]" : "bg-slate-300"
+                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 ${
+                  preferences.analytics ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                 }`}
               >
                 <span
-                  className={`block w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform absolute top-[3px] left-[3px] ${
+                  className={`block w-3.5 h-3.5 bg-white rounded-full transition-transform absolute top-[3px] left-[3px] ${
                     preferences.analytics ? "translate-x-4" : "translate-x-0"
                   }`}
                 />
@@ -231,13 +227,13 @@ export function CookieConsent() {
             </div>
 
             {/* Marketing */}
-            <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-50/80 border border-slate-100">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[#F2F5FC]">
               <div className="flex-1 pr-2">
-                <span className="text-[12px] font-semibold text-[#031033]">
-                  Personalization & Marketing
+                <span className="text-sm font-medium text-[#031033]">
+                  Personalisation and marketing
                 </span>
-                <p className="text-[11px] text-[#5a6a85] mt-0.5 leading-snug">
-                  Tailored suggestions and updates for domains and cloud servers.
+                <p className="text-xs text-[#5A6A85] mt-0.5 leading-snug">
+                  Offers and updates about domains and servers based on what you view.
                 </p>
               </div>
               <button
@@ -247,12 +243,12 @@ export function CookieConsent() {
                 onClick={() =>
                   setPreferences((p) => ({ ...p, marketing: !p.marketing }))
                 }
-                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 ${
-                  preferences.marketing ? "bg-[#1787D4]" : "bg-slate-300"
+                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 ${
+                  preferences.marketing ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                 }`}
               >
                 <span
-                  className={`block w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform absolute top-[3px] left-[3px] ${
+                  className={`block w-3.5 h-3.5 bg-white rounded-full transition-transform absolute top-[3px] left-[3px] ${
                     preferences.marketing ? "translate-x-4" : "translate-x-0"
                   }`}
                 />
@@ -266,11 +262,11 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => setShowPreferences((p) => !p)}
-            className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>
-              {showPreferences ? "Hide Preferences" : "Customize Preferences"}
+              {showPreferences ? "Hide options" : "Choose cookies"}
             </span>
             {showPreferences ? (
               <ChevronUp className="w-3 h-3" />
@@ -286,17 +282,17 @@ export function CookieConsent() {
             <button
               onClick={handleSaveCustom}
               id="cookie-save-preferences"
-              className="flex-1 py-2 px-3 text-[12.5px] font-semibold bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg shadow-[0_2px_8px_rgba(23,135,212,0.25)] transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+              className="flex-1 h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 flex items-center justify-center gap-1.5"
             >
               <Check className="w-3.5 h-3.5" />
-              Save Preferences
+              Save choices
             </button>
             <button
               onClick={handleAcceptAll}
               id="cookie-accept-all-pref"
-              className="py-2 px-3 text-[12.5px] font-semibold bg-[#f2f5fc] hover:bg-[#e4ebf8] text-[#031033] border border-[#dce5f5] rounded-lg transition-all active:scale-[0.98] cursor-pointer"
+              className="h-9 px-4 text-sm font-medium bg-white hover:bg-[#F2F5FC] text-[#031033] border border-[#D5DCE6] rounded-lg transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
             >
-              Accept All
+              Accept all
             </button>
           </div>
         ) : (
@@ -304,16 +300,16 @@ export function CookieConsent() {
             <button
               onClick={handleAcceptAll}
               id="cookie-accept-all"
-              className="flex-1 py-2 px-3 text-[12.5px] font-semibold bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg shadow-[0_2px_8px_rgba(23,135,212,0.25)] transition-all active:scale-[0.98] cursor-pointer text-center"
+              className="flex-1 h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 text-center"
             >
-              Accept All
+              Accept all
             </button>
             <button
               onClick={handleAcceptEssential}
               id="cookie-accept-essential"
-              className="flex-1 py-2 px-3 text-[12.5px] font-semibold bg-[#f2f5fc] hover:bg-[#e4ebf8] text-[#031033] border border-[#dce5f5] rounded-lg transition-all active:scale-[0.98] cursor-pointer text-center"
+              className="flex-1 h-9 px-4 text-sm font-medium bg-white hover:bg-[#F2F5FC] text-[#031033] border border-[#D5DCE6] rounded-lg transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 text-center"
             >
-              Essential Only
+              Essential only
             </button>
           </div>
         )}

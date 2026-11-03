@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Search,
-  Globe,
-  ShieldCheck,
-  Server,
-  FileSearch,
-  ArrowRight,
-  Network,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface ToolItem {
   id: string;
@@ -23,43 +15,43 @@ interface ToolItem {
 const TOOLS_LIST: ToolItem[] = [
   {
     id: "domain-search",
-    title: "Domain Search",
+    title: "Domain search",
     description: "Find and register an available custom domain name.",
     href: "/dashboard/tools/domain-search",
     iconType: "domain-search",
   },
   {
     id: "dns-lookup",
-    title: "DNS Lookup",
-    description: "Check live authoritative DNS records, NS, MX, and SOA.",
+    title: "DNS lookup",
+    description: "Check live authoritative DNS records: A, NS, MX and SOA.",
     href: "/dashboard/tools/dns-lookup",
     iconType: "dns",
   },
   {
     id: "whois-lookup",
-    title: "WHOIS Lookup",
-    description: "View domain registration details, registrar, and dates.",
+    title: "WHOIS lookup",
+    description: "View a domain's registration details, registrar and dates.",
     href: "/dashboard/tools/whois-lookup",
     iconType: "whois",
   },
   {
     id: "ssl-checker",
-    title: "SSL Checker",
-    description: "Verify SSL certificate validity, issuer, and expiration.",
+    title: "SSL checker",
+    description: "Verify an SSL certificate's validity, issuer and expiry.",
     href: "/dashboard/tools/ssl-checker",
     iconType: "ssl",
   },
   {
     id: "website-migration",
-    title: "Website Migration",
-    description: "Start moving your website seamlessly to Nupat Cloud.",
+    title: "Website migration",
+    description: "Request a move of your existing website to Nupat Cloud.",
     href: "/dashboard/tools/migration",
     iconType: "migration",
   },
   {
     id: "ip-lookup",
-    title: "IP Lookup",
-    description: "Look up IP geolocation, ASN information, and ISP network details.",
+    title: "IP lookup",
+    description: "Look up an IP's location, ASN and ISP network.",
     href: "/dashboard/tools/ip-lookup",
     iconType: "ip",
   },
@@ -86,71 +78,18 @@ export default function ToolsDashboardPage() {
     }
   };
 
-  const renderToolIcon = (iconType: ToolItem["iconType"]) => {
-    const iconClass = "w-5 h-5 text-[#1787D4]";
-    const iconBoxClass =
-      "w-10 h-10 rounded-lg border border-[#d6e4ff] flex items-center justify-center bg-[#eff6ff] text-[#1787D4]";
-
-    switch (iconType) {
-      case "domain-search":
-        return (
-          <div className={iconBoxClass}>
-            <Search className={iconClass} />
-          </div>
-        );
-      case "dns":
-        return (
-          <div className={iconBoxClass}>
-            <Network className={iconClass} />
-          </div>
-        );
-      case "whois":
-        return (
-          <div className={iconBoxClass}>
-            <FileSearch className={iconClass} />
-          </div>
-        );
-      case "ssl":
-        return (
-          <div className={iconBoxClass}>
-            <ShieldCheck className={iconClass} />
-          </div>
-        );
-      case "migration":
-        return (
-          <div className={iconBoxClass}>
-            <Server className={iconClass} />
-          </div>
-        );
-      case "ip":
-        return (
-          <div className={iconBoxClass}>
-            <Globe className={iconClass} />
-          </div>
-        );
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16">
       {/* Header */}
       <div>
-        <h2
-          className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-          style={{
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          Tools
-        </h2>
-        <p className="text-[14px] mt-1 text-[#6e6e73]">
-          Diagnostic and management tools to inspect, verify, and grow your online infrastructure.
+        <h1 className="text-2xl font-semibold text-[#031033]">Tools</h1>
+        <p className="mt-1 text-sm text-[#5A6A85]">
+          Diagnostic and management tools to inspect, verify and grow your online infrastructure.
         </p>
       </div>
 
-      {/* Tools Grid (2 rows x 3 columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-1">
+      {/* Tools grid (2 rows x 3 columns) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {TOOLS_LIST.map((tool) => {
           const isActive = activeToolId === tool.id;
 
@@ -160,37 +99,27 @@ export default function ToolsDashboardPage() {
               href={tool.href}
               id={`tool-card-${tool.id}`}
               onClick={() => handleToolSelect(tool.id)}
-              className={`group bg-white rounded-lg p-6 flex flex-col justify-between transition-all duration-200 cursor-pointer ${
+              className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-white p-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                 isActive
-                  ? "border-2 border-[#1787D4] shadow-md ring-2 ring-[#1787D4]/10"
-                  : "border border-[#e2eaff] hover:border-[#1787D4]/60 hover:shadow-md"
+                  ? "border-[#1787D4] ring-1 ring-inset ring-[#1787D4]"
+                  : "border-[#E2E8F0] hover:border-[#D5DCE6]"
               }`}
             >
               <div>
-                {/* Icon */}
-                <div className="mb-4">
-                  {renderToolIcon(tool.iconType)}
-                </div>
-
-                {/* Tool Title */}
-                <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-1.5 group-hover:text-[#1787D4] transition-colors">
+                {/* Tool title */}
+                <h3 className="mb-1 text-base font-semibold text-[#031033]">
                   {tool.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-[13px] text-[#6e6e73] leading-relaxed">
-                  {tool.description}
-                </p>
+                <p className="text-sm text-[#5A6A85]">{tool.description}</p>
               </div>
 
-              {/* Action Link Footer */}
-              <div className="mt-6 pt-3 border-t border-[#f2f5fc] flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-[#1787D4] group-hover:text-[#1371B5] text-[13px] font-semibold transition-colors">
-                  <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                </span>
-                <span className="text-[11px] text-[#8a9bb2] font-mono">
-                  {tool.id}
+              {/* Action link footer */}
+              <div className="mt-5 flex items-center border-t border-[#EEF2F7] pt-3">
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] transition-colors group-hover:text-[#1370B5]">
+                  <span>Open tool</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </span>
               </div>
             </Link>

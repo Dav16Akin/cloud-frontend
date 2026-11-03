@@ -4,18 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  Eye,
-  EyeOff,
-  ArrowLeft,
-  Check,
-  Loader2,
-  AlertCircle,
-  User,
-  MapPin,
-  Lock,
-  Mail,
-} from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { z } from "zod";
 import {
   parsePhoneNumberFromString,
@@ -27,6 +16,9 @@ import { toast } from "sonner";
 import { useRegister } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
+
+// Google sign-in is switched off for now; set to true to show it again.
+const SHOW_GOOGLE_SIGN_IN = false;
 
 // ── Zod Schema ────────────────────────────────────────────────────────────────
 
@@ -101,25 +93,37 @@ type FormState = z.infer<typeof registerSchema>;
 type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 const inputBase =
-  "w-full px-3.5 py-2.5 bg-slate-50/70 border rounded-lg outline-none text-base sm:text-sm text-[#031033] placeholder:text-slate-400 focus:bg-white transition-all";
+  "h-11 w-full rounded-lg border bg-white px-3.5 text-base sm:text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:ring-4";
 
 const inputClass = (err?: string) =>
   `${inputBase} ${
     err
-      ? "border-red-400 focus:ring-2 focus:ring-red-400/20 focus:border-red-400"
-      : "border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
+      ? "border-[#C21F1F] focus:border-[#C21F1F] focus:ring-[#C21F1F]/15"
+      : "border-[#D5DCE6] focus:border-[#1787D4] focus:ring-[#1787D4]/15"
   }`;
 
-const labelClass = "block text-[13px] font-medium text-slate-700 mb-1";
+const labelClass = "block text-sm font-medium text-[#031033] mb-1.5";
+
+const sectionHeadingClass = "text-base font-semibold text-[#031033]";
+
+const secondaryButtonClass =
+  "h-11 flex items-center justify-center gap-2 px-4 rounded-lg border border-[#D5DCE6] bg-white text-sm font-medium text-[#031033] transition-colors hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1787D4]/15 cursor-pointer";
+
+function Required() {
+  return (
+    <span aria-hidden="true" className="text-[#C21F1F] ml-0.5">
+      *
+    </span>
+  );
+}
+
+function Optional() {
+  return <span className="font-normal text-[#5A6A85]">(optional)</span>;
+}
 
 function FieldError({ msg }: { msg?: string }) {
   if (!msg) return null;
-  return (
-    <p className="flex items-center gap-1 text-[11px] text-red-500 mt-1">
-      <AlertCircle className="w-3 h-3 shrink-0" />
-      {msg}
-    </p>
-  );
+  return <p className="mt-1.5 text-sm text-[#C21F1F]">{msg}</p>;
 }
 
 function GoogleIcon() {
@@ -293,17 +297,16 @@ export default function RegisterPage() {
 
   return (
     <div className="h-screen w-full bg-white flex flex-col lg:flex-row lg:overflow-hidden">
-      {/* Left Panel: Solid Nupat Brand Blue with Stacked White & Yellow Logo */}
       <AuthLeftPanel />
 
-      {/* Right Panel: Form Section (Scrolls independently) */}
+      {/* Right panel: form (scrolls independently) */}
       <div className="flex-1 flex justify-center bg-white px-6 sm:px-10 lg:px-14 py-8 h-screen overflow-y-auto">
         <div className="w-full max-w-xl my-auto py-4">
-          {/* Mobile Back & Brand Header (hidden on desktop) */}
+          {/* Mobile header */}
           <div className="lg:hidden flex items-center justify-between mb-6">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5A6A85] hover:text-[#031033] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -319,151 +322,158 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Heading */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#031033]">
-              Create Account
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-[#031033]">
+              Create your account
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Start your cloud journey with Nupat Cloud today
+            <p className="mt-2 text-sm text-[#5A6A85]">
+              One Nupat Cloud account for your domains, hosting and servers.
             </p>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-              Fields marked (<span className="text-red-500 font-bold">*</span>)
-              are required
+            <p className="mt-2 text-sm text-[#5A6A85]">
+              Fields marked <Required /> are required.
             </p>
           </div>
 
-          {/* Form */}
           <form
             id="register-form"
             onSubmit={handleSubmit}
             noValidate
-            className="space-y-6"
+            className="space-y-8"
           >
-            {/* ════════ Section 1: Personal Information ════════ */}
-            <div className="space-y-3.5">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <User className="w-4 h-4 text-[#1787D4]" />
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
-                  1. Personal Information
-                </h5>
-              </div>
+            {/* Personal information */}
+            <section className="space-y-4">
+              <h2 className={sectionHeadingClass}>Personal information</h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="register-first-name" className={labelClass}>
-                    First Name <span className="text-red-500 ml-0.5">*</span>
+                    First name <Required />
                   </label>
                   <input
                     id="register-first-name"
+                    required
+                    aria-required="true"
                     type="text"
-                    placeholder="Alex"
+                    autoComplete="given-name"
+                    placeholder="Adaeze"
                     value={form.firstName}
                     onChange={(e) => set("firstName", e.target.value)}
                     onBlur={() => validateField("firstName")}
+                    aria-invalid={!!errors.firstName}
                     className={inputClass(errors.firstName)}
                   />
                   <FieldError msg={errors.firstName} />
                 </div>
                 <div>
                   <label htmlFor="register-last-name" className={labelClass}>
-                    Last Name <span className="text-red-500 ml-0.5">*</span>
+                    Last name <Required />
                   </label>
                   <input
                     id="register-last-name"
+                    required
+                    aria-required="true"
                     type="text"
-                    placeholder="Morgan"
+                    autoComplete="family-name"
+                    placeholder="Okafor"
                     value={form.lastName}
                     onChange={(e) => set("lastName", e.target.value)}
                     onBlur={() => validateField("lastName")}
+                    aria-invalid={!!errors.lastName}
                     className={inputClass(errors.lastName)}
                   />
                   <FieldError msg={errors.lastName} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="register-email" className={labelClass}>
-                    Email Address <span className="text-red-500 ml-0.5">*</span>
+                    Email address <Required />
                   </label>
                   <input
                     id="register-email"
+                    required
+                    aria-required="true"
                     type="email"
-                    placeholder="alex.morgan@example.com"
+                    autoComplete="email"
+                    placeholder="you@company.com"
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
                     onBlur={() => validateField("email")}
+                    aria-invalid={!!errors.email}
                     className={inputClass(errors.email)}
                   />
                   <FieldError msg={errors.email} />
                 </div>
                 <div>
                   <label htmlFor="register-phone" className={labelClass}>
-                    Phone Number <span className="text-red-500 ml-0.5">*</span>
+                    Phone number <Required />
                   </label>
                   <input
                     id="register-phone"
+                    required
+                    aria-required="true"
                     type="tel"
-                    placeholder="+1 443 985 5830"
+                    autoComplete="tel"
+                    placeholder="+234 803 123 4567"
                     value={form.phoneNumber}
                     onChange={(e) => {
                       set("phoneNumber", e.target.value);
                     }}
                     onBlur={() => validateField("phoneNumber")}
+                    aria-invalid={!!errors.phoneNumber}
                     className={inputClass(errors.phoneNumber)}
                   />
                   <FieldError msg={errors.phoneNumber} />
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* ════════ Section 2: Business & Billing Address ════════ */}
-            <div className="space-y-3.5 pt-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <MapPin className="w-4 h-4 text-[#1787D4]" />
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
-                  2. Business & Address Details
-                </h5>
-              </div>
+            {/* Business and address */}
+            <section className="space-y-4">
+              <h2 className={sectionHeadingClass}>Business and address</h2>
 
               <div>
                 <label htmlFor="register-company" className={labelClass}>
-                  Company / Organization Name{" "}
-                  <span className="text-slate-400 text-[11px]">(optional)</span>
+                  Company or organisation name <Optional />
                 </label>
                 <input
                   id="register-company"
                   type="text"
+                  autoComplete="organization"
                   placeholder="Acme Innovations Ltd."
                   value={form.companyName}
                   onChange={(e) => set("companyName", e.target.value)}
                   onBlur={() => validateField("companyName")}
+                  aria-invalid={!!errors.companyName}
                   className={inputClass(errors.companyName)}
                 />
                 <FieldError msg={errors.companyName} />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
                   <label htmlFor="register-address" className={labelClass}>
-                    Street Address{" "}
-                    <span className="text-red-500 ml-0.5">*</span>
+                    Street address <Required />
                   </label>
                   <input
                     id="register-address"
+                    required
+                    aria-required="true"
                     type="text"
-                    placeholder="123 Commercial Avenue"
+                    autoComplete="address-line1"
+                    placeholder="12 Adeola Odeku Street"
                     value={form.address}
                     onChange={(e) => set("address", e.target.value)}
                     onBlur={() => validateField("address")}
+                    aria-invalid={!!errors.address}
                     className={inputClass(errors.address)}
                   />
                   {(addressLoading || addressSuggestions.length > 0) && (
                     <div className="relative z-20">
-                      <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                      <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-lg">
                         {addressLoading && (
-                          <p className="px-3 py-2 text-xs text-slate-500">
+                          <p className="px-3 py-2 text-sm text-[#5A6A85]">
                             Searching addresses...
                           </p>
                         )}
@@ -473,12 +483,12 @@ export default function RegisterPage() {
                             type="button"
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => selectAddress(suggestion)}
-                            className="block w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                            className="block w-full px-3 py-2 text-left text-sm text-[#031033] hover:bg-[#F2F5FC] focus-visible:outline-none focus-visible:bg-[#F2F5FC]"
                           >
                             {suggestion.display_name}
                           </button>
                         ))}
-                        <p className="border-t border-slate-100 px-3 py-1.5 text-[10px] text-slate-400">
+                        <p className="border-t border-[#E2E8F0] px-3 py-1.5 text-xs text-[#5A6A85]">
                           Address data © OpenStreetMap contributors
                         </p>
                       </div>
@@ -488,66 +498,77 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label htmlFor="register-house-number" className={labelClass}>
-                    Unit / Suite No.{" "}
-                    <span className="text-slate-400 text-[11px]">(optional)</span>
+                    Unit or suite <Optional />
                   </label>
                   <input
                     id="register-house-number"
                     type="text"
+                    autoComplete="address-line2"
                     placeholder="Suite 4B"
                     value={form.houseNumber}
                     onChange={(e) => set("houseNumber", e.target.value)}
                     onBlur={() => validateField("houseNumber")}
+                    aria-invalid={!!errors.houseNumber}
                     className={inputClass(errors.houseNumber)}
                   />
                   <FieldError msg={errors.houseNumber} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="register-city" className={labelClass}>
-                    City <span className="text-red-500 ml-0.5">*</span>
+                    City <Required />
                   </label>
                   <input
                     id="register-city"
+                    required
+                    aria-required="true"
                     type="text"
+                    autoComplete="address-level2"
                     placeholder="Lagos"
                     value={form.city}
                     onChange={(e) => set("city", e.target.value)}
                     onBlur={() => validateField("city")}
+                    aria-invalid={!!errors.city}
                     className={inputClass(errors.city)}
                   />
                   <FieldError msg={errors.city} />
                 </div>
                 <div>
                   <label htmlFor="register-state" className={labelClass}>
-                    State / Province{" "}
-                    <span className="text-red-500 ml-0.5">*</span>
+                    State or province <Required />
                   </label>
                   <input
                     id="register-state"
+                    required
+                    aria-required="true"
                     type="text"
+                    autoComplete="address-level1"
                     placeholder="Lagos State"
                     value={form.state}
                     onChange={(e) => set("state", e.target.value)}
                     onBlur={() => validateField("state")}
+                    aria-invalid={!!errors.state}
                     className={inputClass(errors.state)}
                   />
                   <FieldError msg={errors.state} />
                 </div>
                 <div>
                   <label htmlFor="register-postcode" className={labelClass}>
-                    Postal / Zip Code{" "}
-                    <span className="text-red-500 ml-0.5">*</span>
+                    Postal code <Required />
                   </label>
                   <input
                     id="register-postcode"
+                    required
+                    aria-required="true"
                     type="text"
+                    autoComplete="postal-code"
                     placeholder="100001"
                     value={form.postcode}
                     onChange={(e) => set("postcode", e.target.value)}
                     onBlur={() => validateField("postcode")}
+                    aria-invalid={!!errors.postcode}
                     className={inputClass(errors.postcode)}
                   />
                   <FieldError msg={errors.postcode} />
@@ -556,14 +577,18 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="register-country" className={labelClass}>
-                  Country <span className="text-red-500 ml-0.5">*</span>
+                  Country <Required />
                 </label>
                 <select
                   id="register-country"
+                  required
+                  aria-required="true"
                   aria-label="Country"
+                  autoComplete="country"
                   value={form.country}
                   onChange={(e) => set("country", e.target.value)}
                   onBlur={() => validateField("country")}
+                  aria-invalid={!!errors.country}
                   className={inputClass(errors.country)}
                 >
                   <option value="">Select a country</option>
@@ -575,36 +600,35 @@ export default function RegisterPage() {
                 </select>
                 <FieldError msg={errors.country} />
               </div>
-            </div>
+            </section>
 
-            {/* ════════ Section 3: Account Security ════════ */}
-            <div className="space-y-3.5 pt-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Lock className="w-4 h-4 text-[#1787D4]" />
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#031033]">
-                  3. Account Security
-                </h5>
-              </div>
+            {/* Account security */}
+            <section className="space-y-4">
+              <h2 className={sectionHeadingClass}>Account security</h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="register-password" className={labelClass}>
-                    Password <span className="text-red-500 ml-0.5">*</span>
+                    Password <Required />
                   </label>
                   <div className="relative">
                     <input
                       id="register-password"
+                      required
+                      aria-required="true"
                       type={showPass ? "text" : "password"}
-                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      placeholder="At least 8 characters"
                       value={form.password}
                       onChange={(e) => set("password", e.target.value)}
                       onBlur={() => validateField("password")}
-                      className={`${inputClass(errors.password)} pr-10`}
+                      aria-invalid={!!errors.password}
+                      className={`${inputClass(errors.password)} pr-11`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPass((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-[#5A6A85] hover:text-[#031033] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/40"
                       aria-label={showPass ? "Hide password" : "Show password"}
                     >
                       {showPass ? (
@@ -622,23 +646,26 @@ export default function RegisterPage() {
                     htmlFor="register-confirm-password"
                     className={labelClass}
                   >
-                    Confirm Password{" "}
-                    <span className="text-red-500 ml-0.5">*</span>
+                    Confirm password <Required />
                   </label>
                   <div className="relative">
                     <input
                       id="register-confirm-password"
+                      required
+                      aria-required="true"
                       type={showConfirm ? "text" : "password"}
-                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      placeholder="Repeat your password"
                       value={form.confirmPassword}
                       onChange={(e) => set("confirmPassword", e.target.value)}
                       onBlur={() => validateField("confirmPassword")}
-                      className={`${inputClass(errors.confirmPassword)} pr-10`}
+                      aria-invalid={!!errors.confirmPassword}
+                      className={`${inputClass(errors.confirmPassword)} pr-11`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-[#5A6A85] hover:text-[#031033] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/40"
                       aria-label={
                         showConfirm ? "Hide password" : "Show password"
                       }
@@ -656,23 +683,21 @@ export default function RegisterPage() {
 
               {/* Password checklist */}
               {form.password.length > 0 && (
-                <ul className="grid grid-cols-3 gap-2 text-xs pt-1">
+                <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
                   {[
-                    { label: "Min 8 chars", ok: form.password.length >= 8 },
-                    { label: "One uppercase", ok: /[A-Z]/.test(form.password) },
+                    { label: "At least 8 characters", ok: form.password.length >= 8 },
+                    { label: "One uppercase letter", ok: /[A-Z]/.test(form.password) },
                     { label: "One number", ok: /[0-9]/.test(form.password) },
                   ].map(({ label, ok }) => (
                     <li
                       key={label}
-                      className={`flex items-center gap-1.5 rounded-lg px-2 py-1 border transition-colors ${
-                        ok
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-slate-50 text-slate-400 border-slate-100"
+                      className={`flex items-center gap-1.5 ${
+                        ok ? "text-[#0E7C3A]" : "text-[#5A6A85]"
                       }`}
                     >
                       <Check
-                        className={`w-3.5 h-3.5 shrink-0 ${
-                          ok ? "text-emerald-600 font-bold" : "text-slate-300"
+                        className={`w-4 h-4 shrink-0 ${
+                          ok ? "text-[#12A150]" : "text-[#D5DCE6]"
                         }`}
                       />
                       <span>{label}</span>
@@ -680,16 +705,10 @@ export default function RegisterPage() {
                   ))}
                 </ul>
               )}
-            </div>
+            </section>
 
-            {/* ════════ Terms Agreement ════════ */}
-            <div
-              className={`p-3.5 rounded-lg border transition-all ${
-                submitted && !agreed
-                  ? "bg-red-50/60 border-red-200"
-                  : "bg-slate-50/70 border-slate-200/80"
-              }`}
-            >
+            {/* Terms agreement */}
+            <div>
               <label className="flex items-start gap-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -697,14 +716,15 @@ export default function RegisterPage() {
                   checked={agreed}
                   required
                   onChange={(e) => setAgreed(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 text-[#1787D4] border-slate-300 rounded focus:ring-[#1787D4] cursor-pointer shrink-0"
+                  aria-invalid={submitted && !agreed}
+                  className="w-4 h-4 mt-0.5 rounded border-[#D5DCE6] accent-[#1787D4] cursor-pointer shrink-0"
                 />
-                <span className="text-xs sm:text-sm text-slate-700 leading-snug">
+                <span className="text-sm text-[#031033] leading-snug">
                   I agree to the{" "}
                   <Link
                     href="/terms"
                     target="_blank"
-                    className="text-[#1787D4] hover:underline font-semibold"
+                    className="font-medium text-[#1787D4] hover:text-[#1370B5] hover:underline"
                   >
                     Terms and Conditions
                   </Link>{" "}
@@ -712,28 +732,26 @@ export default function RegisterPage() {
                   <Link
                     href="/privacy"
                     target="_blank"
-                    className="text-[#1787D4] hover:underline font-semibold"
+                    className="font-medium text-[#1787D4] hover:text-[#1370B5] hover:underline"
                   >
                     Privacy Policy
                   </Link>
-                  . <span className="text-red-500 ml-0.5">*</span>
+                  . <Required />
                 </span>
               </label>
               {submitted && !agreed && (
-                <p className="flex items-center gap-1.5 text-xs text-red-600 font-medium mt-2 pl-7">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  You must check and agree to the Terms and Conditions before
-                  completing registration.
+                <p className="mt-1.5 pl-7 text-sm text-[#C21F1F]">
+                  Agree to the Terms and Conditions and Privacy Policy to
+                  create your account.
                 </p>
               )}
             </div>
 
-            {/* ════════ Submit Button ════════ */}
             <button
               id="register-submit"
               type="submit"
               disabled={isPending}
-              className="w-full py-3 px-4 bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.99] text-white font-semibold text-[14.5px] rounded-lg shadow-md shadow-[#1787D4]/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+              className="h-11 w-full px-5 rounded-lg bg-[#1787D4] text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1787D4]/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -741,59 +759,51 @@ export default function RegisterPage() {
                   <span>Creating your account…</span>
                 </>
               ) : (
-                <span>Complete Registration</span>
+                <span>Create account</span>
               )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-5 text-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <span className="relative bg-white px-3 text-[12px] text-slate-400 uppercase tracking-wider">
-              or continue with
-            </span>
-          </div>
+          {SHOW_GOOGLE_SIGN_IN && (
+            <>
+              {/* Divider */}
+              <div className="relative my-6 text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#E2E8F0]" />
+                </div>
+                <span className="relative bg-white px-3 text-sm text-[#5A6A85]">
+                  Or continue with
+                </span>
+              </div>
 
-          {/* Social / Alternate Auth Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                router.push(
-                  `${
-                    process.env.NEXT_PUBLIC_API_URL ||
-                    "https://cloud-backend-chi.vercel.app/api"
-                  }/auth/google`,
-                )
-              }
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
-            >
-              <GoogleIcon />
-              <span>Google</span>
-            </button>
+              {/* Alternate sign-up */}
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        "https://cloud-backend-chi.vercel.app/api"
+                      }/auth/google`,
+                    )
+                  }
+                  className={secondaryButtonClass}
+                >
+                  <GoogleIcon />
+                  <span>Google</span>
+                </button>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("register-email");
-                el?.focus();
-              }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 rounded-lg text-[13px] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs"
-            >
-              <Mail className="w-4 h-4 text-[#1787D4]" />
-              <span>Email</span>
-            </button>
-          </div>
+            </>
+          )}
 
-          {/* Footer Link */}
-          <p className="text-center text-[13px] text-slate-500 mt-6 pb-2">
+          <p className="text-center text-sm text-[#5A6A85] mt-8 pb-2">
             Already have an account?{" "}
             <Link
               href="/login"
               id="register-to-login"
-              className="font-semibold text-[#1787D4] hover:underline"
+              className="font-medium text-[#1787D4] hover:text-[#1370B5] hover:underline"
             >
               Sign in
             </Link>

@@ -1,35 +1,33 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 
 const features = [
   {
-    title: "Simple Transfer Process",
-    description: "Move your domain through a straightforward, guided process.",
+    title: "A guided transfer",
+    description: "We walk you through each step of moving your domain.",
   },
   {
-    title: "Easy Domain Management",
-    description: "Manage your domains, settings, and renewals from one place.",
+    title: "Domains in one dashboard",
+    description: "Manage your domains, DNS settings and renewals from one place.",
   },
   {
-    title: "Reliable Infrastructure",
+    title: "Reliable infrastructure",
     description:
-      "Keep your domain connected to dependable digital infrastructure.",
+      "Keep your domain connected to dependable hosting and DNS.",
   },
   {
-    title: "Secure Domain Management",
+    title: "Secure domain management",
     description:
       "Built with security in mind to help keep your domain protected.",
   },
   {
-    title: "Fast & Convenient",
+    title: "Quick to finish",
     description:
-      "Complete the transfer process without unnecessary complexity.",
+      "Complete the transfer without unnecessary steps.",
   },
 ];
 
-/* Green filled checkbox that matches the Figma icon */
+/* Yellow check box from the original design */
 function CheckIcon() {
   return (
     <svg
@@ -38,11 +36,12 @@ function CheckIcon() {
       viewBox="0 0 22 22"
       fill="none"
       className="shrink-0 mt-0.5"
+      aria-hidden="true"
     >
       <rect width="22" height="22" rx="5" fill="#FFC75D" />
       <path
         d="M6 11.5L9.5 15L16 8"
-        stroke="white"
+        stroke="#031033"
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -53,46 +52,36 @@ function CheckIcon() {
 
 export default function WhyChooseUsSection() {
   return (
-    <section id="why-choose-us" className="w-full py-7 sm:py-9 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-        {/* ── Left: image as-is, no filter ── */}
+    <section id="why-choose-us" className="w-full bg-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
         <div className="w-full lg:w-[46%] shrink-0 flex justify-center lg:justify-start">
           <Image
             src="/whyus.png"
-            alt="Happy customer giving thumbs up with headphones"
+            alt="Customer wearing headphones giving a thumbs up"
             width={480}
             height={480}
+            sizes="(max-width: 1024px) 420px, 46vw"
             className="w-full max-w-105 lg:max-w-none h-auto object-contain"
-            priority
           />
         </div>
 
-        {/* ── Right: content ── */}
         <div className="flex-1 w-full">
-          {/* Decorative dots — top */}
-          <div className="relative mb-3 h-5">
-            <span className="absolute left-0 top-2 w-2.5 h-2.5 rounded-full bg-[#1787D4] opacity-60" />
-            <span className="absolute left-[38%] top-0 w-2 h-2 rounded-full bg-[#1787D4]" />
-            <span className="absolute right-4 top-1 w-2.5 h-2.5 rounded-full bg-[#1787D4] opacity-40" />
-          </div>
-
-          <h2 className="type-h2 text-[#031033] mb-2 text-center lg:text-left">
-            Why Choose Us
+          <h2 className="type-h2 text-[#031033] mb-3 text-center lg:text-left">
+            Why transfer your domain to Nupat
           </h2>
-          <p className="type-lead text-[#5a6a85] mb-5 text-center lg:text-left">
-            Everything you need for a smooth and hassle-free domain transfer.
+          <p className="type-lead text-[#5A6A85] mb-8 text-center lg:text-left">
+            What you get when you move your domain to us.
           </p>
 
-          {/* Feature list */}
-          <ul className="flex flex-col gap-4">
+          <ul className="flex flex-col gap-5">
             {features.map((feat) => (
               <li key={feat.title} className="flex items-start gap-3.5">
                 <CheckIcon />
                 <div>
-                  <h3 className="text-[17px] sm:text-[18px] font-semibold text-[#031033] leading-snug">
+                  <h3 className="text-lg font-semibold text-[#031033] leading-snug">
                     {feat.title}
                   </h3>
-                  <p className="text-[14px] text-[#5a6a85] leading-relaxed mt-1">
+                  <p className="text-base text-[#5A6A85] leading-relaxed mt-1">
                     {feat.description}
                   </p>
                 </div>

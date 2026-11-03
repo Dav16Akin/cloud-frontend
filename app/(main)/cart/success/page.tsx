@@ -26,6 +26,15 @@ type VerifyState = "loading" | "pending" | "success" | "failed" | "error";
 const MAX_POLL_ATTEMPTS = 6;
 const POLL_INTERVAL_MS = 3500;
 
+function formatNaira(amount: number) {
+  return "₦" + amount.toLocaleString("en-NG", { maximumFractionDigits: 2 });
+}
+
+const BTN_PRIMARY =
+  "inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium bg-[#1787D4] text-white hover:bg-[#1370B5] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
+const BTN_SECONDARY =
+  "inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
+
 function CartSuccessContent() {
   const searchParams = useSearchParams();
   const reference =
@@ -206,62 +215,58 @@ function CartSuccessContent() {
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
-      <section className="relative pt-32 pb-24 overflow-hidden section-navy-tint flex-1">
-        <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <div className="max-w-2xl mx-auto px-4 text-center relative z-10">
+      <section className="pt-32 pb-24 bg-[#F2F5FC] flex-1">
+        <div className="max-w-2xl mx-auto px-4 text-center">
           {/* Loading */}
           {verifyState === "loading" && (
-            <div className="space-y-5 animate-fade-up">
-              <div className="w-20 h-20 mx-auto bg-white rounded-lg border border-[#dce4f7] flex items-center justify-center shadow-sm">
-                <Loader2 className="w-9 h-9 text-[#1787D4] animate-spin" />
-              </div>
-              <h1 className="text-2xl font-extrabold text-[#031033]">
-                Verifying Payment…
+            <div className="space-y-5">
+              <Loader2 className="w-10 h-10 mx-auto text-[#1787D4] animate-spin" />
+              <h1 className="text-2xl font-semibold text-[#031033]">
+                Verifying payment…
               </h1>
-              <p className="text-[#5a6a85]">
+              <p className="text-base text-[#5A6A85]">
                 Please wait while we confirm your transaction.
               </p>
             </div>
           )}
 
-          {/* Pending Payment State */}
+          {/* Pending */}
           {verifyState === "pending" && (
-            <div className="space-y-6 animate-fade-up">
-              <div className="w-20 h-20 mx-auto bg-amber-50 border border-amber-200 flex items-center justify-center shadow-sm">
-                <Loader2 className="w-9 h-9 text-amber-500 animate-spin" />
-              </div>
+            <div className="space-y-6">
+              <Loader2 className="w-10 h-10 mx-auto text-[#E8900A] animate-spin" />
               <div>
-                <span className="inline-block text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-3 py-1 rounded-full mb-3">
-                  Payment Processing
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#031033] mb-2">
-                  Awaiting Confirmation
+                <p className="inline-flex items-center gap-2 text-sm font-medium text-[#031033] mb-3">
+                  <span className="w-2 h-2 rounded-full bg-[#E8900A]" aria-hidden />
+                  Payment processing
+                </p>
+                <h1 className="text-3xl font-semibold text-[#031033] mb-2">
+                  Awaiting confirmation
                 </h1>
-                <p className="text-[#5a6a85] text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                <p className="text-base text-[#5A6A85] max-w-lg mx-auto leading-relaxed">
                   {pollCount < MAX_POLL_ATTEMPTS ? (
-                    `Communicating with Paystack to confirm your order (attempt ${pollCount + 1} of ${MAX_POLL_ATTEMPTS})…`
+                    `Confirming your order with Paystack (attempt ${pollCount + 1} of ${MAX_POLL_ATTEMPTS})…`
                   ) : (
-                    "Paystack has received your payment instruction. Confirmation is taking a little longer than usual, but your order is safe."
+                    "Paystack has received your payment instruction. Confirmation is taking longer than usual, but your order is safe."
                   )}
                 </p>
               </div>
 
               {reference && (
-                <div className="bg-white border border-[#e2eaff] px-5 py-3 text-left inline-block w-full max-w-md">
-                  <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-semibold mb-1">
-                    Payment Reference
+                <div className="bg-white rounded-xl border border-[#E2E8F0] px-5 py-4 text-left w-full max-w-md mx-auto">
+                  <p className="text-sm text-[#5A6A85] mb-1">
+                    Payment reference
                   </p>
-                  <p className="font-mono text-sm text-[#031033] font-bold break-all">
+                  <p className="text-sm font-medium text-[#031033] break-all tabular-nums">
                     {reference}
                   </p>
                 </div>
               )}
 
-              <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-lg text-xs text-amber-800 text-left max-w-md mx-auto space-y-1">
-                <p className="font-semibold">What happens next?</p>
-                <p>
+              <div className="p-5 bg-[#FFF8EE] border border-[#FFC75D]/60 rounded-xl text-sm text-[#031033] text-left max-w-md mx-auto space-y-1">
+                <p className="font-medium">What happens next?</p>
+                <p className="text-[#5A6A85]">
                   You do not need to keep this page open. Your services will be activated
-                  automatically once confirmed by Paystack, and a receipt will be emailed to you.
+                  automatically once Paystack confirms the payment, and we will email you a receipt.
                 </p>
               </div>
 
@@ -270,23 +275,20 @@ function CartSuccessContent() {
                   type="button"
                   onClick={() => verifyAttempt(true)}
                   disabled={isManualChecking}
-                  className="btn-primary py-3 px-6 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                  className={BTN_PRIMARY}
                 >
                   {isManualChecking ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Checking Status…
+                      Checking status…
                     </>
                   ) : (
-                    "Check Status Again"
+                    "Check status again"
                   )}
                 </button>
-                <Link
-                  href="/dashboard"
-                  className="btn-outline py-3 px-6 text-sm inline-flex items-center justify-center gap-2"
-                >
+                <Link href="/dashboard" className={BTN_SECONDARY}>
                   <LayoutDashboard className="w-4 h-4" />
-                  Go to Dashboard
+                  Go to dashboard
                 </Link>
               </div>
             </div>
@@ -294,7 +296,7 @@ function CartSuccessContent() {
 
           {/* Success */}
           {verifyState === "success" && (
-            <div className="space-y-6 animate-fade-up">
+            <div className="space-y-6">
               <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center">
                 <Image
                   src="/checkmark.svg"
@@ -307,93 +309,101 @@ function CartSuccessContent() {
               </div>
 
               <div>
-                <h1 className="text-3xl font-extrabold text-[#031033] mb-2">
-                  Order <span className="gradient-text">Confirmed!</span>
+                <h1 className="text-3xl font-semibold text-[#031033] mb-2">
+                  Order confirmed
                 </h1>
-                <p className="text-[#5a6a85] text-base">
+                <p className="text-base text-[#5A6A85]">
                   {domainCount > 0 ? (
-                    `Your domain${domainCount > 1 ? "s are" : " is"} being registered. You'll receive a confirmation email shortly.`
+                    `Your domain${domainCount > 1 ? "s are" : " is"} being registered. We'll email you a confirmation shortly.`
                   ) : (
-                    "Your order has been confirmed. You'll receive a confirmation email shortly."
+                    "Your order has been confirmed. We'll email you a confirmation shortly."
                   )}
                 </p>
               </div>
 
-              {/* Reference */}
               {orderData?.reference && (
-                <div className="bg-white border border-[#e2eaff] px-5 py-3 text-left inline-block w-full">
-                  <p className="text-xs text-[#9ba8c0] uppercase tracking-wide font-semibold mb-1">Payment Reference</p>
-                  <p className="font-mono text-sm text-[#031033] font-bold break-all">
+                <div className="bg-white rounded-xl border border-[#E2E8F0] px-5 py-4 text-left w-full">
+                  <p className="text-sm text-[#5A6A85] mb-1">Payment reference</p>
+                  <p className="text-sm font-medium text-[#031033] break-all tabular-nums">
                     {orderData.reference}
                   </p>
                 </div>
               )}
 
-              {/* Registered domains & services */}
+              {/* Order items */}
               {(orderData?.items?.length ?? 0) > 0 && (
-                <div className="bg-white border border-[#e2eaff] text-left rounded-lg overflow-hidden shadow-xs">
-                  <div className="px-5 py-3 border-b border-[#f0f4fc] bg-[#fbfcfe]">
-                    <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wide">
-                      Order Items
-                    </p>
+                <div className="bg-white rounded-xl border border-[#E2E8F0] text-left overflow-hidden">
+                  <div className="px-5 py-3.5 border-b border-[#E2E8F0]">
+                    <h2 className="text-sm font-medium text-[#031033]">
+                      Order items
+                    </h2>
                   </div>
-                  <div className="divide-y divide-[#f0f4fc]">
+                  <ul className="divide-y divide-[#EEF2F7]">
                     {orderData!.items.map((item) => {
                       const isHosting = item.type === "HOSTING";
                       const isSsl = item.type === "SSL";
                       const label =
                         isHosting
-                          ? `${item.plan?.name ?? "Hosting"} Plan`
+                          ? `${item.plan?.name ?? "Hosting"} plan`
                           : isSsl
-                          ? `SSL — ${item.domainName}`
+                          ? `SSL certificate for ${item.domainName}`
                           : item.domainName;
                       return (
-                        <div key={item.id} className="flex items-center gap-3 px-5 py-3.5">
+                        <li key={item.id} className="flex items-center gap-3 px-5 py-3.5">
                           {isHosting ? (
                             <Server className="w-4 h-4 text-[#1787D4] shrink-0" />
                           ) : isSsl ? (
-                            <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
+                            <Shield className="w-4 h-4 text-[#12A150] shrink-0" />
                           ) : (
                             <Globe className="w-4 h-4 text-[#1787D4] shrink-0" />
                           )}
-                          <span className="text-[#031033] font-semibold text-sm">{label}</span>
-                          <CheckCircle className="w-3.5 h-3.5 text-green-500 ml-auto shrink-0" />
-                        </div>
+                          <span className="text-[#031033] font-medium text-sm min-w-0 break-words">{label}</span>
+                          {typeof item.price === "number" && item.price > 0 && (
+                            <span className="ml-auto text-sm text-[#031033] tabular-nums text-right shrink-0">
+                              {formatNaira(item.price)}
+                            </span>
+                          )}
+                        </li>
                       );
                     })}
-                  </div>
+                  </ul>
+                  {(orderData?.amount ?? 0) > 0 && (
+                    <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#E2E8F0]">
+                      <span className="text-sm font-medium text-[#031033]">Total paid</span>
+                      <span className="text-base font-semibold text-[#031033] tabular-nums text-right">
+                        {formatNaira(orderData!.amount)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* SSL Activation & DNS Validation Banner */}
+              {/* SSL activation and DNS validation */}
               {hasSslItem && (
-                <div className="bg-[#eff8ff] border border-[#b9e0fd] rounded-lg p-4 sm:p-5 text-left flex items-start gap-3.5 shadow-2xs">
-                  <div className="w-10 h-10 rounded-lg bg-white border border-[#b9e0fd] flex items-center justify-center text-[#1787D4] shrink-0 shadow-2xs">
-                    <Shield className="w-5 h-5 text-[#1787D4]" />
-                  </div>
+                <div className="bg-[#E8F4FC] border border-[#1787D4]/25 rounded-xl p-5 text-left flex items-start gap-3.5">
+                  <Shield className="w-5 h-5 text-[#1787D4] shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-[#031033]">
-                      SSL Certificate Activation & DNS Validation
+                    <h3 className="text-base font-semibold text-[#031033]">
+                      Activate your SSL certificate
                     </h3>
-                    <p className="text-xs text-[#5a6a85] mt-1 leading-relaxed">
-                      Your SSL certificate order has been submitted to the Certificate Authority. To complete issuance, check your SSL dashboard to view and add any required DNS verification records.
+                    <p className="text-sm text-[#5A6A85] mt-1 leading-relaxed">
+                      Your SSL certificate order has been sent to the Certificate Authority. To complete issuance, open your SSL dashboard and add the DNS verification records it lists.
                     </p>
                     <div className="mt-3">
                       <Link
                         href="/dashboard/ssl"
                         id="success-view-ssl-dns"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-xs font-bold rounded-lg transition-all shadow-xs"
+                        className="inline-flex items-center gap-1.5 h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
                       >
-                        <Shield className="w-3.5 h-3.5" />
-                        Manage SSL & View DNS Records
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        View DNS records
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Hosting Provisioning Progress Tracker */}
+              {/* Hosting provisioning tracker */}
               {hasHostingItem && (
                 <div className="text-left my-2">
                   <HostingProvisioningCard
@@ -407,92 +417,92 @@ function CartSuccessContent() {
                 </div>
               )}
 
-              {/* What's next */}
-              <div className="bg-white rounded-lg border border-[#e2eaff] text-left overflow-hidden shadow-xs">
-                <div className="px-5 py-3.5 border-b border-[#f0f4fc] bg-[#f8faff]">
-                  <p className="text-xs font-semibold text-[#5a6a85] uppercase tracking-wide">
-                    What Happens Next
-                  </p>
+              {/* What happens next */}
+              <div className="bg-white rounded-xl border border-[#E2E8F0] text-left overflow-hidden">
+                <div className="px-5 py-3.5 border-b border-[#E2E8F0]">
+                  <h2 className="text-sm font-medium text-[#031033]">
+                    What happens next
+                  </h2>
                 </div>
-                <div className="divide-y divide-[#f0f4fc]">
+                <ul className="divide-y divide-[#EEF2F7]">
                   {[
                     { icon: CheckCircle, text: "Your payment has been received and confirmed." },
                     hasHostingItem
-                      ? { icon: Server, text: "Your hosting server node and cPanel account are being provisioned in real time." }
-                      : { icon: Globe, text: "DNS propagation begins immediately (up to 24–48 hrs globally)." },
+                      ? { icon: Server, text: "Your hosting account and cPanel are being set up now." }
+                      : { icon: Globe, text: "DNS propagation starts now and can take 24–48 hours worldwide." },
                     {
                       icon: Shield,
                       text: hasSslItem
-                        ? "SSL certificate requested. Complete domain DNS validation in your dashboard to activate."
-                        : "SSL certificate will be issued and activated automatically.",
+                        ? "SSL certificate requested. Complete DNS validation in your dashboard to activate it."
+                        : "Your SSL certificate will be issued and activated automatically.",
                     },
-                    { icon: LayoutDashboard, text: "Manage your services anytime from your dashboard." },
+                    { icon: LayoutDashboard, text: "Manage your services any time from your dashboard." },
                   ].map(({ icon: Icon, text }) => (
-                    <div key={text} className="flex items-start gap-3 px-5 py-3 text-sm text-[#5a6a85]">
+                    <li key={text} className="flex items-start gap-3 px-5 py-3 text-sm text-[#5A6A85]">
                       <Icon className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
                       {text}
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
                 {hasHostingItem ? (
                   <Link
                     href="/dashboard/hosting"
                     id="success-go-hosting"
-                    className="btn-primary py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2 shadow-xs"
+                    className={BTN_PRIMARY}
                   >
                     <Server className="w-4 h-4" />
-                    Go to Hosting Dashboard
+                    Go to hosting
                   </Link>
                 ) : hasSslItem && domainCount === 0 ? (
                   <Link
                     href="/dashboard/ssl"
                     id="success-go-ssl"
-                    className="btn-primary py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2 shadow-xs"
+                    className={BTN_PRIMARY}
                   >
                     <Shield className="w-4 h-4" />
-                    Go to SSL Certificates
+                    Go to SSL certificates
                   </Link>
                 ) : (
                   <Link
                     href="/dashboard/domains"
                     id="success-go-dashboard"
-                    className="btn-primary py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2 shadow-xs"
+                    className={BTN_PRIMARY}
                   >
                     <LayoutDashboard className="w-4 h-4" />
-                    Go to Dashboard
+                    Go to my domains
                   </Link>
                 )}
                 {hasSslItem && (domainCount > 0 || hasHostingItem) && (
                   <Link
                     href="/dashboard/ssl"
                     id="success-go-ssl-secondary"
-                    className="btn-outline py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2"
+                    className={BTN_SECONDARY}
                   >
-                    <Shield className="w-4 h-4 text-emerald-500" />
-                    SSL Certificates
+                    <Shield className="w-4 h-4 text-[#12A150]" />
+                    SSL certificates
                   </Link>
                 )}
                 {domainCount > 0 && hasHostingItem && (
                   <Link
                     href="/dashboard/domains"
                     id="success-go-domains"
-                    className="btn-outline py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2"
+                    className={BTN_SECONDARY}
                   >
                     <Globe className="w-4 h-4" />
-                    My Domains
+                    My domains
                   </Link>
                 )}
                 <Link
                   href="/domains"
                   id="success-search-more"
-                  className="btn-outline py-3.5 px-8 text-base rounded-lg flex items-center justify-center gap-2"
+                  className={BTN_SECONDARY}
                 >
                   <Search className="w-4 h-4" />
-                  Search More Domains
+                  Search more domains
                 </Link>
               </div>
             </div>
@@ -500,52 +510,44 @@ function CartSuccessContent() {
 
           {/* Failed */}
           {verifyState === "failed" && (
-            <div className="space-y-5 animate-fade-up">
-              <div className="w-20 h-20 mx-auto bg-red-50 border border-red-100 flex items-center justify-center shadow-sm">
-                <AlertCircle className="w-10 h-10 text-red-500" />
-              </div>
-              <h1 className="text-2xl font-extrabold text-[#031033]">Payment Failed</h1>
-              <p className="text-[#5a6a85]">
-                Your payment could not be processed. No charges were made. Please try again.
+            <div className="space-y-5">
+              <AlertCircle className="w-10 h-10 mx-auto text-[#DC2626]" />
+              <h1 className="text-2xl font-semibold text-[#031033]">Payment failed</h1>
+              <p className="text-base text-[#5A6A85]">
+                Your payment could not be processed and you have not been charged. Please try again.
               </p>
               <Link
                 href="/cart"
                 id="success-try-again"
-                className="btn-primary py-3.5 px-8 text-base inline-flex items-center gap-2"
+                className={BTN_PRIMARY}
               >
-                Return to Cart <ArrowRight className="w-4 h-4" />
+                Return to cart <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           )}
 
           {/* Error */}
           {verifyState === "error" && (
-            <div className="space-y-5 animate-fade-up">
-              <div className="w-20 h-20 mx-auto bg-orange-50 border border-orange-100 flex items-center justify-center shadow-sm">
-                <AlertCircle className="w-10 h-10 text-orange-500" />
-              </div>
-              <h1 className="text-2xl font-extrabold text-[#031033]">Something Went Wrong</h1>
-              <p className="text-[#5a6a85]">{errorMsg || "Could not verify your payment. Please contact support."}</p>
+            <div className="space-y-5">
+              <AlertCircle className="w-10 h-10 mx-auto text-[#E8900A]" />
+              <h1 className="text-2xl font-semibold text-[#031033]">We couldn&apos;t confirm your payment</h1>
+              <p className="text-base text-[#5A6A85]">{errorMsg || "Could not verify your payment. Please contact support."}</p>
               {(reference || errorRequestId) && (
-                <p className="text-xs text-[#5a6a85] break-all">
-                  {reference && <>Payment reference: <span className="font-mono">{reference}</span></>}
-                  {reference && errorRequestId && " · "}
-                  {errorRequestId && <>Request ID: <span className="font-mono">{errorRequestId}</span></>}
-                </p>
+                <div className="text-sm text-[#5A6A85] break-all space-y-1">
+                  {reference && <p>Payment reference: <span className="text-[#031033] tabular-nums">{reference}</span></p>}
+                  {errorRequestId && <p>Request ID: <span className="text-[#031033] tabular-nums">{errorRequestId}</span></p>}
+                </div>
               )}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link
-                  href="/cart"
-                  className="btn-outline py-3.5 px-8 text-base inline-flex items-center gap-2"
-                >
-                  Return to Cart
+                <Link href="/cart" className={BTN_SECONDARY}>
+                  Return to cart
                 </Link>
                 <Link
                   href="/contact"
                   id="success-contact-support"
-                  className="btn-primary py-3.5 px-8 text-base inline-flex items-center gap-2"
+                  className={BTN_PRIMARY}
                 >
-                  Contact Support
+                  Contact support
                 </Link>
               </div>
             </div>
@@ -559,7 +561,7 @@ function CartSuccessContent() {
 export default function CartSuccessPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center section-navy-tint">
+      <div className="min-h-screen flex items-center justify-center bg-[#F2F5FC]">
         <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
       </div>
     }>

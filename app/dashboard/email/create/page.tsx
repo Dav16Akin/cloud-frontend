@@ -136,30 +136,23 @@ export default function CreateMailboxPage() {
   };
 
   const steps = [
-    { num: 1, label: "Choose Domain" },
-    { num: 2, label: "Create Password" },
-    { num: 3, label: "Confirm Summary" },
-    { num: 4, label: "Mailbox Created" },
+    { num: 1, label: "Choose domain" },
+    { num: 2, label: "Create password" },
+    { num: 3, label: "Confirm summary" },
+    { num: 4, label: "Mailbox created" },
   ];
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto pb-16">
       {/* Page Heading */}
       <div>
-        <h2
-          className="text-[26px] font-bold tracking-tight"
-          style={{
-            color: "#1d1d1f",
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          Create Mailbox
-        </h2>
+        <h1 className="text-2xl font-semibold text-[#031033]">
+          Create mailbox
+        </h1>
       </div>
 
       {/* Step Indicator Progress Bar */}
-      <div className="flex items-center gap-2 sm:gap-3 flex-wrap border-b border-[#eef2f8] pb-5">
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap border-b border-[#E2E8F0] pb-5">
         {steps.map((step, idx) => {
           const isCompleted = currentStep > step.num;
           const isCurrent = currentStep === step.num;
@@ -170,27 +163,27 @@ export default function CreateMailboxPage() {
               <div className="flex items-center gap-2">
                 {/* Step Circle */}
                 {isCompleted ? (
-                  <div className="w-5 h-5 rounded-full bg-[#12a150] flex items-center justify-center text-white">
-                    <Check className="w-3 h-3 stroke-[3]" />
+                  <div className="w-5 h-5 rounded-full bg-[#0E7C3A] flex items-center justify-center text-white">
+                    <Check className="w-3 h-3" />
                   </div>
                 ) : isCurrent ? (
-                  <div className="w-5 h-5 rounded-full bg-[#1787D4] flex items-center justify-center text-white text-[11px] font-bold">
+                  <div className="w-5 h-5 rounded-full bg-[#1787D4] flex items-center justify-center text-white text-xs font-medium tabular-nums">
                     {step.num}
                   </div>
                 ) : (
-                  <div className="w-5 h-5 rounded-full border border-[#d1d5db] text-[#9ba8c0] flex items-center justify-center text-[11px] font-medium">
+                  <div className="w-5 h-5 rounded-full border border-[#D5DCE6] text-[#5A6A85] flex items-center justify-center text-xs font-medium tabular-nums">
                     {step.num}
                   </div>
                 )}
 
                 {/* Step Label */}
                 <span
-                  className={`text-[13px] ${
+                  className={`text-sm ${
                     isCurrent
-                      ? "font-semibold text-[#1787D4]"
+                      ? "font-medium text-[#031033]"
                       : isCompleted
-                      ? "font-medium text-[#12a150]"
-                      : "text-[#9ba8c0]"
+                      ? "text-[#031033]"
+                      : "text-[#5A6A85]"
                   }`}
                 >
                   {step.label}
@@ -199,7 +192,7 @@ export default function CreateMailboxPage() {
 
               {/* Chevron separator */}
               {idx < steps.length - 1 && (
-                <ChevronRight className="w-3.5 h-3.5 text-[#9ba8c0]" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#5A6A85]" />
               )}
             </div>
           );
@@ -210,21 +203,21 @@ export default function CreateMailboxPage() {
       <div className="w-full max-w-xl">
         {/* ── STEP 1: Address Setup ───────────────────────────────────── */}
         {currentStep === 1 && (
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
-            <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
-              1. Address Setup
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6">
+            <h3 className="text-base font-semibold text-[#031033] mb-5">
+              Address setup
             </h3>
 
             <form onSubmit={handleStep1Continue} className="flex flex-col gap-5">
               {/* Choose Domain */}
               <div>
-                <label className="text-[13px] font-medium text-[#1d1d1f] block mb-1.5">
-                  Choose Domain
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Choose domain
                 </label>
                 <select
                   value={selectedDomain}
                   onChange={(e) => setSelectedDomain(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                 >
                   {availableDomains.map((d) => (
                     <option key={d} value={d}>
@@ -236,8 +229,8 @@ export default function CreateMailboxPage() {
 
               {/* Enter Email Name */}
               <div>
-                <label className="text-[13px] font-medium text-[#1d1d1f] block mb-1.5">
-                  Enter Email Name
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Email name
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
@@ -246,12 +239,12 @@ export default function CreateMailboxPage() {
                       placeholder="e.g. sales"
                       value={emailName}
                       onChange={(e) => setEmailName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                       required
                     />
                   </div>
-                  <span className="text-[14px] font-medium text-[#6e6e73]">@</span>
-                  <div className="px-4 py-2.5 bg-[#f8fafc] border border-[#e2eaff] rounded-lg text-[13.5px] text-[#6e6e73] font-medium min-w-[140px]">
+                  <span className="text-sm text-[#5A6A85]">@</span>
+                  <div className="h-10 inline-flex items-center px-3 bg-[#F2F5FC] border border-[#E2E8F0] rounded-lg text-sm text-[#5A6A85] min-w-[140px]">
                     {selectedDomain}
                   </div>
                 </div>
@@ -262,7 +255,7 @@ export default function CreateMailboxPage() {
                 <button
                   type="submit"
                   id="btn-step1-continue"
-                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm"
+                  className="h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Continue
                 </button>
@@ -273,15 +266,15 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 2: Choose Password ──────────────────────────────────── */}
         {currentStep === 2 && (
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
-            <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
-              2. Choose Password
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6">
+            <h3 className="text-base font-semibold text-[#031033] mb-5">
+              Choose password
             </h3>
 
             <form onSubmit={handleStep2Continue} className="flex flex-col gap-5">
               {/* Password */}
               <div>
-                <label className="text-[13px] font-medium text-[#1d1d1f] block mb-1.5">
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -290,13 +283,13 @@ export default function CreateMailboxPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter strong password"
-                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                    className="w-full h-10 pl-3 pr-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0] hover:text-[#5a6a85]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6A85] hover:text-[#031033] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -309,8 +302,8 @@ export default function CreateMailboxPage() {
 
               {/* Confirm Password */}
               <div>
-                <label className="text-[13px] font-medium text-[#1d1d1f] block mb-1.5">
-                  Confirm Password
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Confirm password
                 </label>
                 <div className="relative">
                   <input
@@ -318,7 +311,7 @@ export default function CreateMailboxPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
-                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#e2eaff] rounded-lg text-[13.5px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors"
+                    className="w-full h-10 pl-3 pr-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     required
                   />
                   <button
@@ -326,7 +319,7 @@ export default function CreateMailboxPage() {
                     onClick={() =>
                       setShowConfirmPassword(!showConfirmPassword)
                     }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0] hover:text-[#5a6a85]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6A85] hover:text-[#031033] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -340,45 +333,45 @@ export default function CreateMailboxPage() {
               {/* Password Checklist Rules */}
               <div className="flex flex-col gap-2 pt-1">
                 {/* Rule 1 */}
-                <div className="flex items-center gap-2 text-[12.5px]">
+                <div className="flex items-center gap-2 text-xs">
                   {hasMinLength ? (
-                    <Check className="w-4 h-4 text-[#12a150] stroke-[2.5]" />
+                    <Check className="w-4 h-4 text-[#0E7C3A]" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-[#d1d5db] flex items-center justify-center text-[10px] text-[#9ba8c0]" />
+                    <div className="w-4 h-4 rounded-full border border-[#D5DCE6]" />
                   )}
                   <span
-                    className={hasMinLength ? "text-[#12a150] font-medium" : "text-[#6e6e73]"}
+                    className={hasMinLength ? "text-[#0E7C3A]" : "text-[#5A6A85]"}
                   >
                     At least 8 characters long
                   </span>
                 </div>
 
                 {/* Rule 2 */}
-                <div className="flex items-center gap-2 text-[12.5px]">
+                <div className="flex items-center gap-2 text-xs">
                   {hasUppercase ? (
-                    <Check className="w-4 h-4 text-[#12a150] stroke-[2.5]" />
+                    <Check className="w-4 h-4 text-[#0E7C3A]" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-[#d1d5db] flex items-center justify-center text-[10px] text-[#9ba8c0]" />
+                    <div className="w-4 h-4 rounded-full border border-[#D5DCE6]" />
                   )}
                   <span
-                    className={hasUppercase ? "text-[#12a150] font-medium" : "text-[#6e6e73]"}
+                    className={hasUppercase ? "text-[#0E7C3A]" : "text-[#5A6A85]"}
                   >
                     At least one uppercase letter
                   </span>
                 </div>
 
                 {/* Rule 3 */}
-                <div className="flex items-center gap-2 text-[12.5px]">
+                <div className="flex items-center gap-2 text-xs">
                   {hasNumberOrSpecial ? (
-                    <Check className="w-4 h-4 text-[#12a150] stroke-[2.5]" />
+                    <Check className="w-4 h-4 text-[#0E7C3A]" />
                   ) : (
-                    <Info className="w-4 h-4 text-[#9ba8c0]" />
+                    <Info className="w-4 h-4 text-[#5A6A85]" />
                   )}
                   <span
                     className={
                       hasNumberOrSpecial
-                        ? "text-[#12a150] font-medium"
-                        : "text-[#6e6e73]"
+                        ? "text-[#0E7C3A]"
+                        : "text-[#5A6A85]"
                     }
                   >
                     At least one number or special character
@@ -387,15 +380,15 @@ export default function CreateMailboxPage() {
 
                 {/* Match validation notice */}
                 {password && confirmPassword && (
-                  <div className="flex items-center gap-2 text-[12.5px] mt-1">
+                  <div className="flex items-center gap-2 text-xs mt-1">
                     {passwordsMatch ? (
-                      <Check className="w-4 h-4 text-[#12a150] stroke-[2.5]" />
+                      <Check className="w-4 h-4 text-[#0E7C3A]" />
                     ) : (
-                      <div className="w-4 h-4 rounded-full border border-red-300 text-red-500 flex items-center justify-center text-[10px]" />
+                      <div className="w-4 h-4 rounded-full border border-[#DC2626]" />
                     )}
                     <span
                       className={
-                        passwordsMatch ? "text-[#12a150] font-medium" : "text-red-500"
+                        passwordsMatch ? "text-[#0E7C3A]" : "text-[#C21F1F]"
                       }
                     >
                       {passwordsMatch ? "Passwords match" : "Passwords do not match"}
@@ -409,7 +402,7 @@ export default function CreateMailboxPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(1)}
-                  className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-lg transition-colors"
+                  className="h-9 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Back
                 </button>
@@ -417,7 +410,7 @@ export default function CreateMailboxPage() {
                   type="submit"
                   id="btn-step2-continue"
                   disabled={!isPasswordValid}
-                  className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 disabled:pointer-events-none text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm"
+                  className="h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Continue
                 </button>
@@ -428,28 +421,28 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 3: Confirm Mailbox ──────────────────────────────────── */}
         {currentStep === 3 && (
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-7 shadow-sm">
-            <h3 className="text-[17px] font-bold text-[#1d1d1f] mb-5">
-              3. Confirm Mailbox
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6">
+            <h3 className="text-base font-semibold text-[#031033] mb-5">
+              Confirm mailbox
             </h3>
 
             {/* Summary Details Box */}
-            <div className="bg-[#fcfdfe] border border-[#eef2f8] rounded-lg p-5 flex flex-col gap-3.5 mb-5">
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[#6e6e73]">Email Address</span>
-                <span className="font-semibold text-[#1d1d1f]">{fullEmail}</span>
+            <div className="border border-[#E2E8F0] rounded-lg px-4 py-1 flex flex-col divide-y divide-[#EEF2F7] mb-5">
+              <div className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="text-[#5A6A85]">Email address</span>
+                <span className="font-medium text-[#031033] text-right break-all">{fullEmail}</span>
               </div>
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[#6e6e73]">Domain</span>
-                <span className="font-semibold text-[#1d1d1f]">{selectedDomain}</span>
+              <div className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="text-[#5A6A85]">Domain</span>
+                <span className="font-medium text-[#031033] text-right">{selectedDomain}</span>
               </div>
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-[#6e6e73]">Storage Limit</span>
-                <span className="font-semibold text-[#1d1d1f]">10 GB (Standard)</span>
+              <div className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="text-[#5A6A85]">Storage limit</span>
+                <span className="font-medium text-[#031033] tabular-nums">10 GB (Standard)</span>
               </div>
             </div>
 
-            <p className="text-[12.5px] text-[#6e6e73] mb-6">
+            <p className="text-xs text-[#5A6A85] mb-6">
               Review the details above before creating this mailbox.
             </p>
 
@@ -458,7 +451,7 @@ export default function CreateMailboxPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2 border border-[#e2eaff] hover:bg-[#f8fafc] text-[#5a6a85] text-[13.5px] font-semibold rounded-lg transition-colors"
+                className="h-9 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Back
               </button>
@@ -467,10 +460,10 @@ export default function CreateMailboxPage() {
                 id="btn-create-mailbox-submit"
                 onClick={handleCreateMailbox}
                 disabled={isCreating}
-                className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-60 text-white text-[13.5px] font-semibold rounded-lg transition-all duration-150 active:scale-95 shadow-sm flex items-center gap-2"
+                className="h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                Create Mailbox
+                Create mailbox
               </button>
             </div>
           </div>
@@ -478,33 +471,30 @@ export default function CreateMailboxPage() {
 
         {/* ── STEP 4: Mailbox Created ──────────────────────────────────── */}
         {currentStep === 4 && (
-          <div className="bg-white rounded-lg border border-[#e2eaff] p-9 shadow-sm flex flex-col items-center text-center">
-            {/* Success Icon */}
-            <div className="w-12 h-12 rounded-full bg-[#e6f9ed] border border-[#b7eed0] flex items-center justify-center text-[#12a150] mb-4">
-              <Check className="w-6 h-6 stroke-[3]" />
-            </div>
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 flex flex-col items-center text-center">
+            <Check className="w-6 h-6 text-[#0E7C3A] mb-4" />
 
-            <h3 className="text-[20px] font-bold text-[#1d1d1f] mb-2">
-              Mailbox Created!
+            <h3 className="text-lg font-semibold text-[#031033] mb-2">
+              Mailbox created
             </h3>
-            <p className="text-[13.5px] text-[#6e6e73] max-w-sm mb-7">
-              The professional address <strong className="text-[#1d1d1f]">{fullEmail}</strong> is ready to send and receive emails.
+            <p className="text-sm text-[#5A6A85] max-w-sm mb-6">
+              The professional address <strong className="font-medium text-[#031033]">{fullEmail}</strong> is ready to send and receive emails.
             </p>
 
-            <div className="flex flex-col gap-3 w-full max-w-xs">
+            <div className="flex flex-col gap-2 w-full max-w-xs">
               <Link
                 href={`/dashboard/email/${encodeURIComponent(fullEmail)}`}
                 id="btn-goto-mailbox"
-                className="w-full py-2.5 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13.5px] font-semibold rounded-lg transition-colors text-center shadow-sm"
+                className="w-full inline-flex items-center justify-center h-9 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Go to Mailbox
+                Go to mailbox
               </Link>
               <button
                 type="button"
                 onClick={handleReset}
-                className="w-full py-2 text-[#5a6a85] hover:text-[#1d1d1f] text-[13px] font-medium transition-colors text-center"
+                className="w-full h-9 text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Create Another Mailbox
+                Create another mailbox
               </button>
             </div>
           </div>

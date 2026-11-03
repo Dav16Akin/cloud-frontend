@@ -90,11 +90,11 @@ export default function DashboardLayout({
   // Show spinner while we're determining auth state
   if (authStatus === "loading") {
     return (
-      <div
-        className="flex h-screen items-center justify-center"
-        style={{ background: "#f5f5f7" }}
-      >
-        <Loader2 className="w-6 h-6 animate-spin text-[#1787D4]" />
+      <div className="flex h-screen items-center justify-center bg-[#F2F5FC]">
+        <Loader2
+          className="w-5 h-5 animate-spin text-[#1787D4]"
+          aria-label="Loading"
+        />
       </div>
     );
   }
@@ -104,10 +104,7 @@ export default function DashboardLayout({
 
   return (
     <>
-      <div
-        className="flex h-screen overflow-hidden"
-        style={{ background: "#f5f5f7" }}
-      >
+      <div className="flex h-screen overflow-hidden bg-[#F2F5FC]">
         {/* ── Desktop sidebar ─────────────────────────────────────────── */}
         <div className="hidden md:flex h-full">
           <Sidebar />
@@ -117,7 +114,7 @@ export default function DashboardLayout({
         {mobileSidebarOpen && (
           <div className="fixed inset-0 z-40 md:hidden flex">
             <div
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 bg-[#031033]/40"
               onClick={() => setMobileSidebarOpen(false)}
             />
             <div className="relative z-50 flex h-full">
@@ -137,7 +134,9 @@ export default function DashboardLayout({
           {/* Full-width thin dark expiry banner directly under navbar */}
           <ExpiryBanner />
 
-          <main className="flex-1 overflow-y-auto p-4 sm:px-6 md:p-8">{children}</main>
+          <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div className="mx-auto max-w-7xl">{children}</div>
+          </main>
         </div>
       </div>
       <SearchModal

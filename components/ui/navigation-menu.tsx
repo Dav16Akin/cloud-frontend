@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { NavigationMenu as NavigationMenuPrimitive } from 'radix-ui';
-import { ChevronDown } from 'lucide-react';
-import { cva } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+// shadcn/ui NavigationMenu, adapted to this project:
+// - uses the unified `radix-ui` package already installed (same primitive as
+//   @radix-ui/react-navigation-menu) and lucide's ChevronDown instead of @radix-ui/react-icons
+// - brand tokens instead of shadcn neutrals, no gradients
+import * as React from "react";
+import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui";
+import { ChevronDown } from "lucide-react";
+import { cva } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -12,14 +17,17 @@ const NavigationMenu = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Root
     ref={ref}
-    className={cn('relative z-10 flex items-center justify-center', className)}
+    className={cn(
+      "relative z-10 flex max-w-max flex-1 items-center justify-center",
+      className,
+    )}
     {...props}
   >
     {children}
     <NavigationMenuViewport />
   </NavigationMenuPrimitive.Root>
 ));
-NavigationMenu.displayName = 'NavigationMenu';
+NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName;
 
 const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,
@@ -27,16 +35,19 @@ const NavigationMenuList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.List
     ref={ref}
-    className={cn('group flex list-none items-center gap-0.5', className)}
+    className={cn(
+      "group flex flex-1 list-none items-center justify-center gap-0.5",
+      className,
+    )}
     {...props}
   />
 ));
-NavigationMenuList.displayName = 'NavigationMenuList';
+NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName;
 
 const NavigationMenuItem = NavigationMenuPrimitive.Item;
 
 const navigationMenuTriggerStyle = cva(
-  'group inline-flex h-9 w-max items-center justify-center px-3.5 py-2 text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 bg-transparent'
+  "group inline-flex h-9 w-max items-center justify-center rounded-lg bg-transparent px-3 text-sm font-medium text-[#5A6A85] transition-colors hover:bg-[#F2F5FC] hover:text-[#031033] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-[#E8F4FC] data-[active]:text-[#1787D4] data-[state=open]:bg-[#F2F5FC] data-[state=open]:text-[#031033]",
 );
 
 const NavigationMenuTrigger = React.forwardRef<
@@ -45,17 +56,17 @@ const NavigationMenuTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Trigger
     ref={ref}
-    className={cn(navigationMenuTriggerStyle(), 'group', className)}
+    className={cn(navigationMenuTriggerStyle(), "group gap-1", className)}
     {...props}
   >
     {children}
     <ChevronDown
-      className="relative top-[1px] ml-1 h-3.5 w-3.5 text-[#9ba8c0] transition-transform duration-200 group-data-[state=open]:rotate-180"
+      className="relative top-px h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180 motion-reduce:transition-none"
       aria-hidden="true"
     />
   </NavigationMenuPrimitive.Trigger>
 ));
-NavigationMenuTrigger.displayName = 'NavigationMenuTrigger';
+NavigationMenuTrigger.displayName = NavigationMenuPrimitive.Trigger.displayName;
 
 const NavigationMenuContent = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Content>,
@@ -64,17 +75,13 @@ const NavigationMenuContent = React.forwardRef<
   <NavigationMenuPrimitive.Content
     ref={ref}
     className={cn(
-      'left-0 top-0 w-full md:absolute md:w-auto',
-      'data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out',
-      'data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out',
-      'data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52',
-      'data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52',
-      className
+      "left-0 top-0 w-full data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 md:absolute md:w-auto",
+      className,
     )}
     {...props}
   />
 ));
-NavigationMenuContent.displayName = 'NavigationMenuContent';
+NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName;
 
 const NavigationMenuLink = NavigationMenuPrimitive.Link;
 
@@ -82,41 +89,18 @@ const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
-  /* Wrapper: absolutely below the nav root, centered */
-  <div
-    style={{
-      position: 'absolute',
-      left: 0,
-      top: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      width: '100%',
-    }}
-  >
+  <div className={cn("absolute left-0 top-full flex justify-center")}>
     <NavigationMenuPrimitive.Viewport
-      ref={ref}
       className={cn(
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90',
-        className
+        "relative mt-2 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-top overflow-hidden rounded-xl border border-[#E2E8F0] bg-white text-[#031033] shadow-[0_12px_32px_rgba(3,16,51,0.12)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:fade-in md:w-[var(--radix-navigation-menu-viewport-width)]",
+        className,
       )}
-      style={{
-        position: 'relative',
-        marginTop: '8px',
-        height: 'var(--radix-navigation-menu-viewport-height)',
-        width: 'var(--radix-navigation-menu-viewport-width)',
-        overflow: 'hidden',
-        borderRadius: '12px',
-        border: '1px solid #e2eaff',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 10px 40px rgba(59,130,246,0.12), 0 2px 8px rgba(0,0,0,0.06)',
-        transformOrigin: 'top center',
-      }}
+      ref={ref}
       {...props}
     />
   </div>
 ));
-NavigationMenuViewport.displayName = 'NavigationMenuViewport';
+NavigationMenuViewport.displayName = NavigationMenuPrimitive.Viewport.displayName;
 
 const NavigationMenuIndicator = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Indicator>,
@@ -125,17 +109,15 @@ const NavigationMenuIndicator = React.forwardRef<
   <NavigationMenuPrimitive.Indicator
     ref={ref}
     className={cn(
-      'top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden',
-      'data-[state=visible]:animate-in data-[state=hidden]:animate-out',
-      'data-[state=hidden]:fade-out data-[state=visible]:fade-in',
-      className
+      "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in",
+      className,
     )}
     {...props}
   >
-    <div style={{ position: 'relative', top: '60%', height: 8, width: 8, transform: 'rotate(45deg)', backgroundColor: '#e2eaff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} />
+    <div className="relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm border-l border-t border-[#E2E8F0] bg-white" />
   </NavigationMenuPrimitive.Indicator>
 ));
-NavigationMenuIndicator.displayName = 'NavigationMenuIndicator';
+NavigationMenuIndicator.displayName = NavigationMenuPrimitive.Indicator.displayName;
 
 export {
   navigationMenuTriggerStyle,

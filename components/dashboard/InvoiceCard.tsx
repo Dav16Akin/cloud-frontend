@@ -60,38 +60,19 @@ export default function InvoiceCard({
       })
     : "—";
 
-  // Status badge styling per requirement:
-  // - PAID: green
-  // - PENDING: amber
-  // - FAILED: red
-  // - REFUNDED: neutral
   const renderStatusBadge = () => {
+    const pill =
+      "inline-flex items-center gap-1.5 whitespace-nowrap text-xs";
     switch (invoice.status) {
       case "PAID":
-        return (
-          <span className="text-[12px] font-semibold text-[#1787D4]">
-            Paid
-          </span>
-        );
+        return <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#12A150]" />Paid</span>;
       case "PENDING":
-        return (
-          <span className="text-[12px] font-semibold text-orange-600">
-            Pending
-          </span>
-        );
+        return <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E8900A]" />Pending</span>;
       case "FAILED":
-        return (
-          <span className="text-[12px] font-semibold text-red-600">
-            Failed
-          </span>
-        );
+        return <span className={`${pill} text-[#C21F1F]`}><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#DC2626]" />Failed</span>;
       case "REFUNDED":
       default:
-        return (
-          <span className="text-[12px] font-semibold text-slate-500">
-            Refunded
-          </span>
-        );
+        return <span className={`${pill} text-[#031033]`}><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9AA6B8]" />Refunded</span>;
     }
   };
 
@@ -99,64 +80,58 @@ export default function InvoiceCard({
   const isPaid = invoice.status === "PAID" || invoice.isPaid;
 
   return (
-    <div className="bg-white rounded-lg border border-[#e2eaff] hover:border-[#b8d4fa] p-4 sm:px-5 sm:py-4 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+    <div className="bg-white rounded-xl border border-[#E2E8F0] hover:border-[#D5DCE6] px-5 py-4 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       {/* Left Column: Icon + Description + Category + Metadata */}
-      <div className="flex items-center gap-3.5 min-w-0">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border bg-[#eff6fc] border-[#d6eaf8] text-[#1787D4]">
-          {isDomain ? (
-            <Globe className="w-5 h-5" />
-          ) : isHosting ? (
-            <Server className="w-5 h-5" />
-          ) : (
-            <FileText className="w-5 h-5" />
-          )}
-        </div>
+      <div className="flex items-start gap-3 min-w-0">
+        {isDomain ? (
+          <Globe className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+        ) : isHosting ? (
+          <Server className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+        ) : (
+          <FileText className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
+        )}
 
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-[14.5px] font-bold text-[#031033] leading-snug truncate">
+            <h4 className="text-sm font-medium text-[#031033] truncate">
               {invoice.description || "Nupat Cloud Invoice"}
             </h4>
 
             {isDomain ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#eff6fc] text-[#1787D4]">
+              <span className="text-xs text-[#5A6A85] whitespace-nowrap">
                 Domain
               </span>
             ) : isHosting ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#eff6fc] text-[#1787D4]">
-                Hosting Plan
+              <span className="text-xs text-[#5A6A85] whitespace-nowrap">
+                Hosting plan
               </span>
             ) : null}
           </div>
 
           {isTaken && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
+            <p className="mt-1 text-xs font-medium text-[#C21F1F]">
               Domain already taken by another party
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[12px] text-[#5a6a85]">
-            <span>{formattedDate}</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-[#5A6A85]">
+            <span className="tabular-nums">{formattedDate}</span>
             {domainName && isDomain && (
               <>
-                <span>•</span>
-                <span className="font-mono text-[#1787D4] font-medium">
-                  {domainName}
-                </span>
+                <span aria-hidden>·</span>
+                <span className="text-[#031033]">{domainName}</span>
               </>
             )}
             {invoice.whmcsInvoiceId && (
               <>
-                <span>•</span>
-                <span className="font-mono text-[#8a9bb2]">
-                  #{invoice.whmcsInvoiceId}
-                </span>
+                <span aria-hidden>·</span>
+                <span className="font-mono">#{invoice.whmcsInvoiceId}</span>
               </>
             )}
             {invoice.paystackRef && (
               <>
-                <span className="hidden sm:inline">•</span>
-                <span className="font-mono text-[11px] text-[#8a9bb2] hidden sm:inline truncate max-w-[140px]">
+                <span className="hidden sm:inline" aria-hidden>·</span>
+                <span className="font-mono hidden sm:inline truncate max-w-[140px]">
                   ref: {invoice.paystackRef}
                 </span>
               </>
@@ -166,9 +141,9 @@ export default function InvoiceCard({
       </div>
 
       {/* Right Column: Amount, Status Badge & Action */}
-      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#f2f5fc] flex-wrap sm:flex-nowrap">
+      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#EEF2F7] flex-wrap sm:flex-nowrap">
         <div className="text-left sm:text-right shrink-0">
-          <span className="text-[14.5px] font-extrabold text-[#031033] block tracking-tight">
+          <span className="text-sm font-semibold text-[#031033] tabular-nums block">
             {formattedAmount}
           </span>
           <div className="mt-1">{renderStatusBadge()}</div>
@@ -180,10 +155,10 @@ export default function InvoiceCard({
             <>
               {isTaken ? (
                 <span
-                  className="text-[12px] font-semibold text-red-600 px-2 py-1"
+                  className="text-xs font-medium text-[#C21F1F] px-2 py-1"
                   title="This domain is unavailable and cannot be purchased."
                 >
-                  Domain Taken
+                  Domain taken
                 </span>
               ) : (
                 <button
@@ -191,7 +166,7 @@ export default function InvoiceCard({
                   id={`btn-pay-invoice-${invoice.id}`}
                   onClick={() => onPay(invoice)}
                   disabled={isPaying || isRevalidating}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold text-white bg-[#1787D4] hover:bg-[#1370B5] active:scale-[0.98] transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+                  className="inline-flex h-8 items-center justify-center gap-1.5 px-3 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {isRevalidating ? (
                     <>
@@ -218,9 +193,9 @@ export default function InvoiceCard({
           {isPendingOrFailed && isHosting && (
             <Link
               href="/dashboard/hosting"
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1787D4] hover:text-[#1370B5] hover:underline whitespace-nowrap px-2 py-1"
+              className="inline-flex h-8 items-center gap-1 px-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              <span>Manage Hosting →</span>
+              <span>Manage hosting →</span>
             </Link>
           )}
 
@@ -231,7 +206,7 @@ export default function InvoiceCard({
               id={`btn-view-invoice-${invoice.id}`}
               onClick={() => onViewInvoice(invoice.id)}
               disabled={isViewing}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold text-[#031033] bg-[#f2f5fc] hover:bg-[#e4ebf8] border border-[#dce5f5] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+              className="inline-flex h-8 items-center justify-center gap-1.5 px-3 rounded-lg text-sm font-medium text-[#031033] bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
               {isViewing ? (
                 <>
@@ -241,7 +216,7 @@ export default function InvoiceCard({
               ) : (
                 <>
                   <span>View invoice</span>
-                  <ExternalLink className="w-3 h-3 text-[#5a6a85]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[#5A6A85]" />
                 </>
               )}
             </button>

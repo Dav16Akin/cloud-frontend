@@ -38,14 +38,14 @@ import {
 } from "./vps-utils";
 
 const secondaryButton =
-  "px-4 py-2 rounded-lg text-[12.5px] font-semibold border border-[#e8e8ed] text-[#6e6e73] hover:bg-[#f5f5f7] transition-colors disabled:opacity-50";
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed";
 const primaryButton =
-  "inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#1787D4] hover:bg-[#1371B5] text-white text-[12.5px] font-semibold transition-colors disabled:opacity-60";
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed";
 const dangerButton =
-  "inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[12.5px] font-semibold transition-colors disabled:opacity-60";
+  "inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-[#C21F1F] hover:bg-[#A31919] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 disabled:opacity-50 disabled:cursor-not-allowed";
 
 const checkboxClass =
-  "mt-0.5 h-4 w-4 rounded border-[#c8c8cc] text-[#1787D4] accent-[#1787D4]";
+  "mt-0.5 h-4 w-4 shrink-0 rounded border-[#D5DCE6] text-[#1787D4] accent-[#1787D4]";
 
 // ── Stop ──────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ export function StopVpsModal({
       title="Stop this server?"
       description={server.name}
       icon={Square}
-      iconClassName="bg-slate-100 text-slate-600 border-slate-200"
+      iconClassName="bg-[#F2F5FC] text-[#5A6A85] border-[#E2E8F0]"
       onClose={onClose}
       busy={isPending}
       footer={
@@ -90,12 +90,12 @@ export function StopVpsModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="text-[13px] text-[#5a6a85] leading-relaxed">
+        <p className="text-sm text-[#5A6A85] leading-relaxed">
           The server will be powered off and your services will go offline.
           You can start it again at any time from this page.
         </p>
 
-        <label className="flex items-start gap-2.5 rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] px-3.5 py-3 cursor-pointer">
+        <label className="flex items-start gap-2.5 rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] px-4 py-3 cursor-pointer">
           <input
             type="checkbox"
             checked={force}
@@ -103,10 +103,10 @@ export function StopVpsModal({
             className={checkboxClass}
           />
           <span>
-            <span className="block text-[12.5px] font-semibold text-[#1d1d1f]">
+            <span className="block text-sm font-medium text-[#031033]">
               Force power off
             </span>
-            <span className="block text-[11.5px] text-[#6e6e73] mt-0.5 leading-snug">
+            <span className="block text-xs text-[#5A6A85] mt-0.5 leading-snug">
               Cuts power immediately instead of a graceful shutdown. Unsaved
               data may be lost.
             </span>
@@ -133,7 +133,7 @@ export function RebootVpsModal({
       title="Reboot this server?"
       description={server.name}
       icon={RotateCw}
-      iconClassName="bg-amber-50 text-amber-600 border-amber-200"
+      iconClassName="bg-[#FFF4E0] text-[#9A5B00] border-[#E8900A]/25"
       onClose={onClose}
       busy={isPending}
       footer={
@@ -158,7 +158,7 @@ export function RebootVpsModal({
         </>
       }
     >
-      <p className="text-[13px] text-[#5a6a85] leading-relaxed">
+      <p className="text-sm text-[#5A6A85] leading-relaxed">
         The server will restart and be unavailable for a short time. Any
         processes that are not saved will be lost.
       </p>
@@ -223,8 +223,8 @@ export function RenameVpsModal({
         </>
       }
     >
-      <div className="flex flex-col gap-3">
-        <label className="text-[12px] font-semibold text-[#1d1d1f]">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="vps-rename-input" className="text-sm font-medium text-[#031033]">
           Server name
         </label>
         <input
@@ -237,19 +237,19 @@ export function RenameVpsModal({
           }}
           maxLength={40}
           autoFocus
-          className={`w-full rounded-lg border px-3 py-2.5 text-[13px] text-[#1d1d1f] focus:outline-none transition-colors ${
+          className={`w-full h-10 rounded-lg border bg-white px-3 text-sm text-[#031033] outline-none focus:ring-2 transition-colors ${
             error
-              ? "border-red-300 focus:border-red-400"
-              : "border-[#e8e8ed] focus:border-[#1787D4]"
+              ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-[#DC2626]/15"
+              : "border-[#D5DCE6] focus:border-[#1787D4] focus:ring-[#1787D4]/15"
           }`}
         />
         {error ? (
-          <p className="text-[11.5px] text-red-600 flex items-center gap-1">
+          <p className="text-xs text-[#C21F1F] flex items-center gap-1">
             <AlertCircle className="w-3.5 h-3.5" />
             {error}
           </p>
         ) : (
-          <p className="text-[11px] text-[#8a9bb2]">
+          <p className="text-xs text-[#5A6A85]">
             3–40 characters. Letters, numbers, spaces, dots, hyphens and
             underscores.
           </p>
@@ -294,7 +294,7 @@ export function RebuildVpsModal({
       title="Rebuild this server?"
       description={`${server.name} will be reinstalled from a fresh image.`}
       icon={RefreshCw}
-      iconClassName="bg-amber-50 text-amber-600 border-amber-200"
+      iconClassName="bg-[#FFF4E0] text-[#9A5B00] border-[#E8900A]/25"
       onClose={onClose}
       busy={isPending}
       footer={
@@ -320,7 +320,7 @@ export function RebuildVpsModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12px] text-red-700">
+        <div className="flex items-start gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 text-sm text-[#C21F1F]">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             All data, applications and configuration on this server will be
@@ -329,19 +329,20 @@ export function RebuildVpsModal({
         </div>
 
         <div>
-          <label className="text-[12px] font-semibold text-[#1d1d1f] block mb-2">
+          <label className="text-sm font-medium text-[#031033] block mb-1.5">
             New operating system
           </label>
 
           {imagesQuery.isLoading && (
-            <div className="flex items-center gap-2 text-[12px] text-[#6e6e73] py-3">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1787D4]" />
-              Loading images…
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" aria-label="Loading images">
+              {[0, 1, 2, 3].map((index) => (
+                <div key={index} className="h-14 rounded-lg bg-[#EEF2F7] animate-pulse" />
+              ))}
             </div>
           )}
 
           {imagesQuery.isError && (
-            <p className="text-[12px] text-red-600 py-2">
+            <p className="text-xs text-[#C21F1F] py-2">
               Could not load operating systems. Close this dialog and try again.
             </p>
           )}
@@ -358,22 +359,22 @@ export function RebuildVpsModal({
                       setImage(entry.providerImage);
                       setError(null);
                     }}
-                    className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-all ${
+                    className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-colors ${
                       selected
-                        ? "border-[#1787D4] bg-[#f6fbff] ring-2 ring-[#1787D4]/10"
-                        : "border-[#e8e8ed] hover:border-[#c9d8e8]"
+                        ? "border-[#1787D4] bg-[#E8F4FC] ring-2 ring-[#1787D4]/15"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6]"
                     }`}
                   >
                     <Terminal
                       className={`w-3.5 h-3.5 shrink-0 ${
-                        selected ? "text-[#1787D4]" : "text-[#8a9bb2]"
+                        selected ? "text-[#1787D4]" : "text-[#5A6A85]"
                       }`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[12px] font-semibold text-[#1d1d1f] truncate">
+                      <span className="block text-sm font-medium text-[#031033] truncate">
                         {entry.label}
                       </span>
-                      <span className="block text-[10px] font-mono text-[#8a9bb2] truncate">
+                      <span className="block text-xs font-mono text-[#5A6A85] truncate">
                         {entry.providerImage}
                       </span>
                     </span>
@@ -397,14 +398,14 @@ export function RebuildVpsModal({
             }}
             className={checkboxClass}
           />
-          <span className="text-[12px] text-[#5a6a85] leading-relaxed">
+          <span className="text-sm text-[#5A6A85] leading-relaxed">
             I understand that everything on this server will be permanently
             erased.
           </span>
         </label>
 
         {error && (
-          <p className="text-[11.5px] text-red-600 flex items-center gap-1">
+          <p className="text-xs text-[#C21F1F] flex items-center gap-1">
             <AlertCircle className="w-3.5 h-3.5" />
             {error}
           </p>
@@ -484,14 +485,14 @@ export function ResizeVpsModal({
     >
       <div className="flex flex-col gap-4">
         {currentPlan && (
-          <div className="rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] px-3.5 py-2.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a9bb2] block">
+          <div className="rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] px-4 py-3">
+            <span className="text-xs text-[#5A6A85] block">
               Current plan
             </span>
-            <p className="text-[12.5px] font-semibold text-[#1d1d1f] mt-0.5">
+            <p className="text-sm font-medium text-[#031033] mt-0.5">
               {currentPlan.name}
             </p>
-            <p className="text-[11px] text-[#6e6e73]">
+            <p className="text-xs text-[#5A6A85]">
               {currentPlan.cpu} vCPU · {currentPlan.ramGb} GB RAM ·{" "}
               {currentPlan.diskGb} GB disk
             </p>
@@ -499,14 +500,15 @@ export function ResizeVpsModal({
         )}
 
         {plansQuery.isLoading && (
-          <div className="flex items-center gap-2 text-[12px] text-[#6e6e73] py-3">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1787D4]" />
-            Loading plans…
+          <div className="flex flex-col gap-2" aria-label="Loading plans">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="h-16 rounded-lg bg-[#EEF2F7] animate-pulse" />
+            ))}
           </div>
         )}
 
         {plansQuery.isError && (
-          <p className="text-[12px] text-red-600">
+          <p className="text-xs text-[#C21F1F]">
             Could not load plans. Close this dialog and try again.
           </p>
         )}
@@ -528,19 +530,19 @@ export function ResizeVpsModal({
                     setTargetPlanId(plan.id);
                     setError(null);
                   }}
-                  className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-all ${
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors ${
                     selected
-                      ? "border-[#1787D4] bg-[#f6fbff] ring-2 ring-[#1787D4]/10"
+                      ? "border-[#1787D4] bg-[#E8F4FC] ring-2 ring-[#1787D4]/15"
                       : disabled
-                        ? "border-[#e8e8ed] bg-[#fbfcfe] opacity-60 cursor-not-allowed"
-                        : "border-[#e8e8ed] hover:border-[#c9d8e8]"
+                        ? "border-[#E2E8F0] bg-[#F2F5FC] opacity-60 cursor-not-allowed"
+                        : "border-[#E2E8F0] hover:border-[#D5DCE6]"
                   }`}
                 >
                   <span
                     className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
                       selected
                         ? "border-[#1787D4] bg-[#1787D4]"
-                        : "border-[#c8c8cc] bg-white"
+                        : "border-[#D5DCE6] bg-white"
                     }`}
                   >
                     {selected && (
@@ -550,29 +552,29 @@ export function ResizeVpsModal({
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[12.5px] font-semibold text-[#1d1d1f]">
+                      <span className="text-sm font-medium text-[#031033]">
                         {plan.name}
                       </span>
                       {isCurrent && (
-                        <span className="text-[9.5px] font-bold uppercase tracking-wide bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded">
+                        <span className="whitespace-nowrap text-xs font-medium text-[#5A6A85]">
                           Current
                         </span>
                       )}
                       {shrinksDisk && (
-                        <span className="text-[9.5px] font-bold uppercase tracking-wide bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded">
+                        <span className="whitespace-nowrap text-xs font-medium text-[#C21F1F]">
                           Cannot shrink disk
                         </span>
                       )}
                     </span>
-                    <span className="block text-[10.5px] text-[#6e6e73] mt-0.5">
+                    <span className="block text-xs text-[#5A6A85] mt-0.5">
                       {plan.cpu} vCPU · {plan.ramGb} GB RAM · {plan.diskGb} GB
                       disk
                     </span>
                   </span>
 
-                  <span className="text-[12px] font-bold text-[#1d1d1f] shrink-0">
+                  <span className="text-sm font-semibold text-[#031033] tabular-nums text-right shrink-0">
                     {formatNaira(plan.priceNgnMonthly)}
-                    <span className="block text-[9.5px] font-normal text-[#8a9bb2] text-right">
+                    <span className="block text-xs font-normal text-[#5A6A85] text-right">
                       /month
                     </span>
                   </span>
@@ -582,16 +584,16 @@ export function ResizeVpsModal({
           </div>
         )}
 
-        <div className="rounded-lg border border-[#eef2f8] bg-[#f8fafc] px-3.5 py-2.5 text-[11px] text-[#5a6a85] leading-relaxed">
+        <div className="rounded-lg border border-[#EEF2F7] bg-[#F2F5FC] px-4 py-3 text-xs text-[#5A6A85] leading-relaxed">
           Resizing requires the server to be stopped. Your next renewal uses the
           new plan price; no prorated difference is charged now. Disks cannot be
           shrunk later.
         </div>
 
         {targetPlan && currentPlan && (
-          <p className="text-[11.5px] text-[#5a6a85]">
+          <p className="text-xs text-[#5A6A85]">
             New monthly price:{" "}
-            <strong className="text-[#1d1d1f]">
+            <strong className="font-semibold text-[#031033] tabular-nums">
               {formatNaira(targetPlan.priceNgnMonthly)}
             </strong>{" "}
             (
@@ -606,7 +608,7 @@ export function ResizeVpsModal({
         )}
 
         {error && (
-          <p className="text-[11.5px] text-red-600 flex items-center gap-1">
+          <p className="text-xs text-[#C21F1F] flex items-center gap-1">
             <AlertCircle className="w-3.5 h-3.5" />
             {error}
           </p>
@@ -642,7 +644,7 @@ export function DeleteVpsModal({
       title="Delete this server?"
       description="This action is permanent."
       icon={Trash2}
-      iconClassName="bg-red-50 text-red-600 border-red-200"
+      iconClassName="bg-[#FDECEC] text-[#C21F1F] border-[#DC2626]/20"
       onClose={onClose}
       busy={isPending}
       footer={
@@ -668,7 +670,7 @@ export function DeleteVpsModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12px] text-red-700">
+        <div className="flex items-start gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 text-sm text-[#C21F1F]">
           <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             The server and all of its data will be destroyed. This cancels
@@ -677,7 +679,7 @@ export function DeleteVpsModal({
         </div>
 
         <div>
-          <label className="text-[12px] font-semibold text-[#1d1d1f] block mb-1.5">
+          <label className="text-sm font-medium text-[#031033] block mb-1.5">
             Type <span className="font-mono">{server.name}</span> to confirm
           </label>
           <input
@@ -685,7 +687,7 @@ export function DeleteVpsModal({
             value={confirmation}
             onChange={(event) => setConfirmation(event.target.value)}
             autoComplete="off"
-            className="w-full rounded-lg border border-[#e8e8ed] px-3 py-2.5 text-[13px] text-[#1d1d1f] focus:outline-none focus:border-red-400 transition-colors"
+            className="w-full h-10 rounded-lg border border-[#D5DCE6] bg-white px-3 text-sm text-[#031033] outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/15 transition-colors"
           />
         </div>
       </div>
@@ -750,48 +752,48 @@ export function RenewVpsModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="rounded-lg border border-[#e8e8ed] bg-[#fbfcfe] divide-y divide-[#eef2f8]">
-          <div className="flex items-center justify-between px-3.5 py-2.5 text-[12.5px]">
-            <span className="text-[#6e6e73]">Plan</span>
-            <span className="font-semibold text-[#1d1d1f]">
+        <div className="rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] divide-y divide-[#EEF2F7]">
+          <div className="flex items-center justify-between px-4 py-2.5 text-sm">
+            <span className="text-[#5A6A85]">Plan</span>
+            <span className="font-medium text-[#031033]">
               {server.plan?.name ?? "VPS"}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3.5 py-2.5 text-[12.5px]">
-            <span className="text-[#6e6e73]">Current paid until</span>
-            <span className="text-[#1d1d1f]">
+          <div className="flex items-center justify-between px-4 py-2.5 text-sm">
+            <span className="text-[#5A6A85]">Current paid until</span>
+            <span className="text-[#031033] tabular-nums">
               {formatVpsDate(server.nextBillingAt)}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3.5 py-2.5 text-[12.5px]">
-            <span className="text-[#6e6e73]">New paid until</span>
-            <span className="font-semibold text-[#1d1d1f]">
+          <div className="flex items-center justify-between px-4 py-2.5 text-sm">
+            <span className="text-[#5A6A85]">New paid until</span>
+            <span className="font-medium text-[#031033] tabular-nums">
               {newBillingAt
                 ? formatVpsDate(newBillingAt.toISOString())
                 : "30 days after payment"}
             </span>
           </div>
-          <div className="flex items-center justify-between px-3.5 py-2.5">
-            <span className="text-[12.5px] text-[#6e6e73]">Amount due</span>
-            <span className="text-[15px] font-bold text-[#1787D4]">
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-sm text-[#5A6A85]">Amount due</span>
+            <span className="text-lg font-semibold text-[#031033] tabular-nums">
               {formatNaira(price)}
             </span>
           </div>
         </div>
 
-        <p className="text-[12px] text-[#5a6a85] leading-relaxed">
+        <p className="text-xs text-[#5A6A85] leading-relaxed">
           Adds 30 days to your current billing period. You will complete the
           payment securely on Paystack, and the renewal is applied as soon as
           payment is confirmed.
         </p>
 
-        <p className="text-[11px] text-[#8a9bb2] leading-relaxed">
+        <p className="text-xs text-[#5A6A85] leading-relaxed">
           {humanizeImage(server.image)} · {locationLabel(server.location)}
         </p>
 
         {server.status === "SUSPENDED" && (
-          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[11.5px] text-red-700">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 text-sm text-[#C21F1F]">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               This server was suspended for non-payment. It will be powered back
               on automatically after the payment is confirmed.
@@ -800,8 +802,8 @@ export function RenewVpsModal({
         )}
 
         {price <= 0 && (
-          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[11.5px] text-amber-800">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 rounded-lg border border-[#E8900A]/25 bg-[#FFF4E0] px-4 py-3 text-sm text-[#9A5B00]">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               This server has no plan attached, so renewal is unavailable.
               Please contact support.

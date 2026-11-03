@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -10,14 +10,10 @@ import {
   Server,
   Zap,
   LifeBuoy,
-  Database,
   Lock,
   ArrowRight,
   ChevronDown,
-  Sparkles,
   CreditCard,
-  Clock,
-  HelpCircle,
   Activity,
 } from "lucide-react";
 import PricingPreviewSection from "@/components/home/PricingPreviewSection";
@@ -37,10 +33,10 @@ interface FeatureCategory {
 
 const COMPARISON_CATEGORIES: FeatureCategory[] = [
   {
-    title: "Core Resources",
+    title: "Core resources",
     rows: [
       {
-        name: "Web Storage",
+        name: "Web storage",
         starter: "2 GB SSD",
         business: "10 GB SSD",
         agency: "50 GB NVMe SSD",
@@ -49,63 +45,57 @@ const COMPARISON_CATEGORIES: FeatureCategory[] = [
         name: "Bandwidth",
         starter: "10 GB",
         business: "50 GB",
-        agency: "Unlimited Unmetered",
+        agency: "Unmetered",
       },
       {
-        name: "Websites Allowed",
-        starter: "1 Website",
-        business: "5 Websites",
-        agency: "Unlimited Websites",
+        name: "Websites",
+        starter: "1",
+        business: "5",
+        agency: "Unlimited",
       },
       {
-        name: "Business Email Accounts",
-        starter: "2 Accounts",
-        business: "10 Accounts",
-        agency: "Unlimited Accounts",
+        name: "MySQL databases",
+        starter: "2",
+        business: "10",
+        agency: "Unlimited",
       },
       {
-        name: "MySQL Databases",
-        starter: "2 Databases",
-        business: "10 Databases",
-        agency: "Unlimited Databases",
-      },
-      {
-        name: "FTP Accounts",
-        starter: "1 Account",
-        business: "5 Accounts",
-        agency: "Unlimited Accounts",
+        name: "FTP accounts",
+        starter: "1",
+        business: "5",
+        agency: "Unlimited",
       },
     ],
   },
   {
-    title: "Security & Performance",
+    title: "Security and performance",
     rows: [
       {
-        name: "Free SSL Certificates",
+        name: "Free SSL certificates",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "Automated Daily Backups",
+        name: "Automated daily backups",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "DDoS Mitigation & Firewall",
+        name: "DDoS mitigation and firewall",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "Web Server Caching",
+        name: "Web server caching",
         starter: "Standard",
-        business: "Enhanced Caching",
-        agency: "Ultra High Performance",
+        business: "Enhanced",
+        agency: "High performance",
       },
       {
-        name: "Free Malware Protection",
+        name: "Malware protection",
         starter: true,
         business: true,
         agency: true,
@@ -113,40 +103,40 @@ const COMPARISON_CATEGORIES: FeatureCategory[] = [
     ],
   },
   {
-    title: "Control Panel & Developer Features",
+    title: "Control panel and developer tools",
     rows: [
       {
-        name: "cPanel Control Panel",
+        name: "cPanel control panel",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "1-Click WordPress Installer",
+        name: "1-click WordPress installer",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "Multiple PHP Versions (7.4–8.3)",
+        name: "Multiple PHP versions (7.4–8.3)",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "phpMyAdmin Access",
+        name: "phpMyAdmin access",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "SSH & Terminal Access",
+        name: "SSH and terminal access",
         starter: false,
         business: true,
         agency: true,
       },
       {
-        name: "Git Version Control",
+        name: "Git version control",
         starter: false,
         business: true,
         agency: true,
@@ -154,28 +144,28 @@ const COMPARISON_CATEGORIES: FeatureCategory[] = [
     ],
   },
   {
-    title: "Support & Guarantees",
+    title: "Support and guarantees",
     rows: [
       {
-        name: "99.9% Uptime Guarantee",
+        name: "99.9% uptime guarantee",
         starter: true,
         business: true,
         agency: true,
       },
       {
-        name: "Support Level",
-        starter: "Standard Ticket & Chat",
-        business: "Priority WhatsApp & Ticket",
-        agency: "Dedicated 24/7 Agent",
+        name: "Support",
+        starter: "Ticket and chat",
+        business: "Priority WhatsApp and ticket",
+        agency: "Dedicated 24/7 agent",
       },
       {
-        name: "Free Website Migration",
+        name: "Free website migration",
         starter: false,
         business: true,
         agency: true,
       },
       {
-        name: "30-Day Money-Back Guarantee",
+        name: "30-day money-back guarantee",
         starter: true,
         business: true,
         agency: true,
@@ -187,29 +177,45 @@ const COMPARISON_CATEGORIES: FeatureCategory[] = [
 const FAQS = [
   {
     q: "How does billing work and what payment methods do you accept?",
-    a: "We accept all major Nigerian debit and credit cards (Mastercard, Visa, Verve) as well as bank transfers powered securely by Paystack. You can choose to be billed monthly, quarterly, or yearly with no surprise renewal hikes.",
+    a: "We accept Nigerian debit and credit cards (Mastercard, Visa, Verve) and bank transfers, processed by Paystack. You can pay monthly, quarterly or yearly, and renewals are charged at the rate you signed up for.",
   },
   {
     q: "Do your hosting plans include a free SSL certificate?",
-    a: "Yes! Every single domain and subdomain hosted on Nupat Cloud automatically receives an automated, auto-renewing Let's Encrypt SSL certificate at zero extra cost.",
+    a: "Yes. Every domain and subdomain hosted on Nupat Cloud gets a Let's Encrypt SSL certificate that renews automatically, at no extra cost.",
   },
   {
-    q: "Can I easily upgrade my plan as my website traffic grows?",
-    a: "Absolutely. You can seamlessly upgrade from Starter to Business or Agency from your dashboard at any time. Your data, databases, and emails migrate instantly with zero downtime.",
+    q: "Can I upgrade my plan as my website traffic grows?",
+    a: "Yes. You can move from Starter to Business or Agency from your dashboard at any time. Your files and databases carry over and your site stays online during the change.",
   },
   {
     q: "Can I connect an existing domain registered elsewhere?",
-    a: "Yes, you can either connect your existing domain by updating its nameservers to Nupat Cloud, or easily transfer the domain registration to Nupat to manage both hosting and domain under one single bill.",
-  },
-  {
-    q: "Do all plans include business email accounts?",
-    a: "Yes! You can create personalized business email addresses (such as yourname@yourdomain.com) directly inside cPanel with webmail, IMAP, and POP3 support.",
+    a: "Yes. Point your domain's nameservers to Nupat Cloud, or transfer the registration to us so your hosting and domain are on one bill.",
   },
   {
     q: "What is your refund policy?",
-    a: "We offer an unconditional 30-day money-back guarantee on all web hosting plans. If you are not completely satisfied with our performance or support, simply reach out within 30 days for a full refund.",
+    a: "Every web hosting plan has a 30-day money-back guarantee. If you are not satisfied with the service or support, contact us within 30 days for a full refund.",
   },
 ];
+
+const BTN_PRIMARY =
+  "inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium bg-[#1787D4] text-white hover:bg-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
+const BTN_SECONDARY =
+  "inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
+
+function Cell({ value, emphasis }: { value: string | boolean; emphasis?: boolean }) {
+  if (typeof value === "boolean") {
+    return value ? (
+      <Check className="w-4 h-4 text-[#1787D4]" aria-label="Included" />
+    ) : (
+      <Minus className="w-4 h-4 text-[#C3CCDA]" aria-label="Not included" />
+    );
+  }
+  return (
+    <span className={emphasis ? "font-medium text-[#031033]" : undefined}>
+      {value}
+    </span>
+  );
+}
 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -220,103 +226,86 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col bg-white overflow-hidden">
-      {/* ── 1. Hero Section ── */}
-      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20 overflow-hidden bg-gradient-to-b from-[#f2f7fc] via-[#f8faff] to-white border-b border-[#e2eaff]">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#1787D4]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Hero */}
+      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 bg-[#F2F5FC] border-b border-[#E2E8F0]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-            {/* Left Content Column */}
             <div className="lg:col-span-6 text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-extrabold text-[#031033] tracking-tight leading-[1.15] mb-5">
-                Cloud hosting built for scale,{" "}
-                <br className="hidden sm:inline" />
-                <span className="text-[#1787D4]">
-                  priced for African businesses.
-                </span>
+              <h1 className="text-4xl sm:text-5xl font-semibold text-[#031033] leading-tight mb-5">
+                Cloud hosting priced for{" "}
+                <span className="text-[#1787D4]">African businesses</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-[#5a6a85] leading-relaxed mb-8 max-w-xl">
-                Choose the perfect hosting package for your website, web
-                application, or growing agency. Instant provisioning, automated
-                backups, and 99.9% uptime guaranteed.
+              <p className="text-lg text-[#5A6A85] leading-relaxed mb-8 max-w-xl">
+                Hosting for your website, web application or agency, billed in
+                Naira. Accounts are set up as soon as you pay, with daily
+                backups and a 99.9% uptime guarantee.
               </p>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 mb-8">
+              <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href="#plans"
                   id="pricing-hero-view-plans-btn"
-                  className="btn-primary !rounded-full px-7 py-3 text-sm sm:text-[15px] font-semibold shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+                  className={BTN_PRIMARY}
                 >
-                  View Pricing Plans &darr;
+                  See hosting plans
                 </Link>
                 <Link
                   href="/domains"
                   id="pricing-hero-domains-btn"
-                  className="inline-flex items-center gap-2 px-6 py-3 text-sm sm:text-[15px] font-semibold text-[#031033] bg-white hover:bg-slate-50 border border-[#e2eaff] rounded-full shadow-xs transition-colors"
+                  className={BTN_SECONDARY}
                 >
-                  Search Domains &rarr;
+                  Search domains
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
 
-            {/* Right Visual Column with Hero Image and Floating Badges */}
             <div className="lg:col-span-6 relative flex items-center justify-center">
               <div className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[540px]">
-                {/* Hero Image provided by user */}
                 <Image
                   src="/pricing.png"
                   alt="Nupat Cloud transparent hosting pricing for African businesses"
                   width={540}
                   height={540}
                   priority
+                  sizes="(min-width: 1024px) 540px, (min-width: 640px) 500px, 90vw"
                   style={{ height: "auto" }}
                   className="w-full h-auto object-contain select-none"
                 />
 
-                {/* Badge 1: Pay in Naira (Top Left) */}
-                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
-                    <CreditCard className="w-4 h-4" />
-                  </div>
+                <div className="absolute top-2 sm:top-6 -left-2 sm:-left-4 lg:-left-6 bg-white rounded-lg py-2.5 px-3.5 border border-[#E2E8F0] flex items-center gap-3 z-10">
+                  <CreditCard className="w-5 h-5 text-[#1787D4] shrink-0" />
                   <div className="text-left">
-                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                    <div className="text-sm font-medium text-[#031033] leading-tight">
                       Pay in Naira (₦)
                     </div>
-                    <div className="text-[10px] sm:text-[11px] text-gray-400">
-                      Zero FX charges
+                    <div className="text-xs text-[#5A6A85]">
+                      No FX charges
                     </div>
                   </div>
                 </div>
 
-                {/* Badge 2: 99.9% Uptime SLA (Top Right) */}
-                <div className="absolute top-6 sm:top-10 -right-2 sm:-right-4 lg:-right-4 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1787D4] flex items-center justify-center shrink-0">
-                    <Activity className="w-4 h-4" />
-                  </div>
+                <div className="absolute top-6 sm:top-10 -right-2 sm:-right-4 bg-white rounded-lg py-2.5 px-3.5 border border-[#E2E8F0] flex items-center gap-3 z-10">
+                  <Activity className="w-5 h-5 text-[#1787D4] shrink-0" />
                   <div className="text-left">
-                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
-                      99.9% Uptime SLA
+                    <div className="text-sm font-medium text-[#031033] leading-tight">
+                      99.9% uptime SLA
                     </div>
-                    <div className="text-[10px] sm:text-[11px] text-gray-400">
-                      Enterprise reliability
+                    <div className="text-xs text-[#5A6A85]">
+                      On every plan
                     </div>
                   </div>
                 </div>
 
-                {/* Badge 3: 30-Day Guarantee (Bottom Right) */}
-                <div className="absolute bottom-4 sm:bottom-8 right-0 sm:right-2 lg:-right-2 bg-white/95 backdrop-blur-md rounded-lg py-2 px-3 sm:py-2.5 sm:px-3.5 shadow-lg shadow-black/[0.06] border border-gray-100 flex items-center gap-2.5 sm:gap-3 z-10 animate-fade-in">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
+                <div className="absolute bottom-4 sm:bottom-8 right-0 sm:right-2 lg:-right-2 bg-white rounded-lg py-2.5 px-3.5 border border-[#E2E8F0] flex items-center gap-3 z-10">
+                  <ShieldCheck className="w-5 h-5 text-[#12A150] shrink-0" />
                   <div className="text-left">
-                    <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
-                      30-Day Guarantee
+                    <div className="text-sm font-medium text-[#031033] leading-tight">
+                      30-day guarantee
                     </div>
-                    <div className="text-[10px] sm:text-[11px] text-gray-400">
-                      100% risk-free
+                    <div className="text-xs text-[#5A6A85]">
+                      Full refund if you leave
                     </div>
                   </div>
                 </div>
@@ -326,219 +315,171 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── 2. Unified Pricing Section ── */}
+      {/* Plans */}
       <PricingPreviewSection
         id="plans"
         title="Choose the right plan for your business"
-        subtitle="Toggle between monthly, quarterly, or yearly terms to view our rates."
+        subtitle="Switch between monthly, quarterly and yearly terms to compare rates."
         showFooterLink={false}
-        className="py-14 sm:py-20 lg:py-24 bg-white relative overflow-hidden scroll-mt-24"
+        className="py-16 sm:py-24 bg-white relative overflow-hidden scroll-mt-24"
       />
 
-      {/* ── 3. Comprehensive Feature Comparison Table ── */}
-      <section className="py-16 sm:py-24 bg-[#f8faff] border-t border-[#e2eaff]">
+      {/* Feature comparison */}
+      <section className="py-16 sm:py-24 bg-[#F2F5FC] border-t border-[#E2E8F0]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#1787D4] bg-[#1787D4]/10 px-3.5 py-1.5 rounded-full">
-              Full Comparison
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#031033] tracking-tight mt-3 mb-3">
-              Compare all features side by side
+          <div className="max-w-2xl mb-10 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033] mb-3">
+              Compare plans side by side
             </h2>
-            <p className="text-sm sm:text-base text-[#5a6a85]">
-              Every tier comes packed with cPanel, free SSL certificates, and
+            <p className="text-base text-[#5A6A85]">
+              Every plan includes cPanel, free SSL certificates and
               round-the-clock technical support.
             </p>
           </div>
 
-          {/* Comparison Table Card */}
-          <div className="bg-white rounded-3xl border border-[#e2eaff] shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[620px]">
-                {/* Header */}
+              <table className="w-full text-left border-collapse min-w-[620px] tabular-nums">
                 <thead>
-                  <tr className="border-b border-[#e2eaff] bg-[#f2f7fc]/70">
-                    <th className="py-5 px-6 font-bold text-sm text-[#031033] w-1/3">
-                      Features
+                  <tr className="border-b border-[#E2E8F0]">
+                    <th scope="col" className="py-4 px-6 font-medium text-sm text-[#5A6A85] w-1/3">
+                      Feature
                     </th>
-                    <th className="py-5 px-6 font-bold text-sm text-[#031033] w-[22%]">
+                    <th scope="col" className="py-4 px-6 font-semibold text-sm text-[#031033] w-[22%]">
                       Starter
                     </th>
-                    <th className="py-5 px-6 font-bold text-sm text-[#1787D4] w-[22%] bg-[#1787D4]/5">
-                      Business (Popular)
+                    <th scope="col" className="py-4 px-6 font-semibold text-sm text-[#031033] w-[22%]">
+                      Business
+                      <span className="ml-2 text-xs font-medium text-[#1787D4]">
+                        Most popular
+                      </span>
                     </th>
-                    <th className="py-5 px-6 font-bold text-sm text-[#031033] w-[22%]">
+                    <th scope="col" className="py-4 px-6 font-semibold text-sm text-[#031033] w-[22%]">
                       Agency
                     </th>
                   </tr>
                 </thead>
 
-                {/* Body Categories */}
-                <tbody className="divide-y divide-[#eef3fb]">
+                <tbody>
                   {COMPARISON_CATEGORIES.map((category) => (
-                    <div key={category.title} className="contents">
-                      <tr className="bg-[#f8faff]">
-                        <td
+                    <Fragment key={category.title}>
+                      <tr>
+                        <th
+                          scope="colgroup"
                           colSpan={4}
-                          className="py-3 px-6 font-bold text-xs uppercase tracking-wider text-[#1787D4] bg-[#eef5fc]"
+                          className="pt-8 pb-2 px-6 font-semibold text-sm text-[#031033] border-b border-[#E2E8F0]"
                         >
                           {category.title}
-                        </td>
+                        </th>
                       </tr>
                       {category.rows.map((row) => (
-                        <tr
-                          key={row.name}
-                          className="hover:bg-[#fafbff] transition-colors"
-                        >
-                          <td className="py-3.5 px-6 text-xs sm:text-sm font-medium text-[#031033]">
+                        <tr key={row.name} className="border-b border-[#EEF2F7] last:border-b-0">
+                          <th scope="row" className="py-3.5 px-6 text-sm font-normal text-[#031033]">
                             {row.name}
+                          </th>
+                          <td className="py-3.5 px-6 text-sm text-[#5A6A85]">
+                            <Cell value={row.starter} />
                           </td>
-                          <td className="py-3.5 px-6 text-xs sm:text-sm text-[#5a6a85]">
-                            {typeof row.starter === "boolean" ? (
-                              row.starter ? (
-                                <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-[#1787D4]">
-                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                                </div>
-                              ) : (
-                                <Minus className="w-4 h-4 text-slate-300" />
-                              )
-                            ) : (
-                              row.starter
-                            )}
+                          <td className="py-3.5 px-6 text-sm text-[#5A6A85]">
+                            <Cell value={row.business} emphasis />
                           </td>
-                          <td className="py-3.5 px-6 text-xs sm:text-sm font-semibold text-[#031033] bg-[#1787D4]/5">
-                            {typeof row.business === "boolean" ? (
-                              row.business ? (
-                                <div className="w-5 h-5 rounded-full bg-[#1787D4] flex items-center justify-center text-white">
-                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                                </div>
-                              ) : (
-                                <Minus className="w-4 h-4 text-slate-300" />
-                              )
-                            ) : (
-                              row.business
-                            )}
-                          </td>
-                          <td className="py-3.5 px-6 text-xs sm:text-sm text-[#5a6a85]">
-                            {typeof row.agency === "boolean" ? (
-                              row.agency ? (
-                                <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-[#1787D4]">
-                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                                </div>
-                              ) : (
-                                <Minus className="w-4 h-4 text-slate-300" />
-                              )
-                            ) : (
-                              row.agency
-                            )}
+                          <td className="py-3.5 px-6 text-sm text-[#5A6A85]">
+                            <Cell value={row.agency} />
                           </td>
                         </tr>
                       ))}
-                    </div>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* Table Bottom Quick CTA */}
-            <div className="p-6 bg-[#f8faff] border-t border-[#e2eaff] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-[#5a6a85] text-center sm:text-left">
-                Need more custom resources? Talk to us for high-traffic or
-                dedicated hosting solutions.
+            <div className="p-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-[#5A6A85] text-center sm:text-left">
+                Need more resources? Talk to us about high-traffic or dedicated
+                hosting.
               </p>
               <Link
                 href="#plans"
-                className="btn-primary py-2.5 px-6 text-xs font-semibold rounded-lg shrink-0"
+                className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-medium bg-[#1787D4] text-white hover:bg-[#1370B5] transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
               >
-                Back to Plans &uarr;
+                Back to plans
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. Included with Every Plan Grid ── */}
-      <section className="py-16 sm:py-20 bg-white">
+      {/* Included with every plan */}
+      <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#031033] tracking-tight">
-              Included with every Nupat Cloud plan
+          <div className="max-w-2xl mb-10 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033]">
+              Included with every plan
             </h2>
-            <p className="text-sm text-[#5a6a85] mt-2">
-              Every hosting account includes these essential security,
-              reliability, and management tools.
+            <p className="text-base text-[#5A6A85] mt-3">
+              Security, backups and account management come with every hosting
+              account.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
-                <Lock className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#031033] mb-1.5">
+            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0]">
+              <Lock className="w-6 h-6 text-[#1787D4] mb-4" />
+              <h3 className="text-lg font-semibold text-[#031033] mb-1.5">
                 Free AutoSSL
               </h3>
-              <p className="text-xs text-[#5a6a85] leading-relaxed">
-                Automatic Let&apos;s Encrypt SSL certificates for all your
-                active domains and subdomains.
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                Let&apos;s Encrypt certificates are issued automatically for
+                all your active domains and subdomains.
               </p>
             </div>
 
-            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
-                <Server className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#031033] mb-1.5">
-                cPanel Dashboard
+            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0]">
+              <Server className="w-6 h-6 text-[#1787D4] mb-4" />
+              <h3 className="text-lg font-semibold text-[#031033] mb-1.5">
+                cPanel dashboard
               </h3>
-              <p className="text-xs text-[#5a6a85] leading-relaxed">
-                The world standard control panel to manage emails, files,
-                domains, and database backups.
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                The widely used control panel for managing files, domains,
+                databases and backups.
               </p>
             </div>
 
-            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
-                <Zap className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#031033] mb-1.5">
-                Fast SSD Storage
+            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0]">
+              <Zap className="w-6 h-6 text-[#1787D4] mb-4" />
+              <h3 className="text-lg font-semibold text-[#031033] mb-1.5">
+                SSD storage
               </h3>
-              <p className="text-xs text-[#5a6a85] leading-relaxed">
-                High-throughput solid-state drives engineered for instant
-                database reads and quick page load times.
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                Solid-state drives for quick database reads and short page load
+                times.
               </p>
             </div>
 
-            <div className="p-6 rounded-lg bg-[#f8faff] border border-[#e2eaff] hover:border-[#1787D4]/40 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-[#1787D4]/10 text-[#1787D4] flex items-center justify-center mb-4">
-                <LifeBuoy className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#031033] mb-1.5">
-                24/7 Expert Support
+            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0]">
+              <LifeBuoy className="w-6 h-6 text-[#1787D4] mb-4" />
+              <h3 className="text-lg font-semibold text-[#031033] mb-1.5">
+                24/7 support
               </h3>
-              <p className="text-xs text-[#5a6a85] leading-relaxed">
-                Responsive, human technical assistance whenever you have
-                questions or need help troubleshooting.
+              <p className="text-sm text-[#5A6A85] leading-relaxed">
+                Real people answer your technical questions and help you
+                troubleshoot, day or night.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 5. FAQ Accordion ── */}
-      <section className="py-16 sm:py-20 bg-[#f8faff] border-t border-[#e2eaff]">
+      {/* FAQ */}
+      <section className="py-16 sm:py-24 bg-[#F2F5FC] border-t border-[#E2E8F0]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#1787D4] bg-[#1787D4]/10 px-3 py-1 rounded-full">
-              Got Questions?
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#031033] tracking-tight mt-3">
-              Frequently Asked Questions
+          <div className="mb-10 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033]">
+              Frequently asked questions
             </h2>
-            <p className="text-sm text-[#5a6a85] mt-2">
-              Everything you need to know about our hosting plans and payment
-              process.
+            <p className="text-base text-[#5A6A85] mt-3">
+              Hosting plans, billing and payments.
             </p>
           </div>
 
@@ -549,25 +490,26 @@ export default function PricingPage() {
                 <div
                   key={faq.q}
                   id={`faq-item-${index}`}
-                  className="bg-white rounded-lg border border-[#e2eaff] overflow-hidden transition-all shadow-xs"
+                  className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => toggleFaq(index)}
-                    className="w-full py-4 px-5 sm:px-6 flex items-center justify-between text-left gap-4 cursor-pointer hover:bg-[#fafbff] transition-colors"
+                    aria-expanded={isOpen}
+                    className="w-full py-4 px-5 sm:px-6 flex items-center justify-between text-left gap-4 cursor-pointer hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1787D4]"
                   >
-                    <span className="font-bold text-sm sm:text-base text-[#031033]">
+                    <span className="font-medium text-base text-[#031033]">
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-[#5a6a85] shrink-0 transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-[#1787D4]" : ""
+                      className={`w-4 h-4 text-[#5A6A85] shrink-0 transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 sm:px-6 pb-5 pt-1 text-xs sm:text-sm text-[#5a6a85] leading-relaxed border-t border-slate-100">
+                    <div className="px-5 sm:px-6 pb-5 pt-1 text-sm text-[#5A6A85] leading-relaxed">
                       {faq.a}
                     </div>
                   )}
@@ -578,14 +520,9 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── 6. Enterprise & Custom Infrastructure Banner ── */}
-      <section className="py-16 sm:py-20 bg-[#031033] relative overflow-hidden">
-        {/* Ambient background light */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#1787D4]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#fd9f09]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          {/* Brand Logo on Dark Background */}
+      {/* Custom infrastructure */}
+      <section className="py-16 sm:py-24 bg-[#031033]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-6">
             <Image
               src="/nupat_cloud_logo-footer.png"
@@ -596,31 +533,30 @@ export default function PricingPage() {
             />
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 max-w-2xl mx-auto">
-            Need custom architecture or high-performance VPS?
+          <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-4 max-w-2xl mx-auto">
+            Need a custom setup or a high-performance VPS?
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed mb-8">
-            Our cloud engineering team configures high-availability clusters,
-            dedicated IP addresses, and tailored environments for enterprise
-            applications.
+          <p className="text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-8">
+            Our cloud engineers set up high-availability clusters, dedicated IP
+            addresses and environments built around your application.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/contact"
               id="pricing-contact-sales"
-              className="btn-primary py-3.5 px-8 text-sm font-semibold rounded-lg shadow-lg"
+              className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg text-sm font-medium bg-white text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#031033]"
             >
-              Contact Solutions Team
-              <ArrowRight className="w-4 h-4 ml-1.5 inline" />
+              Contact our solutions team
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <a
               href="https://wa.me/2349076646154?text=Hi,%20I%20have%20an%20enterprise%20hosting%20inquiry"
               target="_blank"
               rel="noopener noreferrer"
               id="pricing-whatsapp-inquiry"
-              className="py-3.5 px-7 text-sm font-semibold rounded-lg bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-colors"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-lg text-sm font-medium border border-white/25 text-white hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               Chat on WhatsApp
             </a>

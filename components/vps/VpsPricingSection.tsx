@@ -7,7 +7,6 @@ import {
   Check,
   RefreshCw,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import { useVpsPlans } from "@/hooks/useVps";
 import { useAuthStore } from "@/store/authStore";
 import type { VpsPlan } from "@/lib/api";
@@ -18,17 +17,16 @@ function formatPrice(amount: number) {
 
 function planFeatures(plan: VpsPlan) {
   return [
-    `${plan.cpu} vCPU ${plan.cpu === 1 ? "Core" : "Cores"}`,
+    `${plan.cpu} vCPU ${plan.cpu === 1 ? "core" : "cores"}`,
     `${plan.ramGb} GB RAM`,
-    `${plan.diskGb} GB NVMe Storage`,
+    `${plan.diskGb} GB NVMe storage`,
     "Full root access",
-    "Dedicated IPv4 & IPv6",
+    "Dedicated IPv4 and IPv6",
   ];
 }
 
 export default function VpsPricingSection() {
   const router = useRouter();
-  const shouldReduceMotion = useReducedMotion();
   const token = useAuthStore((s) => s.token);
   const plansQuery = useVpsPlans();
 
@@ -45,16 +43,15 @@ export default function VpsPricingSection() {
   };
 
   return (
-    <section id="pricing" className="py-20 sm:py-24 lg:py-28 bg-white relative">
+    <section id="pricing" className="py-16 sm:py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
-          <h2 className="type-h2 text-[#031033] mb-4">
-            Unbeatable Value. High Performance.
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-semibold text-[#031033] mb-4">
+            VPS plans and pricing
           </h2>
-          <p className="type-lead text-[#5a6a85] leading-relaxed">
-            Scale your resources effortlessly. Choose the right specifications for your
-            software suite. Prices update live from our catalogue.
+          <p className="text-lg text-[#5A6A85] leading-relaxed">
+            Pick the CPU, memory and storage your software needs, and upgrade later as it grows.
+            Prices come live from our catalogue.
           </p>
         </div>
 
@@ -63,45 +60,45 @@ export default function VpsPricingSection() {
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
-                className="rounded-3xl border border-slate-100 bg-white p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-pulse min-h-[430px]"
+                className="rounded-xl border border-[#E2E8F0] bg-white p-6 sm:p-8 animate-pulse min-h-[430px]"
               >
-                <div className="h-6 w-32 rounded bg-slate-100" />
-                <div className="mt-4 h-9 w-40 rounded bg-slate-100" />
+                <div className="h-6 w-32 rounded bg-[#F2F5FC]" />
+                <div className="mt-4 h-9 w-40 rounded bg-[#F2F5FC]" />
                 <div className="mt-8 space-y-3">
-                  <div className="h-4 w-40 rounded bg-slate-100" />
-                  <div className="h-4 w-36 rounded bg-slate-100" />
-                  <div className="h-4 w-44 rounded bg-slate-100" />
-                  <div className="h-4 w-32 rounded bg-slate-100" />
+                  <div className="h-4 w-40 rounded bg-[#F2F5FC]" />
+                  <div className="h-4 w-36 rounded bg-[#F2F5FC]" />
+                  <div className="h-4 w-44 rounded bg-[#F2F5FC]" />
+                  <div className="h-4 w-32 rounded bg-[#F2F5FC]" />
                 </div>
-                <div className="mt-10 h-11 w-full rounded-full bg-slate-100" />
+                <div className="mt-10 h-11 w-full rounded-lg bg-[#F2F5FC]" />
               </div>
             ))}
           </div>
         ) : plansQuery.isError ? (
-          <div className="max-w-xl mx-auto text-center rounded-3xl border border-red-100 bg-white px-6 py-14 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            <AlertCircle className="w-9 h-9 text-red-400 mx-auto" />
-            <h3 className="mt-3 text-lg font-bold text-[#031033]">
+          <div className="max-w-xl mx-auto text-center rounded-xl border border-[#E2E8F0] bg-white px-6 py-14">
+            <AlertCircle className="w-8 h-8 text-[#DC2626] mx-auto" aria-hidden="true" />
+            <h3 className="mt-3 text-lg font-semibold text-[#031033]">
               We could not load the latest prices
             </h3>
-            <p className="mt-1.5 text-sm text-[#5a6a85]">
+            <p className="mt-1.5 text-sm text-[#5A6A85]">
               Please retry. If this keeps happening, contact support and we will
               help you choose a plan.
             </p>
             <button
               type="button"
               onClick={() => plansQuery.refetch()}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#1787D4] hover:bg-[#1371B5] px-5 py-2.5 text-sm font-semibold text-white transition-colors cursor-pointer"
+              className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] px-4 text-sm font-medium text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" aria-hidden="true" />
               Retry
             </button>
           </div>
         ) : plans.length === 0 ? (
-          <div className="max-w-xl mx-auto text-center rounded-3xl border border-slate-100 bg-white px-6 py-14 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            <h3 className="text-lg font-bold text-[#031033]">
+          <div className="max-w-xl mx-auto text-center rounded-xl border border-[#E2E8F0] bg-white px-6 py-14">
+            <h3 className="text-lg font-semibold text-[#031033]">
               Plans are being updated
             </h3>
-            <p className="mt-1.5 text-sm text-[#5a6a85]">
+            <p className="mt-1.5 text-sm text-[#5A6A85]">
               Our VPS catalogue is temporarily unavailable. Please check back
               shortly or contact support.
             </p>
@@ -121,31 +118,23 @@ export default function VpsPricingSection() {
               const features = planFeatures(plan);
 
               return (
-                <motion.div
+                <div
                   key={plan.id}
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{
-                    duration: 0.45,
-                    delay: idx * 0.08,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className={`relative rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
+                  className={`relative rounded-xl p-6 sm:p-8 flex flex-col justify-between ${
                     isPopular
-                      ? "bg-[#1787D4] text-white shadow-2xl shadow-[#1787D4]/20 md:scale-[1.03] md:-translate-y-1.5 z-10"
-                      : "bg-white text-[#031033] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-lg hover:-translate-y-0.5"
+                      ? "bg-[#1787D4] text-white"
+                      : "bg-white text-[#031033] border border-[#E2E8F0]"
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute top-6 right-6 inline-flex items-center px-3 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-bold tracking-wider uppercase border border-white/30">
-                      <span>POPULAR</span>
+                    <div className="absolute top-6 right-6 inline-flex items-center px-3 py-0.5 rounded-full bg-white text-[#1787D4] text-xs font-medium">
+                      Most popular
                     </div>
                   )}
 
                   <div>
                     <h3
-                      className={`text-xl font-bold tracking-tight mb-2 ${
+                      className={`text-xl font-semibold mb-2 ${
                         isPopular ? "text-white" : "text-[#031033]"
                       }`}
                     >
@@ -154,7 +143,7 @@ export default function VpsPricingSection() {
 
                     <div className="flex items-baseline gap-1.5 mb-7">
                       <span
-                        className={`text-3xl sm:text-[32px] font-extrabold tracking-tight ${
+                        className={`text-3xl font-semibold tabular-nums ${
                           isPopular ? "text-white" : "text-[#031033]"
                         }`}
                       >
@@ -162,59 +151,56 @@ export default function VpsPricingSection() {
                       </span>
                       <span
                         className={`text-sm font-medium ${
-                          isPopular ? "text-blue-100" : "text-[#5a6a85]"
+                          isPopular ? "text-white/70" : "text-[#5A6A85]"
                         }`}
                       >
                         /mo
                       </span>
                     </div>
 
-                    <div className="space-y-3 mb-9">
+                    <ul className="space-y-3 mb-9">
                       {features.map((feature) => (
-                        <div key={feature} className="flex items-center gap-2.5">
-                          <div
-                            className={`w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0 ${
-                              isPopular
-                                ? "bg-white/20 text-white"
-                                : "bg-[#E8F4FC] text-[#1787D4]"
+                        <li key={feature} className="flex items-center gap-2.5">
+                          <Check
+                            className={`w-4 h-4 shrink-0 ${
+                              isPopular ? "text-white" : "text-[#1787D4]"
                             }`}
-                          >
-                            <Check className="w-3 h-3 stroke-[2.5]" />
-                          </div>
+                            aria-hidden="true"
+                          />
                           <span
-                            className={`text-[14px] font-medium leading-tight ${
+                            className={`text-sm font-medium leading-tight ${
                               isPopular ? "text-white" : "text-[#031033]"
                             }`}
                           >
                             {feature}
                           </span>
-                        </div>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
 
                   <div>
                     <button
                       type="button"
                       onClick={() => handleDeploy(plan)}
-                      className={`w-full py-3 px-4 rounded-full font-semibold text-[14px] inline-flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer active:scale-[0.98] ${
+                      className={`w-full h-11 px-5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
                         isPopular
-                          ? "btn-white !w-full !rounded-full !py-3 !text-[14px]"
-                          : "bg-slate-100 hover:bg-slate-200 text-[#031033]"
+                          ? "bg-white text-[#031033] hover:bg-[#F2F5FC] focus-visible:ring-white focus-visible:ring-offset-[#1787D4]"
+                          : "border border-[#D5DCE6] bg-white text-[#031033] hover:bg-[#F2F5FC] focus-visible:ring-[#1787D4]"
                       }`}
                     >
-                      Deploy Server
-                      <ArrowRight className="w-4 h-4" />
+                      Deploy server
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </button>
                     <p
-                      className={`mt-2 text-center text-[10.5px] ${
-                        isPopular ? "text-blue-100" : "text-[#8a9bb2]"
+                      className={`mt-2 text-center text-xs ${
+                        isPopular ? "text-white/70" : "text-[#5A6A85]"
                       }`}
                     >
                       Choose your OS, region and SSH key next
                     </p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

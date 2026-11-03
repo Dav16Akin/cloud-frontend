@@ -132,7 +132,7 @@ export default function MailboxOverviewPage({
         <Link
           href="/dashboard/email"
           id="btn-back-private-email"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1787D4] hover:text-[#1371B5] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Private Email
@@ -141,31 +141,23 @@ export default function MailboxOverviewPage({
 
       {/* Header with Title and Active Badge */}
       <div className="flex items-center gap-3">
-        <h2
-          className="text-[26px] font-bold text-[#1d1d1f] tracking-tight"
-          style={{
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          Mailbox Overview
-        </h2>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-medium bg-[#e6f9ed] text-[#12a150] border border-[#b7eed0]">
+        <h1 className="text-2xl font-semibold text-[#031033]">
+          Mailbox overview
+        </h1>
+        <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+          <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
           Active
         </span>
       </div>
 
       {/* Tab Navigation */}
-      <div
-        className="flex gap-1 overflow-x-auto border-b border-[#e8e8ed]"
-        style={{ borderBottomWidth: "2px" }}
-      >
+      <div className="flex gap-1 overflow-x-auto border-b border-[#E2E8F0]">
         {(
           [
             { id: "overview", label: "Overview" },
             { id: "aliases", label: "Aliases" },
             { id: "autoresponders", label: "Autoresponders" },
-            { id: "spam", label: "Spam Settings" },
+            { id: "spam", label: "Spam settings" },
           ] as const
         ).map((tab) => {
           const isActive = activeTab === tab.id;
@@ -173,12 +165,11 @@ export default function MailboxOverviewPage({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="px-4 py-2.5 text-[13.5px] font-medium whitespace-nowrap transition-colors -mb-[2px] border-b-2"
-              style={{
-                color: isActive ? "#1787D4" : "#6e6e73",
-                borderBottomColor: isActive ? "#1787D4" : "transparent",
-                fontWeight: isActive ? 600 : 500,
-              }}
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors -mb-px border-b-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                isActive
+                  ? "text-[#031033] border-[#1787D4]"
+                  : "text-[#5A6A85] border-transparent hover:text-[#031033]"
+              }`}
             >
               {tab.label}
             </button>
@@ -187,53 +178,53 @@ export default function MailboxOverviewPage({
       </div>
 
       {/* Main Grid: Content Area & Quick Operations Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mt-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Tab specific content */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {activeTab === "overview" && (
             <div className="flex flex-col gap-4">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
-                Mailbox Settings
+              <h3 className="text-base font-semibold text-[#031033]">
+                Mailbox settings
               </h3>
 
-              {/* 2x2 Grid of Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 2x2 grid in one card, split by hairlines */}
+              <div className="rounded-xl border border-[#E2E8F0] overflow-hidden grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#EEF2F7]">
                 {/* Email Address */}
-                <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
-                  <span className="text-[12px] font-medium text-[#6e6e73]">
-                    Email Address
+                <div className="bg-white p-5">
+                  <span className="text-xs text-[#5A6A85]">
+                    Email address
                   </span>
-                  <div className="text-[14px] font-bold text-[#1d1d1f] mt-1">
+                  <div className="text-sm font-medium text-[#031033] mt-1">
                     {decodedEmail}
                   </div>
                 </div>
 
                 {/* Domain */}
-                <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
-                  <span className="text-[12px] font-medium text-[#6e6e73]">
+                <div className="bg-white p-5">
+                  <span className="text-xs text-[#5A6A85]">
                     Domain
                   </span>
-                  <div className="text-[14px] font-bold text-[#1d1d1f] mt-1">
+                  <div className="text-sm font-medium text-[#031033] mt-1">
                     {domainPart}
                   </div>
                 </div>
 
                 {/* Mailbox Storage */}
-                <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
-                  <span className="text-[12px] font-medium text-[#6e6e73]">
-                    Mailbox Storage
+                <div className="bg-white p-5">
+                  <span className="text-xs text-[#5A6A85]">
+                    Mailbox storage
                   </span>
-                  <div className="text-[14px] font-bold text-[#1d1d1f] mt-1">
-                    {storageQuota ? `Custom (${storageQuota} GB)` : "Default Quota (10 GB)"}
+                  <div className="text-sm font-medium text-[#031033] mt-1">
+                    {storageQuota ? `Custom (${storageQuota} GB)` : "Default quota (10 GB)"}
                   </div>
                 </div>
 
                 {/* Created Date */}
-                <div className="bg-white rounded-lg border border-[#e2eaff] p-5 shadow-sm">
-                  <span className="text-[12px] font-medium text-[#6e6e73]">
-                    Created Date
+                <div className="bg-white p-5">
+                  <span className="text-xs text-[#5A6A85]">
+                    Created date
                   </span>
-                  <div className="text-[14px] font-bold text-[#1d1d1f] mt-1">
+                  <div className="text-sm font-medium text-[#031033] mt-1">
                     Jan 15, 2026
                   </div>
                 </div>
@@ -242,13 +233,13 @@ export default function MailboxOverviewPage({
           )}
 
           {activeTab === "aliases" && (
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-5">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-                    Email Aliases
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    Email aliases
                   </h3>
-                  <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                  <p className="text-xs text-[#5A6A85] mt-0.5">
                     Incoming mail sent to these aliases will be forwarded to {decodedEmail}.
                   </p>
                 </div>
@@ -256,30 +247,30 @@ export default function MailboxOverviewPage({
 
               {/* Add Alias Form */}
               <form onSubmit={handleAddAlias} className="flex gap-2">
-                <div className="flex-1 flex items-center border border-[#e2eaff] rounded-lg overflow-hidden focus-within:border-[#1787D4] transition-colors">
+                <div className="flex-1 flex items-center h-10 border border-[#D5DCE6] rounded-lg overflow-hidden focus-within:border-[#1787D4] focus-within:ring-2 focus-within:ring-[#1787D4]/15 transition-colors">
                   <input
                     type="text"
                     placeholder="alias-name"
                     value={newAlias}
                     onChange={(e) => setNewAlias(e.target.value)}
-                    className="flex-1 px-3 py-2 text-[13px] text-[#1d1d1f] focus:outline-none"
+                    className="flex-1 min-w-0 h-full px-3 text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none"
                   />
-                  <span className="px-3 text-[13px] text-[#6e6e73] bg-[#f8fafc] border-l border-[#e2eaff]">
+                  <span className="h-full inline-flex items-center px-3 text-sm text-[#5A6A85] bg-[#F2F5FC] border-l border-[#E2E8F0]">
                     @{domainPart}
                   </span>
                 </div>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-colors shrink-0"
+                  className="h-10 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
-                  Add Alias
+                  Add alias
                 </button>
               </form>
 
               {/* Aliases List */}
-              <div className="divide-y divide-[#f2f5fc] border-t border-[#eef2f8] mt-2">
+              <div className="divide-y divide-[#EEF2F7] border-t border-[#EEF2F7]">
                 {aliases.length === 0 ? (
-                  <p className="py-4 text-[13px] text-[#6e6e73] text-center">
+                  <p className="py-4 text-sm text-[#5A6A85] text-center">
                     No aliases configured yet. Add your first alias above.
                   </p>
                 ) : (
@@ -288,13 +279,13 @@ export default function MailboxOverviewPage({
                       key={alias}
                       className="flex items-center justify-between py-3"
                     >
-                      <span className="text-[13px] font-medium text-[#1d1d1f]">
+                      <span className="text-sm font-medium text-[#031033]">
                         {alias}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAlias(alias)}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
+                        className="h-8 px-3 text-sm font-medium text-[#C21F1F] hover:bg-[#FDECEC] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/30"
                       >
                         Remove
                       </button>
@@ -306,13 +297,13 @@ export default function MailboxOverviewPage({
           )}
 
           {activeTab === "autoresponders" && (
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-4">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     Autoresponder
                   </h3>
-                  <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                  <p className="text-xs text-[#5A6A85] mt-0.5">
                     Automatically reply to incoming messages when away.
                   </p>
                 </div>
@@ -330,14 +321,14 @@ export default function MailboxOverviewPage({
                     }}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1787D4]"></div>
+                  <div className="w-9 h-5 bg-[#D5DCE6] rounded-full peer transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#1787D4]/30 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:bg-[#0E7C3A]"></div>
                 </label>
               </div>
 
               {autoresponderEnabled && (
                 <div className="flex flex-col gap-4 mt-2">
                   <div>
-                    <label className="text-[12.5px] font-medium text-[#5a6a85] block mb-1">
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
                       Subject
                     </label>
                     <input
@@ -345,27 +336,27 @@ export default function MailboxOverviewPage({
                       value={autoresponderSubject}
                       onChange={(e) => setAutoresponderSubject(e.target.value)}
                       placeholder="e.g. Out of office reply"
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-[12.5px] font-medium text-[#5a6a85] block mb-1">
-                      Message Body
+                    <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                      Message body
                     </label>
                     <textarea
                       rows={4}
                       value={autoresponderBody}
                       onChange={(e) => setAutoresponderBody(e.target.value)}
                       placeholder="e.g. Thank you for contacting me. I am currently away and will reply upon my return."
-                      className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-[13px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4]"
+                      className="w-full px-3 py-2.5 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors resize-y"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => toast.success("Autoresponder settings saved")}
-                    className="self-start px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-colors"
+                    className="self-start h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
-                    Save Autoresponder
+                    Save autoresponder
                   </button>
                 </div>
               )}
@@ -373,13 +364,13 @@ export default function MailboxOverviewPage({
           )}
 
           {activeTab === "spam" && (
-            <div className="bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-5">
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-[15px] font-bold text-[#1d1d1f]">
-                    Spam Filtering
+                  <h3 className="text-base font-semibold text-[#031033]">
+                    Spam filtering
                   </h3>
-                  <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                  <p className="text-xs text-[#5A6A85] mt-0.5">
                     Automated email scanning to detect and quarantine spam.
                   </p>
                 </div>
@@ -397,16 +388,16 @@ export default function MailboxOverviewPage({
                     }}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1787D4]"></div>
+                  <div className="w-9 h-5 bg-[#D5DCE6] rounded-full peer transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#1787D4]/30 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:bg-[#0E7C3A]"></div>
                 </label>
               </div>
 
               {spamFilterEnabled && (
-                <div className="flex flex-col gap-4 border-t border-[#eef2f8] pt-4">
+                <div className="flex flex-col gap-4 border-t border-[#EEF2F7] pt-4">
                   <div>
-                    <div className="flex justify-between text-[12.5px] font-medium text-[#5a6a85] mb-1">
-                      <span>Sensitivity Level</span>
-                      <span>Score: {spamScore} / 10</span>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="font-medium text-[#031033]">Sensitivity level</span>
+                      <span className="text-[#5A6A85] tabular-nums">Score: {spamScore} / 10</span>
                     </div>
                     <input
                       type="range"
@@ -416,7 +407,7 @@ export default function MailboxOverviewPage({
                       onChange={(e) => setSpamScore(Number(e.target.value))}
                       className="w-full accent-[#1787D4]"
                     />
-                    <div className="flex justify-between text-[11px] text-[#9ba8c0] mt-1">
+                    <div className="flex justify-between text-xs text-[#5A6A85] mt-1">
                       <span>Aggressive (1)</span>
                       <span>Balanced (5)</span>
                       <span>Lenient (10)</span>
@@ -425,9 +416,9 @@ export default function MailboxOverviewPage({
                   <button
                     type="button"
                     onClick={() => toast.success("Spam settings saved")}
-                    className="self-start px-4 py-2 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-colors"
+                    className="self-start h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
-                    Save Spam Rules
+                    Save spam rules
                   </button>
                 </div>
               )}
@@ -436,9 +427,9 @@ export default function MailboxOverviewPage({
         </div>
 
         {/* Right Column: Quick Operations Sidebar */}
-        <div className="lg:col-span-4 bg-white rounded-lg border border-[#e2eaff] p-6 shadow-sm flex flex-col gap-3">
-          <h3 className="text-[15px] font-bold text-[#1d1d1f] mb-1">
-            Quick Operations
+        <div className="lg:col-span-4 bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-3">
+          <h3 className="text-base font-semibold text-[#031033] mb-1">
+            Quick operations
           </h3>
 
           {/* Change Password */}
@@ -446,9 +437,9 @@ export default function MailboxOverviewPage({
             type="button"
             id="op-change-password"
             onClick={() => setShowPasswordModal(true)}
-            className="w-full py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-lg transition-colors text-center shadow-sm"
+            className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Change Password
+            Change password
           </button>
 
           {/* Storage Settings */}
@@ -456,9 +447,9 @@ export default function MailboxOverviewPage({
             type="button"
             id="op-storage-settings"
             onClick={() => setShowStorageModal(true)}
-            className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
+            className="w-full h-9 px-4 bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] text-[#031033] text-sm font-medium rounded-lg transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Storage Settings
+            Storage settings
           </button>
 
           {/* Email Settings */}
@@ -470,9 +461,9 @@ export default function MailboxOverviewPage({
                 `IMAP/SMTP Settings: Server: mail.${domainPart}, Port: 993 (SSL)`
               );
             }}
-            className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border border-[#e2eaff] text-[#1d1d1f] text-[13px] font-semibold rounded-lg transition-colors text-center"
+            className="w-full h-9 px-4 bg-white hover:bg-[#F2F5FC] border border-[#D5DCE6] text-[#031033] text-sm font-medium rounded-lg transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
-            Email Settings
+            Email settings
           </button>
 
           {/* Delete Mailbox */}
@@ -480,9 +471,9 @@ export default function MailboxOverviewPage({
             type="button"
             id="op-delete-mailbox"
             onClick={() => setShowDeleteModal(true)}
-            className="w-full py-2.5 px-4 bg-white hover:bg-red-50 border border-[#1787D4] text-[#1787D4] hover:border-red-400 hover:text-red-600 text-[13px] font-semibold rounded-lg transition-colors text-center mt-1"
+            className="w-full h-9 px-4 bg-white hover:bg-[#FDECEC] border border-[#F3C7C7] text-[#C21F1F] text-sm font-medium rounded-lg transition-colors text-center mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/30"
           >
-            Delete Mailbox
+            Delete mailbox
           </button>
         </div>
       </div>
@@ -495,22 +486,22 @@ export default function MailboxOverviewPage({
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowPasswordModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-md shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#031033]">
-              Change Mailbox Password
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Change mailbox password
             </h3>
-            <p className="text-xs text-[#5a6a85]">
+            <p className="text-sm text-[#5A6A85]">
               Update the login password for{" "}
-              <strong className="text-[#1d1d1f]">{decodedEmail}</strong>.
+              <strong className="font-medium text-[#031033]">{decodedEmail}</strong>.
             </p>
 
             <form onSubmit={handleChangePassword} className="flex flex-col gap-3">
               <div>
-                <label className="text-xs font-semibold text-[#031033] block mb-1">
-                  New Password
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  New password
                 </label>
                 <div className="relative">
                   <input
@@ -518,13 +509,13 @@ export default function MailboxOverviewPage({
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
-                    className="w-full px-3.5 py-2 pr-10 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                    className="w-full h-10 pl-3 pr-10 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ba8c0]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6A85] hover:text-[#031033] transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -536,15 +527,15 @@ export default function MailboxOverviewPage({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-[#031033] block mb-1">
-                  Confirm Password
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Confirm password
                 </label>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat new password"
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors tabular-nums"
                   required
                 />
               </div>
@@ -553,19 +544,19 @@ export default function MailboxOverviewPage({
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                  className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+                  className="h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {savingPassword && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   )}
-                  Save Password
+                  Save password
                 </button>
               </div>
             </form>
@@ -581,22 +572,22 @@ export default function MailboxOverviewPage({
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowStorageModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#031033]">
-              Storage Settings
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Storage settings
             </h3>
-            <p className="text-xs text-[#5a6a85]">
+            <p className="text-sm text-[#5A6A85]">
               Adjust quota for{" "}
-              <strong className="text-[#1d1d1f]">{decodedEmail}</strong>.
+              <strong className="font-medium text-[#031033]">{decodedEmail}</strong>.
             </p>
 
             <form onSubmit={handleUpdateStorage} className="flex flex-col gap-3">
               <div>
-                <label className="text-xs font-semibold text-[#031033] block mb-1">
-                  Storage Limit (GB)
+                <label className="text-sm font-medium text-[#031033] block mb-1.5">
+                  Storage limit (GB)
                 </label>
                 <input
                   type="number"
@@ -606,7 +597,7 @@ export default function MailboxOverviewPage({
                   value={storageQuota}
                   onChange={(e) => setStorageQuota(e.target.value)}
                   placeholder="e.g. 10.0"
-                  className="w-full px-3.5 py-2 border border-[#e2eaff] rounded-lg text-sm focus:outline-none focus:border-[#1787D4]"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors tabular-nums"
                   required
                 />
               </div>
@@ -615,19 +606,19 @@ export default function MailboxOverviewPage({
                 <button
                   type="button"
                   onClick={() => setShowStorageModal(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                  className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingStorage}
-                  className="px-4 py-2 text-xs font-semibold bg-[#1787D4] hover:bg-[#1371B5] text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+                  className="h-9 px-4 text-sm font-medium bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {savingStorage && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   )}
-                  Save Quota
+                  Save quota
                 </button>
               </div>
             </form>
@@ -643,16 +634,16 @@ export default function MailboxOverviewPage({
           aria-modal="true"
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#031033]/40"
             onClick={() => setShowDeleteModal(false)}
           />
-          <div className="relative bg-white border border-[#e2eaff] rounded-lg w-full max-w-sm shadow-2xl p-6 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-[#031033]">
-              Delete Mailbox
+          <div className="relative bg-white rounded-xl w-full max-w-md shadow-xl p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Delete mailbox
             </h3>
-            <p className="text-xs text-[#5a6a85] leading-relaxed">
+            <p className="text-sm text-[#5A6A85]">
               Are you sure you want to delete{" "}
-              <strong className="text-[#1d1d1f]">{decodedEmail}</strong>? This
+              <strong className="font-medium text-[#031033]">{decodedEmail}</strong>? This
               will permanently delete all stored emails and mailbox data.
             </p>
 
@@ -660,7 +651,7 @@ export default function MailboxOverviewPage({
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-semibold border border-[#e2eaff] rounded-lg text-[#5a6a85] hover:bg-[#f8fafc]"
+                className="h-9 px-4 text-sm font-medium border border-[#D5DCE6] bg-white rounded-lg text-[#031033] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Cancel
               </button>
@@ -668,10 +659,10 @@ export default function MailboxOverviewPage({
                 type="button"
                 onClick={handleDeleteMailbox}
                 disabled={deleting}
-                className="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+                className="h-9 px-4 text-sm font-medium bg-[#DC2626] hover:bg-[#C21F1F] text-white rounded-lg inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]/30"
               >
                 {deleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                Delete Mailbox
+                Delete mailbox
               </button>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Loader2, ArrowRight, ArrowLeft, MailCheck } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { useVerifyOTP, useResendOTP } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
@@ -99,7 +99,7 @@ function VerifyContent() {
       <div className="lg:hidden flex items-center justify-between mb-8">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5A6A85] hover:text-[#031033] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Login
@@ -117,15 +117,12 @@ function VerifyContent() {
 
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-12 h-12 rounded-lg bg-[#eff6fc] border border-[#d6eaf8] flex items-center justify-center text-[#1787D4] mx-auto mb-4 shadow-xs">
-          <MailCheck className="w-6 h-6" />
-        </div>
-        <h1 className="text-2xl sm:text-[28px] font-bold text-[#031033] tracking-tight mb-1.5">
-          Verify Your Email
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#031033]">
+          Verify your email
         </h1>
-        <p className="text-sm text-slate-500 font-normal max-w-sm mx-auto">
+        <p className="mt-2 text-sm text-[#5A6A85] leading-relaxed max-w-sm mx-auto">
           We sent a 6-digit code to{" "}
-          <span className="font-semibold text-[#031033]">{email || "your email"}</span>.
+          <span className="font-medium text-[#031033]">{email || "your email"}</span>.
           Enter it below to activate your account.
         </p>
       </div>
@@ -136,30 +133,35 @@ function VerifyContent() {
         className="flex flex-col gap-6"
       >
         {/* OTP inputs */}
-        <div className="flex gap-2 sm:gap-2.5 justify-center" onPaste={handlePaste}>
-          {code.map((digit, i) => (
-            <input
-              key={i}
-              id={`otp-input-${i}`}
-              ref={(el) => {
-                inputRefs.current[i] = el;
-              }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              className="w-11 sm:w-12 h-13 sm:h-14 text-center text-xl font-bold bg-slate-50/70 border border-slate-200 focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 focus:bg-white rounded-lg text-[#031033] outline-none transition-all"
-            />
-          ))}
-        </div>
+        <fieldset>
+          <legend className="sr-only">6-digit verification code</legend>
+          <div className="flex gap-2 sm:gap-3 justify-center" onPaste={handlePaste}>
+            {code.map((digit, i) => (
+              <input
+                key={i}
+                id={`otp-input-${i}`}
+                ref={(el) => {
+                  inputRefs.current[i] = el;
+                }}
+                type="text"
+                inputMode="numeric"
+                autoComplete={i === 0 ? "one-time-code" : "off"}
+                aria-label={`Digit ${i + 1}`}
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                className="w-11 h-12 sm:w-12 sm:h-14 rounded-lg border border-[#D5DCE6] bg-white text-center text-xl font-medium tabular-nums text-[#031033] outline-none transition-colors focus:border-[#1787D4] focus:ring-4 focus:ring-[#1787D4]/15"
+              />
+            ))}
+          </div>
+        </fieldset>
 
         <button
           id="verify-submit"
           type="submit"
           disabled={isPending || code.join("").length < 6}
-          className="w-full py-3 sm:py-3.5 bg-[#1787D4] hover:bg-[#1371B5] active:scale-[0.99] text-white font-semibold rounded-lg text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="h-11 w-full px-5 rounded-lg bg-[#1787D4] text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1787D4]/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {isPending ? (
             <>
@@ -167,28 +169,25 @@ function VerifyContent() {
               <span>Verifying…</span>
             </>
           ) : (
-            <>
-              <span>Verify Email</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
+            <span>Verify email</span>
           )}
         </button>
       </form>
 
-      <p className="text-center text-sm text-slate-500 mt-6">
+      <p className="text-center text-sm text-[#5A6A85] mt-6">
         Didn&apos;t receive the code?{" "}
         <button
           id="verify-resend"
           type="button"
           disabled={isResending || resendCooldown > 0}
           onClick={handleResend}
-          className="text-[#1787D4] font-semibold hover:underline underline-offset-4 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="font-medium text-[#1787D4] tabular-nums hover:text-[#1370B5] hover:underline underline-offset-4 disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
         >
           {isResending
             ? "Sending…"
             : resendCooldown > 0
-            ? `Resend Code (${resendCooldown}s)`
-            : "Resend Code"}
+            ? `Resend code (${resendCooldown}s)`
+            : "Resend code"}
         </button>
       </p>
     </div>
@@ -198,10 +197,9 @@ function VerifyContent() {
 export default function VerifyPage() {
   return (
     <div className="h-screen w-full bg-white flex flex-col lg:flex-row lg:overflow-hidden">
-      {/* Left Panel: Solid Nupat Brand Blue */}
       <AuthLeftPanel />
 
-      {/* Right Panel: Clean Form Container */}
+      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center bg-white px-6 sm:px-12 lg:px-16 py-8 h-screen overflow-y-auto">
         <Suspense
           fallback={

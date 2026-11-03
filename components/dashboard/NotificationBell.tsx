@@ -2,15 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
-import {
-  Bell,
-  Server,
-  Globe,
-  AlertTriangle,
-  Clock,
-  ArrowRight,
-  ShieldAlert,
-} from "lucide-react";
+import { Bell, Server, Globe, ArrowRight } from "lucide-react";
 import { useGetExpiryWarnings } from "@/hooks/useExpiryWarnings";
 import type { ExpiryWarning } from "@/lib/api";
 
@@ -19,10 +11,12 @@ export default function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data, isLoading } = useGetExpiryWarnings();
 
-  const rawWarnings = data?.warnings ?? [];
+  // Capture "now" once per mount; Date.now() during render is impure.
+  const [now] = useState(() => Date.now());
 
   // Ensure notification bell only shows services that have expired or have <= 10 days remaining
   const warnings = useMemo(() => {
+    const rawWarnings = data?.warnings ?? [];
     return rawWarnings.filter((w) => {
       const isExpired =
         w.isExpired || (w.daysLeft !== null && w.daysLeft < 0);
@@ -30,13 +24,13 @@ export default function NotificationBell() {
       if (w.daysLeft !== null) return w.daysLeft <= 10;
       if (w.expiresAt) {
         const diffDays = Math.ceil(
-          (new Date(w.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+          (new Date(w.expiresAt).getTime() - now) / (1000 * 60 * 60 * 24),
         );
         return diffDays <= 10;
       }
       return false;
     });
-  }, [rawWarnings]);
+  }, [data?.warnings, now]);
 
   const count = warnings.length;
 
@@ -100,60 +94,64 @@ export default function NotificationBell() {
         type="button"
         id="dashboard-notification-bell"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative p-2 rounded-lg text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-[#f2f5fc] transition-colors cursor-pointer"
+        aria-expanded={isOpen}
+        className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-[#5A6A85] transition-colors hover:bg-[#F2F5FC] hover:text-[#031033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
         aria-label="Notifications"
       >
         <Bell className="w-4.5 h-4.5" />
 
-        {/* Count Badge */}
+        {/* Count badge */}
         {count > 0 && (
           <span
             id="notification-bell-badge"
-            className="absolute top-1 right-1 min-w-[17px] h-[17px] px-1 bg-[#1787D4] text-white text-[9.5px] font-extrabold flex items-center justify-center rounded-full shadow-xs ring-2 ring-white"
+            className="absolute right-0.5 top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#1787D4] px-1 text-xs font-medium leading-none tabular-nums text-white ring-2 ring-white"
           >
             {count > 99 ? "99+" : count}
           </span>
         )}
       </button>
 
-      {/* Notification Dropdown Panel */}
+      {/* Notification dropdown panel */}
       {isOpen && (
         <div
           id="dashboard-notification-panel"
-          className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg border border-[#e2eaff] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-lg animate-in fade-in duration-150 sm:w-96"
         >
-          {/* Panel Header */}
-          <div className="px-4 py-3 bg-white border-b border-[#f2f5fc] flex items-center justify-between">
+          {/* Panel header */}
+          <div className="flex items-center justify-between border-b border-[#EEF2F7] px-4 py-3">
             <div className="flex items-center gap-2">
-              <span className="text-[13.5px] font-bold text-[#031033]">
+              <span className="text-sm font-semibold text-[#031033]">
                 Notifications
               </span>
               {count > 0 && (
-                <span className="text-[11px] font-semibold text-orange-600">
-                  ({count} warning{count === 1 ? "" : "s"})
+                <span className="text-xs font-medium tabular-nums text-[#9A5B00]">
+                  {count} warning{count === 1 ? "" : "s"}
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-[#8a9bb2]">
-              Expiry Warnings
-            </span>
+            <span className="text-xs text-[#5A6A85]">Expiry warnings</span>
           </div>
 
-          {/* Warnings List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#f5f8ff]">
+          {/* Warnings list */}
+          <div className="max-h-96 divide-y divide-[#EEF2F7] overflow-y-auto">
             {isLoading ? (
-              <div className="p-6 text-center text-xs text-[#8a9bb2]">
-                Loading notifications…
+              <div aria-label="Loading notifications" className="divide-y divide-[#EEF2F7]">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-start gap-3 px-4 py-3.5">
+                    <div className="mt-0.5 h-4 w-4 shrink-0 animate-pulse rounded bg-[#EEF2F7]" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3.5 w-3/4 animate-pulse rounded bg-[#EEF2F7]" />
+                      <div className="h-3 w-1/3 animate-pulse rounded bg-[#EEF2F7]" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : sortedWarnings.length === 0 ? (
-              <div className="py-8 px-6 text-center">
-                <div className="w-10 h-10 rounded-full bg-[#eff6fb] text-[#1787D4] flex items-center justify-center mx-auto mb-2.5">
-                  <Bell className="w-4 h-4 opacity-75" />
-                </div>
-                <p className="text-[13px] font-semibold text-[#031033]">
-                  All caught up!
+              <div className="px-6 py-8 text-center">
+                <p className="text-sm font-medium text-[#031033]">
+                  All caught up
                 </p>
-                <p className="text-[11.5px] text-[#5a6a85] mt-0.5">
+                <p className="mt-1 text-xs text-[#5A6A85]">
                   No active domain or hosting expiry warnings.
                 </p>
               </div>
@@ -167,33 +165,37 @@ export default function NotificationBell() {
                     key={`${warning.type}-${warning.id}`}
                     href={getServiceLink(warning)}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-start gap-3 p-3.5 hover:bg-[#fbfcfe] transition-colors group cursor-pointer"
+                    className="group flex cursor-pointer items-start gap-3 px-4 py-3.5 transition-colors hover:bg-[#F2F5FC]/60 focus-visible:bg-[#F2F5FC] focus-visible:outline-none"
                   >
-                    {/* Icon - unified brand blue */}
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-[#eff6fb] text-[#1787D4]">
-                      {warning.type === "HOSTING" ? (
-                        <Server className="w-4 h-4" />
-                      ) : (
-                        <Globe className="w-4 h-4" />
-                      )}
-                    </div>
+                    {/* Service type icon, inline (no chip) */}
+                    {warning.type === "HOSTING" ? (
+                      <Server className="mt-0.5 h-4 w-4 shrink-0 text-[#5A6A85]" />
+                    ) : (
+                      <Globe className="mt-0.5 h-4 w-4 shrink-0 text-[#5A6A85]" />
+                    )}
 
-                    {/* Message Body */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12.5px] font-semibold text-[#031033] leading-snug group-hover:text-[#1787D4] transition-colors">
+                    {/* Message body */}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-snug text-[#031033] transition-colors group-hover:text-[#1787D4]">
                         {formatWarningMessage(warning)}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="mt-1.5 flex items-center gap-2">
                         <span
-                          className={`text-[10.5px] font-bold uppercase tracking-wider ${
-                            isExpired ? "text-red-600" : "text-orange-600"
+                          className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs ${
+                            isExpired ? "text-[#C21F1F]" : "text-[#031033]"
                           }`}
                         >
+                          <span
+                            aria-hidden
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                              isExpired ? "bg-[#DC2626]" : "bg-[#E8900A]"
+                            }`}
+                          />
                           {isExpired ? "Expired" : "Expiring"}
                         </span>
                         {warning.expiresAt && (
-                          <span className="text-[11px] text-[#8a9bb2]">
-                            • {new Date(warning.expiresAt).toLocaleDateString(undefined, {
+                          <span className="text-xs tabular-nums text-[#5A6A85]">
+                            {new Date(warning.expiresAt).toLocaleDateString(undefined, {
                               month: "short",
                               day: "numeric",
                             })}
@@ -202,7 +204,7 @@ export default function NotificationBell() {
                       </div>
                     </div>
 
-                    <ArrowRight className="w-3.5 h-3.5 text-[#8a9bb2] group-hover:text-[#1787D4] group-hover:translate-x-0.5 transition-all mt-1.5 shrink-0" />
+                    <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[#5A6A85] transition-colors group-hover:text-[#1787D4]" />
                   </Link>
                 );
               })

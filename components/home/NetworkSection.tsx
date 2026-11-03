@@ -31,56 +31,43 @@ const networkDots = [
   {
     start: { lat: 6.5244, lng: 3.3792, label: "Lagos" },
     end: { lat: -26.2041, lng: 28.0473, label: "Johannesburg" },
-  }
+  },
+];
+
+// These figures came with the original section and have not been verified.
+const metrics = [
+  { value: "12ms", label: "Lagos to Accra" },
+  { value: "34ms", label: "Nairobi to Jo’burg" },
+  { value: "10 Gbps", label: "Port capacity" },
+  { value: "Anycast", label: "DNS routing" },
 ];
 
 export default function NetworkSection() {
   return (
-    <section id="network" className="section-pad bg-white relative overflow-hidden">
-      <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
-
+    <section id="network" className="py-16 sm:py-24 bg-white relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Header */}
-        <div className="text-center mb-8">
-          <span className="type-caption text-[#1787D4] mb-2.5 block">
-            Edge Backbone
-          </span>
+        <div className="text-center mb-10">
           <h2 className="type-h2 text-[#031033] mb-3">
-            Connecting Africa to the <span className="text-[#1787D4]">Global Cloud</span>
+            Connecting Africa to the global cloud
           </h2>
-          <p className="type-lead max-w-2xl mx-auto">
-            With servers stationed across major African tech capitals, we bridge your business directly into global internet exchanges via optimized fiber routing paths.
+          <p className="type-lead text-[#5A6A85] max-w-2xl mx-auto">
+            Our servers sit in major African tech hubs and connect your
+            business to international internet exchanges.
           </p>
         </div>
 
-        {/* World Map Container — Apple Rounded Surface */}
-        <div className="w-full rounded-lg border border-[#e2eaff] bg-[#f8faff] p-3 sm:p-6 relative shadow-xs overflow-hidden">
-          <div className="w-full relative">
-            <WorldMap dots={networkDots} lineColor="#1787D4" />
-          </div>
+        <div className="w-full rounded-xl border border-[#E2E8F0] bg-[#F2F5FC] p-3 sm:p-6 relative overflow-hidden">
+          <WorldMap dots={networkDots} lineColor="#1787D4" />
         </div>
 
-        {/* Network Metrics Footer */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 text-center">
-          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
-            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">12ms</p>
-            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Lagos to Accra</p>
-          </div>
-          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
-            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">34ms</p>
-            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Nairobi to Jo&apos;burg</p>
-          </div>
-          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
-            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">10 Gbps</p>
-            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">Port Capacity</p>
-          </div>
-          <div className="p-4 rounded-lg bg-[#f8faff] border border-[#e2eaff]">
-            <p className="text-2xl sm:text-[26px] font-semibold text-[#031033]">Anycast</p>
-            <p className="text-[11px] font-medium text-[#5a6a85] uppercase tracking-wider mt-1">DNS Routing</p>
-          </div>
+          {metrics.map((m) => (
+            <div key={m.label} className="p-5 rounded-xl bg-[#F2F5FC]">
+              <p className="text-2xl font-semibold text-[#031033] tabular-nums">{m.value}</p>
+              <p className="text-sm text-[#5A6A85] mt-1">{m.label}</p>
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
   );

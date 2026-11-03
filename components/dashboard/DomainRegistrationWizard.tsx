@@ -129,7 +129,7 @@ export default function DomainRegistrationWizard({
   }, [useAccountInfo, userProfile]);
 
   // Step 4: Review Agreement
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Step 5: Direct Paystack redirect state
   const [isRedirectingToPaystack, setIsRedirectingToPaystack] = useState(false);
@@ -227,9 +227,9 @@ export default function DomainRegistrationWizard({
 
   // Date formatting helpers
   const getTodayFormatted = () => {
-    return new Date().toLocaleDateString("en-US", {
-      month: "short",
+    return new Date().toLocaleDateString("en-GB", {
       day: "numeric",
+      month: "short",
       year: "numeric",
     });
   };
@@ -237,9 +237,9 @@ export default function DomainRegistrationWizard({
   const getExpiryDateFormatted = (years: number) => {
     const d = new Date();
     d.setFullYear(d.getFullYear() + years);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
+    return d.toLocaleDateString("en-GB", {
       day: "numeric",
+      month: "short",
       year: "numeric",
     });
   };
@@ -352,7 +352,7 @@ export default function DomainRegistrationWizard({
           <button
             type="button"
             onClick={onBackToDomains}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to domains
@@ -362,7 +362,7 @@ export default function DomainRegistrationWizard({
           <button
             type="button"
             onClick={() => setCurrentStep(1)}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to search
@@ -372,7 +372,7 @@ export default function DomainRegistrationWizard({
           <button
             type="button"
             onClick={() => setStep2View("list")}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to domains
@@ -385,7 +385,7 @@ export default function DomainRegistrationWizard({
               setCurrentStep(2);
               setStep2View("ready");
             }}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to domains
@@ -395,7 +395,7 @@ export default function DomainRegistrationWizard({
           <button
             type="button"
             onClick={() => setCurrentStep(3)}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to details
@@ -405,7 +405,7 @@ export default function DomainRegistrationWizard({
           <button
             type="button"
             onClick={() => setCurrentStep(4)}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to review
@@ -418,7 +418,7 @@ export default function DomainRegistrationWizard({
               setCurrentStep(1);
               setStep2View("list");
             }}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to registration
@@ -428,14 +428,8 @@ export default function DomainRegistrationWizard({
 
       {/* ── Title and Subtitle ────────────────────────────────────────── */}
       <div>
-        <h1
-          className="text-[24px] sm:text-[26px] font-bold text-[#1d1d1f]"
-          style={{
-            fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif",
-            letterSpacing: "-0.4px",
-          }}
-        >
-          {currentStep === 1 && "Find your perfect domain"}
+        <h1 className="text-2xl font-semibold text-[#031033]">
+          {currentStep === 1 && "Register a domain"}
           {currentStep === 2 &&
             (step2View === "list"
               ? "Choose your domain"
@@ -443,15 +437,15 @@ export default function DomainRegistrationWizard({
           {currentStep === 3 && "Set up your domain"}
           {currentStep === 4 && "Review your order"}
           {currentStep === 5 && "Complete your payment"}
-          {currentStep === 6 && "Your domain is registered!"}
+          {currentStep === 6 && "Your domain is registered"}
         </h1>
-        <p className="text-[14px] text-[#6e6e73] mt-1">
+        <p className="text-sm text-[#5A6A85] mt-1">
           {currentStep === 1 &&
             "Search for a domain name that represents your business, brand, or next idea."}
           {currentStep === 2 &&
             (step2View === "list"
               ? searchResults.length > 0
-                ? `Great news — we found available options for ${baseKeyword}.`
+                ? `Available options for ${baseKeyword}.`
                 : `Review options for ${baseKeyword}.`
               : `Confirm the registration term and protection settings for ${selectedDomainName}.`)}
           {currentStep === 3 &&
@@ -459,15 +453,18 @@ export default function DomainRegistrationWizard({
           {currentStep === 4 &&
             "Check your domain, registrant details, and final pricing before payment."}
           {currentStep === 5 &&
-            "Choose a payment method and securely complete your domain registration."}
+            "Pay securely to complete the registration."}
           {currentStep === 6 &&
             `${selectedDomainName} is now active and ready for your next idea.`}
         </p>
       </div>
 
-      {/* ── Horizontal Stepper (6 Steps matching Figma design) ────────── */}
-      <div className="w-full bg-white rounded-lg border border-[#e8e8ed] px-4 sm:px-8 py-3.5 shadow-2xs">
-        <div className="flex items-center justify-between overflow-x-auto gap-2">
+      {/* ── Stepper ───────────────────────────────────────────────────── */}
+      <div className="w-full bg-white rounded-xl border border-[#E2E8F0] px-5 py-4">
+        <p className="text-xs text-[#5A6A85] mb-3 sm:hidden">
+          Step {currentStep} of 6
+        </p>
+        <ol className="flex items-center justify-between overflow-x-auto gap-2">
           {[
             { num: 1, label: "Search" },
             { num: 2, label: "Select" },
@@ -480,29 +477,30 @@ export default function DomainRegistrationWizard({
             const isActive = currentStep === s.num;
 
             return (
-              <div
+              <li
                 key={s.num}
+                aria-current={isActive ? "step" : undefined}
                 className="flex items-center flex-1 last:flex-none"
               >
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 transition-colors ${
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium tabular-nums shrink-0 transition-colors ${
                       isCompleted
-                        ? "bg-emerald-600 text-white"
+                        ? "bg-[#1787D4] text-white"
                         : isActive
-                          ? "bg-[#1787D4] text-white"
-                          : "bg-[#e5e7eb] text-[#6b7280]"
+                          ? "bg-white text-[#1787D4] border-2 border-[#1787D4]"
+                          : "bg-white text-[#5A6A85] border border-[#D5DCE6]"
                     }`}
                   >
-                    {isCompleted ? "✓" : s.num}
-                  </div>
+                    {isCompleted ? <Check className="w-3.5 h-3.5" /> : s.num}
+                  </span>
                   <span
-                    className={`text-[13px] font-medium whitespace-nowrap hidden sm:inline ${
+                    className={`text-sm whitespace-nowrap hidden sm:inline ${
                       isActive
-                        ? "text-[#1787D4] font-semibold"
+                        ? "text-[#031033] font-medium"
                         : isCompleted
-                          ? "text-[#1d1d1f]"
-                          : "text-[#9ca3af]"
+                          ? "text-[#031033]"
+                          : "text-[#5A6A85]"
                     }`}
                   >
                     {s.label}
@@ -510,15 +508,15 @@ export default function DomainRegistrationWizard({
                 </div>
                 {idx < arr.length - 1 && (
                   <div
-                    className={`flex-1 h-[2px] mx-3 transition-colors ${
-                      isCompleted ? "bg-[#1787D4]" : "bg-[#e5e7eb]"
+                    className={`flex-1 h-px mx-3 min-w-4 transition-colors ${
+                      isCompleted ? "bg-[#1787D4]" : "bg-[#E2E8F0]"
                     }`}
                   />
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
@@ -526,16 +524,14 @@ export default function DomainRegistrationWizard({
       ══════════════════════════════════════════════════════════════════ */}
       {currentStep === 1 && (
         <div className="flex flex-col gap-6 w-full">
-          <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-6 sm:p-8 shadow-xs">
-            <div className="flex items-start gap-4 mb-6">
-              <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-blue-50 text-[#1787D4] shrink-0">
-                <Globe className="w-6 h-6" />
-              </span>
+          <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6">
+            <div className="flex items-start gap-3 mb-5">
+              <Globe className="w-5 h-5 text-[#5A6A85] shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-[17px] font-bold text-[#1d1d1f]">
-                  Start with a name you love
+                <h3 className="text-base font-semibold text-[#031033]">
+                  Search for a name
                 </h3>
-                <p className="text-[13.5px] text-[#6e6e73] mt-0.5">
+                <p className="text-sm text-[#5A6A85] mt-0.5">
                   We&apos;ll check availability across popular extensions in
                   seconds.
                 </p>
@@ -547,11 +543,11 @@ export default function DomainRegistrationWizard({
                 e.preventDefault();
                 handlePerformSearch();
               }}
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-1.5"
             >
               <label
                 htmlFor="domain-search-input"
-                className="text-[12px] font-semibold text-[#6e6e73] uppercase tracking-wider"
+                className="text-sm font-medium text-[#031033]"
               >
                 Domain name
               </label>
@@ -565,13 +561,13 @@ export default function DomainRegistrationWizard({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="yourbusiness.com"
                     autoComplete="off"
-                    className="w-full h-12 px-4 rounded-lg border border-[#d1d5db] bg-white text-[15px] font-medium text-[#1d1d1f] placeholder-[#9ca3af] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-all"
+                    className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="h-12 px-8 rounded-lg font-semibold text-white text-[14px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                  className="h-10 px-6 rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   {isSearching ? (
                     <>
@@ -584,18 +580,18 @@ export default function DomainRegistrationWizard({
                 </button>
               </div>
 
-              <p className="text-[12px] text-[#6e6e73] mt-1.5 flex items-center gap-1.5">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span>Tip: Keep it short, memorable, and easy to spell.</span>
+              <p className="text-xs text-[#5A6A85] mt-1 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-[#5A6A85] shrink-0" />
+                <span>Tip: keep it short, memorable and easy to spell.</span>
               </p>
             </form>
           </div>
 
           {/* Popular Extensions Cards */}
           <div>
-            <h4 className="text-[14.5px] font-bold text-[#1d1d1f] mb-3">
+            <h2 className="text-base font-semibold text-[#031033] mb-3">
               Popular extensions
-            </h4>
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { ext: ".com", desc: "Global presence" },
@@ -619,12 +615,12 @@ export default function DomainRegistrationWizard({
                       );
                     }
                   }}
-                  className="bg-white border border-[#e8e8ed] hover:border-[#1787D4] hover:shadow-xs p-4 rounded-lg text-left transition-all cursor-pointer group"
+                  className="bg-white border border-[#E2E8F0] hover:border-[#1787D4] p-4 rounded-xl text-left transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
-                  <p className="text-[16px] font-bold text-[#1d1d1f] group-hover:text-[#1787D4] transition-colors">
+                  <p className="text-base font-semibold text-[#031033] group-hover:text-[#1787D4] transition-colors">
                     {item.ext}
                   </p>
-                  <p className="text-[12px] text-[#6e6e73] mt-0.5">
+                  <p className="text-xs text-[#5A6A85] mt-0.5">
                     {item.desc}
                   </p>
                 </button>
@@ -640,7 +636,7 @@ export default function DomainRegistrationWizard({
       {currentStep === 2 && step2View === "list" && (
         <div className="flex flex-col gap-6 w-full">
           {/* Search Again Bar */}
-          <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-4 sm:p-5 shadow-2xs">
+          <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-4">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -655,13 +651,14 @@ export default function DomainRegistrationWizard({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="yourbusiness.com"
                   autoComplete="off"
-                  className="w-full h-11 px-4 rounded-lg border border-[#d1d5db] bg-white text-[14px] font-medium text-[#1d1d1f] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
+                  aria-label="Domain name"
+                  className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isSearching}
-                className="h-11 px-6 rounded-lg font-semibold text-white text-[13px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs active:scale-98 disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-2"
+                className="h-10 px-6 rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 {isSearching ? (
                   <>
@@ -676,7 +673,7 @@ export default function DomainRegistrationWizard({
           </div>
 
           {searchError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-700 text-sm">
+            <div className="rounded-lg border border-[#DC2626]/20 bg-[#FDECEC] px-4 py-3 flex items-center gap-2 text-[#C21F1F] text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{searchError}</span>
             </div>
@@ -687,36 +684,44 @@ export default function DomainRegistrationWizard({
             {/* Left Column (8 cols): Primary result & other available extensions */}
             <div className="lg:col-span-8 flex flex-col gap-6">
               {primaryResult && (
-                <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3.5 min-w-0">
                     {primaryResult.available ? (
-                      <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-[#0E7C3A] shrink-0 mt-1" />
                     ) : (
-                      <XCircle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
+                      <XCircle className="w-5 h-5 text-[#DC2626] shrink-0 mt-1" />
                     )}
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[18px] font-bold text-[#1d1d1f] truncate">
+                        <span className="text-lg font-semibold text-[#031033] truncate">
                           {primaryResult.domain}
                         </span>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                          className={`inline-flex items-center gap-2 whitespace-nowrap text-sm ${
                             primaryResult.available
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-red-50 text-red-600 border-red-200"
+                              ? "text-[#031033]"
+                              : "text-[#C21F1F]"
                           }`}
                         >
+                          <span
+                            aria-hidden
+                            className={`h-2 w-2 shrink-0 rounded-full ${
+                              primaryResult.available
+                                ? "bg-[#12A150]"
+                                : "bg-[#DC2626]"
+                            }`}
+                          />
                           {primaryResult.available
                             ? "Available"
                             : "Unavailable"}
                         </span>
                         {primaryResult.isPremium && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
-                            <Sparkles className="w-2.5 h-2.5" /> Premium
+                          <span className="inline-flex items-center gap-1 text-xs font-medium whitespace-nowrap text-[#5A6A85]">
+                            <Sparkles className="w-3 h-3" /> Premium
                           </span>
                         )}
                       </div>
-                      <p className="text-[13px] text-[#6e6e73] mt-1">
+                      <p className="text-sm text-[#5A6A85] mt-1">
                         {primaryResult.available
                           ? "A trusted, global address for your business."
                           : "This domain is taken. Check other available extensions below."}
@@ -724,14 +729,14 @@ export default function DomainRegistrationWizard({
                     </div>
                   </div>
 
-                  <div className="flex items-center sm:flex-col sm:items-end justify-between gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#f0f0f3]">
+                  <div className="flex items-center sm:flex-col sm:items-end justify-between gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EEF2F7]">
                     <div>
-                      <span className="text-[18px] font-bold text-[#1d1d1f] block text-right">
+                      <span className="text-lg font-semibold tabular-nums text-[#031033] block text-right">
                         {primaryResult.price?.price != null
                           ? `₦${primaryResult.price.price.toLocaleString()}`
                           : "—"}
                       </span>
-                      <span className="text-[11px] text-[#8a9bb2] block text-right">
+                      <span className="text-xs text-[#5A6A85] block text-right">
                         for the first year
                       </span>
                     </div>
@@ -739,12 +744,13 @@ export default function DomainRegistrationWizard({
                       <button
                         type="button"
                         onClick={() => handleSelectDomain(primaryResult)}
-                        className="px-5 py-2.5 rounded-lg font-semibold text-white text-[13px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs active:scale-95 cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                       >
-                        Select & Continue
+                        Select and continue
                       </button>
                     ) : (
-                      <span className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                        <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#9AA6B8]" />
                         Taken
                       </span>
                     )}
@@ -754,26 +760,26 @@ export default function DomainRegistrationWizard({
 
               {/* Other Available Extensions */}
               <div className="flex flex-col gap-3">
-                <h4 className="text-[14px] font-bold text-[#1d1d1f]">
+                <h2 className="text-base font-semibold text-[#031033]">
                   Other available extensions
-                </h4>
+                </h2>
 
                 {otherAvailable.length === 0 ? (
-                  <div className="p-6 bg-white rounded-lg border border-[#e8e8ed] text-center text-sm text-[#8a9bb2]">
+                  <div className="p-5 bg-white rounded-xl border border-[#E2E8F0] text-center text-sm text-[#5A6A85]">
                     No other extensions found available for this keyword.
                   </div>
                 ) : (
-                  <div className="w-full bg-white rounded-lg border border-[#e8e8ed] divide-y divide-[#f0f0f3] overflow-hidden shadow-2xs">
+                  <div className="w-full bg-white rounded-xl border border-[#E2E8F0] divide-y divide-[#EEF2F7] overflow-hidden">
                     {otherAvailable.map((item) => (
                       <div
                         key={item.domain}
-                        className="p-4 sm:px-6 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+                        className="px-5 py-3.5 flex items-center justify-between gap-4 hover:bg-[#F2F5FC]/60 transition-colors"
                       >
                         <div className="min-w-0">
-                          <span className="text-[15px] font-bold text-[#1d1d1f] block truncate">
+                          <span className="text-sm font-medium text-[#031033] block truncate">
                             {item.domain}
                           </span>
-                          <span className="text-[12px] text-[#8a9bb2] block mt-0.5">
+                          <span className="text-xs text-[#5A6A85] block mt-0.5">
                             {item.isPremium
                               ? "Premium extension"
                               : "Verified available"}
@@ -781,18 +787,18 @@ export default function DomainRegistrationWizard({
                         </div>
 
                         <div className="flex items-center gap-4 shrink-0">
-                          <span className="text-[14px] font-bold text-[#1d1d1f]">
+                          <span className="text-sm font-semibold tabular-nums text-[#031033] whitespace-nowrap">
                             {item.price?.price != null
                               ? `₦${item.price.price.toLocaleString()}`
                               : "—"}{" "}
-                            <span className="text-[11.5px] font-normal text-[#8a9bb2]">
+                            <span className="text-xs font-normal text-[#5A6A85]">
                               /yr
                             </span>
                           </span>
                           <button
                             type="button"
                             onClick={() => handleSelectDomain(item)}
-                            className="px-4 py-1.5 rounded-lg border border-[#1787D4] text-[#1787D4] hover:bg-[#1787D4] hover:text-white transition-all text-[12.5px] font-semibold cursor-pointer active:scale-95"
+                            className="inline-flex items-center justify-center h-8 px-3 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                           >
                             Select
                           </button>
@@ -807,32 +813,32 @@ export default function DomainRegistrationWizard({
             {/* Right Column: Unavailable & Suggestions */}
             <div className="lg:col-span-4 flex flex-col gap-4">
               {(unavailableList.length > 0 || !primaryResult?.available) && (
-                <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 shadow-2xs">
-                  <div className="flex items-start gap-2.5 pb-3 border-b border-[#f0f0f3]">
-                    <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+                  <div className="flex items-start gap-2.5 pb-4 border-b border-[#EEF2F7]">
+                    <XCircle className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[14px] font-bold text-[#1d1d1f]">
+                      <p className="text-sm font-medium text-[#031033] break-all">
                         {!primaryResult?.available
                           ? primaryResult?.domain
                           : unavailableList[0]?.domain}
                       </p>
-                      <p className="text-[11.5px] text-red-500 font-medium">
+                      <p className="text-xs text-[#C21F1F] mt-0.5">
                         This name is unavailable
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-3">
+                  <div className="pt-4">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[12px] font-semibold text-[#1d1d1f]">
-                        Suggested Alternative Names:
+                      <p className="text-xs text-[#5A6A85]">
+                        Suggested names
                       </p>
                       {isFetchingSuggestions && (
-                        <Loader2 className="w-3 h-3 animate-spin text-[#1787D4]" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1787D4]" />
                       )}
                     </div>
                     {suggestedAlternativeNames.length > 0 ? (
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col -mx-2">
                         {suggestedAlternativeNames
                           .slice(0, 6)
                           .map((altName) => {
@@ -845,28 +851,27 @@ export default function DomainRegistrationWizard({
                                   setSearchQuery(fullSuggestedDomain);
                                   handlePerformSearch(fullSuggestedDomain);
                                 }}
-                                className="flex items-center justify-between text-[12.5px] text-[#1787D4] hover:text-[#136eb0] p-2 rounded-lg hover:bg-blue-50/60 border border-transparent hover:border-blue-100 transition-all text-left cursor-pointer group"
+                                className="flex items-center justify-between text-sm px-2 py-2 rounded-lg hover:bg-[#F2F5FC] transition-colors text-left cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                               >
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                  <span className="font-semibold text-[#1d1d1f] group-hover:text-[#1787D4] truncate">
+                                <div className="flex items-center min-w-0">
+                                  <span className="font-medium text-[#031033] group-hover:text-[#1787D4] truncate">
                                     {altName}
                                   </span>
-                                  <span className="text-[11px] font-medium text-[#6e6e73]">
+                                  <span className="text-[#5A6A85]">
                                     .{targetExtension}
                                   </span>
                                 </div>
-                                <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[#6e6e73] group-hover:text-[#1787D4] group-hover:translate-x-0.5 transition-all" />
+                                <ChevronRight className="w-4 h-4 shrink-0 text-[#5A6A85] group-hover:text-[#1787D4] transition-colors" />
                               </button>
                             );
                           })}
                       </div>
                     ) : isFetchingSuggestions ? (
-                      <p className="text-[12px] text-[#6e6e73] py-2">
-                        Fetching alternative names...
+                      <p className="text-sm text-[#5A6A85] py-2">
+                        Fetching suggestions…
                       </p>
                     ) : (
-                      <p className="text-[12px] text-[#6e6e73] py-2">
+                      <p className="text-sm text-[#5A6A85] py-2">
                         No name suggestions available for this term.
                       </p>
                     )}
@@ -875,12 +880,12 @@ export default function DomainRegistrationWizard({
               )}
 
               {/* Renewal hint box */}
-              <div className="bg-[#f0fdfa] border border-[#99f6e4] rounded-lg p-3.5 text-[#115e59] text-[12px] leading-relaxed">
-                <p className="flex items-start gap-1.5">
-                  <Lightbulb className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+              <div className="rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033] leading-relaxed">
+                <p className="flex items-start gap-2">
+                  <Lightbulb className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
                   <span>
-                    Keep down-time low: renewal pricing is always shown clearly
-                    before checkout.
+                    Renewal pricing is always shown before checkout, so there
+                    are no surprises at renewal time.
                   </span>
                 </p>
               </div>
@@ -898,32 +903,31 @@ export default function DomainRegistrationWizard({
           {/* Left Column (8 cols): Domain Overview + Protection Settings (including SSL) */}
           <div className="lg:col-span-8 flex flex-col gap-5">
             {/* Domain Overview Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <div className="flex items-start justify-between gap-4 pb-5 border-b border-[#f0f0f3]">
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#e6f7f8] text-[#0d9488] shrink-0">
-                    <Globe className="w-6 h-6" />
-                  </span>
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div className="flex items-start justify-between gap-4 pb-5 border-b border-[#EEF2F7]">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Globe className="w-5 h-5 text-[#5A6A85] shrink-0" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[18px] font-bold text-[#1d1d1f] truncate">
+                      <span className="text-lg font-semibold text-[#031033] truncate">
                         {selectedDomainName}
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                        <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                         Selected
                       </span>
                     </div>
-                    <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                    <p className="text-xs text-[#5A6A85] mt-0.5">
                       New domain registration
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="text-[18px] font-bold text-[#1d1d1f] block">
+                  <span className="text-lg font-semibold tabular-nums text-[#031033] block">
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
-                  <span className="text-[12px] text-[#8a9bb2] block">
+                  <span className="text-xs text-[#5A6A85] block">
                     for 1 year
                   </span>
                 </div>
@@ -934,11 +938,11 @@ export default function DomainRegistrationWizard({
                 <div>
                   <label
                     htmlFor="registration-term-select"
-                    className="text-[13px] font-semibold text-[#1d1d1f] block"
+                    className="text-sm font-medium text-[#031033] block"
                   >
                     Registration term
                   </label>
-                  <p className="text-[12px] text-[#6e6e73] mt-0.5">
+                  <p className="text-xs text-[#5A6A85] mt-0.5">
                     Registered through {getExpiryDateFormatted(termYears)}
                   </p>
                 </div>
@@ -948,52 +952,52 @@ export default function DomainRegistrationWizard({
                     id="registration-term-select"
                     value={1}
                     disabled
-                    className="h-10 pl-3.5 pr-8 rounded-lg border border-[#d1d5db] bg-[#f9fafb] text-[13.5px] font-semibold text-[#1d1d1f] outline-none appearance-none cursor-default"
+                    className="h-10 pl-3 pr-8 rounded-lg border border-[#D5DCE6] bg-[#F2F5FC] text-sm text-[#031033] tabular-nums outline-none appearance-none cursor-not-allowed"
                   >
                     <option value={1}>1 Year (₦{unitPrice.toLocaleString()})</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-[#9ca3af] absolute right-2.5 top-3 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-[#5A6A85] absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Protection Settings Card (including SSL certificate option) */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Protection settings
               </h3>
-              <p className="text-[13px] text-[#6e6e73] mt-0.5 mb-5">
-                Keep your domain active and your personal details protected.
+              <p className="text-sm text-[#5A6A85] mt-1 mb-5">
+                Keep your domain active and your personal details private.
               </p>
 
-              <div className="flex flex-col divide-y divide-[#f0f0f3]">
+              <div className="flex flex-col divide-y divide-[#EEF2F7]">
                 {/* Auto-Renewal Toggle */}
                 <div className="py-4 flex items-center justify-between gap-4">
                   <div className="min-w-0 pr-4">
-                    <p className="text-[14px] font-bold text-[#1d1d1f]">
-                      Auto-Renewal
+                    <p className="text-sm font-medium text-[#031033]">
+                      Auto-renew
                     </p>
-                    <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                    <p className="text-sm text-[#5A6A85] mt-0.5">
                       Renew automatically before expiry using your saved payment
                       method.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-[12px] font-medium text-[#6e6e73]">
-                      Included
+                    <span className="text-xs font-medium text-[#5A6A85]">
+                      {autoRenew ? "On" : "Off"}
                     </span>
                     <button
                       type="button"
                       role="switch"
                       aria-checked={autoRenew}
                       onClick={() => setAutoRenew(!autoRenew)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        autoRenew ? "bg-[#1787D4]" : "bg-slate-300"
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                        autoRenew ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
                           autoRenew ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -1004,16 +1008,16 @@ export default function DomainRegistrationWizard({
                 {/* Privacy Protection Toggle */}
                 <div className="py-4 flex items-center justify-between gap-4">
                   <div className="min-w-0 pr-4">
-                    <p className="text-[14px] font-bold text-[#1d1d1f]">
-                      Privacy Protection
+                    <p className="text-sm font-medium text-[#031033]">
+                      Privacy protection
                     </p>
-                    <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                    <p className="text-sm text-[#5A6A85] mt-0.5">
                       Hide your registrant details from public lookup records.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-[12px] font-bold text-emerald-600">
+                    <span className="text-xs font-medium text-[#0E7C3A]">
                       Free
                     </span>
                     <button
@@ -1021,12 +1025,12 @@ export default function DomainRegistrationWizard({
                       role="switch"
                       aria-checked={privacyProtection}
                       onClick={() => setPrivacyProtection(!privacyProtection)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        privacyProtection ? "bg-[#1787D4]" : "bg-slate-300"
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                        privacyProtection ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
                           privacyProtection ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -1038,21 +1042,21 @@ export default function DomainRegistrationWizard({
                 <div className="py-4 flex items-center justify-between gap-4">
                   <div className="min-w-0 pr-4">
                     <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-bold text-[#1d1d1f]">
-                        SSL Certificate Protection
+                      <p className="text-sm font-medium text-[#031033]">
+                        SSL certificate
                       </p>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1787D4] border border-blue-200">
+                      <span className="whitespace-nowrap text-xs font-medium text-[#5A6A85]">
                         Recommended
                       </span>
                     </div>
-                    <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
-                      Activate 256-bit encryption padlock and protect visitor
-                      data with PositiveSSL.
+                    <p className="text-sm text-[#5A6A85] mt-0.5">
+                      Encrypt traffic to your site and show the browser padlock
+                      with PositiveSSL.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-[12px] font-semibold text-[#1d1d1f]">
+                    <span className="text-xs font-medium tabular-nums text-[#031033]">
                       ₦{positiveSslPrice.toLocaleString()}/yr
                     </span>
                     <button
@@ -1060,12 +1064,12 @@ export default function DomainRegistrationWizard({
                       role="switch"
                       aria-checked={includeSsl}
                       onClick={() => setIncludeSsl(!includeSsl)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        includeSsl ? "bg-[#1787D4]" : "bg-slate-300"
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
+                        includeSsl ? "bg-[#1787D4]" : "bg-[#D5DCE6]"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
                           includeSsl ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -1078,53 +1082,53 @@ export default function DomainRegistrationWizard({
 
           {/* Right Column (4 cols): Order Summary Card */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h4 className="text-[16px] font-bold text-[#1d1d1f] mb-4">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h2 className="text-base font-semibold text-[#031033] mb-4">
                 Order summary
-              </h4>
+              </h2>
 
-              <div className="flex flex-col gap-2.5 text-[13px] text-[#6e6e73]">
+              <div className="flex flex-col gap-2.5 text-sm text-[#5A6A85] tabular-nums">
                 <div className="flex justify-between items-center">
                   <span className="font-medium truncate pr-2">
                     {selectedDomainName}
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] shrink-0">
+                  <span className="font-semibold text-[#031033] shrink-0">
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span>Privacy Protection</span>
-                  <span className={`font-semibold ${privacyProtection ? "text-emerald-600" : "text-[#1d1d1f]"}`}>
-                    {privacyProtection ? "Free" : "NO"}
+                  <span>Privacy protection</span>
+                  <span className={`font-medium ${privacyProtection ? "text-[#0E7C3A]" : "text-[#5A6A85]"}`}>
+                    {privacyProtection ? "Free" : "Off"}
                   </span>
                 </div>
 
                 {includeSsl && (
-                  <div className="flex justify-between items-center text-blue-700">
+                  <div className="flex justify-between items-center">
                     <span className="truncate pr-2">
-                      PositiveSSL Certificate (1 yr)
+                      PositiveSSL certificate (1 yr)
                     </span>
-                    <span className="font-semibold shrink-0">
+                    <span className="font-semibold text-[#031033] shrink-0">
                       ₦{sslSubtotal.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
                 <div className="flex justify-between items-center">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1d1d1f]">
+                  <span className="font-semibold text-[#031033]">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
-                <div className="flex justify-between items-center text-[16px] font-bold text-[#1d1d1f]">
-                  <span>Total</span>
-                  <span className="text-[#1787D4]">
+                <div className="flex justify-between items-baseline gap-3 text-[#031033]">
+                  <span className="text-sm font-medium">Total</span>
+                  <span className="text-2xl font-semibold">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
@@ -1134,19 +1138,19 @@ export default function DomainRegistrationWizard({
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className="w-full mt-6 py-3 rounded-lg font-semibold text-white text-[14px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs active:scale-98 cursor-pointer"
+                className="w-full mt-6 h-9 inline-flex items-center justify-center rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 transition-colors cursor-pointer"
               >
                 Continue
               </button>
 
-              <p className="text-center text-[12px] text-[#6e6e73] mt-3">
+              <p className="text-center text-xs text-[#5A6A85] mt-3">
                 You&apos;ll review contact details before payment.
               </p>
             </div>
 
             {/* Reserved Banner */}
-            <div className="bg-[#f0f9ff] border border-[#bae6fd] rounded-lg p-3.5 text-[#0369a1] text-[12px] flex items-center gap-2 font-medium">
-              <Lock className="w-4 h-4 shrink-0 text-[#0284c7]" />
+            <div className="rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033] flex items-center gap-2">
+              <Lock className="w-4 h-4 shrink-0 text-[#1787D4]" />
               <span>
                 Your domain stays reserved for 15 minutes while you complete
                 setup.
@@ -1164,29 +1168,29 @@ export default function DomainRegistrationWizard({
           {/* Left Column (8 cols): Contact Info & Registrant Info */}
           <div className="lg:col-span-8 flex flex-col gap-5">
             {/* Contact Information Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Contact information
               </h3>
-              <p className="text-[13px] text-[#6e6e73] mt-0.5 mb-5">
+              <p className="text-sm text-[#5A6A85] mt-1 mb-5">
                 We&apos;ll use these details for important registration and
                 renewal notices.
               </p>
 
               {/* Use account information checkbox bar */}
-              <div className="mb-5 bg-[#f8fbfe] border border-[#dbeafe] rounded-lg p-3.5 flex items-center justify-between gap-3">
+              <div className="mb-5 bg-[#F2F5FC] border border-[#E2E8F0] rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={useAccountInfo}
                     onChange={(e) => setUseAccountInfo(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#1787D4] focus:ring-[#1787D4] border-gray-300 cursor-pointer"
+                    className="w-4 h-4 rounded accent-[#1787D4] border-[#D5DCE6]undefined cursor-pointer"
                   />
-                  <span className="text-[13px] font-semibold text-[#1d1d1f]">
+                  <span className="text-sm font-medium text-[#031033]">
                     Use my account information
                   </span>
                 </label>
-                <span className="text-[12.5px] font-mono text-[#1787D4] bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100">
+                <span className="text-xs font-mono text-[#5A6A85] truncate max-w-full">
                   {accountTag}
                 </span>
               </div>
@@ -1195,7 +1199,7 @@ export default function DomainRegistrationWizard({
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       First name
                     </label>
                     <input
@@ -1203,11 +1207,11 @@ export default function DomainRegistrationWizard({
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Chibuike"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Last name
                     </label>
                     <input
@@ -1215,14 +1219,14 @@ export default function DomainRegistrationWizard({
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Ugwu"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Email address
                     </label>
                     <input
@@ -1230,11 +1234,11 @@ export default function DomainRegistrationWizard({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="chibuike@yourbusiness.com"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Phone number
                     </label>
                     <input
@@ -1242,7 +1246,7 @@ export default function DomainRegistrationWizard({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+234 803 555 0142"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                 </div>
@@ -1250,18 +1254,18 @@ export default function DomainRegistrationWizard({
             </div>
 
             {/* Registrant Information Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Registrant information
               </h3>
-              <p className="text-[13px] text-[#6e6e73] mt-0.5 mb-5">
+              <p className="text-sm text-[#5A6A85] mt-1 mb-5">
                 This information identifies the legal owner of the domain.
               </p>
 
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Organization
                     </label>
                     <input
@@ -1269,11 +1273,11 @@ export default function DomainRegistrationWizard({
                       value={organization}
                       onChange={(e) => setOrganization(e.target.value)}
                       placeholder="Your Business Limited"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Street address
                     </label>
                     <input
@@ -1281,14 +1285,14 @@ export default function DomainRegistrationWizard({
                       value={streetAddress}
                       onChange={(e) => setStreetAddress(e.target.value)}
                       placeholder="24 Admiralty Way"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       City
                     </label>
                     <input
@@ -1296,11 +1300,11 @@ export default function DomainRegistrationWizard({
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="Lagos"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       State
                     </label>
                     <input
@@ -1308,11 +1312,11 @@ export default function DomainRegistrationWizard({
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       placeholder="Lagos"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                    <label className="block text-sm font-medium text-[#031033] mb-1.5">
                       Postal code
                     </label>
                     <input
@@ -1320,20 +1324,20 @@ export default function DomainRegistrationWizard({
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                       placeholder="100104"
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4]"
+                      className="w-full h-10 px-3 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[12.5px] font-semibold text-[#1d1d1f] mb-1.5">
+                  <label className="block text-sm font-medium text-[#031033] mb-1.5">
                     Country
                   </label>
                   <div className="relative">
                     <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="w-full h-10 px-3 rounded-lg border border-[#d1d5db] bg-white text-[13.5px] text-[#1d1d1f] outline-none focus:border-[#1787D4] appearance-none cursor-pointer"
+                      className="w-full h-10 px-3 pr-8 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] outline-none transition-colors focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 appearance-none cursor-pointer"
                     >
                       <option value="Nigeria">Nigeria</option>
                       <option value="Ghana">Ghana</option>
@@ -1342,29 +1346,29 @@ export default function DomainRegistrationWizard({
                       <option value="United States">United States</option>
                       <option value="United Kingdom">United Kingdom</option>
                     </select>
-                    <ChevronDown className="w-4 h-4 text-[#6e6e73] absolute right-3 top-3 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#5A6A85] absolute right-3 top-3 pointer-events-none" />
                   </div>
                 </div>
               </div>
 
               {/* Bottom buttons row in Card */}
-              <div className="mt-8 pt-5 border-t border-[#f0f0f3] flex items-center justify-between">
+              <div className="mt-6 pt-5 border-t border-[#EEF2F7] flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setCurrentStep(2);
                     setStep2View("ready");
                   }}
-                  className="text-[13.5px] font-semibold text-[#6e6e73] hover:text-[#1d1d1f] transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(4)}
-                  className="px-6 py-2.5 rounded-lg font-semibold text-white text-[13.5px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
-                  Continue to Review
+                  Continue to review
                 </button>
               </div>
             </div>
@@ -1372,57 +1376,57 @@ export default function DomainRegistrationWizard({
 
           {/* Right Column (4 cols): Registration Contact Preview + Mini Summary */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h4 className="text-[15px] font-bold text-[#1d1d1f] mb-3">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h2 className="text-base font-semibold text-[#031033] mb-3">
                 Registration contact
-              </h4>
+              </h2>
 
-              <div className="space-y-1.5 text-[13px] text-[#6e6e73] pb-4 border-b border-[#f0f0f3]">
-                <p className="font-bold text-[#1d1d1f] text-[14px]">
+              <div className="space-y-1.5 text-sm text-[#5A6A85] pb-4 border-b border-[#EEF2F7]">
+                <p className="font-medium text-[#031033] text-sm">
                   {firstName} {lastName}
                 </p>
                 <p>{organization}</p>
-                <p className="text-[#1787D4]">{email}</p>
+                <p className="text-[#031033] break-all">{email}</p>
                 <p>
                   {city}, {country}
                 </p>
               </div>
 
-              <div className="mt-4 flex items-start gap-2.5 text-[12px] text-[#6e6e73] leading-relaxed">
-                <Shield className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
+              <div className="mt-4 flex items-start gap-2.5 text-xs text-[#5A6A85] leading-relaxed">
+                <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
                 <span>
-                  Privacy Protection will keep these details out of public
+                  Privacy protection keeps these details out of public
                   domain lookup results.
                 </span>
               </div>
             </div>
 
             {/* Mini Order Summary Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <div className="flex flex-col gap-2.5 text-[13px] text-[#6e6e73]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div className="flex flex-col gap-2.5 text-sm text-[#5A6A85] tabular-nums">
                 <div className="flex justify-between items-center">
                   <span className="font-medium truncate pr-2">
                     {selectedDomainName}
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] shrink-0">
+                  <span className="font-semibold text-[#031033] shrink-0">
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
                 </div>
 
                 {includeSsl && (
-                  <div className="flex justify-between items-center text-blue-700">
+                  <div className="flex justify-between items-center">
                     <span>PositiveSSL</span>
-                    <span className="font-semibold">
+                    <span className="font-semibold text-[#031033] shrink-0">
                       ₦{sslSubtotal.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                <div className="my-1.5 border-t border-[#f0f0f3]" />
+                <div className="my-1.5 border-t border-[#EEF2F7]" />
 
-                <div className="flex justify-between items-center text-[15px] font-bold text-[#1d1d1f]">
-                  <span>Total</span>
-                  <span>₦{grandTotal.toLocaleString()}</span>
+                <div className="flex justify-between items-baseline gap-3 text-[#031033]">
+                  <span className="text-sm font-medium">Total</span>
+                  <span className="text-lg font-semibold">₦{grandTotal.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -1438,13 +1442,13 @@ export default function DomainRegistrationWizard({
           {/* Left Column (8 cols): Domain Details + Registrant Summary */}
           <div className="lg:col-span-8 flex flex-col gap-5">
             {/* Domain Details Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <div className="flex items-center justify-between pb-4 border-b border-[#f0f0f3]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div className="flex items-center justify-between pb-4 border-b border-[#EEF2F7]">
                 <div>
-                  <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     Domain details
                   </h3>
-                  <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                  <p className="text-sm text-[#5A6A85] mt-0.5">
                     Registration and protection settings
                   </p>
                 </div>
@@ -1454,7 +1458,7 @@ export default function DomainRegistrationWizard({
                     setCurrentStep(2);
                     setStep2View("ready");
                   }}
-                  className="text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] cursor-pointer"
+                  className="inline-flex items-center h-8 px-3 -mr-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Edit
                 </button>
@@ -1463,65 +1467,64 @@ export default function DomainRegistrationWizard({
               {/* Domain Item */}
               <div className="py-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
-                    <Globe className="w-5 h-5" />
-                  </span>
+                  <Globe className="w-5 h-5 text-[#5A6A85] shrink-0" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[16px] font-bold text-[#1d1d1f] truncate">
+                      <span className="text-base font-semibold text-[#031033] truncate">
                         {selectedDomainName}
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                        <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                         Available
                       </span>
                     </div>
-                    <p className="text-[12px] text-[#6e6e73] mt-0.5">
-                      1-year registration • {getTodayFormatted()} -{" "}
+                    <p className="text-xs text-[#5A6A85] mt-0.5 tabular-nums">
+                      1-year registration · {getTodayFormatted()} –{" "}
                       {getExpiryDateFormatted(1)}
                     </p>
                   </div>
                 </div>
 
-                <span className="text-[16px] font-bold text-[#1d1d1f] shrink-0">
+                <span className="text-base font-semibold tabular-nums text-[#031033] shrink-0">
                   ₦{domainSubtotal.toLocaleString()}
                 </span>
               </div>
 
               {/* 4 Stats Columns */}
-              <div className="mt-2 pt-4 border-t border-[#f0f0f3] grid grid-cols-2 sm:grid-cols-4 gap-4 text-[12.5px]">
+              <div className="mt-2 pt-4 border-t border-[#EEF2F7] grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11.5px]">
-                    Auto-Renewal
+                  <span className="text-[#5A6A85] block text-xs">
+                    Auto-renew
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
+                  <span className="font-medium text-[#031033] mt-0.5 block tabular-nums">
                     {autoRenew ? "On" : "Off"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11.5px]">
-                    Privacy Protection
+                  <span className="text-[#5A6A85] block text-xs">
+                    Privacy protection
                   </span>
-                  <span className="font-semibold text-emerald-600 mt-0.5 block">
-                    {privacyProtection ? "Included" : "Disabled"}
+                  <span className="font-medium text-[#031033] mt-0.5 block">
+                    {privacyProtection ? "Included" : "Off"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11.5px]">
-                    SSL Certificate
+                  <span className="text-[#5A6A85] block text-xs">
+                    SSL certificate
                   </span>
                   <span
-                    className={`font-semibold mt-0.5 block ${
-                      includeSsl ? "text-blue-600" : "text-gray-500"
+                    className={`font-medium mt-0.5 block ${
+                      includeSsl ? "text-[#031033]" : "text-[#5A6A85]"
                     }`}
                   >
                     {includeSsl ? "Included" : "None"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11.5px]">
+                  <span className="text-[#5A6A85] block text-xs">
                     Nameservers
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
+                  <span className="font-medium text-[#031033] mt-0.5 block tabular-nums">
                     Nupat default
                   </span>
                 </div>
@@ -1529,34 +1532,34 @@ export default function DomainRegistrationWizard({
             </div>
 
             {/* Registrant Summary Card */}
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <div className="flex items-center justify-between pb-4 border-b border-[#f0f0f3]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <div className="flex items-center justify-between pb-4 border-b border-[#EEF2F7]">
                 <div>
-                  <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+                  <h3 className="text-base font-semibold text-[#031033]">
                     Registrant summary
                   </h3>
-                  <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
+                  <p className="text-sm text-[#5A6A85] mt-0.5">
                     Legal owner and administrative contact
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(3)}
-                  className="text-[13px] font-semibold text-[#1787D4] hover:text-[#136eb0] cursor-pointer"
+                  className="inline-flex items-center h-8 px-3 -mr-3 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
                 >
                   Edit
                 </button>
               </div>
 
-              <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
-                <div className="space-y-1.5 text-[#6e6e73]">
-                  <p className="font-bold text-[#1d1d1f] text-[14px]">
+              <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-1.5 text-[#5A6A85]">
+                  <p className="font-medium text-[#031033] text-sm">
                     {firstName} {lastName}
                   </p>
                   <p>{organization}</p>
-                  <p className="text-[#1787D4]">{email}</p>
+                  <p className="text-[#031033] break-all">{email}</p>
                 </div>
-                <div className="space-y-1.5 text-[#6e6e73]">
+                <div className="space-y-1.5 text-[#5A6A85]">
                   <p>{phone}</p>
                   <p>{streetAddress}</p>
                   <p>
@@ -1569,81 +1572,81 @@ export default function DomainRegistrationWizard({
 
           {/* Right Column (4 cols): Order Summary */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h4 className="text-[16px] font-bold text-[#1d1d1f] mb-4">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h2 className="text-base font-semibold text-[#031033] mb-4">
                 Order summary
-              </h4>
+              </h2>
 
-              <div className="flex flex-col gap-2.5 text-[13px] text-[#6e6e73]">
+              <div className="flex flex-col gap-2.5 text-sm text-[#5A6A85] tabular-nums">
                 <div className="flex justify-between items-center">
                   <span>Domain registration</span>
-                  <span className="font-semibold text-[#1d1d1f]">
+                  <span className="font-semibold text-[#031033]">
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Privacy Protection</span>
-                  <span className={`font-semibold ${privacyProtection ? "text-emerald-600" : "text-[#1d1d1f]"}`}>
-                    {privacyProtection ? "Free" : "Disabled"}
+                  <span>Privacy protection</span>
+                  <span className={`font-medium ${privacyProtection ? "text-[#0E7C3A]" : "text-[#5A6A85]"}`}>
+                    {privacyProtection ? "Free" : "Off"}
                   </span>
                 </div>
 
                 {includeSsl && (
-                  <div className="flex justify-between items-center text-blue-700">
-                    <span>PositiveSSL Certificate</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center">
+                    <span>PositiveSSL certificate</span>
+                    <span className="font-semibold text-[#031033] shrink-0">
                       ₦{sslSubtotal.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
                 <div className="flex justify-between items-center">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1d1d1f]">
+                  <span className="font-semibold text-[#031033]">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
-                <div className="flex justify-between items-center text-[16px] font-bold text-[#1d1d1f]">
-                  <span>Total due today</span>
-                  <span className="text-[#1787D4]">
+                <div className="flex justify-between items-baseline gap-3 text-[#031033]">
+                  <span className="text-sm font-medium">Total due today</span>
+                  <span className="text-2xl font-semibold">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               {/* Agreement checkbox */}
-              <div className="mt-5 pt-4 border-t border-[#f0f0f3]">
-                <label className="flex items-start gap-2.5 cursor-pointer text-[12px] text-[#6e6e73] leading-relaxed">
+              <div className="mt-5 pt-4 border-t border-[#EEF2F7]">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#5A6A85] leading-relaxed">
                   <input
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#1787D4] focus:ring-[#1787D4] border-gray-300 mt-0.5 cursor-pointer"
+                    className="w-4 h-4 rounded accent-[#1787D4] border-[#D5DCE6] mt-0.5 cursor-pointer"
                   />
                   <span>
-                    I confirm these details are accurate and agree to the Domain
-                    Registration Terms.
+                    I confirm these details are accurate and agree to the domain
+                    registration terms.
                   </span>
                 </label>
               </div>
 
-              {/* Proceed to Payment */}
+              {/* Proceed to payment */}
               <button
                 type="button"
                 disabled={!agreedToTerms}
                 onClick={() => setCurrentStep(5)}
-                className="w-full mt-6 py-3 rounded-lg font-semibold text-white text-[14px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-6 h-9 inline-flex items-center justify-center rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Proceed to Payment
               </button>
 
-              <div className="mt-4 flex items-center justify-center gap-1.5 text-[11.5px] text-[#6e6e73]">
-                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#5A6A85]">
+                <Check className="w-3.5 h-3.5 text-[#0E7C3A] shrink-0" />
                 <span>
                   Your registration starts immediately after payment is
                   confirmed.
@@ -1661,51 +1664,51 @@ export default function DomainRegistrationWizard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
           {/* Left Column (8 cols): Paystack Payment Method */}
           <div className="lg:col-span-8 flex flex-col gap-5">
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h3 className="text-[16px] font-bold text-[#1d1d1f]">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h3 className="text-base font-semibold text-[#031033]">
                 Payment method
               </h3>
-              <p className="text-[13px] text-[#6e6e73] mt-0.5 mb-5">
+              <p className="text-sm text-[#5A6A85] mt-1 mb-5">
                 Your payment details are encrypted and handled securely.
               </p>
 
               {/* Paystack Card */}
-              <div className="p-4 sm:p-5 rounded-lg border-2 border-[#1787D4] bg-[#f8fbfe] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
+              <div className="p-4 rounded-lg border-2 border-[#1787D4] bg-[#E8F4FC]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full border-4 border-[#1787D4] bg-white flex items-center justify-center shrink-0" />
                   <div className="flex items-center gap-3">
-                    <div className="h-7 w-auto flex items-center shrink-0">
+                    <div className="h-8 w-[110px] flex items-center shrink-0">
                       <Image
                         src="/paystack-logo.png"
                         alt="Paystack"
                         width={110}
                         height={28}
-                        className="h-7 w-auto object-contain"
+                        className="h-7 w-auto max-w-full object-contain"
                       />
                     </div>
                     <div>
-                      <p className="text-[14px] font-bold text-[#1d1d1f]">
+                      <p className="text-sm font-medium text-[#031033]">
                         Paystack
                       </p>
-                      <p className="text-[12px] text-[#6e6e73]">
-                        Pay with debit/credit card, bank transfer, USSD, or Apple
+                      <p className="text-xs text-[#5A6A85]">
+                        Debit or credit card, bank transfer, USSD or Apple
                         Pay
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <span className="self-start sm:self-center text-[11.5px] font-bold text-[#1787D4] bg-[#e6f4fc] px-2.5 py-1 rounded-full shrink-0">
-                  Primary Gateway
+                <span className="self-start sm:self-center whitespace-nowrap text-xs font-medium text-[#5A6A85] shrink-0">
+                  Primary gateway
                 </span>
               </div>
 
               {/* Security note */}
-              <div className="mt-5 p-4 rounded-lg bg-[#f9fafb] border border-[#e5e7eb] flex items-start gap-3 text-[12.5px] text-[#6e6e73]">
-                <Shield className="w-5 h-5 text-[#1787D4] shrink-0 mt-0.5" />
+              <div className="mt-5 px-4 py-3 rounded-lg bg-[#F2F5FC] border border-[#E2E8F0] flex items-start gap-3 text-sm text-[#5A6A85]">
+                <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-[#1d1d1f]">
-                    Direct & Secure Paystack Checkout
+                  <p className="font-medium text-[#031033]">
+                    Secure checkout with Paystack
                   </p>
                   <p className="mt-0.5">
                     Clicking &ldquo;Pay with Paystack&rdquo; will direct you
@@ -1716,8 +1719,8 @@ export default function DomainRegistrationWizard({
                 </div>
               </div>
 
-              <div className="mt-6 flex items-center gap-2 text-[12px] text-[#6e6e73]">
-                <Lock className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="mt-6 flex items-center gap-2 text-xs text-[#5A6A85]">
+                <Lock className="w-4 h-4 text-[#0E7C3A] shrink-0" />
                 <span>Secured with encrypted payment processing.</span>
               </div>
             </div>
@@ -1725,56 +1728,56 @@ export default function DomainRegistrationWizard({
 
           {/* Right Column (4 cols): Order Summary & Direct Pay Button */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="w-full bg-white rounded-lg border border-[#e8e8ed] p-5 sm:p-6 shadow-xs">
-              <h4 className="text-[16px] font-bold text-[#1d1d1f] mb-4">
+            <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
+              <h2 className="text-base font-semibold text-[#031033] mb-4">
                 Order summary
-              </h4>
+              </h2>
 
-              <div className="flex flex-col gap-2.5 text-[13px] text-[#6e6e73]">
+              <div className="flex flex-col gap-2.5 text-sm text-[#5A6A85] tabular-nums">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="font-semibold text-[#1d1d1f] block truncate">
+                    <span className="font-medium text-[#031033] block truncate">
                       {selectedDomainName}
                     </span>
-                    <span className="text-[11.5px] text-[#8a9bb2]">
+                    <span className="text-xs text-[#5A6A85]">
                       1-year registration
                     </span>
                   </div>
-                  <span className="font-semibold text-[#1d1d1f] shrink-0">
+                  <span className="font-semibold text-[#031033] shrink-0">
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
                 </div>
 
                 {includeSsl && (
-                  <div className="flex justify-between items-start text-blue-700">
+                  <div className="flex justify-between items-start">
                     <div>
-                      <span className="font-semibold block truncate">
-                        PositiveSSL Certificate
+                      <span className="font-medium text-[#031033] block truncate">
+                        PositiveSSL certificate
                       </span>
-                      <span className="text-[11.5px] text-blue-500">
+                      <span className="text-xs text-[#5A6A85]">
                         1-year term
                       </span>
                     </div>
-                    <span className="font-semibold shrink-0">
+                    <span className="font-semibold text-[#031033] shrink-0">
                       ₦{sslSubtotal.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
                 <div className="flex justify-between items-center">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1d1d1f]">
+                  <span className="font-semibold text-[#031033]">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
 
-                <div className="my-2 border-t border-[#f0f0f3]" />
+                <div className="my-2 border-t border-[#EEF2F7]" />
 
-                <div className="flex justify-between items-center text-[16px] font-bold text-[#1d1d1f]">
-                  <span>Total</span>
-                  <span className="text-[#1787D4]">
+                <div className="flex justify-between items-baseline gap-3 text-[#031033]">
+                  <span className="text-sm font-medium">Total</span>
+                  <span className="text-2xl font-semibold">
                     ₦{grandTotal.toLocaleString()}
                   </span>
                 </div>
@@ -1785,7 +1788,7 @@ export default function DomainRegistrationWizard({
                 type="button"
                 disabled={isRedirectingToPaystack}
                 onClick={handlePaystackCheckout}
-                className="w-full mt-6 py-3 rounded-lg font-semibold text-white text-[14px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full mt-6 h-9 inline-flex items-center justify-center rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 transition-colors cursor-pointer gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isRedirectingToPaystack ? (
                   <>
@@ -1797,7 +1800,7 @@ export default function DomainRegistrationWizard({
                 )}
               </button>
 
-              <p className="text-center text-[11.5px] text-[#8a9bb2] mt-3 leading-relaxed">
+              <p className="text-center text-xs text-[#5A6A85] mt-3 leading-relaxed">
                 By paying, you authorise this charge and agree to the domain
                 registration terms.
               </p>
@@ -1812,12 +1815,12 @@ export default function DomainRegistrationWizard({
       ══════════════════════════════════════════════════════════════════ */}
       {currentStep === 6 && (
         <div className="w-full flex flex-col gap-5 items-center">
-          <div className="w-full max-w-3xl bg-white rounded-lg border border-[#e8e8ed] p-6 sm:p-10 shadow-xs flex flex-col items-center text-center">
+          <div className="w-full max-w-3xl bg-white rounded-xl border border-[#E2E8F0] p-6 sm:p-10 flex flex-col items-center text-center">
             {/* The 3D checkmark SVG */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 flex items-center justify-center">
               <Image
                 src="/checkmark.svg"
-                alt="Registration Complete"
+                alt="Registration complete"
                 width={96}
                 height={96}
                 className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
@@ -1825,57 +1828,56 @@ export default function DomainRegistrationWizard({
               />
             </div>
 
-            <h2 className="text-[20px] sm:text-[23px] font-bold text-[#1d1d1f]">
+            <h2 className="text-lg font-semibold text-[#031033] break-all">
               Welcome to the internet, {selectedDomainName}
             </h2>
-            <p className="text-[13.5px] text-[#6e6e73] mt-1.5 max-w-lg leading-relaxed">
+            <p className="text-sm text-[#5A6A85] mt-1.5 max-w-lg leading-relaxed">
               Your registration is complete. You can manage DNS, connect a website, or add hosting whenever you&apos;re ready.
             </p>
 
             {/* Domain Info Box */}
-            <div className="w-full mt-7 p-4 sm:p-5 rounded-lg border border-[#e8e8ed] bg-[#f9fafb] text-left">
-              <div className="flex items-center justify-between pb-3.5 border-b border-[#e5e7eb]">
+            <div className="w-full mt-6 p-4 rounded-lg border border-[#E2E8F0] bg-[#F2F5FC] text-left">
+              <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="flex items-center justify-center w-9 h-9 rounded-full bg-[#e6f7f8] text-[#0d9488] shrink-0">
-                    <Globe className="w-5 h-5" />
-                  </span>
+                  <Globe className="w-5 h-5 text-[#5A6A85] shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[15px] font-bold text-[#1d1d1f] truncate">
+                    <p className="text-sm font-medium text-[#031033] truncate">
                       {selectedDomainName}
                     </p>
-                    <p className="text-[11.5px] text-[#6e6e73]">
+                    <p className="text-xs text-[#5A6A85]">
                       Primary domain
                     </p>
                   </div>
                 </div>
 
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0">
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
                   Active
                 </span>
               </div>
 
-              <div className="pt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-[12.5px]">
+              <div className="pt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11px]">
+                  <span className="text-[#5A6A85] block text-xs">
                     Registered
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
+                  <span className="font-medium text-[#031033] mt-0.5 block tabular-nums">
                     {getTodayFormatted()}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11px]">
+                  <span className="text-[#5A6A85] block text-xs">
                     Expires
                   </span>
-                  <span className="font-semibold text-[#1d1d1f] mt-0.5 block">
+                  <span className="font-medium text-[#031033] mt-0.5 block tabular-nums">
                     {getExpiryDateFormatted(1)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#8a9bb2] block text-[11px]">
-                    Auto-Renew
+                  <span className="text-[#5A6A85] block text-xs">
+                    Auto-renew
                   </span>
-                  <span className={`font-semibold mt-0.5 block ${autoRenew ? "text-emerald-600" : "text-[#1d1d1f]"}`}>
+                  <span className="font-medium mt-0.5 block text-[#031033]">
                     {autoRenew ? "On" : "Off"}
                   </span>
                 </div>
@@ -1883,34 +1885,34 @@ export default function DomainRegistrationWizard({
             </div>
 
             {/* Actions */}
-            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 w-full">
               <button
                 type="button"
                 onClick={() => router.push("/dashboard/domains")}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold text-white text-[13.5px] bg-[#1787D4] hover:bg-[#1578bd] transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white bg-[#1787D4] hover:bg-[#1370B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 w-full sm:w-auto"
               >
-                Manage Domain
+                Manage domain
               </button>
               <button
                 type="button"
                 onClick={() => router.push("/dashboard/hosting")}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold text-[#1d1d1f] text-[13.5px] bg-white border border-[#d1d5db] hover:bg-slate-50 transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-[#031033] bg-white border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 w-full sm:w-auto"
               >
-                Set Up Hosting
+                Set up hosting
               </button>
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-lg font-semibold text-[#6e6e73] hover:text-[#1d1d1f] text-[13.5px] transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-medium text-[#1787D4] hover:bg-[#E8F4FC] transition-colors w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
-                Go to Dashboard
+                Go to dashboard
               </button>
             </div>
           </div>
 
           {/* Bottom notification */}
-          <div className="w-full max-w-3xl bg-[#f0f9ff] border border-[#bae6fd] rounded-lg p-3.5 text-[#0369a1] text-[12.5px] flex items-center justify-center gap-2 font-medium">
-            <Check className="w-4 h-4 shrink-0 text-[#0284c7]" />
+          <div className="w-full max-w-3xl rounded-lg border border-[#1787D4]/20 bg-[#E8F4FC] px-4 py-3 text-sm text-[#031033] flex items-center justify-center gap-2">
+            <Check className="w-4 h-4 shrink-0 text-[#1787D4]" />
             <span>
               A registration receipt and verification details were sent to {email || userProfile?.email || "your registered email"}.
             </span>

@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
-import { motion } from "motion/react";
 
 /* ── Authentic Client & Partner Logos from Nupat Africa ── */
 const CLIENT_LOGOS = [
@@ -131,16 +128,16 @@ export default function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="py-12 sm:py-16 bg-white relative overflow-hidden"
+      className="py-16 sm:py-24 bg-white relative overflow-hidden"
     >
-      {/* Background Curvelines */}
+      {/* Background curvelines */}
       <div className="absolute top-12 -left-28 pointer-events-none select-none z-0 hidden md:block">
         <Image
           src="/curveline.png"
           alt=""
           width={500}
           height={200}
-          className="w-155 lg:w-155 h-auto brightness-0 opacity-[0.04] rotate-[-18deg]"
+          className="w-155 h-auto brightness-0 opacity-[0.04] rotate-[-18deg]"
           aria-hidden
         />
       </div>
@@ -156,45 +153,32 @@ export default function TestimonialsSection() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* ── Main Section Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-8 sm:mb-10 flex flex-col items-center"
-        >
+        <div className="text-center mb-10 flex flex-col items-center">
           <h2 className="type-h2 text-[#031033] mb-3 inline-block text-center">
             <span className="relative inline-block pb-1">
               Helping businesses build what&apos;s next
               <span
-                className="absolute left-0 bottom-0 w-full h-[3.5px] bg-[#1787D4] rounded-full"
+                className="absolute left-0 bottom-0 w-full h-1 bg-[#1787D4] rounded-full"
                 aria-hidden="true"
               />
             </span>
           </h2>
-          <p className="type-lead text-[#5a6a85] max-w-2xl mx-auto leading-relaxed">
-            We are creating the infrastructure that helps businesses move from
-            idea to online and beyond.
+          <p className="type-lead text-[#5A6A85] max-w-2xl mx-auto leading-relaxed">
+            We build the infrastructure that takes businesses from an idea
+            to a working website and beyond.
           </p>
-        </motion.div>
+        </div>
 
-        {/* ── Trusted by Growing Brands & Corporations ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-14 sm:mb-16 text-center"
-        >
-          <p className="type-overline text-[#5a6a85] mb-8 sm:mb-10 tracking-widest uppercase text-xs font-semibold">
-            TRUSTED BY GROWING BRANDS &amp; CORPORATIONS
+        {/* Client logos */}
+        <div className="mb-14 sm:mb-16 text-center">
+          <p className="text-sm text-[#5A6A85] mb-8">
+            Businesses that run on Nupat Cloud
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-7 sm:gap-10 md:gap-12 lg:gap-14">
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-10 md:gap-12 lg:gap-14">
             {CLIENT_LOGOS.map((logo) => (
               <div
                 key={logo.name}
-                className="flex items-center justify-center transition-all duration-200 select-none hover:scale-105"
+                className="flex items-center justify-center select-none"
               >
                 <Image
                   src={logo.src}
@@ -206,48 +190,37 @@ export default function TestimonialsSection() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* ── Testimonials Grid with Staggered Motion ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {testimonials.map((t, idx) => (
-            <motion.div
+        {/* Testimonials grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {testimonials.map((t) => (
+            <figure
               key={t.id}
               id={`testimonial-${t.id}`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{
-                duration: 0.5,
-                ease: [0.22, 1, 0.36, 1],
-                delay: idx * 0.1,
-              }}
-              whileHover={{ y: -4 }}
-              className="bg-white border border-[#E5E7EB] rounded-lg p-7 sm:p-8 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300"
+              className="bg-white border border-[#E2E8F0] rounded-xl p-6 sm:p-8 flex flex-col justify-between"
             >
               <div>
-                {/* Header with Quote Icon + Real Company Logo */}
-                <div className="flex items-center justify-between mb-6 min-h-[44px]">
+                <div className="flex items-center justify-between mb-6 min-h-11">
                   <BlueQuoteIcon />
-                  <div className="relative h-9 sm:h-10 max-w-[160px] flex items-center justify-end">
+                  <div className="relative h-10 max-w-40 flex items-center justify-end">
                     <Image
                       src={t.companyLogo}
                       alt={t.company}
                       width={160}
                       height={44}
-                      className={`${t.companyLogoClassName || "h-8 sm:h-9 w-auto object-contain"} hover:scale-105 transition-transform`}
+                      className={t.companyLogoClassName || "h-8 sm:h-9 w-auto object-contain"}
                     />
                   </div>
                 </div>
 
-                <p className="text-[#1d1d1f] text-[15px] leading-relaxed mb-8 font-normal">
+                <blockquote className="text-[#031033] text-base leading-relaxed mb-8">
                   {t.quote}
-                </p>
+                </blockquote>
               </div>
 
-              {/* Author Footer */}
-              <div className="flex items-center gap-3.5 pt-4 border-t border-slate-100">
-                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-slate-200/80 shadow-xs">
+              <figcaption className="flex items-center gap-3.5 pt-4 border-t border-[#E2E8F0]">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-[#E2E8F0]">
                   <Image
                     src={t.image}
                     alt={t.name}
@@ -257,13 +230,13 @@ export default function TestimonialsSection() {
                   />
                 </div>
                 <div>
-                  <h4 className="text-[#031033] font-semibold text-[15px] leading-tight">
+                  <p className="text-[#031033] font-semibold text-base leading-tight">
                     {t.name}
-                  </h4>
-                  <p className="text-[#5a6a85] text-[13px] mt-0.5">{t.title}</p>
+                  </p>
+                  <p className="text-[#5A6A85] text-sm mt-0.5">{t.title}</p>
                 </div>
-              </div>
-            </motion.div>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </div>

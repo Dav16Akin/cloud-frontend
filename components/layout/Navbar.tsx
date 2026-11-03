@@ -13,8 +13,6 @@ import {
   Headphones,
   BookOpen,
   Tag,
-  ChevronDown,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
@@ -22,11 +20,57 @@ import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useLogout } from "@/hooks/useAuth";
 import { useGetMe } from "@/hooks/useUser";
-import { ProductsMegaMenu, ResourcesMegaMenu } from "@/components/layout/ProductsMegaMenu";
+import {
+  activeProductsItems,
+  activeResourcesItems,
+  type MenuItem,
+} from "@/components/layout/ProductsMegaMenu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { MobileAccountPanel, UserMenu } from "@/components/layout/UserMenu";
 
 const DOCS_URL =
   process.env.NEXT_PUBLIC_DOCS_URL || "https://docs.nupatcloud.com";
+
+// "Ask AI" opens the Nupat assistant on WhatsApp (same number as the chat button).
+const ASK_AI_URL = `https://wa.me/2349076646154?text=${encodeURIComponent(
+  "Hi, I have a question about Nupat Cloud.",
+)}`;
+
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+
+/* ─── Dropdown row (shadcn ListItem pattern) ────────────────── */
+function MenuListItem({ item }: { item: MenuItem }) {
+  const Icon = item.icon;
+  const external = isExternal(item.href);
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href={item.href}
+          target={external ? "_blank" : undefined}
+          rel={external ? "noopener noreferrer" : undefined}
+          className="flex select-none gap-3 rounded-lg p-3 no-underline outline-none transition-colors hover:bg-[#F2F5FC] focus:bg-[#F2F5FC] focus-visible:ring-2 focus-visible:ring-[#1787D4]"
+        >
+          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#1787D4]" aria-hidden="true" />
+          <span className="min-w-0">
+            <span className="block text-sm font-medium text-[#031033]">{item.title}</span>
+            <span className="mt-0.5 line-clamp-2 block text-sm text-[#5A6A85]">
+              {item.description}
+            </span>
+          </span>
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  );
+}
 
 /* ─── Data ──────────────────────────────────────────────────── */
 const productsLinks = [
@@ -34,7 +78,7 @@ const productsLinks = [
     title: "Domain Registration",
     href: "/domains",
     icon: Globe,
-    description: "Find and register your perfect domain.",
+    description: "Search and register .ng, .com and other domains.",
     available: true,
   },
   {
@@ -48,7 +92,7 @@ const productsLinks = [
     title: "Web Hosting",
     href: "/hosting",
     icon: Server,
-    description: "Reliable hosting for websites.",
+    description: "cPanel hosting for websites and WordPress.",
     available: true,
   },
   {
@@ -62,7 +106,7 @@ const productsLinks = [
     title: "Pricing & Plans",
     href: "/pricing",
     icon: Tag,
-    description: "Transparent hosting packages.",
+    description: "Compare hosting, VPS and domain prices.",
     available: true,
   },
   /* Commented out unused items:
@@ -88,19 +132,19 @@ const resourcesLinks = [
     title: "Documentation",
     href: DOCS_URL,
     icon: BookOpen,
-    description: "Guides, references & API docs.",
+    description: "Guides, references and API docs.",
   },
   {
     title: "Help Center",
     href: "/contact",
     icon: Headphones,
-    description: "Our team is ready to help.",
+    description: "Talk to our support team.",
   },
   {
     title: "Pricing",
     href: "/pricing",
     icon: Tag,
-    description: "Transparent plans for every budget.",
+    description: "Plans and prices for every budget.",
   },
   /* Commented out until /blog route exists:
   {
@@ -111,6 +155,9 @@ const resourcesLinks = [
   },
   */
 ];
+
+const focusRing =
+  "outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
 
 /* ─── Scroll hook ───────────────────────────────────────────── */
 function useScroll(threshold: number) {
@@ -139,7 +186,7 @@ function MobileMenu({
     <div
       id="mobile-menu"
       onClick={onClose}
-      className="fixed inset-x-0 bottom-0 z-40 flex flex-col overflow-y-auto bg-white/95 backdrop-blur-xl border-t border-[#e2eaff] md:hidden animate-in fade-in-0 slide-in-from-top-2"
+      className="fixed inset-x-0 bottom-0 z-40 flex flex-col overflow-y-auto bg-white border-t border-[#E2E8F0] md:hidden"
       style={{ top: 88 }}
     >
       <div className="flex flex-col justify-between gap-4 p-4 min-h-full">
@@ -190,34 +237,17 @@ export default function Navbar() {
     pathname.startsWith("/dashboard/ssl") ||
     pathname.startsWith("/dashboard/domain");
 
-  /* ── shared link styles ── */
-  const navLink = (active: boolean) =>
-    cn(
-      "inline-flex h-8.5 items-center px-3.5 text-[13.5px] font-medium rounded-full transition-all duration-150",
-      active
-        ? "text-[#1787D4] bg-[#1787D4]/10 font-semibold"
-        : "text-[#5a6a85] hover:text-[#1787D4] hover:bg-[#1787D4]/8",
-    );
-
-  const triggerBtn = (active: boolean) =>
-    cn(
-      "inline-flex h-8.5 items-center gap-1 px-3.5 text-[13.5px] font-medium rounded-full transition-all duration-150 bg-transparent border-none cursor-pointer",
-      active
-        ? "text-[#1787D4] bg-[#1787D4]/10 font-semibold"
-        : "text-[#5a6a85] hover:text-[#1787D4] hover:bg-[#1787D4]/8",
-    );
-
   return (
     <>
-      {/* ═══ Floating pill shell ═════════════════════════════════ */}
+      {/* ═══ Floating bar shell ══════════════════════════════════ */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4">
         <div
           className={cn(
-            "mx-auto max-w-7xl rounded-lg border border-[#e2eaff] bg-white/95 backdrop-blur-xl",
-            "transition-all duration-300",
+            "mx-auto max-w-7xl rounded-xl border transition-[background-color,border-color,box-shadow] duration-200",
+            // Solid at the top of the page; frosted glass once the page scrolls under it.
             scrolled
-              ? "bg-white/90 shadow-[0_12px_36px_rgba(23,135,212,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
-              : "shadow-[0_4px_20px_rgba(23,135,212,0.08),0_1px_4px_rgba(0,0,0,0.04)]",
+              ? "border-white/60 bg-white/70 shadow-[0_8px_24px_rgba(3,16,51,0.10)] backdrop-blur-xl backdrop-saturate-150 supports-[not(backdrop-filter:blur(0))]:bg-white"
+              : "border-[#E2E8F0] bg-white",
           )}
         >
           {/* 3-col grid: logo | center nav | actions */}
@@ -229,7 +259,7 @@ export default function Navbar() {
             <Link
               href="/"
               id="navbar-logo"
-              className="flex items-center shrink-0 mr-4"
+              className={cn("flex items-center shrink-0 mr-4 rounded-lg", focusRing)}
             >
               <div className="relative" style={{ width: 200, height: 38 }}>
                 <Image
@@ -237,82 +267,110 @@ export default function Navbar() {
                   alt="Nupat Cloud"
                   fill
                   priority
-                  sizes="500px"
+                  sizes="200px"
                   className="object-contain object-left"
                 />
               </div>
             </Link>
 
-            {/* ── Desktop nav (centered) ── */}
-            <div className="hidden md:flex justify-center items-center gap-0.5">
-              {/* ─ Products ▾ ─ */}
-              <div className="relative group">
-                <button
-                  className={triggerBtn(productsActive)}
-                  id="nav-products"
-                >
-                  Products
-                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-all duration-200 group-hover:rotate-180 group-hover:text-[#1787D4]" />
-                </button>
-                {/* Mega dropdown */}
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50
-                                opacity-0 invisible translate-y-1 pointer-events-none
-                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto
-                                transition-all duration-200"
-                >
-                  <ProductsMegaMenu />
-                </div>
-              </div>
+            {/* ── Desktop nav (centered): shadcn NavigationMenu, opens on hover, click and keyboard ── */}
+            <div className="hidden md:flex justify-center items-center">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger
+                      id="nav-products"
+                      className={productsActive ? "bg-[#E8F4FC] text-[#1787D4]" : undefined}
+                    >
+                      Products
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid gap-1 p-3 md:w-[520px] lg:w-[620px] lg:grid-cols-[.8fr_1fr]">
+                        <li className="row-span-4">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="/pricing"
+                              className="relative flex h-full min-h-[260px] w-full select-none flex-col justify-end overflow-hidden rounded-lg bg-[#031033] p-5 no-underline outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]"
+                            >
+                              <Image
+                                src="/infrastructure.png"
+                                alt=""
+                                fill
+                                sizes="240px"
+                                className="object-cover object-cover"
+                                aria-hidden="true"
+                              />
+                              <span className="absolute inset-x-0 bottom-0 h-3/5 bg-[#031033]/80" aria-hidden="true" />
+                              <span className="relative text-base font-semibold text-white">
+                                Nupat Cloud
+                              </span>
+                              <span className="relative mt-1 text-sm leading-snug text-white/80">
+                                Domains, hosting and cloud servers for businesses in Nigeria and across Africa.
+                              </span>
+                              <span className="relative mt-4 text-sm font-medium text-[#FFC75D]">
+                                Compare plans and pricing
+                              </span>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                        {activeProductsItems
+                          .filter((item) => item.available && item.href !== "/pricing")
+                          .map((item) => (
+                            <MenuListItem key={item.title} item={item} />
+                          ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
 
-              {/* ─ Developers ─ */}
-              <Link
-                href={DOCS_URL}
-                id="nav-developers"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={navLink(false)}
-              >
-                Developers
-              </Link>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={DOCS_URL}
+                        id="nav-developers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Developers
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
 
-              {/* ─ AI & Websites ─ */}
-              <Link
-                href="/hosting"
-                id="nav-ai-websites"
-                className={navLink(pathname === "/hosting")}
-              >
-                AI &amp; Websites
-              </Link>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild active={pathname === "/hosting"}>
+                      <Link href="/hosting" id="nav-ai-websites" className={navigationMenuTriggerStyle()}>
+                        AI &amp; Websites
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
 
-              {/* ─ Pricing ─ */}
-              <Link
-                href="/pricing"
-                id="nav-pricing"
-                className={navLink(pathname === "/pricing")}
-              >
-                Pricing
-              </Link>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild active={pathname === "/pricing"}>
+                      <Link href="/pricing" id="nav-pricing" className={navigationMenuTriggerStyle()}>
+                        Pricing
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
 
-              {/* ─ Resources ▾ ─ */}
-              <div className="relative group">
-                <button
-                  className={triggerBtn(pathname === "/contact")}
-                  id="nav-resources"
-                >
-                  Resources
-                  <ChevronDown className="h-3.5 w-3.5 text-[#9ba8c0] transition-all duration-200 group-hover:rotate-180 group-hover:text-[#1787D4]" />
-                </button>
-                {/* dropdown */}
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50
-                                opacity-0 invisible translate-y-1 pointer-events-none
-                                group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto
-                                transition-all duration-200"
-                >
-                  <ResourcesMegaMenu />
-                </div>
-              </div>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger
+                      id="nav-resources"
+                      className={pathname === "/contact" ? "bg-[#E8F4FC] text-[#1787D4]" : undefined}
+                    >
+                      Resources
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[400px] gap-1 p-3 md:w-[480px] md:grid-cols-2">
+                        {activeResourcesItems
+                          .filter((item) => item.available)
+                          .map((item) => (
+                            <MenuListItem key={item.title} item={item} />
+                          ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
 
             {/* ── Desktop actions ── */}
@@ -321,13 +379,17 @@ export default function Navbar() {
               {showCart && (
                 <button
                   id="nav-cart-btn"
+                  type="button"
                   onClick={handleCartClick}
-                  className="relative p-2 rounded-md text-[#5a6a85] hover:text-[#031033] hover:bg-[#f2f5fc] transition-colors border-none bg-transparent cursor-pointer"
+                  className={cn(
+                    "relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] transition-colors border-none bg-transparent cursor-pointer",
+                    focusRing,
+                  )}
                   aria-label="Shopping cart"
                 >
-                  <ShoppingCart className="h-[18px] w-[18px]" />
+                  <ShoppingCart className="h-5 w-5" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#1787D4] text-[9px] font-bold text-white">
+                    <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#1787D4] px-1 text-xs font-medium tabular-nums text-white">
                       {cartCount > 9 ? "9+" : cartCount}
                     </span>
                   )}
@@ -335,12 +397,18 @@ export default function Navbar() {
               )}
 
               {/* Ask AI */}
-              <button
+              <a
                 id="nav-ask-ai"
-                className="inline-flex items-center gap-1.5 rounded-full  border border-[#e2eaff] bg-white px-3.5 py-1 text-[13px] font-semibold text-[#031033] hover:border-[#1787D4] hover:text-[#1787D4] transition-colors shadow-sm cursor-pointer"
+                href={ASK_AI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "inline-flex h-9 items-center rounded-lg border border-[#D5DCE6] bg-white px-4 text-sm font-medium text-[#031033] hover:bg-[#F2F5FC] transition-colors cursor-pointer",
+                  focusRing,
+                )}
               >
                 Ask AI
-              </button>
+              </a>
 
               {token ? (
                 <UserMenu
@@ -353,16 +421,22 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     id="nav-login"
-                    className="px-4 py-[7px] text-[13px] font-medium text-[#5a6a85] hover:text-[#031033] transition-colors rounded-full hover:bg-[#f2f5fc]"
+                    className={cn(
+                      "inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] transition-colors",
+                      focusRing,
+                    )}
                   >
-                    Log In
+                    Log in
                   </Link>
                   <Link
                     href="/register"
                     id="nav-get-started"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#1787D4] px-4 py-[7px] text-[13px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
+                    className={cn(
+                      "inline-flex h-9 items-center rounded-lg bg-[#1787D4] px-4 text-sm font-medium text-white hover:bg-[#1370B5] transition-colors",
+                      focusRing,
+                    )}
                   >
-                    Get Started
+                    Create account
                   </Link>
                 </>
               )}
@@ -373,12 +447,17 @@ export default function Navbar() {
               {showCart && (
                 <button
                   id="nav-cart-btn-mobile"
+                  type="button"
                   onClick={handleCartClick}
-                  className="relative p-2 !rounded-[8px] text-[#5a6a85] hover:bg-[#f2f5fc] transition-colors border-none bg-transparent cursor-pointer"
+                  aria-label="Shopping cart"
+                  className={cn(
+                    "relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#5A6A85] hover:bg-[#F2F5FC] transition-colors border-none bg-transparent cursor-pointer",
+                    focusRing,
+                  )}
                 >
                   <ShoppingCart className="h-5 w-5" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center !rounded-full bg-[#1787D4] text-[9px] font-bold text-white">
+                    <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#1787D4] px-1 text-xs font-medium tabular-nums text-white">
                       {cartCount > 9 ? "9+" : cartCount}
                     </span>
                   )}
@@ -386,8 +465,12 @@ export default function Navbar() {
               )}
               <button
                 id="navbar-mobile-toggle"
+                type="button"
                 onClick={() => setMobileOpen((v) => !v)}
-                className="p-2 !rounded-[8px] text-[#5a6a85] hover:bg-[#f2f5fc] hover:text-[#031033] transition-colors border-none bg-transparent cursor-pointer"
+                className={cn(
+                  "inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#5A6A85] hover:bg-[#F2F5FC] hover:text-[#031033] transition-colors border-none bg-transparent cursor-pointer",
+                  focusRing,
+                )}
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-menu"
@@ -403,7 +486,7 @@ export default function Navbar() {
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)}>
         {/* Nav links */}
         <div className="flex flex-col gap-1">
-          <p className="px-2 pt-1 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#9ba8c0]">
+          <p className="px-3 pt-1 pb-1 text-sm font-medium text-[#5A6A85]">
             Products
           </p>
           {productsLinks.map((link) => {
@@ -412,22 +495,18 @@ export default function Navbar() {
               return (
                 <div
                   key={link.title}
-                  className="flex items-center gap-3 !rounded-[10px] px-3 py-2.5 opacity-40 cursor-not-allowed select-none"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 opacity-50 cursor-not-allowed select-none"
                   aria-disabled="true"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center !rounded-[8px] border border-gray-200 bg-gray-50 shrink-0 text-gray-400">
-                    <Icon className="h-4 w-4" />
-                  </div>
+                  <Icon className="h-5 w-5 shrink-0 text-[#5A6A85]" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-semibold text-gray-600">
+                      <p className="text-sm font-medium text-[#031033]">
                         {link.title}
                       </p>
-                      <span className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">
-                        Soon
-                      </span>
+                      <span className="text-xs text-[#5A6A85]">Coming soon</span>
                     </div>
-                    <p className="text-[12px] text-gray-400">
+                    <p className="text-xs text-[#5A6A85]">
                       {link.description}
                     </p>
                   </div>
@@ -442,18 +521,17 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center gap-3 !rounded-[10px] px-3 py-2.5 transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+                  focusRing,
                   active
-                    ? "bg-[#eff6ff] text-[#1787D4]"
-                    : "text-[#031033] hover:bg-[#f2f5fc]",
+                    ? "bg-[#E8F4FC] text-[#1787D4]"
+                    : "text-[#031033] hover:bg-[#F2F5FC]",
                 )}
               >
-                <div className="flex h-8 w-8 items-center justify-center !rounded-[8px] border border-[#e2eaff] bg-white shadow-sm shrink-0">
-                  <Icon className="h-4 w-4 text-[#1787D4]" />
-                </div>
+                <Icon className="h-5 w-5 shrink-0 text-[#1787D4]" />
                 <div>
-                  <p className="text-[14px] font-semibold">{link.title}</p>
-                  <p className="text-[12px] text-[#5a6a85]">
+                  <p className="text-sm font-medium">{link.title}</p>
+                  <p className="text-xs text-[#5A6A85]">
                     {link.description}
                   </p>
                 </div>
@@ -461,9 +539,9 @@ export default function Navbar() {
             );
           })}
 
-          <div className="my-2 border-t border-[#e2eaff]" />
+          <div className="my-2 border-t border-[#E2E8F0]" />
 
-          <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#9ba8c0]">
+          <p className="px-3 pb-1 text-sm font-medium text-[#5A6A85]">
             Explore
           </p>
           {[
@@ -478,19 +556,20 @@ export default function Navbar() {
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
               className={cn(
-                "flex items-center !rounded-[10px] px-3 py-2.5 text-[14px] font-medium transition-colors",
+                "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                focusRing,
                 pathname === href
-                  ? "bg-[#eff6ff] text-[#1787D4]"
-                  : "text-[#031033] hover:bg-[#f2f5fc]",
+                  ? "bg-[#E8F4FC] text-[#1787D4]"
+                  : "text-[#031033] hover:bg-[#F2F5FC]",
               )}
             >
               {label}
             </Link>
           ))}
 
-          <div className="my-2 border-t border-[#e2eaff]" />
+          <div className="my-2 border-t border-[#E2E8F0]" />
 
-          <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#9ba8c0]">
+          <p className="px-3 pb-1 text-sm font-medium text-[#5A6A85]">
             Resources
           </p>
           {resourcesLinks.map((link) => {
@@ -500,13 +579,14 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center gap-3 !rounded-[10px] px-3 py-2.5 text-[14px] font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  focusRing,
                   pathname === link.href
-                    ? "bg-[#eff6ff] text-[#1787D4]"
-                    : "text-[#031033] hover:bg-[#f2f5fc]",
+                    ? "bg-[#E8F4FC] text-[#1787D4]"
+                    : "text-[#031033] hover:bg-[#F2F5FC]",
                 )}
               >
-                <Icon className="h-4 w-4 text-[#1787D4] shrink-0" />
+                <Icon className="h-5 w-5 text-[#1787D4] shrink-0" />
                 {link.title}
               </Link>
             );
@@ -514,7 +594,7 @@ export default function Navbar() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="flex flex-col gap-2 border-t border-[#e2eaff] pt-4">
+        <div className="flex flex-col gap-2 border-t border-[#E2E8F0] pt-4">
           {token ? (
             <MobileAccountPanel
               account={me?.data}
@@ -526,21 +606,35 @@ export default function Navbar() {
             />
           ) : (
             <>
-              <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[#e2eaff] bg-white px-4 py-3 text-[14px] font-semibold text-[#031033] hover:border-[#1787D4] hover:text-[#1787D4] transition-colors cursor-pointer">
+              <a
+                id="nav-ask-ai-mobile"
+                href={ASK_AI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "inline-flex h-11 w-full items-center justify-center rounded-lg border border-[#D5DCE6] bg-white px-5 text-sm font-medium text-[#031033] hover:bg-[#F2F5FC] transition-colors cursor-pointer",
+                  focusRing,
+                )}
+              >
                 Ask AI
-              </button>
+              </a>
               <Link
                 href="/login"
-                className="flex w-full items-center justify-center rounded-full border border-[#e2eaff] px-4 py-3 text-[14px] font-medium text-[#031033] hover:bg-[#f2f5fc] transition-colors"
+                className={cn(
+                  "flex h-11 w-full items-center justify-center rounded-lg border border-[#D5DCE6] bg-white px-5 text-sm font-medium text-[#031033] hover:bg-[#F2F5FC] transition-colors",
+                  focusRing,
+                )}
               >
-                Log In
+                Log in
               </Link>
               <Link
                 href="/register"
-                className="flex w-full items-center justify-center gap-1.5 rounded-full bg-[#1787D4] px-4 py-3 text-[14px] font-semibold text-white hover:bg-[#1370B5] transition-colors shadow-[0_2px_8px_rgba(23,135,212,0.35)]"
+                className={cn(
+                  "flex h-11 w-full items-center justify-center rounded-lg bg-[#1787D4] px-5 text-sm font-medium text-white hover:bg-[#1370B5] transition-colors",
+                  focusRing,
+                )}
               >
-                <Zap className="h-4 w-4" />
-                Get Started
+                Create account
               </Link>
             </>
           )}

@@ -13,32 +13,32 @@ const faqs: FAQItem[] = [
   {
     question: "What is Nupat Cloud?",
     answer:
-      "Our cloud platform is an all-in-one digital business infrastructure ecosystem built specifically to solve domain, hosting, cloud scale, and operational tools friction for African enterprises.",
+      "Nupat Cloud is a platform for African businesses to register domains, host websites, run cloud servers and use business tools from one account.",
   },
   {
-    question: "Can I register a domain with us?",
+    question: "Can I register a domain with you?",
     answer:
-      "Yes, we support standard global domains (.com, .net, .co) as well as localized national African extensions (.ng, .africa, .gh) with simple setup.",
+      "Yes. We support global domains such as .com, .net and .co, and African extensions such as .ng, .africa and .gh.",
   },
   {
     question: "Can I create a website without coding?",
     answer:
-      "Absolutely. Our built-in conversational AI website builder handles all copywriting, imagery curation, and design layout automatically based on your simple guidelines.",
+      "Yes. Our AI website builder writes the copy, picks images and lays out the pages from a short description of your business.",
   },
   {
-    question: "Can I host my existing website on our platform?",
+    question: "Can I move my existing website to Nupat?",
     answer:
-      "Yes. We offer free automated migration tools and 24/7 technical specialist assistance to shift your existing websites with zero downtime.",
+      "Yes. We offer free migration tools and 24/7 technical support to move your existing websites with zero downtime.",
   },
   {
     question: "Does Nupat support developers?",
     answer:
-      "Yes. We have a robust, developer-first cloud platform offering Kubernetes clusters, API storage, and local Anycast CDN endpoints with flexible developer billing.",
+      "Yes. Developers get Kubernetes clusters, API storage, local anycast CDN endpoints and flexible billing.",
   },
   {
     question: "Who is Nupat for?",
     answer:
-      "We are designed for business owners, SaaS creators, regional agencies, and developers requiring high-performance infrastructure with localized support.",
+      "Business owners, SaaS founders, agencies and developers who need dependable infrastructure and support close to home.",
   },
 ];
 
@@ -54,82 +54,67 @@ export default function FAQSection() {
   return (
     <section
       id="faq-section"
-      className="py-10 sm:py-12 bg-[#fafcff] relative overflow-hidden"
+      className="py-16 sm:py-24 bg-[#F2F5FC] relative overflow-hidden"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-7 sm:mb-9"
-        >
-          <h2 className="type-h2 text-[#031033] mb-2.5">
-            Everything you need to know
+        <div className="text-center mb-10">
+          <h2 className="type-h2 text-[#031033] mb-3">
+            Frequently asked questions
           </h2>
-          <p className="type-lead text-[#5a6a85] max-w-xl mx-auto">
-            Quick answers about our platform, our products, and how you can get
+          <p className="type-lead text-[#5A6A85] max-w-xl mx-auto">
+            Quick answers about the platform, our products and how to get
             started.
           </p>
-        </motion.div>
+        </div>
 
-        {/* FAQ Accordions with Staggered Motion */}
         <div className="flex flex-col gap-4">
           {faqs.map((faq, index) => {
             const isOpen = openIndices.includes(index);
 
             return (
-              <motion.div
+              <div
                 key={faq.question}
                 id={`faq-accordion-${index}`}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{
-                  duration: 0.45,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: index * 0.06,
-                }}
-                className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs transition-all duration-200 hover:border-blue-200 overflow-hidden"
+                className="bg-white rounded-xl border border-[#E2E8F0] transition-colors hover:border-[#D5DCE6] overflow-hidden"
               >
                 <button
                   type="button"
                   onClick={() => toggleIndex(index)}
                   aria-expanded={isOpen}
-                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer transition-colors"
+                  aria-controls={`faq-panel-${index}`}
+                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1787D4] rounded-xl"
                 >
-                  <span className="font-semibold text-[16px] sm:text-[17px] text-[#031033] pr-4">
+                  <span className="font-semibold text-lg text-[#031033] pr-4">
                     {faq.question}
                   </span>
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 text-[#1787D4]" : "text-[#64748B]"
+                  <ChevronDown
+                    className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
+                      isOpen ? "rotate-180 text-[#1787D4]" : "text-[#5A6A85]"
                     }`}
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </div>
+                    aria-hidden="true"
+                  />
                 </button>
 
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div
                       key="content"
+                      id={`faq-panel-${index}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
                       <div className="px-5 sm:px-6 pb-6 pt-0">
-                        <p className="text-[14px] sm:text-[15px] text-[#5a6a85] leading-relaxed">
+                        <p className="text-base text-[#5A6A85] leading-relaxed">
                           {faq.answer}
                         </p>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
         </div>

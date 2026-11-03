@@ -5,12 +5,12 @@ import WhyNupatSection from "@/components/home/WhyNupatSection";
 import StartupProgramSection from "@/components/home/StartupProgramSection";
 import PricingPreviewSection from "@/components/home/PricingPreviewSection";
 import InfrastructureSection from "@/components/home/InfrastructureSection";
-import ProfessionalVoiceSection from "@/components/home/ProfessionalVoiceSection";
 import EverythingBusinessNeedsSection from "@/components/home/EverythingBusinessNeedsSection";
 import FAQSection from "@/components/home/FAQSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
-import FinalCTASection from "@/components/home/FinalCTASection";
 
+// ProfessionalVoiceSection (business email) is not rendered while email is off the site.
+// FinalCTASection was already disabled; both component files are kept.
 export default function HomePage() {
   return (
     <>
@@ -21,10 +21,8 @@ export default function HomePage() {
       <StartupProgramSection />
       <PricingPreviewSection />
       <InfrastructureSection />
-      <ProfessionalVoiceSection />
       <EverythingBusinessNeedsSection />
       <TestimonialsSection />
-      {/* <FinalCTASection /> */}
       <FAQSection />
     </>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,66 +6,59 @@ import {
   Server,
   Sparkles,
   Cpu,
-  Mail,
+  HardDrive,
   Briefcase,
   ArrowRight,
 } from "lucide-react";
-import { motion } from "motion/react";
 
 const products = [
   {
-    icon: <Globe className="w-5 h-5" />,
+    icon: Globe,
     title: "Domains",
-    badge: "Instant DNS",
     description:
-      "Register and manage your digital identity across local African and international extensions.",
+      "Register and manage .ng, .africa and international domains, with DNS included.",
     href: "/domains",
-    glowColor: "rgba(23, 135, 212, 0.15)",
+    cta: "Search domains",
   },
   {
-    icon: <Server className="w-5 h-5" />,
+    icon: Server,
     title: "Hosting",
-    badge: "Ultra Fast",
     description:
-      "Reliable, lightning-fast web infrastructure configured for local traffic speeds.",
+      "Web hosting set up for visitors in Nigeria and across Africa.",
     href: "/hosting",
-    glowColor: "rgba(23, 135, 212, 0.15)",
+    cta: "See hosting plans",
   },
   {
-    icon: <Sparkles className="w-5 h-5" />,
-    title: "AI Website Builder",
-    badge: "AI Powered",
+    icon: Sparkles,
+    title: "AI website builder",
     description:
-      "Create a stunning, fully-responsive professional website with simple AI prompts.",
+      "Describe your business and get a responsive website you can edit.",
     href: "/hosting",
-    glowColor: "rgba(255, 199, 93, 0.25)",
+    cta: "Build a website",
   },
   {
-    icon: <Cpu className="w-5 h-5" />,
+    icon: Cpu,
     title: "Cloud",
-    badge: "Low Latency",
     description:
-      "Deploy applications globally or closer to home with low-latency African nodes.",
+      "Deploy applications on servers in Africa or further afield.",
     href: "/hosting",
-    glowColor: "rgba(23, 135, 212, 0.15)",
+    cta: "See cloud hosting",
   },
   {
-    icon: <Mail className="w-5 h-5" />,
-    title: "Email",
-    badge: "Custom Domain",
+    icon: HardDrive,
+    title: "VPS",
     description:
-      "Build immediate trust with professional domain-branded communication tools.",
-    href: "/hosting#email",
-    glowColor: "rgba(23, 135, 212, 0.15)",
+      "Virtual private servers with root access for apps that need their own resources.",
+    href: "/vps",
+    cta: "See VPS plans",
   },
   {
-    icon: <Briefcase className="w-5 h-5" />,
-    title: "Business Tools",
-    badge: "All-in-One",
+    icon: Briefcase,
+    title: "Business tools",
     description:
-      "Manage operational workflows, customers, and billing with unified tooling.",
+      "Manage customers, operations and billing from the same account.",
     href: "/dashboard",
-    glowColor: "rgba(255, 199, 93, 0.25)",
+    cta: "See business tools",
   },
 ];
 
@@ -75,20 +66,16 @@ export default function WhyNupatSection() {
   return (
     <section
       id="products-ecosystem"
-      className="py-10 sm:py-12 bg-[#f8faff] relative overflow-hidden"
+      className="py-16 sm:py-24 bg-[#F2F5FC] relative overflow-hidden"
     >
-      {/* Background ambient radial glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-175 h-112.5 bg-[#1787D4]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#FFC75D]/5 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Background Curvelines */}
+      {/* Background curvelines */}
       <div className="absolute top-10 -right-24 pointer-events-none select-none z-0 hidden md:block">
         <Image
           src="/curveline.png"
           alt=""
           width={500}
           height={200}
-          className="w-[480px] lg:w-[640px] h-auto brightness-0 opacity-[0.04] rotate-[26deg]"
+          className="w-120 lg:w-160 h-auto brightness-0 opacity-[0.04] rotate-[26deg]"
           aria-hidden
         />
       </div>
@@ -98,101 +85,64 @@ export default function WhyNupatSection() {
           alt=""
           width={500}
           height={200}
-          className="w-[440px] lg:w-[580px] h-auto brightness-0 opacity-[0.04] -rotate-[32deg]"
+          className="w-110 lg:w-145 h-auto brightness-0 opacity-[0.04] -rotate-[32deg]"
           aria-hidden
         />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-7 sm:mb-9 flex flex-col items-center"
-        >
+        <div className="text-center mb-10 sm:mb-12 flex flex-col items-center">
           <h2 className="type-h2 text-[#031033] mb-4 max-w-3xl">
             <span className="relative inline-block pb-1">
               Your digital business, connected
               <span
-                className="absolute left-0 bottom-0 w-full h-[3.5px] bg-[#1787D4] rounded-full"
+                className="absolute left-0 bottom-0 w-full h-1 bg-[#1787D4] rounded-full"
                 aria-hidden="true"
               />
             </span>
           </h2>
-          <p className="type-body-lg text-[#5a6a85] max-w-2xl mx-auto">
-            Stop piecing together different platforms for your website,
-            infrastructure, communication, and business operations.
+          <p className="type-lead text-[#5A6A85] max-w-2xl mx-auto">
+            Run your website, servers and business operations from one
+            account instead of piecing together separate providers.
           </p>
-        </motion.div>
+        </div>
 
-        {/* 6 Products Grid with Staggered Motion */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-14">
-          {products.map((item, index) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{
-                duration: 0.5,
-                ease: [0.22, 1, 0.36, 1],
-                delay: index * 0.08,
-              }}
-              whileHover={{ y: -4, scale: 1.01 }}
-            >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {products.map((item) => {
+            const Icon = item.icon;
+            return (
               <Link
+                key={item.title}
                 href={item.href}
-                className="group relative flex flex-col justify-between h-full rounded-lg border border-[#E5E7EB] bg-white p-7 sm:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group flex flex-col justify-between h-full rounded-xl border border-[#E2E8F0] bg-white p-6 hover:border-[#1787D4] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
               >
                 <div>
-                  {/* Header: Icon + Badge */}
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-[#1787D4] border border-blue-100 group-hover:bg-[#1787D4] group-hover:text-white group-hover:border-[#1787D4] transition-all duration-300">
-                      {item.icon}
-                    </div>
-                    <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-500 border border-slate-200/80 group-hover:border-blue-200 group-hover:text-[#1787D4] transition-colors">
-                      {item.badge}
-                    </span>
-                  </div>
-
-                  {/* Title & Description */}
-                  <h3 className="type-h3 text-[#031033] group-hover:text-[#1787D4] transition-colors mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-[14px] text-[#5a6a85] leading-relaxed">
+                  <Icon className="w-6 h-6 text-[#1787D4] mb-5" aria-hidden="true" />
+                  <h3 className="type-h3 text-[#031033] mb-2">{item.title}</h3>
+                  <p className="text-base text-[#5A6A85] leading-relaxed">
                     {item.description}
                   </p>
                 </div>
 
-                {/* Bottom arrow link */}
-                <div className="relative z-10 mt-6 pt-4 border-t border-[#E5E7EB] flex items-center justify-between text-xs font-semibold text-[#1787D4] group-hover:text-[#1370B5] transition-all">
-                  <span>Explore {item.title}</span>
-                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                <div className="mt-6 pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-sm font-medium text-[#1787D4] group-hover:text-[#1370B5]">
+                  <span>{item.cta}</span>
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </div>
               </Link>
-            </motion.div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Bottom CTA Action Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex justify-center"
-        >
+        <div className="flex justify-center">
           <Link
             href="/hosting"
             id="explore-all-products-btn"
-            className="btn-primary !rounded-full px-8 py-3 text-[14px] sm:text-[15px] font-medium cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
           >
-            Explore All Products
-            <ArrowRight className="w-4 h-4" />
+            Compare hosting plans
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

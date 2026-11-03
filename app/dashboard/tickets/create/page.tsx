@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useId, Suspense } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
-  CheckCircle2,
   Paperclip,
   ShieldCheck,
   Headphones,
@@ -29,7 +28,6 @@ const QUICK_CATEGORIES = [
   "Web Hosting",
   "VPS",
   "Cloud Hosting",
-  "Private Email",
   "SSL Certificate",
   "Account",
   "Billing & Payments",
@@ -39,7 +37,6 @@ const QUICK_CATEGORIES = [
 const PRIORITIES = ["Low", "Normal", "High", "Urgent"] as const;
 
 function CreateTicketContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const isFromAi = searchParams.get("from") === "ai";
 
@@ -49,21 +46,13 @@ function CreateTicketContent() {
   const createMutation = useCreateTicket();
 
   // Form State
-  const [subject, setSubject] = useState(
-    isFromAi ? "Website not loading" : ""
-  );
+  const [subject, setSubject] = useState("");
   const [selectedDeptId, setSelectedDeptId] = useState("");
-  const [selectedService, setSelectedService] = useState(
-    isFromAi ? "acme.com" : ""
-  );
+  const [selectedService, setSelectedService] = useState("");
   const [priority, setPriority] = useState<typeof PRIORITIES[number]>("Normal");
-  const [description, setDescription] = useState(
-    isFromAi
-      ? "AI summary: acme.com is not loading. DNS resolves correctly, but the website returns a connection timeout. The user restarted the hosting service and cleared the site cache; the issue continues on multiple networks."
-      : ""
-  );
+  const [description, setDescription] = useState("");
   const [activeCategoryChip, setActiveCategoryChip] = useState<string | null>(
-    isFromAi ? "Web Hosting" : null
+    null
   );
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
@@ -141,7 +130,7 @@ function CreateTicketContent() {
         service: selectedService || undefined,
       });
 
-      if (result?.success && result?.data) {
+      if (result?.success && result?.data?.ticketId) {
         setCreatedTicket({
           ticketId: result.data.ticketId,
           ticketNumber: result.data.ticketNumber || result.data.ticketId,
@@ -149,13 +138,11 @@ function CreateTicketContent() {
           subject: subject.trim(),
         });
       } else {
-        // Fallback for safety
-        setCreatedTicket({
-          ticketId: "1",
-          ticketNumber: "10246",
-          tid: "10246",
-          subject: subject.trim(),
-        });
+        // Never invent a ticket: tell the user to check the list instead.
+        toast.error(
+          result?.message ||
+            "We couldn't confirm your ticket. Check your tickets list before submitting again."
+        );
       }
     } catch {
       // Error handled by mutation toast
@@ -176,51 +163,49 @@ function CreateTicketContent() {
         {/* Back Link */}
         <Link
           href="/dashboard/tickets"
-          className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#1787D4] hover:underline cursor-pointer self-start"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer self-start"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Support Tickets</span>
+          <span>Back to support tickets</span>
         </Link>
 
         {/* Success Card */}
-        <div className="bg-white rounded-2xl border border-[#e2eaff] p-8 sm:p-12 shadow-xs text-center flex flex-col items-center">
-          {/* Green Check Icon */}
-          <div className="w-14 h-14 rounded-full bg-[#e6f9f6] text-[#0f9f8c] border border-[#b9f2e8] flex items-center justify-center mx-auto mb-5 shadow-xs">
-            <Check className="w-7 h-7 stroke-[2.5]" />
-          </div>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 sm:p-10 text-center flex flex-col items-center">
+          <Check className="w-6 h-6 text-[#0E7C3A] mb-4" />
 
-          <h1 className="text-[22px] sm:text-[24px] font-bold text-[#1d1d1f] tracking-tight">
+          <h1 className="text-2xl font-semibold text-[#031033]">
             Your support ticket has been created
           </h1>
-          <p className="text-[13.5px] text-[#6e6e73] mt-2 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm text-[#5A6A85] mt-2 max-w-md mx-auto">
             We&apos;ve received your request. Our support team will review it and send updates to your account email.
           </p>
 
-          {/* Ticket Information Table/Card */}
-          <div className="w-full max-w-md mt-6 bg-[#fbfcfe] border border-[#e2eaff] rounded-xl p-4 text-left divide-y divide-[#f0f4f9]">
+          {/* Ticket Information */}
+          <div className="w-full max-w-md mt-6 border border-[#E2E8F0] rounded-lg px-4 py-1 text-left divide-y divide-[#EEF2F7]">
             <div className="flex items-center justify-between py-2.5">
-              <span className="text-[12.5px] font-medium text-[#6e6e73]">
+              <span className="text-xs text-[#5A6A85]">
                 Ticket ID
               </span>
-              <span className="text-[13.5px] font-bold text-[#1d1d1f]">
+              <span className="text-sm font-mono text-[#031033]">
                 {formattedId}
               </span>
             </div>
 
             <div className="flex items-center justify-between py-2.5">
-              <span className="text-[12.5px] font-medium text-[#6e6e73]">
+              <span className="text-xs text-[#5A6A85]">
                 Subject
               </span>
-              <span className="text-[13px] font-semibold text-[#1d1d1f] truncate max-w-[240px]">
+              <span className="text-sm font-medium text-[#031033] truncate max-w-[240px]">
                 {createdTicket.subject}
               </span>
             </div>
 
             <div className="flex items-center justify-between py-2.5">
-              <span className="text-[12.5px] font-medium text-[#6e6e73]">
+              <span className="text-xs text-[#5A6A85]">
                 Status
               </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1787D4] border border-blue-200">
+              <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033]">
+                <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#1787D4]" />
                 Open
               </span>
             </div>
@@ -230,20 +215,20 @@ function CreateTicketContent() {
           <div className="flex items-center justify-center gap-3 mt-6 w-full max-w-md">
             <Link
               href={`/dashboard/tickets/${encodeURIComponent(createdTicket.ticketId)}`}
-              className="flex-1 py-2.5 px-4 bg-[#1787D4] hover:bg-[#1371B5] text-white text-[13px] font-semibold rounded-xl text-center shadow-xs transition-colors"
+              className="flex-1 inline-flex items-center justify-center h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              View Ticket
+              View ticket
             </Link>
             <Link
               href="/dashboard/tickets"
-              className="flex-1 py-2.5 px-4 border border-[#e2eaff] bg-white hover:bg-gray-50 text-[#1d1d1f] text-[13px] font-semibold rounded-xl text-center transition-colors shadow-2xs"
+              className="flex-1 inline-flex items-center justify-center h-9 px-4 border border-[#D5DCE6] bg-white hover:bg-[#F2F5FC] text-[#031033] text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
             >
-              Back to Support
+              Back to support
             </Link>
           </div>
 
-          {/* Bottom Response Time Pill */}
-          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#f0fdf9] border border-[#99f6e4] text-[#0f9f8c] text-[12px] font-medium">
+          {/* Response time */}
+          <div className="mt-6 inline-flex items-center gap-2 text-xs text-[#5A6A85]">
             <Clock className="w-3.5 h-3.5" />
             <span>Typical response time: within 2 hours.</span>
           </div>
@@ -259,46 +244,38 @@ function CreateTicketContent() {
       <div className="flex items-center justify-between">
         <Link
           href={isFromAi ? "/dashboard" : "/dashboard/tickets"}
-          className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#1787D4] hover:underline cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[#1787D4] hover:text-[#1370B5] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{isFromAi ? "Back to conversation" : "Back to Support Tickets"}</span>
+          <span>{isFromAi ? "Back to conversation" : "Back to support tickets"}</span>
         </Link>
       </div>
 
       {/* AI Alert Banner if from AI */}
       {isFromAi && (
-        <div className="bg-[#ecfdf5] border border-[#a7f3d0] rounded-2xl p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-xl bg-white text-[#059669] flex items-center justify-center shrink-0 border border-[#a7f3d0] shadow-2xs">
-              <Sparkles className="w-4.5 h-4.5 text-[#10b981]" />
-            </div>
+        <div className="bg-[#E8F4FC] border border-[#1787D4]/20 rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-4 h-4 text-[#1787D4] shrink-0 mt-0.5" />
             <div>
-              <h2 className="text-[13.5px] font-bold text-[#065f46]">
+              <h2 className="text-sm font-medium text-[#031033]">
                 Prepared from your Ask AI conversation
               </h2>
-              <p className="text-[12.5px] text-[#047857] mt-0.5">
-                AI attached the troubleshooting context. You only need to confirm the details before submitting.
+              <p className="text-xs text-[#5A6A85] mt-0.5">
+                Add the details from your conversation below, then submit.
               </p>
             </div>
           </div>
-          <span className="text-[11.5px] font-semibold text-[#065f46] px-3 py-1 rounded-full bg-white/80 border border-[#a7f3d0] shrink-0 self-start sm:self-auto">
-            Source: Website help
-          </span>
         </div>
       )}
 
       {/* Heading */}
       <div>
-        <h1
-          className="text-[26px] font-bold tracking-tight text-[#1d1d1f]"
-          style={{ letterSpacing: "-0.4px" }}
-        >
-          {isFromAi ? "Create Support Ticket" : "How can we help?"}
+        <h1 className="text-2xl font-semibold text-[#031033]">
+          {isFromAi ? "Create support ticket" : "How can we help?"}
         </h1>
-        <p className="text-[13.5px] text-[#6e6e73] mt-1">
+        <p className="text-sm text-[#5A6A85] mt-1">
           {isFromAi
-            ? "Review the AI-generated request below, then submit it to Support."
+            ? "Describe the issue below, then submit it to Support."
             : "Tell us what's happening and we'll connect you with the right support specialist."}
         </p>
       </div>
@@ -306,21 +283,18 @@ function CreateTicketContent() {
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Form */}
-        <div className="lg:col-span-8 bg-white rounded-2xl border border-[#e2eaff] p-6 sm:p-7 shadow-xs">
+        <div className="lg:col-span-8 bg-white rounded-xl border border-[#E2E8F0] p-5 sm:p-6">
           {/* Subheader inside card if AI */}
           {isFromAi && (
-            <div className="flex items-center justify-between pb-5 mb-5 border-b border-[#f0f4f9]">
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-[#EEF2F7]">
               <div>
-                <h2 className="text-[15px] font-bold text-[#1d1d1f]">
+                <h2 className="text-base font-semibold text-[#031033]">
                   Request details
                 </h2>
-                <p className="text-[12.5px] text-[#6e6e73] mt-0.5">
-                  Everything is ready for your confirmation.
+                <p className="text-xs text-[#5A6A85] mt-0.5">
+                  Fill in the subject and description to continue.
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-[#e6f9f6] text-[#0f9f8c] border border-[#b9f2e8]">
-                Ready to submit
-              </span>
             </div>
           )}
 
@@ -329,7 +303,7 @@ function CreateTicketContent() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="ticket-subject"
-                className="text-[13px] font-semibold text-[#1d1d1f]"
+                className="text-sm font-medium text-[#031033]"
               >
                 Subject
               </label>
@@ -340,7 +314,7 @@ function CreateTicketContent() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-2xs"
+                className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors"
               />
             </div>
 
@@ -350,7 +324,7 @@ function CreateTicketContent() {
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="ticket-category"
-                  className="text-[13px] font-semibold text-[#1d1d1f]"
+                  className="text-sm font-medium text-[#031033]"
                 >
                   Category
                 </label>
@@ -358,7 +332,7 @@ function CreateTicketContent() {
                   id="ticket-category"
                   value={selectedDeptId}
                   onChange={(e) => setSelectedDeptId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors shadow-2xs cursor-pointer"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors cursor-pointer"
                 >
                   <option value="">
                     {loadingDepts ? "Loading departments..." : "Select a category"}
@@ -388,10 +362,10 @@ function CreateTicketContent() {
                           key={cat}
                           type="button"
                           onClick={() => handleCategoryChipClick(cat)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer border ${
+                          className={`h-7 px-2.5 rounded-md text-xs font-medium transition-colors cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                             isSelected
-                              ? "bg-[#1787D4] text-white border-[#1787D4]"
-                              : "bg-[#f8faff] text-[#5a6a85] border-[#e2eaff] hover:bg-[#eef4ff] hover:text-[#1787D4]"
+                              ? "bg-[#E8F4FC] text-[#1370B5] border-[#1787D4]"
+                              : "bg-white text-[#5A6A85] border-[#E2E8F0] hover:bg-[#F2F5FC] hover:text-[#031033]"
                           }`}
                         >
                           {cat}
@@ -406,7 +380,7 @@ function CreateTicketContent() {
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="ticket-service"
-                  className="text-[13px] font-semibold text-[#1d1d1f]"
+                  className="text-sm font-medium text-[#031033]"
                 >
                   Service
                 </label>
@@ -414,7 +388,7 @@ function CreateTicketContent() {
                   id="ticket-service"
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors shadow-2xs cursor-pointer"
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors cursor-pointer"
                 >
                   <option value="">Select connected service (optional)</option>
                   {hostingAccounts?.map((h) => (
@@ -428,7 +402,7 @@ function CreateTicketContent() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[11.5px] text-[#6e6e73]">
+                <p className="text-xs text-[#5A6A85]">
                   Account-level services linked to your profile
                 </p>
               </div>
@@ -439,15 +413,15 @@ function CreateTicketContent() {
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="ticket-priority"
-                  className="text-[13px] font-semibold text-[#1d1d1f]"
+                  className="text-sm font-medium text-[#031033]"
                 >
                   Priority
                 </label>
                 <select
                   id="ticket-priority"
                   value={priority}
-                  onChange={(e) => setPriority(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13px] text-[#1d1d1f] focus:outline-none focus:border-[#1787D4] transition-colors shadow-2xs cursor-pointer"
+                  onChange={(e) => setPriority(e.target.value as (typeof PRIORITIES)[number])}
+                  className="w-full h-10 px-3 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors cursor-pointer"
                 >
                   {PRIORITIES.map((p) => (
                     <option key={p} value={p}>
@@ -461,10 +435,10 @@ function CreateTicketContent() {
                       key={p}
                       type="button"
                       onClick={() => setPriority(p)}
-                      className={`px-3 py-1 rounded-lg text-[11px] font-medium border transition-colors cursor-pointer ${
+                      className={`h-7 px-3 rounded-md text-xs font-medium border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 ${
                         priority === p
-                          ? "bg-[#1787D4] text-white border-[#1787D4]"
-                          : "bg-[#f8faff] text-[#5a6a85] border-[#e2eaff] hover:bg-[#eef4ff]"
+                          ? "bg-[#E8F4FC] text-[#1370B5] border-[#1787D4]"
+                          : "bg-white text-[#5A6A85] border-[#E2E8F0] hover:bg-[#F2F5FC] hover:text-[#031033]"
                       }`}
                     >
                       {p}
@@ -478,7 +452,7 @@ function CreateTicketContent() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="ticket-description"
-                className="text-[13px] font-semibold text-[#1d1d1f]"
+                className="text-sm font-medium text-[#031033]"
               >
                 Description
               </label>
@@ -489,46 +463,25 @@ function CreateTicketContent() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-white border border-[#e2eaff] rounded-xl text-[13.5px] text-[#1d1d1f] placeholder:text-[#9ba8c0] focus:outline-none focus:border-[#1787D4] transition-colors shadow-2xs resize-y"
+                className="w-full px-3 py-2.5 bg-white border border-[#D5DCE6] rounded-lg text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none focus:border-[#1787D4] focus:ring-2 focus:ring-[#1787D4]/15 transition-colors resize-y"
               />
             </div>
 
-            {/* AI Mode: Conversation Attached Box */}
-            {isFromAi ? (
-              <div className="bg-[#f0fdf9] border border-[#99f6e4] rounded-xl p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#ccfbf1] text-[#0f9f8c] flex items-center justify-center shrink-0">
-                    <Paperclip className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-[13px] font-bold text-[#134e4a]">
-                      Conversation attached
-                    </h3>
-                    <p className="text-[11.5px] text-[#0f766e]">
-                      Includes messages, checks completed, and the AI-generated summary.
-                    </p>
-                  </div>
-                </div>
-                <CheckCircle2 className="w-5 h-5 text-[#0f9f8c] shrink-0" />
-              </div>
-            ) : (
-              /* Drag & Drop File Upload Area */
+            {/* File upload (no conversation transcript is attached to the ticket) */}
               <div className="flex flex-col gap-2">
-                <label className="border-2 border-dashed border-[#d2defa] hover:border-[#1787D4] rounded-xl p-6 text-center cursor-pointer transition-colors bg-[#fbfcfe] hover:bg-[#f6f9ff] flex flex-col items-center justify-center gap-2">
+                <label className="border border-dashed border-[#D5DCE6] hover:border-[#1787D4] rounded-lg p-6 text-center cursor-pointer transition-colors bg-white hover:bg-[#F2F5FC] flex flex-col items-center justify-center gap-2">
                   <input
                     type="file"
                     multiple
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="w-10 h-10 rounded-full bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center">
-                    <Paperclip className="w-5 h-5" />
-                  </div>
+                  <Paperclip className="w-4 h-4 text-[#5A6A85]" />
                   <div>
-                    <span className="text-[13px] font-semibold text-[#1787D4] hover:underline">
+                    <span className="text-sm font-medium text-[#1787D4]">
                       Drop files here or choose files
                     </span>
-                    <p className="text-[11.5px] text-[#6e6e73] mt-0.5">
+                    <p className="text-xs text-[#5A6A85] mt-0.5">
                       Screenshots and documents up to 10MB each
                     </p>
                   </div>
@@ -540,14 +493,15 @@ function CreateTicketContent() {
                     {attachedFiles.map((file, idx) => (
                       <div
                         key={idx}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f0f4f9] rounded-lg text-[12px] text-[#1d1d1f]"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EEF2F7] rounded-lg text-xs text-[#031033]"
                       >
-                        <FileText className="w-3.5 h-3.5 text-[#5a6a85]" />
+                        <FileText className="w-3.5 h-3.5 text-[#5A6A85]" />
                         <span className="truncate max-w-[180px]">{file.name}</span>
                         <button
                           type="button"
                           onClick={() => removeFile(idx)}
-                          className="text-[#6e6e73] hover:text-red-600 cursor-pointer ml-1"
+                          aria-label={`Remove ${file.name}`}
+                          className="text-[#5A6A85] hover:text-[#C21F1F] transition-colors cursor-pointer ml-1"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -556,7 +510,6 @@ function CreateTicketContent() {
                   </div>
                 )}
               </div>
-            )}
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3 pt-2">
@@ -564,17 +517,17 @@ function CreateTicketContent() {
                 type="submit"
                 id="btn-submit-support-ticket"
                 disabled={createMutation.isPending}
-                className="px-6 py-2.5 bg-[#1787D4] hover:bg-[#1371B5] disabled:opacity-50 text-white text-[13px] font-semibold rounded-xl transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer active:scale-95"
+                className="h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 {createMutation.isPending && (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 )}
-                <span>Submit Ticket</span>
+                <span>Submit ticket</span>
               </button>
 
               <Link
                 href="/dashboard/tickets"
-                className="px-5 py-2.5 text-[13px] font-semibold text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+                className="inline-flex items-center h-9 px-4 text-sm font-medium text-[#5A6A85] hover:text-[#031033] hover:bg-[#F2F5FC] rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 Cancel
               </Link>
@@ -584,83 +537,37 @@ function CreateTicketContent() {
 
         {/* Right Column: Information Card */}
         <div className="lg:col-span-4 flex flex-col gap-4">
-          {isFromAi ? (
-            /* AI Handoff Summary Card */
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-4">
-              <h3 className="text-[14.5px] font-bold text-[#1d1d1f]">
-                Handoff summary
-              </h3>
-
-              <div className="flex flex-col gap-3 py-1 text-[12.5px]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#1d1d1f]">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>AI attempted help</span>
-                  </div>
-                  <span className="font-semibold text-emerald-700">Completed</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#1d1d1f]">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span>Issue unresolved</span>
-                  </div>
-                  <span className="font-semibold text-blue-700">Confirmed</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[#1d1d1f]">
-                    <CheckCircle2 className="w-4 h-4 text-[#0f9f8c] shrink-0" />
-                    <span>Routed to support</span>
-                  </div>
-                  <span className="font-semibold text-[#0f9f8c]">Ready</span>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-[#f0f4f9] text-[12px] text-[#6e6e73] flex flex-col gap-1">
-                <span className="font-medium text-[#1d1d1f]">Typical response</span>
-                <span className="font-bold text-[#1d1d1f] text-[13px]">
-                  Within 2 hours
-                </span>
-                <span className="text-[#6e6e73] text-[11.5px] mt-0.5">
-                  Updates will be sent to your account email.
-                </span>
-              </div>
-            </div>
-          ) : (
-            /* Standard: Get the fastest help card */
-            <div className="bg-white rounded-2xl border border-[#e2eaff] p-6 shadow-xs flex flex-col gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-[#e6f9f6] text-[#4AC3B4] flex items-center justify-center border border-[#b8ece5]">
-                <Headphones className="w-5 h-5 stroke-[2]" />
-              </div>
-
+          {(
+            /* Get the fastest help card (shown for every entry point) */
+            <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col gap-4">
               <div>
-                <h3 className="text-[15px] font-bold text-[#1d1d1f]">
+                <h3 className="flex items-center gap-2 text-base font-semibold text-[#031033]">
+                  <Headphones className="w-4 h-4 text-[#5A6A85]" />
                   Get the fastest help
                 </h3>
-                <p className="text-[12.5px] text-[#6e6e73] mt-1 leading-relaxed">
+                <p className="text-sm text-[#5A6A85] mt-1">
                   Choose the service connected to your issue and include a screenshot when possible.
                 </p>
               </div>
 
-              <div className="flex flex-col divide-y divide-[#f0f4f9] text-[12.5px] py-1">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-[#6e6e73]">Typical response</span>
-                  <span className="font-bold text-[#1d1d1f]">Within 2 hours</span>
+              <div className="flex flex-col divide-y divide-[#EEF2F7] text-sm">
+                <div className="flex items-center justify-between py-2.5">
+                  <span className="text-[#5A6A85]">Typical response</span>
+                  <span className="font-medium text-[#031033]">Within 2 hours</span>
                 </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-[#6e6e73]">Updates</span>
-                  <span className="font-semibold text-[#1d1d1f]">Account email</span>
+                <div className="flex items-center justify-between py-2.5">
+                  <span className="text-[#5A6A85]">Updates</span>
+                  <span className="font-medium text-[#031033]">Account email</span>
                 </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-[#6e6e73]">Attachments</span>
-                  <span className="font-semibold text-[#1d1d1f]">Secure and private</span>
+                <div className="flex items-center justify-between py-2.5">
+                  <span className="text-[#5A6A85]">Attachments</span>
+                  <span className="font-medium text-[#031033]">Secure and private</span>
                 </div>
               </div>
 
-              {/* Bottom Green Callout */}
-              <div className="bg-[#f0fdf9] border border-[#99f6e4] rounded-xl p-3 flex items-start gap-2.5 text-[11.5px] text-[#0f766e]">
-                <ShieldCheck className="w-4 h-4 text-[#0f9f8c] shrink-0 mt-0.5" />
+              {/* Privacy note */}
+              <div className="bg-[#E8F4FC] border border-[#1787D4]/20 rounded-lg px-4 py-3 flex items-start gap-2.5 text-xs text-[#031033]">
+                <ShieldCheck className="w-4 h-4 text-[#1787D4] shrink-0" />
                 <span>Only authorized support staff can view your ticket.</span>
               </div>
             </div>
@@ -676,8 +583,8 @@ export default function CreateTicketPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#1787D4]" />
-          <p className="text-sm text-[#6e6e73]">Loading ticket form…</p>
+          <Loader2 className="w-5 h-5 animate-spin text-[#1787D4]" />
+          <p className="text-sm text-[#5A6A85]">Loading ticket form…</p>
         </div>
       }
     >

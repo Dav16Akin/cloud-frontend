@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+
 export const metadata: Metadata = {
-  title: "NupatCloud — Cloud Infrastructure for African Businesses",
+  title: "Nupat Cloud — Cloud Infrastructure for African Businesses",
   description:
-    "Launch, host, and grow your business online with reliable hosting, domain registration, business emails, and developer-friendly cloud infrastructure designed for Africa.",
+    "Register domains, host websites and run VPS servers on cloud infrastructure built for businesses and developers in Nigeria and across Africa.",
   keywords: [
     "cloud hosting Nigeria",
     "web hosting Africa",
     "domain registration Nigeria",
-    "business email Africa",
     "Nupat Cloud",
     "African cloud infrastructure",
   ],
@@ -49,7 +52,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${geist.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>{children}</Providers>
         <WhatsAppButton />

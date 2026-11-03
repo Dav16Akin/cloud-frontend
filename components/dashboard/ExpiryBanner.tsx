@@ -21,6 +21,8 @@ export default function ExpiryBanner() {
   const { mutate: renewDomain, isPending: isRenewingDomain } = useRenewDomain();
 
   const [renewingId, setRenewingId] = useState<string | null>(null);
+  // Capture "now" once per mount; Date.now() during render is impure.
+  const [now] = useState(() => Date.now());
 
   // Show exclusively on the main dashboard page
   if (pathname !== "/dashboard") {
@@ -39,7 +41,7 @@ export default function ExpiryBanner() {
     if (w.daysLeft !== null) return w.daysLeft <= 10;
     if (w.expiresAt) {
       const diffDays = Math.ceil(
-        (new Date(w.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        (new Date(w.expiresAt).getTime() - now) / (1000 * 60 * 60 * 24),
       );
       return diffDays <= 10;
     }
@@ -80,7 +82,7 @@ export default function ExpiryBanner() {
           (isRenewingHosting || isRenewingDomain) && renewingId === warning.id;
         const serviceName =
           warning.label ||
-          (warning.type === "HOSTING" ? "Hosting Plan" : "Domain Name");
+          (warning.type === "HOSTING" ? "Hosting plan" : "Domain name");
         const typeStr = warning.type === "HOSTING" ? "Hosting" : "Domain";
 
         let statusText = "expiring soon";
@@ -98,29 +100,31 @@ export default function ExpiryBanner() {
           <div
             key={`${warning.type}:${warning.id}`}
             id={`expiry-banner-${warning.type.toLowerCase()}-${warning.id}`}
-            className="w-full bg-[#0a0f1d] border-b border-white/10 px-4 sm:px-6 py-2.5 transition-all text-white text-[12.5px]"
+            className="w-full border-b border-white/10 bg-[#031033] px-4 py-2.5 text-sm text-white sm:px-6 lg:px-8"
           >
             {/* Desktop Row: Single horizontal strip */}
             <div className="hidden sm:flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 {isExpired ? (
-                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <AlertCircle className="w-4 h-4 text-[#F5A3A3] shrink-0" />
                 ) : (
-                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <AlertTriangle className="w-4 h-4 text-[#FFC75D] shrink-0" />
                 )}
-                <span
-                  className={`font-bold tracking-tight text-[11px] uppercase shrink-0 ${
-                    isExpired ? "text-red-400" : "text-amber-400"
-                  }`}
-                >
-                  {isExpired ? "Expired" : "Expiring Soon"}
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-white/80">
+                  <span
+                    aria-hidden
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                      isExpired ? "bg-[#DC2626]" : "bg-[#E8900A]"
+                    }`}
+                  />
+                  {isExpired ? "Expired" : "Expiring soon"}
                 </span>
-                <span className="text-white/30 shrink-0">•</span>
-                <span className="font-semibold text-white truncate max-w-[200px] md:max-w-xs">
+                <span className="shrink-0 text-white/30" aria-hidden="true">·</span>
+                <span className="max-w-[200px] truncate font-medium text-white md:max-w-xs">
                   {serviceName}
                 </span>
-                <span className="text-white/30 hidden md:inline shrink-0">•</span>
-                <span className="text-slate-300 text-[12px] hidden md:inline truncate">
+                <span className="hidden shrink-0 text-white/30 md:inline" aria-hidden="true">·</span>
+                <span className="hidden truncate text-white/70 md:inline">
                   Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
                 </span>
               </div>
@@ -128,7 +132,7 @@ export default function ExpiryBanner() {
               <div className="flex items-center gap-2.5 shrink-0">
                 <Link
                   href={getServiceLink(warning)}
-                  className="text-[12px] font-medium text-slate-400 hover:text-white transition-colors"
+                  className="rounded-md text-sm font-medium text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >
                   Details
                 </Link>
@@ -138,7 +142,7 @@ export default function ExpiryBanner() {
                   id={`btn-renew-${warning.id}`}
                   onClick={() => handleRenew(warning)}
                   disabled={isProcessing}
-                  className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
+                  className="inline-flex h-8 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg bg-[#1787D4] px-3 text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isProcessing ? (
                     <>
@@ -156,7 +160,7 @@ export default function ExpiryBanner() {
                   onClick={() => dismissWarning(warning.type, warning.id)}
                   title="Dismiss for this session"
                   aria-label="Dismiss warning for this session"
-                  className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -168,20 +172,20 @@ export default function ExpiryBanner() {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   {isExpired ? (
-                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <AlertCircle className="w-4 h-4 text-[#F5A3A3] shrink-0" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <AlertTriangle className="w-4 h-4 text-[#FFC75D] shrink-0" />
                   )}
-                  <span
-                    className={`font-bold text-[10.5px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
-                      isExpired
-                        ? "bg-red-500/20 text-red-300"
-                        : "bg-amber-500/20 text-amber-300"
-                    }`}
-                  >
-                    {isExpired ? "Expired" : "Expiring Soon"}
+                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-white/80">
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                        isExpired ? "bg-[#DC2626]" : "bg-[#E8900A]"
+                      }`}
+                    />
+                    {isExpired ? "Expired" : "Expiring soon"}
                   </span>
-                  <span className="font-semibold text-white text-[13px] truncate">
+                  <span className="truncate text-sm font-medium text-white">
                     {serviceName}
                   </span>
                 </div>
@@ -191,20 +195,20 @@ export default function ExpiryBanner() {
                   onClick={() => dismissWarning(warning.type, warning.id)}
                   title="Dismiss"
                   aria-label="Dismiss warning"
-                  className="p-1 -mr-1 rounded text-slate-400 hover:text-white transition-colors shrink-0"
+                  className="-mr-2 -mt-1.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-[12px] text-slate-300">
+              <p className="text-sm text-white/70">
                 Your {typeStr.toLowerCase()} {statusText}. Renew to prevent service disruption.
               </p>
 
               <div className="flex items-center gap-2 pt-1">
                 <Link
                   href={getServiceLink(warning)}
-                  className="flex-1 text-center py-2 px-3 rounded-lg text-[12px] font-medium text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                  className="flex h-10 flex-1 items-center justify-center rounded-lg border border-white/15 px-3 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >
                   Details
                 </Link>
@@ -214,7 +218,7 @@ export default function ExpiryBanner() {
                   id={`btn-renew-mobile-${warning.id}`}
                   onClick={() => handleRenew(warning)}
                   disabled={isProcessing}
-                  className="flex-1 inline-flex items-center justify-center py-2 px-3 rounded-lg text-[12px] font-semibold text-white bg-[#1787D4] hover:bg-[#1371B5] transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer shadow-xs whitespace-nowrap"
+                  className="inline-flex h-10 flex-1 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg bg-[#1787D4] px-3 text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isProcessing ? (
                     <>

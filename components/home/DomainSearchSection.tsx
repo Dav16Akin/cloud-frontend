@@ -5,16 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Search,
-  CheckCircle2,
-  XCircle,
   ShoppingCart,
-  Sparkles,
   Loader2,
   Trash2,
   ArrowRight,
   X,
-  Globe,
   ArrowRightLeft,
+  CheckCircle2,
 } from "lucide-react";
 import {
   searchDomains,
@@ -23,6 +20,7 @@ import {
   DomainResult,
 } from "@/lib/api";
 import { useCartStore } from "@/store/cartStore";
+import { formatApiPrice } from "@/lib/formatPrice";
 import { toast } from "sonner";
 
 const EXTENSIONS = [
@@ -40,6 +38,9 @@ const POPULAR_EXTENSIONS = new Set(["com", "ng", "ai", "io", "africa"]);
 
 type SearchState = "idle" | "searching" | "done" | "error";
 type FilterTab = "all" | "available" | "taken";
+
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2";
 
 export default function DomainSearchSection() {
   const [query, setQuery] = useState("");
@@ -118,13 +119,14 @@ export default function DomainSearchSection() {
       domainName,
       extension,
       price: result.price.price,
-      currency: result.price.currency ?? "USD",
+      // Cart totals are charged in naira; the domain search API prices in NGN.
+      currency: result.price.currency ?? "NGN",
       isPremium: result.isPremium,
     });
 
-    toast.success(`${result.domain} added to cart!`, {
+    toast.success(`${result.domain} added to cart`, {
       action: {
-        label: "View Cart",
+        label: "View cart",
         onClick: () => openDrawer(),
       },
     });
@@ -147,22 +149,15 @@ export default function DomainSearchSection() {
   const displayed =
     filter === "available" ? available : filter === "taken" ? taken : results;
 
+  // Prices are shown in the currency the API returns (NGN for domain search).
   const formatPrice = (r: DomainResult) => {
     if (r.price.price == null) return "—";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: r.price.currency ?? "USD",
-      minimumFractionDigits: 2,
-    }).format(r.price.price);
+    return formatApiPrice(r.price.price, r.price.currency);
   };
 
   const formatRenewalPrice = (r: DomainResult) => {
     if (r.renewalPrice?.price == null) return null;
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: r.renewalPrice.currency ?? "USD",
-      minimumFractionDigits: 2,
-    }).format(r.renewalPrice.price);
+    return formatApiPrice(r.renewalPrice.price, r.renewalPrice.currency);
   };
 
   const getExt = (domain: string) => {
@@ -170,12 +165,17 @@ export default function DomainSearchSection() {
     return idx !== -1 ? domain.slice(idx + 1).toLowerCase() : "";
   };
 
+  const filterTabClass = (active: boolean) =>
+    `px-3 py-1 rounded-full transition-colors cursor-pointer ${FOCUS_RING} ${
+      active ? "bg-[#031033] text-white" : "text-[#5A6A85] hover:text-[#031033]"
+    }`;
+
   return (
     <section
       id="domain-search"
-      className="w-full bg-[#f0f4fa] py-12 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-all"
+      className="w-full bg-[#F2F5FC] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
     >
-      {/* Background Curvelines */}
+      {/* Background curvelines */}
       <div className="absolute -top-12 -right-16 pointer-events-none select-none z-0 hidden sm:block">
         <Image
           src="/curveline.png"
@@ -197,46 +197,47 @@ export default function DomainSearchSection() {
         />
       </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Heading */}
-        <div className="text-center mb-7">
+        <div className="text-center mb-8">
           <h2 className="type-h2 text-[#031033] mb-3 inline-block">
             <span className="relative inline-block pb-1">
               Start with the right domain
               <span
-                className="absolute left-0 bottom-0 w-full h-[3.5px] bg-[#1787D4] rounded-full"
+                className="absolute left-0 bottom-0 w-full h-1 bg-[#1787D4] rounded-full"
                 aria-hidden="true"
               />
             </span>
           </h2>
-          <p className="type-lead text-[#5a6a85] max-w-xl mx-auto">
-            Find, register, and secure your domain from one high-performance platform.
+          <p className="type-lead text-[#5A6A85] max-w-xl mx-auto">
+            Search .com, .ng, .africa and other extensions, then register the
+            one you want in a few clicks.
           </p>
         </div>
 
-        {/* Blue Search Card */}
-        <div className="bg-[#1787D4] rounded-lg overflow-hidden shadow-lg border border-[#1474b8]/20">
-          <div className="flex-1 flex flex-col justify-center px-3.5 sm:px-8 py-5 sm:py-7 gap-4">
-            {/* Search bar — Apple pill container */}
+        {/* Search card */}
+        <div className="bg-[#1787D4] rounded-xl overflow-hidden max-w-5xl mx-auto">
+          <div className="flex-1 flex flex-col justify-center px-4 sm:px-8 py-5 sm:py-7 gap-4">
             <form
               onSubmit={handleSearch}
-              className="flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-sm overflow-hidden h-12 sm:h-14 border border-white/40 focus-within:ring-2 focus-within:ring-white/40 transition-all"
+              className="flex items-center bg-white rounded-lg p-1 sm:p-1.5 overflow-hidden h-12 sm:h-14 focus-within:ring-2 focus-within:ring-white/60"
             >
               <div className="flex items-center gap-2 sm:gap-2.5 flex-1 px-3 sm:px-4 min-w-0">
-                <Search className="w-4 h-4 text-[#9ca3af] shrink-0" />
+                <Search className="w-4 h-4 text-[#5A6A85] shrink-0" />
                 <input
                   id="domain-search-input"
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Enter domain (e.g., yourbusiness.ng)"
-                  className="flex-1 text-base sm:text-sm text-[#031033] placeholder:text-[#9ca3af] outline-none bg-transparent min-w-0"
+                  placeholder="Enter a domain, e.g. yourbusiness.ng"
+                  aria-label="Domain name"
+                  className="flex-1 text-base sm:text-sm text-[#031033] placeholder:text-[#5A6A85] outline-none bg-transparent min-w-0"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="text-slate-400 hover:text-slate-600 p-1 shrink-0"
+                    className="text-[#5A6A85] hover:text-[#031033] p-1 shrink-0"
                     aria-label="Clear input"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -247,17 +248,17 @@ export default function DomainSearchSection() {
                 type="submit"
                 id="domain-search-btn"
                 disabled={state === "searching"}
-                className="shrink-0 h-full bg-[#031033] hover:bg-[#081a4a] text-white font-semibold rounded-full text-xs sm:text-sm px-4 sm:px-7 transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2"
+                className="shrink-0 h-full bg-[#031033] hover:bg-[#0A1C4A] text-white font-medium rounded-md text-sm px-4 sm:px-6 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]"
               >
                 {state === "searching" ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-[#FD9F09]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[#FFC75D]" />
                     <span className="hidden sm:inline">Searching…</span>
                   </>
                 ) : (
                   <>
-                    <Search className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Search Domain</span>
+                    <Search className="w-4 h-4" />
+                    <span className="hidden sm:inline">Search domains</span>
                     <span className="sm:hidden">Search</span>
                   </>
                 )}
@@ -266,15 +267,15 @@ export default function DomainSearchSection() {
 
             {/* Extension pills */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-white/80 text-xs font-medium mr-1 hidden sm:inline">
-                Suggested TLDs:
+              <span className="text-white/80 text-sm mr-1 hidden sm:inline">
+                Try:
               </span>
               {EXTENSIONS.map((ext) => (
                 <button
                   key={ext}
                   type="button"
                   onClick={() => handlePillClick(ext)}
-                  className="bg-white/95 hover:bg-white text-[#031033] text-[13px] font-semibold px-3.5 py-1.5 rounded-full transition-all duration-150 shadow-xs cursor-pointer active:scale-95 hover:shadow"
+                  className="bg-white hover:bg-[#E8F4FC] text-[#031033] text-sm font-medium px-3.5 py-1.5 rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1787D4]"
                 >
                   {ext}
                 </button>
@@ -283,129 +284,110 @@ export default function DomainSearchSection() {
           </div>
         </div>
 
-        {/* ── SEARCHING STATE: Skeleton Grid ── */}
+        {/* Searching state: skeleton grid */}
         {state === "searching" && (
-          <div className="mt-8 space-y-4 animate-fade-up">
+          <div className="mt-8 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="h-5 w-48 bg-slate-200 rounded animate-pulse" />
-              <div className="h-8 w-32 bg-slate-200 rounded-full animate-pulse" />
+              <div className="h-5 w-48 bg-[#E2E8F0] rounded animate-pulse" />
+              <div className="h-8 w-32 bg-[#E2E8F0] rounded-full animate-pulse" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm flex flex-col justify-between h-44 animate-pulse"
+                  className="bg-white rounded-xl p-6 border border-[#E2E8F0] flex flex-col justify-between h-44 animate-pulse"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="h-4 w-32 bg-slate-200 rounded" />
-                      <div className="h-5 w-16 bg-slate-100 rounded-full" />
+                      <div className="h-4 w-32 bg-[#E2E8F0] rounded" />
+                      <div className="h-5 w-16 bg-[#F2F5FC] rounded-full" />
                     </div>
-                    <div className="h-6 w-24 bg-slate-200 rounded" />
+                    <div className="h-6 w-24 bg-[#E2E8F0] rounded" />
                   </div>
-                  <div className="h-10 w-full bg-slate-100 rounded-lg" />
+                  <div className="h-9 w-full bg-[#F2F5FC] rounded-lg" />
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ── ERROR STATE ── */}
+        {/* Error state */}
         {state === "error" && (
-          <div className="mt-8 p-6 bg-red-50/90 border border-red-200 rounded-lg text-center space-y-3 animate-fade-up">
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600">
-              <XCircle className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-slate-900">
-              Search Failed
+          <div className="mt-8 p-6 bg-white border border-[#DC2626]/30 rounded-xl text-center space-y-3">
+            <h3 className="text-lg font-semibold text-[#031033]">
+              Search failed
             </h3>
-            <p className="text-sm text-slate-600 max-w-md mx-auto">
+            <p className="text-sm text-[#5A6A85] max-w-md mx-auto">
               {errorMsg}
             </p>
             <button
               onClick={() => executeSearch(query || searchedTerm)}
-              className="btn-primary !rounded-full px-5 py-2 text-xs font-semibold"
+              className={`inline-flex items-center justify-center h-9 px-4 rounded-lg bg-[#1787D4] hover:bg-[#1370B5] text-white text-sm font-medium transition-colors cursor-pointer ${FOCUS_RING}`}
             >
-              Try Again
+              Try again
             </button>
           </div>
         )}
 
-        {/* ── RESULTS STATE: Grid Layout ── */}
+        {/* Results state */}
         {state === "done" && (
-          <div className="mt-8 space-y-6 animate-fade-up">
-            {/* Top Toolbar: Search summary, Filter pills, Clear button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-lg border border-slate-200 shadow-xs">
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-[#1787D4]" />
+          <div className="mt-8 space-y-6">
+            {/* Toolbar: summary, filters, clear */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-xl border border-[#E2E8F0]">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-semibold text-[#031033]">
                   Results for &ldquo;{searchedTerm}&rdquo;
                 </span>
-                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                <span className="text-xs text-[#5A6A85]">
                   {results.length} found
                 </span>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Filter Tabs */}
-                <div className="inline-flex bg-slate-100 p-1 rounded-full text-xs font-semibold">
+                <div className="inline-flex bg-[#F2F5FC] p-1 rounded-full text-xs font-medium">
                   <button
                     type="button"
                     onClick={() => setFilter("all")}
-                    className={`px-3 py-1 rounded-full transition-all ${
-                      filter === "all"
-                        ? "bg-white text-[#031033] shadow-xs"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
+                    className={filterTabClass(filter === "all")}
                   >
                     All ({results.length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setFilter("available")}
-                    className={`px-3 py-1 rounded-full transition-all ${
-                      filter === "available"
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
+                    className={filterTabClass(filter === "available")}
                   >
                     Available ({available.length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setFilter("taken")}
-                    className={`px-3 py-1 rounded-full transition-all ${
-                      filter === "taken"
-                        ? "bg-slate-700 text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
+                    className={filterTabClass(filter === "taken")}
                   >
                     Taken ({taken.length})
                   </button>
                 </div>
 
-                {/* Dismiss button */}
                 <button
                   type="button"
                   onClick={handleClearResults}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+                  className={`p-1.5 text-[#5A6A85] hover:text-[#031033] rounded-full hover:bg-[#F2F5FC] transition-colors ${FOCUS_RING}`}
                   title="Close search results"
+                  aria-label="Close search results"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Empty filter message */}
             {displayed.length === 0 && (
-              <div className="py-12 text-center bg-white rounded-lg border border-slate-200">
-                <p className="text-slate-500 text-sm">
+              <div className="py-12 text-center bg-white rounded-xl border border-[#E2E8F0]">
+                <p className="text-[#5A6A85] text-sm">
                   No domains match the &ldquo;{filter}&rdquo; filter.
                 </p>
               </div>
             )}
 
-            {/* ── THE RESULTS GRID ── */}
             {displayed.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {displayed.map((result) => {
@@ -416,103 +398,103 @@ export default function DomainSearchSection() {
                   return (
                     <div
                       key={result.domain}
-                      className={`bg-white rounded-lg p-5 border transition-all duration-200 flex flex-col justify-between gap-4 group ${
+                      className={`rounded-xl p-6 border transition-colors flex flex-col justify-between gap-4 ${
                         result.available
-                          ? "border-[#e2eaff] hover:border-[#1787D4] hover:shadow-md"
-                          : "border-slate-200/80 bg-slate-50/50 opacity-90"
+                          ? "bg-white border-[#E2E8F0] hover:border-[#1787D4]"
+                          : "bg-[#F2F5FC] border-[#E2E8F0]"
                       }`}
                     >
-                      {/* Card Header: Domain name + Status badge */}
+                      {/* Domain name and status */}
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <h3
-                            className={`text-lg font-extrabold tracking-tight break-all ${
-                              result.available ? "text-[#031033]" : "text-slate-500"
+                            className={`text-lg font-semibold break-all ${
+                              result.available ? "text-[#031033]" : "text-[#5A6A85]"
                             }`}
                           >
                             {result.domain}
                           </h3>
 
-                          {/* Status Badge */}
                           {result.available ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full shrink-0">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#0E7C3A] shrink-0 mt-1.5">
+                              <span className="w-2 h-2 rounded-full bg-[#12A150]" aria-hidden="true" />
                               Available
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full shrink-0">
-                              <XCircle className="w-3 h-3 text-slate-400" />
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#5A6A85] shrink-0 mt-1.5">
+                              <span className="w-2 h-2 rounded-full bg-[#5A6A85]" aria-hidden="true" />
                               Taken
                             </span>
                           )}
                         </div>
 
-                        {/* Badges row: Popular / Premium */}
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {isPopular && (
-                            <span className="text-[10px] font-bold text-[#fd9f09] bg-[#fff8ee] border border-[#fde8c0] px-2 py-0.5 rounded-full">
-                              Popular
-                            </span>
-                          )}
-                          {result.isPremium && (
-                            <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <Sparkles className="w-2.5 h-2.5" />
-                              Premium
-                            </span>
-                          )}
-                        </div>
+                        {(isPopular || result.isPremium) && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {isPopular && (
+                              <span className="text-xs font-medium text-[#031033] bg-[#FFF8EE] px-2 py-0.5 rounded-full">
+                                Popular
+                              </span>
+                            )}
+                            {result.isPremium && (
+                              <span className="text-xs font-medium text-[#1370B5] bg-[#E8F4FC] px-2 py-0.5 rounded-full">
+                                Premium
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
 
-                      {/* Card Middle: Price or Taken Explanation */}
-                      <div className="pt-2 border-t border-slate-100">
+                      {/* Price or taken explanation */}
+                      <div className="pt-3 border-t border-[#E2E8F0]">
                         {result.available ? (
                           <div>
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-xl font-extrabold text-[#031033]">
+                              <span className="text-xl font-semibold text-[#031033] tabular-nums">
                                 {formatPrice(result)}
                               </span>
-                              <span className="text-xs text-slate-400 font-medium">
-                                / 1st yr
+                              <span className="text-xs text-[#5A6A85]">
+                                first year
                               </span>
                             </div>
                             {formatRenewalPrice(result) && (
-                              <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                              <p className="text-xs text-[#5A6A85] mt-0.5">
                                 Renews at {formatRenewalPrice(result)}/yr
                               </p>
                             )}
                           </div>
                         ) : (
-                          <div className="text-xs text-slate-400 space-y-1">
+                          <div className="text-sm text-[#5A6A85] space-y-1">
                             <p>Already registered by someone else.</p>
                             <Link
                               href={`/dashboard/domain-transfer?domain=${encodeURIComponent(
                                 result.domain
                               )}`}
-                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1787D4] hover:underline"
+                              className="inline-flex items-center gap-1 text-xs font-medium text-[#1787D4] hover:underline"
                             >
-                              <ArrowRightLeft className="w-3 h-3" />
+                              <ArrowRightLeft className="w-3.5 h-3.5" />
                               Transfer to Nupat
                             </Link>
                           </div>
                         )}
                       </div>
 
-                      {/* Card Footer: Action Button */}
-                      <div className="pt-1">
+                      {/* Action */}
+                      <div>
                         {result.available ? (
                           isInCart ? (
                             <div className="flex items-center gap-2">
-                              <span className="flex-1 text-center py-2 px-3 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-center gap-1.5">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                Added in Cart
+                              <span className="flex-1 h-9 px-3 text-sm font-medium text-[#0E7C3A] bg-[#12A150]/10 rounded-lg flex items-center justify-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4" />
+                                In cart
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveFromCart(result.domain)}
-                                className="p-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+                                className={`h-9 w-9 flex items-center justify-center text-[#DC2626] hover:bg-[#DC2626]/10 border border-[#E2E8F0] rounded-lg transition-colors ${FOCUS_RING}`}
                                 title="Remove from cart"
+                                aria-label={`Remove ${result.domain} from cart`}
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           ) : (
@@ -520,17 +502,17 @@ export default function DomainSearchSection() {
                               type="button"
                               onClick={() => handleAddToCart(result)}
                               disabled={result.price.price == null}
-                              className="btn-primary w-full py-2.5 px-4 text-xs font-bold rounded-lg flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                              className={`w-full h-9 px-4 text-sm font-medium rounded-lg flex items-center justify-center gap-2 bg-[#1787D4] hover:bg-[#1370B5] text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${FOCUS_RING}`}
                             >
-                              <ShoppingCart className="w-3.5 h-3.5" />
-                              Add to Cart
+                              <ShoppingCart className="w-4 h-4" />
+                              Add to cart
                             </button>
                           )
                         ) : (
                           <button
                             type="button"
                             disabled
-                            className="w-full py-2.5 px-4 text-xs font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed"
+                            className="w-full h-9 px-4 text-sm font-medium text-[#5A6A85] bg-white border border-[#E2E8F0] rounded-lg cursor-not-allowed"
                           >
                             Unavailable
                           </button>
@@ -542,15 +524,12 @@ export default function DomainSearchSection() {
               </div>
             )}
 
-            {/* Suggested Alternative Names */}
+            {/* Suggested alternative names */}
             {suggestedAlternativeNames.length > 0 && (
-              <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-2.5">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-bold text-[#031033] uppercase tracking-wider">
-                    Suggested Alternative Names
-                  </span>
-                </div>
+              <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
+                <h3 className="text-sm font-semibold text-[#031033] mb-3">
+                  Other names to try
+                </h3>
                 <div className="flex flex-wrap items-center gap-2">
                   {suggestedAlternativeNames.slice(0, 8).map((alt) => (
                     <button
@@ -561,24 +540,24 @@ export default function DomainSearchSection() {
                         setQuery(newQ);
                         executeSearch(newQ);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-50 hover:bg-blue-50 text-[#1787D4] border border-slate-200 hover:border-blue-200 transition-all cursor-pointer"
+                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[#F2F5FC] hover:bg-[#E8F4FC] text-[#1787D4] transition-colors cursor-pointer ${FOCUS_RING}`}
                     >
                       <span>{alt}</span>
-                      <span className="text-slate-400 font-normal">.com</span>
+                      <span className="text-[#5A6A85] font-normal">.com</span>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Bottom Link to Full Registrar Page */}
+            {/* Link to the full domains page */}
             <div className="pt-2 text-center">
               <Link
                 href={`/domains?search=${encodeURIComponent(searchedTerm)}`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1787D4] hover:text-[#0f5c94] bg-white px-5 py-2.5 rounded-full border border-slate-200 shadow-xs hover:shadow transition-all"
+                className={`inline-flex items-center gap-1.5 h-9 px-4 text-sm font-medium text-[#031033] bg-white rounded-lg border border-[#D5DCE6] hover:bg-[#F2F5FC] transition-colors ${FOCUS_RING}`}
               >
-                <span>View all extensions and TLD filters on Domains page</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>See every extension on the domains page</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>

@@ -27,6 +27,14 @@ import {
 } from "@/hooks/useHosting";
 import { useGetMe } from "@/hooks/useUser";
 import { searchDomains, type DomainResult } from "@/lib/api";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import {
+  GATEWAY_NAME,
+  connectingLabel,
+  payLabel,
+  redirectToPayment,
+} from "@/lib/payments";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -247,10 +255,10 @@ function HostingPurchaseFlow() {
   const [domainSearchResult, setDomainSearchResult] =
     useState<DomainResult | null>(null);
 
-  // Paystack redirect state
-  const [isRedirectingToPaystack, setIsRedirectingToPaystack] =
-    useState<boolean>(false);
+  // Payment gateway redirect state
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const { mutate: purchase, isPending: isPurchasing } = usePurchaseHosting();
+  const payment = usePaymentMethod();
 
   // Activating sequence steps & order tracking
   const [activatingStep, setActivatingStep] = useState<number>(1);
@@ -260,7 +268,7 @@ function HostingPurchaseFlow() {
   const { data: meData } = useGetMe();
   const userEmail = meData?.data?.email;
 
-  // Handle return from Paystack if reference is in query params
+  // Handle return from the payment page if reference is in query params
   const urlReference =
     searchParams?.get("reference") || searchParams?.get("trxref");
   useEffect(() => {
@@ -364,8 +372,7 @@ function HostingPurchaseFlow() {
     }
   };
 
-  // Paystack Direct Checkout (strictly API, zero fallback bypass)
-  const handlePaystackCheckout = () => {
+  const handleCheckout = () => {
     const cleanDomain = domainName.trim();
     if (!cleanDomain) {
       toast.error("Please specify a primary domain.");
@@ -376,13 +383,14 @@ function HostingPurchaseFlow() {
       return;
     }
 
-    setIsRedirectingToPaystack(true);
+    setIsRedirecting(true);
 
     purchase(
       {
         planId: selectedPlan.id,
         domain: cleanDomain,
         billingCycle,
+        provider: payment.method,
       },
       {
         onSuccess: (res) => {
@@ -394,16 +402,16 @@ function HostingPurchaseFlow() {
               planId: selectedPlan.id,
               reference: res.data.reference,
             });
-            window.location.href = res.data.paymentUrl;
+            redirectToPayment(res.data);
           } else {
-            setIsRedirectingToPaystack(false);
+            setIsRedirecting(false);
             toast.error(
               res?.message || "No payment URL returned from the server.",
             );
           }
         },
         onError: (err: Error) => {
-          setIsRedirectingToPaystack(false);
+          setIsRedirecting(false);
           toast.error(
             err?.message || "Payment initialization failed. Please try again.",
           );
@@ -1364,7 +1372,7 @@ function HostingPurchaseFlow() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────────────────
-          SCREEN 6: Complete your payment (PAYSTACK ONLY)
+          SCREEN 6: Complete your payment
       ───────────────────────────────────────────────────────────────────────── */}
       {currentStep === "payment" && (
         <>
@@ -1378,7 +1386,7 @@ function HostingPurchaseFlow() {
           <StepperBar currentStep={currentStep} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-            {/* Left Column (8 cols): Paystack Payment Method Card */}
+            {/* Left Column (8 cols): Payment Method Card */}
             <div className="lg:col-span-8 flex flex-col gap-4">
               <div className="bg-white border border-[#E2E8F0] rounded-xl">
                 <div className="px-5 py-4 border-b border-[#EEF2F7]">
@@ -1391,49 +1399,18 @@ function HostingPurchaseFlow() {
                 </div>
 
                 <div className="p-5 space-y-4">
-                  <div className="p-4 rounded-lg border border-[#1787D4] ring-1 ring-[#1787D4] bg-[#E8F4FC] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-4 h-4 rounded-full border-[5px] border-[#1787D4] bg-white shrink-0" />
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-24 rounded-lg bg-white flex items-center justify-center px-2 shrink-0">
-                          <Image
-                            src="/paystack-logo.png"
-                            alt="Paystack"
-                            width={110}
-                            height={28}
-                            className="h-6 w-auto object-contain"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-[#031033]">
-                            Paystack
-                          </p>
-                          <p className="text-xs text-[#5A6A85]">
-                            Pay with debit/credit card, bank transfer, USSD, or
-                            Apple Pay
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <span className="self-start sm:self-center text-xs text-[#5A6A85] whitespace-nowrap shrink-0">
-                      Primary gateway
-                    </span>
-                  </div>
+                  <PaymentMethodSelector
+                    {...payment}
+                    disabled={isRedirecting || isPurchasing}
+                  />
 
                   <div className="px-4 py-3 rounded-lg bg-[#F2F5FC] border border-[#E2E8F0] flex items-start gap-3 text-sm text-[#5A6A85]">
                     <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-[#031033]">
-                        Direct and secure Paystack checkout
-                      </p>
-                      <p className="mt-0.5 leading-relaxed">
-                        Clicking &ldquo;Pay with Paystack&rdquo; will direct you
-                        straight to Paystack&apos;s certified payment gateway to
-                        complete the transaction. No card details are ever stored
-                        on our servers.
-                      </p>
-                    </div>
+                    <p className="leading-relaxed">
+                      You&apos;ll complete the payment on{" "}
+                      {GATEWAY_NAME[payment.method]}&apos;s own page. Card,
+                      bank, and wallet details are never stored on our servers.
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-[#5A6A85]">
@@ -1480,17 +1457,17 @@ function HostingPurchaseFlow() {
 
                 <button
                   type="button"
-                  disabled={isRedirectingToPaystack || isPurchasing}
-                  onClick={handlePaystackCheckout}
+                  disabled={isRedirecting || isPurchasing}
+                  onClick={handleCheckout}
                   className="w-full h-10 bg-[#1787D4] hover:bg-[#1370B5] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 tabular-nums"
                 >
-                  {isRedirectingToPaystack || isPurchasing ? (
+                  {isRedirecting || isPurchasing ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Connecting to Paystack…
+                      {connectingLabel(payment.method)}
                     </>
                   ) : (
-                    `Pay ${formatPrice(grandTotal)} with Paystack`
+                    payLabel(payment.method, formatPrice(grandTotal))
                   )}
                 </button>
 
@@ -1540,7 +1517,7 @@ function HostingPurchaseFlow() {
                     Payment confirmed
                   </p>
                   <p className="text-xs text-[#5A6A85] tabular-nums">
-                    {formatPrice(grandTotal)} received via Paystack
+                    {formatPrice(grandTotal)} received
                   </p>
                 </div>
               </li>

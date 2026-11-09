@@ -36,6 +36,8 @@ import {
   useRenewDomain,
 } from "@/hooks/useDomains";
 import type { DNSRecord, DNSRecordType } from "@/lib/api";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
 
 // ── Shared class strings ──────────────────────────────────────────────────────
 
@@ -237,6 +239,7 @@ export default function ManageDomainPage() {
 
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>("overview");
   const { mutate: renewDomain, isPending: renewing } = useRenewDomain();
+  const payment = usePaymentMethod();
 
   // ── Transfer out state ──
   const { mutate: getAuthCode, isPending: fetchingAuthCode } =
@@ -1161,10 +1164,13 @@ export default function ManageDomainPage() {
                 not expire. The registry&apos;s standard price for this
                 extension applies.
               </p>
+              <div className="max-w-sm">
+                <PaymentMethodSelector {...payment} variant="compact" disabled={renewing} />
+              </div>
               <button
                 id="domain-renew-cta"
                 type="button"
-                onClick={() => renewDomain(id)}
+                onClick={() => renewDomain({ id, provider: payment.method })}
                 disabled={renewing}
                 className={`${btnPrimary} self-start`}
               >

@@ -8,6 +8,7 @@ import {
   verifyPayment,
   type Order,
   type BackendCartItem,
+  type PaymentProvider,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
@@ -26,12 +27,12 @@ export const useGetOrders = () => {
   });
 };
 
-// ── Initialize cart payment (redirects to Paystack) ───────────────────────────
+// ── Initialize cart payment (callers redirect to the gateway) ─────────────────
 
 export const useInitializeCartPayment = () => {
   return useMutation({
-    mutationFn: (items: BackendCartItem[]) =>
-      initializeCartPayment({ items }),
+    mutationFn: ({ items, provider }: { items: BackendCartItem[]; provider?: PaymentProvider }) =>
+      initializeCartPayment({ items, provider }),
     onError: (err: Error) => {
       toast.error(err.message);
     },
@@ -65,6 +66,11 @@ export const useVerifyPayment = (
     retry: false,
     select: (res) => res.data,
     refetchInterval: (q) => {
+      const errorStatus = (q.state.error as { status?: number } | null)?.status;
+      if (typeof errorStatus === "number" && errorStatus >= 400 && errorStatus < 500) {
+        return false;
+      }
+
       const data = q.state.data?.data ?? q.state.data;
       const status = (data as any)?.status;
 
@@ -106,7 +112,14 @@ export const useVerifyPayment = (
     rawStatus === "ALREADY_VERIFIED" ||
     rawStatus === "COMPLETED";
   const isFailed = rawStatus === "FAILED" || rawStatus === "CANCELLED";
-  const isPendingStatus = rawStatus === "PENDING" || (!isPaid && !isFailed && !query.isError && !!query.data);
+  // A 4xx after earlier PENDING polls is a final answer (e.g. a crypto invoice
+  // that expired), so it must not be hidden behind the stale PENDING data.
+  const errorStatus = (query.error as { status?: number } | null)?.status;
+  const hasFinalError =
+    query.isError && typeof errorStatus === "number" && errorStatus >= 400 && errorStatus < 500;
+  const isPendingStatus =
+    !hasFinalError &&
+    (rawStatus === "PENDING" || (!isPaid && !isFailed && !query.isError && !!query.data));
   const isExhausted = !isPaid && !isFailed && pollCount >= maxPolls;
 
   // Clear cart whenever payment is verified as successful

@@ -38,6 +38,12 @@ import {
   type RefundStatus,
   type VpsServer,
 } from "@/lib/api";
+import {
+  GATEWAY_NAME,
+  providerOf,
+  toPaymentProvider,
+  verifyPath,
+} from "@/lib/payments";
 import VpsStatusBadge, {
   isVpsBusy,
 } from "@/components/vps/VpsStatusBadge";
@@ -216,7 +222,18 @@ function refundStateOf(item: OrderItem): RefundStatus {
   return item.refundStatus ?? (item.refundedAt ? "PROCESSED" : "NONE");
 }
 
-function refundCopy(status: RefundStatus) {
+function refundCopy(status: RefundStatus, order: Order) {
+  // Crypto refunds are never automatic: the backend flags them FAILED and
+  // alerts an admin to send the coins back by hand.
+  if (providerOf(order) === "heleket" && status === "FAILED") {
+    return {
+      label: "Manual refund",
+      dot: "bg-[#E8900A]",
+      text: "text-[#031033]",
+      note: "This order was paid in crypto, so the refund is sent by hand. Our team has been notified and will contact you to arrange it.",
+    };
+  }
+
   switch (status) {
     case "PROCESSED":
       return {
@@ -304,9 +321,10 @@ function VpsDashboardContent() {
 
   const handledReference = useRef<string | null>(null);
 
-  // Returning from Paystack after renewing a server.
+  // Returning from the payment page after renewing a server.
   const reference =
     searchParams.get("reference") ?? searchParams.get("trxref");
+  const returnProvider = toPaymentProvider(searchParams.get("provider"));
 
   useEffect(() => {
     if (!reference || !token || handledReference.current === reference) return;
@@ -332,9 +350,15 @@ function VpsDashboardContent() {
           toast.success("Payment confirmed. Your renewal is active.", {
             id: toastId,
           });
+        } else if (status === "PENDING" && returnProvider === "heleket") {
+          // Crypto confirmations take minutes: hand over to the verify page,
+          // which keeps polling and explains each stage.
+          toast.dismiss(toastId);
+          router.replace(verifyPath(reference, "heleket"));
+          return;
         } else if (status === "PENDING") {
           toast.info(
-            "Payment received. We are still confirming it with Paystack.",
+            `Payment received. We are still confirming it with ${GATEWAY_NAME[returnProvider]}.`,
             { id: toastId },
           );
         } else {
@@ -361,7 +385,7 @@ function VpsDashboardContent() {
     return () => {
       cancelled = true;
     };
-  }, [reference, token, queryClient, router]);
+  }, [reference, returnProvider, token, queryClient, router]);
 
   // Keep polling the orders list while a paid VPS is waiting on provisioning.
   const refetchOrders = ordersQuery.refetch;
@@ -540,14 +564,14 @@ function VpsDashboardContent() {
                 Provisioning refunds
               </h3>
               <p className="text-sm text-[#5A6A85] mt-0.5">
-                Refund status is reported by Paystack. Bank settlement can take
-                up to 10 business days.
+                Card and bank refunds are reported by Paystack and can take up
+                to 10 business days to settle. Crypto refunds are sent by hand.
               </p>
             </div>
           </div>
 
           {refundItems.slice(0, 3).map(({ item, order, status }) => {
-            const copy = refundCopy(status);
+            const copy = refundCopy(status, order);
             return (
               <div
                 key={item.id}

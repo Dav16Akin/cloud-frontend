@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Globe,
   Shield,
@@ -22,6 +21,9 @@ import { useCartStore, getCartItemKey, cartItemLabel, type CartItem } from "@/st
 import { useGetMe } from "@/hooks/useUser";
 import { initializeCartPayment, type BackendCartItem } from "@/lib/api";
 import { setRecentHostingPurchase } from "@/hooks/useHosting";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import { connectingLabel, payLabel, redirectToPayment } from "@/lib/payments";
 import { toast } from "sonner";
 
 /** Real term in years for a cart item, if the item carries one (never assumed). */
@@ -36,6 +38,7 @@ function DashboardCheckoutContent() {
   const { items, removeItem, clearCart, grandTotal, toBackendItems } = useCartStore();
   const { data: meData, isLoading: isLoadingUser } = useGetMe();
   const userProfile = meData?.data;
+  const payment = usePaymentMethod();
 
   // Contact / Billing form state (pre-filled from real account profile)
   const [firstName, setFirstName] = useState("");
@@ -73,8 +76,7 @@ function DashboardCheckoutContent() {
 
   const totalAmount = grandTotal();
 
-  // Paystack Direct Checkout Handler
-  const handlePaystackCheckout = async () => {
+  const handleCheckout = async () => {
     if (items.length === 0) {
       toast.error("Your cart is empty. Add services before proceeding.");
       return;
@@ -124,7 +126,10 @@ function DashboardCheckoutContent() {
       const backendItems: BackendCartItem[] = toBackendItems();
 
       // Call real backend endpoint POST /orders/initialize
-      const res = await initializeCartPayment({ items: backendItems });
+      const res = await initializeCartPayment({
+        items: backendItems,
+        provider: payment.method,
+      });
 
       if (res?.data?.paymentUrl) {
         // Save official order reference in sessionStorage for post-payment verification
@@ -144,8 +149,7 @@ function DashboardCheckoutContent() {
           });
         }
 
-        // Direct user straight to Paystack
-        window.location.href = res.data.paymentUrl;
+        redirectToPayment(res.data);
       } else {
         throw new Error(res?.message || "No payment URL returned from server.");
       }
@@ -179,7 +183,8 @@ function DashboardCheckoutContent() {
       <div>
         <h1 className="text-2xl font-semibold text-[#031033]">Review and complete payment</h1>
         <p className="text-sm text-[#5A6A85] mt-1">
-          Check your domains, SSL certificates, and hosting, confirm your account details, then pay through Paystack.
+          Check your domains, SSL certificates, and hosting, confirm your account details, then pay{" "}
+          {payment.cryptoAvailable ? "by card, bank transfer, or crypto" : "through Paystack"}.
         </p>
       </div>
 
@@ -470,53 +475,23 @@ function DashboardCheckoutContent() {
             )}
           </div>
 
-          {/* Card 3: Payment Method (Official Paystack Gateway) */}
+          {/* Card 3: Payment Method */}
           <div className="w-full bg-white rounded-xl border border-[#E2E8F0]">
             <div className="px-5 py-4 border-b border-[#EEF2F7]">
               <h3 className="text-base font-semibold text-[#031033]">Payment method</h3>
               <p className="text-xs text-[#5A6A85] mt-0.5">
-                Your payment is processed directly by Paystack.
+                You complete the payment on the gateway&apos;s own page.
               </p>
             </div>
 
             <div className="p-5">
-              {/* Paystack Primary Card */}
-              <div className="px-4 py-4 rounded-lg border border-[#1787D4] ring-1 ring-[#1787D4] bg-[#E8F4FC] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full border-[5px] border-[#1787D4] bg-white shrink-0" />
-                  <div className="flex items-center gap-3">
-                    <div className="h-7 w-[110px] flex items-center shrink-0">
-                      <Image
-                        src="/paystack-logo.png"
-                        alt="Paystack"
-                        width={110}
-                        height={28}
-                        className="h-7 w-auto object-contain"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#031033]">Paystack</p>
-                      <p className="text-xs text-[#5A6A85]">
-                        Pay with debit/credit card, bank transfer, USSD, or Apple Pay
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <PaymentMethodSelector {...payment} disabled={isProcessing} />
 
-                <span className="self-start sm:self-center text-xs text-[#5A6A85] whitespace-nowrap shrink-0">
-                  Primary gateway
-                </span>
-              </div>
-
-              {/* Direct & Secure Checkout Note */}
               <div className="mt-4 px-4 py-3 rounded-lg bg-[#F2F5FC] flex items-start gap-3 text-sm text-[#5A6A85]">
                 <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-[#031033]">Direct Paystack checkout</p>
-                  <p className="mt-0.5 text-xs">
-                    &ldquo;Pay with Paystack&rdquo; takes you to Paystack&apos;s payment page to complete the transaction. Card details are never stored on our servers.
-                  </p>
-                </div>
+                <p className="text-xs">
+                  Card, bank, and wallet details are entered on the gateway&apos;s page and never stored on our servers.
+                </p>
               </div>
 
               <div className="mt-4 flex items-center gap-2 text-xs text-[#5A6A85]">
@@ -588,20 +563,19 @@ function DashboardCheckoutContent() {
                 </label>
               </div>
 
-              {/* Pay with Paystack Action Button */}
               <button
                 type="button"
                 disabled={isProcessing || items.length === 0 || !agreedToTerms}
-                onClick={handlePaystackCheckout}
+                onClick={handleCheckout}
                 className="w-full mt-5 h-10 rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] transition-colors cursor-pointer flex items-center justify-center gap-2 tabular-nums disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30"
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting to Paystack…
+                    {connectingLabel(payment.method)}
                   </>
                 ) : (
-                  `Pay ₦${totalAmount.toLocaleString()} with Paystack`
+                  payLabel(payment.method, `₦${totalAmount.toLocaleString()}`)
                 )}
               </button>
 

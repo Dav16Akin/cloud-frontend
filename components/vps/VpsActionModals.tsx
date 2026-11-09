@@ -27,6 +27,9 @@ import {
   useVpsPlans,
 } from "@/hooks/useVps";
 import type { VpsServer } from "@/lib/api";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { GATEWAY_NAME, payLabel } from "@/lib/payments";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
 import VpsModal from "./VpsModal";
 import {
   daysUntil,
@@ -705,6 +708,7 @@ export function RenewVpsModal({
   onClose: () => void;
 }) {
   const { mutate, isPending } = useRenewVps();
+  const payment = usePaymentMethod();
 
   const price = server.plan?.priceNgnMonthly ?? 0;
   const daysRemaining = daysUntil(server.nextBillingAt);
@@ -735,7 +739,7 @@ export function RenewVpsModal({
           </button>
           <button
             type="button"
-            onClick={() => mutate(server.id)}
+            onClick={() => mutate({ id: server.id, provider: payment.method })}
             disabled={isPending || price <= 0}
             className={primaryButton}
           >
@@ -745,7 +749,7 @@ export function RenewVpsModal({
                 Redirecting…
               </>
             ) : (
-              <>Pay {formatNaira(price)}</>
+              payLabel(payment.method, formatNaira(price))
             )}
           </button>
         </>
@@ -781,10 +785,12 @@ export function RenewVpsModal({
           </div>
         </div>
 
+        <PaymentMethodSelector {...payment} variant="compact" disabled={isPending} />
+
         <p className="text-xs text-[#5A6A85] leading-relaxed">
           Adds 30 days to your current billing period. You will complete the
-          payment securely on Paystack, and the renewal is applied as soon as
-          payment is confirmed.
+          payment securely on {GATEWAY_NAME[payment.method]}, and the renewal is
+          applied as soon as payment is confirmed.
         </p>
 
         <p className="text-xs text-[#5A6A85] leading-relaxed">

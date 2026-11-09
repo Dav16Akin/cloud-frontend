@@ -29,6 +29,14 @@ import {
 import { useCartStore } from "@/store/cartStore";
 import { useGetMe } from "@/hooks/useUser";
 import { useGetSslProducts } from "@/hooks/useSsl";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import {
+  GATEWAY_NAME,
+  connectingLabel,
+  payLabel,
+  redirectToPayment,
+} from "@/lib/payments";
 import { toast } from "sonner";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -65,7 +73,7 @@ export default function DomainRegistrationWizard({
   // 2 = Select & Configure ("Choose your domain" -> "Your domain is ready")
   // 3 = Details ("Set up your domain" - Contact & Registrant info)
   // 4 = Review ("Review your order")
-  // 5 = Payment ("Complete your payment" - Paystack direct checkout)
+  // 5 = Payment ("Complete your payment" - Paystack or crypto)
   // 6 = Done ("Your domain is registered!" - Order Completed)
   const [currentStep, setCurrentStep] = useState<Step>(initialStep);
 
@@ -131,8 +139,9 @@ export default function DomainRegistrationWizard({
   // Step 4: Review Agreement
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // Step 5: Direct Paystack redirect state
-  const [isRedirectingToPaystack, setIsRedirectingToPaystack] = useState(false);
+  // Step 5: payment gateway choice and redirect state
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const payment = usePaymentMethod();
 
   // Parse root keyword from query
   const cleanKeyword = (query: string) => {
@@ -269,14 +278,14 @@ export default function DomainRegistrationWizard({
     ? userProfile.email.split("@")[0]
     : [firstName.toLowerCase(), lastName.toLowerCase()].filter(Boolean).join(".") || "user";
 
-  // ── Paystack Direct Checkout ──────────────────────────────────────────────
-  const handlePaystackCheckout = async () => {
+  // ── Checkout ──────────────────────────────────────────────────────────────
+  const handleCheckout = async () => {
     if (!selectedResult) {
       toast.error("Please select a domain first.");
       return;
     }
 
-    setIsRedirectingToPaystack(true);
+    setIsRedirecting(true);
 
     try {
       const domain = selectedResult.domain;
@@ -323,12 +332,14 @@ export default function DomainRegistrationWizard({
         });
       }
 
-      // Call real backend endpoint to get official Paystack authorization URL
-      const res = await initializeCartPayment({ items: backendItems });
+      const res = await initializeCartPayment({
+        items: backendItems,
+        provider: payment.method,
+      });
 
       if (res?.data?.paymentUrl) {
         sessionStorage.setItem("cart_order_ref", res.data.reference);
-        window.location.href = res.data.paymentUrl;
+        redirectToPayment(res.data);
       } else {
         throw new Error(
           res?.message || "No payment URL returned from server.",
@@ -340,7 +351,7 @@ export default function DomainRegistrationWizard({
           ? err.message
           : "Payment initialisation failed. Please try again.";
       toast.error(msg);
-      setIsRedirectingToPaystack(false);
+      setIsRedirecting(false);
     }
   };
 
@@ -1658,11 +1669,11 @@ export default function DomainRegistrationWizard({
       )}
 
       {/* ══════════════════════════════════════════════════════════════════
-          SCREEN 5: COMPLETE PAYMENT (DIRECT TO PAYSTACK GATEWAY)
+          SCREEN 5: COMPLETE PAYMENT
       ══════════════════════════════════════════════════════════════════ */}
       {currentStep === 5 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-          {/* Left Column (8 cols): Paystack Payment Method */}
+          {/* Left Column (8 cols): Payment Method */}
           <div className="lg:col-span-8 flex flex-col gap-5">
             <div className="w-full bg-white rounded-xl border border-[#E2E8F0] p-5">
               <h3 className="text-base font-semibold text-[#031033]">
@@ -1672,51 +1683,16 @@ export default function DomainRegistrationWizard({
                 Your payment details are encrypted and handled securely.
               </p>
 
-              {/* Paystack Card */}
-              <div className="p-4 rounded-lg border-2 border-[#1787D4] bg-[#E8F4FC]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-4 border-[#1787D4] bg-white flex items-center justify-center shrink-0" />
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-[110px] flex items-center shrink-0">
-                      <Image
-                        src="/paystack-logo.png"
-                        alt="Paystack"
-                        width={110}
-                        height={28}
-                        className="h-7 w-auto max-w-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#031033]">
-                        Paystack
-                      </p>
-                      <p className="text-xs text-[#5A6A85]">
-                        Debit or credit card, bank transfer, USSD or Apple
-                        Pay
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <span className="self-start sm:self-center whitespace-nowrap text-xs font-medium text-[#5A6A85] shrink-0">
-                  Primary gateway
-                </span>
-              </div>
+              <PaymentMethodSelector {...payment} disabled={isRedirecting} />
 
               {/* Security note */}
               <div className="mt-5 px-4 py-3 rounded-lg bg-[#F2F5FC] border border-[#E2E8F0] flex items-start gap-3 text-sm text-[#5A6A85]">
                 <Shield className="w-4 h-4 text-[#5A6A85] shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-[#031033]">
-                    Secure checkout with Paystack
-                  </p>
-                  <p className="mt-0.5">
-                    Clicking &ldquo;Pay with Paystack&rdquo; will direct you
-                    straight to Paystack&apos;s certified payment gateway to
-                    complete the transaction. No card details are ever stored on
-                    our servers.
-                  </p>
-                </div>
+                <p>
+                  You&apos;ll complete the payment on{" "}
+                  {GATEWAY_NAME[payment.method]}&apos;s own page. Card, bank,
+                  and wallet details are never stored on our servers.
+                </p>
               </div>
 
               <div className="mt-6 flex items-center gap-2 text-xs text-[#5A6A85]">
@@ -1783,20 +1759,19 @@ export default function DomainRegistrationWizard({
                 </div>
               </div>
 
-              {/* Pay with Paystack Button -> Direct redirect */}
               <button
                 type="button"
-                disabled={isRedirectingToPaystack}
-                onClick={handlePaystackCheckout}
+                disabled={isRedirecting}
+                onClick={handleCheckout}
                 className="w-full mt-6 h-9 inline-flex items-center justify-center rounded-lg font-medium text-white text-sm bg-[#1787D4] hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30 transition-colors cursor-pointer gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isRedirectingToPaystack ? (
+                {isRedirecting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting to Paystack…
+                    {connectingLabel(payment.method)}
                   </>
                 ) : (
-                  `Pay ₦${grandTotal.toLocaleString()} with Paystack`
+                  payLabel(payment.method, `₦${grandTotal.toLocaleString()}`)
                 )}
               </button>
 

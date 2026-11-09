@@ -31,6 +31,7 @@ import { useGetHosting } from "@/hooks/useHosting";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetSslCertificates } from "@/hooks/useSsl";
 import { verifyPayment } from "@/lib/api";
+import { providerOf, verifyPath } from "@/lib/payments";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 
@@ -397,12 +398,23 @@ function DashboardOverviewContent() {
   const firstName = me?.data?.firstName ?? "";
   const lastName = me?.data?.lastName ?? "";
 
-  // ── Handle return from Paystack renewal / order ───────────────────────────
+  // ── Handle return from a payment page (renewal / order) ───────────────────
   const reference =
     searchParams?.get("reference") || searchParams?.get("trxref");
+  const returnProvider = providerOf({
+    paymentProvider: searchParams?.get("provider"),
+    paystackRef: reference,
+  });
 
   useEffect(() => {
     if (!reference) return;
+
+    // Crypto payments can take minutes to confirm; the verify page polls
+    // for that, a one-shot check here would just report "not paid".
+    if (returnProvider === "heleket") {
+      router.replace(verifyPath(reference, "heleket"));
+      return;
+    }
 
     let isMounted = true;
     const verify = async () => {
@@ -437,7 +449,7 @@ function DashboardOverviewContent() {
     return () => {
       isMounted = false;
     };
-  }, [reference, token, queryClient, router]);
+  }, [reference, returnProvider, token, queryClient, router]);
 
   // ── Last login ──────────────────────────────────────────────────────────────
   const [lastLogin, setLastLogin] = useState<string | null>(null);

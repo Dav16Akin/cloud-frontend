@@ -39,6 +39,7 @@ import {
   type HostingForwarder,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { redirectToPayment } from "@/lib/payments";
 
 // ── Purchase hosting standalone ───────────────────────────────────────────────
 
@@ -215,10 +216,7 @@ export const useRenewHosting = () => {
     mutationFn: ({ id, data }: { id: string; data?: RenewHostingPayload }) =>
       renewHosting(id, data),
     onSuccess: (res) => {
-      if (res.data?.paymentUrl) {
-        toast.success("Redirecting to payment gateway...");
-        window.location.href = res.data.paymentUrl;
-      }
+      redirectToPayment(res.data ?? {});
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to initialize renewal payment.");
@@ -233,10 +231,7 @@ export const useUpgradeHosting = () => {
     mutationFn: ({ id, data }: { id: string; data: UpgradeHostingPayload }) =>
       upgradeHosting(id, data),
     onSuccess: (res) => {
-      if (res.data?.paymentUrl) {
-        toast.success("Redirecting to payment gateway...");
-        window.location.href = res.data.paymentUrl;
-      }
+      redirectToPayment(res.data ?? {});
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to initialize upgrade payment.");

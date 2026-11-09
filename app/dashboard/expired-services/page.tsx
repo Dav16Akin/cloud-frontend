@@ -16,6 +16,7 @@ import { useGetRegisteredDomains, useRenewDomain } from "@/hooks/useDomains";
 import { useGetSslCertificates, useGetSslProducts } from "@/hooks/useSsl";
 import { useGetHosting, useRenewHosting } from "@/hooks/useHosting";
 import { usePlans } from "@/hooks/usePlans";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 import { toast } from "sonner";
 
 // ─── Design tokens (brand palette) ───────────────────────────────────────────
@@ -49,7 +50,7 @@ function formatDate(dateStr: string | null): string {
 // ─── Types ───────────────────────────────────────────────────────────────────
 type ServiceType = "Domains" | "Hosting" | "SSL";
 
-/** How a service is renewed: a backend renewal (redirects to Paystack) or a re-order link. */
+/** How a service is renewed: a backend renewal (redirects to the payment page) or a re-order link. */
 type RenewAction =
   | { kind: "domain"; id: string }
   | { kind: "hosting"; id: string }
@@ -259,6 +260,8 @@ export default function ExpiredServicesPage() {
 
   const { mutate: renewDomain, isPending: renewingDomain } = useRenewDomain();
   const { mutate: renewHosting, isPending: renewingHosting } = useRenewHosting();
+  // One-click renewals use the gateway the customer last chose.
+  const { method: provider } = usePaymentMethod();
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const renewBusy = renewingDomain || renewingHosting;
 
@@ -363,7 +366,7 @@ export default function ExpiredServicesPage() {
     if (!service.renew || renewBusy) return;
     setRenewingId(service.id);
     const onError = () => setRenewingId(null);
-    // The hooks redirect to Paystack on success; if no payment link came
+    // The hooks redirect to the payment page on success; if no payment link came
     // back, stop the spinner and say so.
     const onSuccess = (res: { data?: { paymentUrl?: string } }) => {
       if (!res?.data?.paymentUrl) {
@@ -372,10 +375,10 @@ export default function ExpiredServicesPage() {
       }
     };
     if (service.renew.kind === "domain") {
-      renewDomain(service.renew.id, { onError, onSuccess });
+      renewDomain({ id: service.renew.id, provider }, { onError, onSuccess });
     } else if (service.renew.kind === "hosting") {
       renewHosting(
-        { id: service.renew.id, data: { billingCycle: "yearly" } },
+        { id: service.renew.id, data: { billingCycle: "yearly", provider } },
         { onError, onSuccess },
       );
     }

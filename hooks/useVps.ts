@@ -25,8 +25,10 @@ import {
   type VpsFirewallRule,
   type VpsServer,
   type VpsStatus,
+  type PaymentProvider,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { redirectToPayment } from "@/lib/payments";
 
 const ACTIVE_STATUSES: VpsStatus[] = [
   "PROVISIONING",
@@ -329,12 +331,10 @@ export const useDeleteVps = (options?: { onSuccess?: () => void }) => {
 
 export const useRenewVps = () => {
   return useMutation({
-    mutationFn: (id: string) => renewVpsServer(id),
+    mutationFn: ({ id, provider }: { id: string; provider?: PaymentProvider }) =>
+      renewVpsServer(id, provider),
     onSuccess: (res) => {
-      if (res.data?.paymentUrl) {
-        toast.success("Redirecting to payment…");
-        window.location.href = res.data.paymentUrl;
-      }
+      redirectToPayment(res.data ?? {});
     },
     onError: (err: Error) => toast.error(err.message),
   });

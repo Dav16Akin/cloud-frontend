@@ -24,6 +24,14 @@ import { useGetSslProducts } from "@/hooks/useSsl";
 import { useGetRegisteredDomains } from "@/hooks/useDomains";
 import { useGetMe } from "@/hooks/useUser";
 import { initializeCartPayment, type SslProduct } from "@/lib/api";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import {
+  GATEWAY_NAME,
+  connectingLabel,
+  payLabel,
+  redirectToPayment,
+} from "@/lib/payments";
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -94,7 +102,8 @@ export default function SslPurchaseWizard({
   // Step 4: Review Agreement
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(true);
 
-  // Step 5: Payment (Paystack)
+  // Step 5: Payment (Paystack or crypto)
+  const payment = usePaymentMethod();
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
   const [paymentReference, setPaymentReference] = useState<string>("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -202,7 +211,7 @@ export default function SslPurchaseWizard({
     setCurrentStep(3);
   };
 
-  const handlePaystackPayment = async () => {
+  const handlePayment = async () => {
     if (!selectedDomain || !activeProduct) {
       toast.error("Missing domain or certificate information.");
       return;
@@ -223,16 +232,17 @@ export default function SslPurchaseWizard({
             ...(approverEmail.trim() ? { approverEmail: approverEmail.trim() } : {}),
           },
         ],
+        provider: payment.method,
       });
 
       if (res?.data?.paymentUrl) {
         if (res.data.reference) setPaymentReference(res.data.reference);
-        // Official Paystack payment URL — activation continues after payment
-        window.location.href = res.data.paymentUrl;
+        // Activation continues after payment, from the verify page.
+        redirectToPayment(res.data);
         return;
       }
       // No gateway URL means payment was not initialised: stay on this step.
-      const msg = "Payment could not be started: no Paystack payment link was returned. Please try again.";
+      const msg = "Payment could not be started: no payment link was returned. Please try again.";
       setPaymentError(msg);
       toast.error(msg);
       setIsProcessingPayment(false);
@@ -1074,7 +1084,7 @@ export default function SslPurchaseWizard({
       )}
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* SCREEN 5: Payment (Paystack Official Gateway)                       */}
+      {/* SCREEN 5: Payment                                                   */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       {currentStep === 5 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1090,39 +1100,12 @@ export default function SslPurchaseWizard({
                 </p>
               </div>
 
-              {/* Paystack official checkout card */}
-              <div className="p-4 rounded-lg border border-[#1787D4] bg-[#E8F4FC] ring-1 ring-[#1787D4]/40 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center shrink-0">
-                    <Image
-                      src="/paystack-logo.svg"
-                      alt="Paystack"
-                      width={28}
-                      height={28}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-[#031033] block">
-                      Paystack secure checkout
-                    </span>
-                    <span className="text-xs text-[#5A6A85] block mt-0.5">
-                      Debit/credit card, bank transfer, USSD
-                    </span>
-                  </div>
-                </div>
+              <PaymentMethodSelector {...payment} disabled={isProcessingPayment} />
 
-                <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm text-[#031033] shrink-0">
-                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-[#12A150]" />
-                  Connected
-                </span>
-              </div>
-
-              {/* Security info notice (No fake auto-filled inputs) */}
               <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-[#F2F5FC] text-sm text-[#5A6A85]">
                 <Lock className="w-4 h-4 text-[#0E7C3A] shrink-0 mt-0.5" />
                 <span>
-                  Payments are encrypted and processed by Paystack. Your card details are never stored on our servers.
+                  Payments are processed by {GATEWAY_NAME[payment.method]}. Card, bank, and wallet details are never stored on our servers.
                 </span>
               </div>
             </div>
@@ -1163,17 +1146,17 @@ export default function SslPurchaseWizard({
               <button
                 type="button"
                 id="btn-pay-ssl"
-                onClick={handlePaystackPayment}
+                onClick={handlePayment}
                 disabled={isProcessingPayment}
                 className="w-full h-9 px-4 bg-[#1787D4] hover:bg-[#1370B5] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isProcessingPayment ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Connecting to Paystack…</span>
+                    <span>{connectingLabel(payment.method)}</span>
                   </>
                 ) : (
-                  <span>Pay {formatPrice(activePrice)}</span>
+                  <span>{payLabel(payment.method, formatPrice(activePrice))}</span>
                 )}
               </button>
 

@@ -18,8 +18,10 @@ import {
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
+  type PaymentProvider,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { redirectToPayment } from "@/lib/payments";
 
 export const useGetRegisteredDomains = () => {
   const token = useAuthStore((s) => s.token);
@@ -243,12 +245,10 @@ export const useGetDomainAuthCode = (domainId: string) => {
 
 export const useRenewDomain = () => {
   return useMutation({
-    mutationFn: (id: string) => renewDomain(id),
+    mutationFn: ({ id, provider }: { id: string; provider?: PaymentProvider }) =>
+      renewDomain(id, provider),
     onSuccess: (res) => {
-      if (res.data?.paymentUrl) {
-        toast.success("Redirecting to payment gateway...");
-        window.location.href = res.data.paymentUrl;
-      }
+      redirectToPayment(res.data ?? {});
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to initialize domain renewal.");

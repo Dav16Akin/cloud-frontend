@@ -10,6 +10,7 @@ import {
 } from "@/hooks/useExpiryWarnings";
 import { useRenewHosting } from "@/hooks/useHosting";
 import { useRenewDomain } from "@/hooks/useDomains";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 import type { ExpiryWarning } from "@/lib/api";
 
 export default function ExpiryBanner() {
@@ -19,6 +20,8 @@ export default function ExpiryBanner() {
   const { mutate: renewHosting, isPending: isRenewingHosting } =
     useRenewHosting();
   const { mutate: renewDomain, isPending: isRenewingDomain } = useRenewDomain();
+  // One-click renewals use the gateway the customer last chose.
+  const { method: provider } = usePaymentMethod();
 
   const [renewingId, setRenewingId] = useState<string | null>(null);
   // Capture "now" once per mount; Date.now() during render is impure.
@@ -56,11 +59,11 @@ export default function ExpiryBanner() {
     setRenewingId(warning.id);
     if (warning.type === "HOSTING") {
       renewHosting(
-        { id: warning.id },
+        { id: warning.id, data: { provider } },
         { onSettled: () => setRenewingId(null) },
       );
     } else {
-      renewDomain(warning.id, {
+      renewDomain({ id: warning.id, provider }, {
         onSettled: () => setRenewingId(null),
       });
     }

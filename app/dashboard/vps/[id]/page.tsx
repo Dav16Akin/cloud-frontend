@@ -483,10 +483,11 @@ export default function VpsDetailPage() {
               This server could not be provisioned
             </p>
             <p className="text-sm text-[#C21F1F] mt-0.5 leading-relaxed">
-              If you were charged for this server, we request a refund to your
-              original payment method. Paystack processes it, and bank
-              settlement can take up to 10 business days. Contact support if you
-              need help or want to try again.
+              If you were charged for this server, we refund it. Card and bank
+              payments go back to your original payment method through Paystack
+              and can take up to 10 business days to settle; crypto payments
+              are refunded by hand by our team. Contact support if you need
+              help or want to try again.
             </p>
             <Link
               href="/dashboard/tickets"

@@ -28,6 +28,9 @@ import {
   useGetSshKeys,
 } from "@/hooks/useVps";
 import { useInitializeCartPayment } from "@/hooks/useOrders";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import { GATEWAY_NAME, connectingLabel, redirectToPayment } from "@/lib/payments";
 import { SshKeyPicker } from "@/components/vps/SshKeyManager";
 import {
   formatNaira,
@@ -132,6 +135,7 @@ function VpsPurchaseContent() {
   const { data: sshKeys } = useGetSshKeys();
   const { mutate: initializePayment, isPending: paying, error: payError } =
     useInitializeCartPayment();
+  const payment = usePaymentMethod();
 
   const [step, setStep] = useState<Step>("plan");
   const [planId, setPlanId] = useState("");
@@ -223,16 +227,19 @@ function VpsPurchaseContent() {
     if (!selectedPlan) return;
 
     initializePayment(
-      [
-        {
-          type: "VPS",
-          planId: selectedPlan.id,
-          image: effectiveImage,
-          location: effectiveLocation,
-          name: name.trim(),
-          sshKeyId,
-        },
-      ],
+      {
+        items: [
+          {
+            type: "VPS",
+            planId: selectedPlan.id,
+            image: effectiveImage,
+            location: effectiveLocation,
+            name: name.trim(),
+            sshKeyId,
+          },
+        ],
+        provider: payment.method,
+      },
       {
         onSuccess: (res) => {
           if (!res?.data?.paymentUrl) {
@@ -247,7 +254,7 @@ function VpsPurchaseContent() {
             location: effectiveLocation,
             name: name.trim(),
           });
-          window.location.href = res.data.paymentUrl;
+          redirectToPayment(res.data);
         },
       },
     );
@@ -265,7 +272,7 @@ function VpsPurchaseContent() {
       ? "Choose the resources you need. Every plan includes dedicated CPU, NVMe storage and full root access."
       : step === "configure"
         ? "Pick your operating system, region and SSH access before checkout."
-        : "Check the details below. You will complete payment securely on Paystack.";
+        : `Check the details below. You will complete payment securely on ${GATEWAY_NAME[payment.method]}.`;
 
   const backAction = () => {
     if (step === "plan") router.push("/dashboard/vps");
@@ -835,7 +842,10 @@ function VpsPurchaseContent() {
                 {[
                   {
                     title: "Payment confirmed",
-                    body: "Paystack securely confirms your payment.",
+                    body:
+                      payment.method === "heleket"
+                        ? "Heleket confirms your crypto payment once the network does, usually within a few minutes."
+                        : "Paystack securely confirms your payment.",
                   },
                   {
                     title: "Server provisioned",
@@ -899,19 +909,25 @@ function VpsPurchaseContent() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-lg bg-[#F2F5FC] px-4 py-3 flex items-center gap-3">
-                <Image
-                  src="/paystack-logo.png"
-                  alt="Paystack"
-                  width={90}
-                  height={24}
-                  className="h-6 w-[90px] object-contain object-left shrink-0"
-                />
-                <p className="text-xs text-[#5A6A85] leading-snug">
-                  Pay with card, bank transfer, USSD or Apple Pay. Card details
-                  are never stored on Nupat servers.
-                </p>
+              <div className="mt-4">
+                <PaymentMethodSelector {...payment} variant="compact" disabled={paying} />
               </div>
+
+              {payment.method === "paystack" && (
+                <div className="mt-4 rounded-lg bg-[#F2F5FC] px-4 py-3 flex items-center gap-3">
+                  <Image
+                    src="/paystack-logo.png"
+                    alt="Paystack"
+                    width={90}
+                    height={24}
+                    className="h-6 w-[90px] object-contain object-left shrink-0"
+                  />
+                  <p className="text-xs text-[#5A6A85] leading-snug">
+                    Pay with card, bank transfer, USSD or Apple Pay. Card details
+                    are never stored on Nupat servers.
+                  </p>
+                </div>
+              )}
 
               <button
                 type="button"
@@ -922,12 +938,14 @@ function VpsPurchaseContent() {
                 {paying ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting to Paystack…
+                    {connectingLabel(payment.method)}
                   </>
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    Pay {formatNaira(selectedPlan?.priceNgnMonthly ?? 0)} securely
+                        {payment.method === "heleket"
+                      ? `Pay ${formatNaira(selectedPlan?.priceNgnMonthly ?? 0)} in crypto`
+                      : `Pay ${formatNaira(selectedPlan?.priceNgnMonthly ?? 0)} securely`}
                   </>
                 )}
               </button>
@@ -948,9 +966,9 @@ function VpsPurchaseContent() {
             <div className="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 text-xs text-[#5A6A85] leading-relaxed flex items-start gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-[#5A6A85] shrink-0 mt-0.5" />
               <span>
-                If we cannot provision your server after payment, we start a
-                refund to your original payment method. Paystack processes it, and
-                banks can take up to 10 business days to settle.
+                {payment.method === "heleket"
+                  ? "If we cannot provision your server after payment, our team refunds your crypto payment by hand and will contact you to arrange it."
+                  : "If we cannot provision your server after payment, we start a refund to your original payment method. Paystack processes it, and banks can take up to 10 business days to settle."}
               </span>
             </div>
           </div>

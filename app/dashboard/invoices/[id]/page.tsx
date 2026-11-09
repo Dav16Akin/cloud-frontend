@@ -24,6 +24,9 @@ import {
   useViewInvoice,
 } from "@/hooks/useInvoices";
 import { useGetMe } from "@/hooks/useUser";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import { GATEWAY_NAME, connectingLabel, providerOf } from "@/lib/payments";
 import { formatInvoiceNumber, getInvoiceServiceLabel } from "../page";
 import { toast } from "sonner";
 
@@ -74,6 +77,7 @@ export default function InvoiceDetailPage({
   const { data: invoice, isLoading } = useGetInvoice(invoiceId);
   const { data: me } = useGetMe();
   const { mutate: payInvoice, isPending: isPaying } = usePayInvoice();
+  const payment = usePaymentMethod();
   const { mutate: viewInvoice, isPending: isDownloading } = useViewInvoice();
 
   // Simulated failure flag if URL contains status=failed or invoice is FAILED
@@ -130,7 +134,7 @@ export default function InvoiceDetailPage({
       toast.error("Invoice identifier missing");
       return;
     }
-    payInvoice(invoice.id);
+    payInvoice({ orderId: invoice.id, provider: payment.method });
   };
 
   const backLinkCls =
@@ -375,8 +379,10 @@ export default function InvoiceDetailPage({
 
             <p className="text-xs text-[#5A6A85]">
               Pay now to keep activation on schedule. Your payment is encrypted
-              and processed by Paystack.
+              and processed by {GATEWAY_NAME[payment.method]}.
             </p>
+
+            <PaymentMethodSelector {...payment} variant="compact" disabled={isPaying} />
 
             <div className="flex flex-col gap-2">
               <button
@@ -389,7 +395,7 @@ export default function InvoiceDetailPage({
                 {isPaying ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Connecting to Paystack…</span>
+                    <span>{connectingLabel(payment.method)}</span>
                   </>
                 ) : (
                   "Pay now"
@@ -605,7 +611,9 @@ export default function InvoiceDetailPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">
               <span className="text-xs text-[#5A6A85] block">Method</span>
-              <span className="font-medium text-[#031033] text-sm mt-1 block">Paystack</span>
+              <span className="font-medium text-[#031033] text-sm mt-1 block">
+                {invoice && providerOf(invoice) === "heleket" ? "Crypto (Heleket)" : "Paystack"}
+              </span>
             </div>
 
             <div className="bg-[#F2F5FC] rounded-lg px-4 py-3">

@@ -4,6 +4,24 @@ import { clearQueryCache } from "@/lib/queryClient";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://cloud-backend-chi.vercel.app/api";
 
+// ── Payment gateways ──────────────────────────────────────────────────────────
+
+/** Gateways a checkout can use. Paystack is the default when omitted. */
+export type PaymentProvider = "paystack" | "heleket";
+
+/** Optional gateway choice accepted by every endpoint that starts a payment. */
+export type WithPaymentProvider = { provider?: PaymentProvider };
+
+/**
+ * Extra fields on every "Payment initialized" response. Heleket charges the
+ * USD equivalent of the NGN price, so `chargeAmount` can differ from `total`.
+ */
+export type PaymentInitFields = {
+  provider?: PaymentProvider;
+  chargeCurrency?: string;
+  chargeAmount?: number;
+};
+
 // ── Standardized API Errors ───────────────────────────────────────────────────
 
 export type FieldErrors = Record<string, string[]>;
@@ -566,13 +584,13 @@ export type ProvisionHostingResult = {
   expiresAt: string;
 };
 
-export type PurchaseHostingPayload = {
+export type PurchaseHostingPayload = WithPaymentProvider & {
   planId: string;
   domain: string;
   billingCycle: "monthly" | "quarterly" | "yearly";
 };
 
-export type PurchaseHostingResult = {
+export type PurchaseHostingResult = PaymentInitFields & {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -644,11 +662,11 @@ export const unsuspendHosting = (
     headers: getHeaders(),
   }).then(handleResponse);
 
-export type RenewHostingPayload = {
+export type RenewHostingPayload = WithPaymentProvider & {
   billingCycle?: "monthly" | "quarterly" | "yearly";
 };
 
-export type RenewHostingResult = {
+export type RenewHostingResult = PaymentInitFields & {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -657,12 +675,12 @@ export type RenewHostingResult = {
   billingCycle: string;
 };
 
-export type UpgradeHostingPayload = {
+export type UpgradeHostingPayload = WithPaymentProvider & {
   planId: string;
   billingCycle?: "monthly" | "quarterly" | "yearly";
 };
 
-export type UpgradeHostingResult = {
+export type UpgradeHostingResult = PaymentInitFields & {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -996,7 +1014,7 @@ export type CreateVpsPayload = {
   orderItemId?: string;
 };
 
-export type RenewVpsResult = {
+export type RenewVpsResult = PaymentInitFields & {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -1169,10 +1187,12 @@ export const resizeVpsServer = (
 
 export const renewVpsServer = (
   id: string,
+  provider?: PaymentProvider,
 ): Promise<{ success: boolean; data: RenewVpsResult; message: string }> =>
   fetchWithRefresh(`${BASE_URL}/vps/${encodeURIComponent(id)}/renew`, {
     method: "POST",
     headers: getHeaders(),
+    body: JSON.stringify({ provider }),
   }).then(handleResponse);
 
 export const getVpsFirewall = (
@@ -1255,12 +1275,12 @@ export type OrderItem = {
   } | null;
   /** Refund state for a paid VPS line that could not be provisioned. */
   refundStatus?: RefundStatus;
-  /** Raw Paystack refund status (pending/processing/processed/failed). */
+  /** Raw gateway refund status (pending/processing/processed/failed). */
   refundProviderStatus?: string | null;
   refundAmount?: number | null;
   refundRequestedAt?: string | null;
   refundFailureReason?: string | null;
-  /** Set only when Paystack reports the refund as processed. */
+  /** Set only when the gateway reports the refund as processed. */
   refundedAt?: string | null;
   /** Present once this paid VPS line item has a server attached. */
   vps?: { id: string; status: VpsStatus } | null;
@@ -1279,7 +1299,12 @@ export type Order = {
   userId: string;
   amount: number;
   status: OrderStatus;
+  /** Gateway reference for either provider (the name predates Heleket). */
   paystackRef: string;
+  paymentProvider?: "PAYSTACK" | "HELEKET";
+  /** What the gateway charged: NGN for Paystack, USD for Heleket. */
+  paymentCurrency?: string | null;
+  paymentAmount?: number | null;
   /** WHMCS invoice ID — present once the order has been synced to WHMCS */
   whmcsInvoiceId?: string | null;
   items: OrderItem[];
@@ -1287,7 +1312,7 @@ export type Order = {
   updatedAt: string;
 };
 
-export type InitializeCartPaymentResult = {
+export type InitializeCartPaymentResult = PaymentInitFields & {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -1298,14 +1323,19 @@ export type VerifyPaymentResult = {
   items: OrderItem[];
   amount: number;
   reference: string;
+  /**
+   * The gateway's own status while the order is still PENDING, e.g. Heleket's
+   * "confirm_check" while a crypto payment collects confirmations.
+   */
+  gatewayStatus?: string;
 };
 
 /**
- * POST /orders/initialize — creates a Paystack checkout session for a
- * cart of HOSTING, DOMAIN, and/or SSL items.
+ * POST /orders/initialize — creates a checkout session (Paystack or Heleket)
+ * for a cart of HOSTING, DOMAIN, SSL, and/or VPS items.
  */
 export const initializeCartPayment = (
-  data: { items: BackendCartItem[] },
+  data: WithPaymentProvider & { items: BackendCartItem[] },
 ): Promise<{
   success: boolean;
   data: InitializeCartPaymentResult;
@@ -1317,7 +1347,13 @@ export const initializeCartPayment = (
     body: JSON.stringify(data),
   }).then(handleResponse);
 
-/** GET /orders/verify/:reference — verifies a Paystack payment with duplicate / idempotent handling */
+/**
+ * GET /orders/verify/:reference — verifies a payment with either gateway.
+ *
+ * An unpaid order comes back as HTTP 400 with `{ status, pending }`. A crypto
+ * payment that is still confirming has `pending: true`; that is reported as
+ * status PENDING so callers keep polling instead of showing a failure.
+ */
 export const verifyPayment = async (
   token?: string | null,
   reference?: string | null,
@@ -1336,6 +1372,21 @@ export const verifyPayment = async (
     const data = await handleResponse(res);
     return data;
   } catch (err: any) {
+    const unpaid = err instanceof ApiError && err.status === 400 ? err.data?.data : null;
+    if (unpaid?.pending === true) {
+      return {
+        success: false,
+        message: err.message,
+        data: {
+          status: "PENDING",
+          items: [],
+          amount: 0,
+          reference,
+          gatewayStatus: typeof unpaid.status === "string" ? unpaid.status : undefined,
+        },
+      };
+    }
+
     // Handle duplicate / idempotent verification responses (e.g. 409 or message indicating already processed/verified)
     const errMsg = (err?.message || "").toLowerCase();
     if (
@@ -2066,20 +2117,27 @@ export const getInvoices = (): Promise<{ success: boolean; data: Invoice[]; mess
     headers: getHeaders(),
   }).then(handleResponse);
 
-export interface PayOrderResponse {
+export interface PayOrderResponse extends PaymentInitFields {
   paymentUrl: string;
   reference: string;
   orderId: string;
   amount: number;
 }
 
-/** POST /orders/:orderId/pay — initialize payment for pending or failed order/invoice */
+/**
+ * POST /orders/:orderId/pay — initialize payment for a pending or failed
+ * order/invoice. Omitting `provider` reuses the order's current gateway.
+ * Answers 409 PAYMENT_IN_PROGRESS (with `data.reference`) while a crypto
+ * payment on the current invoice is still confirming.
+ */
 export const payOrder = (
   orderId: string,
+  provider?: PaymentProvider,
 ): Promise<{ success: boolean; data: PayOrderResponse; message?: string }> =>
   fetchWithRefresh(`${BASE_URL}/orders/${encodeURIComponent(orderId)}/pay`, {
     method: "POST",
     headers: getHeaders(),
+    body: JSON.stringify({ provider }),
   }).then(handleResponse);
 
 export interface OrderInvoiceResponse {
@@ -2120,7 +2178,7 @@ export const getExpiryWarnings = (): Promise<{ success: boolean; data: ExpiryWar
 
 // ── Domain Renewal ─────────────────────────────────────────────────────────────
 
-export interface RenewDomainResponse {
+export interface RenewDomainResponse extends PaymentInitFields {
   paymentUrl: string;
   reference: string;
   total: number;
@@ -2129,9 +2187,20 @@ export interface RenewDomainResponse {
 /** POST /domains/:id/renew — initialize renewal payment for a registered domain */
 export const renewDomain = (
   id: string,
+  provider?: PaymentProvider,
 ): Promise<{ success: boolean; data: RenewDomainResponse; message?: string }> =>
   fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}/renew`, {
     method: "POST",
     headers: getHeaders(),
+    body: JSON.stringify({ provider }),
   }).then(handleResponse);
+
+/**
+ * GET /users/health — public config flags. `heleket` is true when crypto
+ * checkout is configured on the backend.
+ */
+export const getPaymentAvailability = (): Promise<{ heleket: boolean }> =>
+  fetch(`${BASE_URL}/users/health`)
+    .then(handleResponse)
+    .then((res: { heleket?: unknown }) => ({ heleket: res?.heleket === true }));
 

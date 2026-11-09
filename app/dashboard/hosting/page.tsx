@@ -28,6 +28,8 @@ import {
 } from "@/hooks/useHosting";
 import HostingProvisioningCard from "@/components/dashboard/HostingProvisioningCard";
 import type { Plan, HostingAccount, HostingStatus } from "@/lib/api";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -212,6 +214,7 @@ function RenewHostingModal({
 }) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("yearly");
   const { mutate: renew, isPending: renewing } = useRenewHosting();
+  const payment = usePaymentMethod();
 
   const getPrice = () => {
     if (!currentPlan) return null;
@@ -223,7 +226,7 @@ function RenewHostingModal({
   const price = getPrice();
 
   const handleRenew = () => {
-    renew({ id: hostingId, data: { billingCycle } });
+    renew({ id: hostingId, data: { billingCycle, provider: payment.method } });
   };
 
   return (
@@ -275,6 +278,8 @@ function RenewHostingModal({
             </div>
           </div>
 
+          <PaymentMethodSelector {...payment} variant="compact" disabled={renewing} />
+
           {price != null && (
             <div className="flex items-baseline justify-between border-t border-[#EEF2F7] pt-4">
               <span className="text-sm text-[#5A6A85]">Total renewal amount</span>
@@ -321,6 +326,7 @@ function UpgradeHostingModal({
   const [billingCycle, setBillingCycle] = useState<"monthly" | "quarterly" | "yearly">("yearly");
 
   const { mutate: upgrade, isPending: upgrading } = useUpgradeHosting();
+  const payment = usePaymentMethod();
 
   useEffect(() => {
     if (plans && plans.length > 0 && !selectedPlanId) {
@@ -349,7 +355,10 @@ function UpgradeHostingModal({
       toast.error("Select a different plan to upgrade.");
       return;
     }
-    upgrade({ id: hostingId, data: { planId: selectedPlanId, billingCycle } });
+    upgrade({
+      id: hostingId,
+      data: { planId: selectedPlanId, billingCycle, provider: payment.method },
+    });
   };
 
   return (
@@ -455,6 +464,8 @@ function UpgradeHostingModal({
               );
             })}
           </div>
+
+          <PaymentMethodSelector {...payment} variant="compact" disabled={upgrading} />
 
           {targetPrice != null && (
             <div className="flex items-baseline justify-between border-t border-[#EEF2F7] pt-4">

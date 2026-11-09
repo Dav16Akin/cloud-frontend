@@ -17,6 +17,23 @@ import {
 } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/useOrders";
 import type { OrderItem } from "@/lib/api";
+import { GATEWAY_NAME, toPaymentProvider } from "@/lib/payments";
+
+// Card payments settle in seconds. Crypto needs network confirmations, which
+// can take several minutes, so poll for up to 15 minutes.
+const POLLING = {
+  paystack: { maxPolls: 6, pollIntervalMs: 3500 },
+  heleket: { maxPolls: 90, pollIntervalMs: 10_000 },
+} as const;
+
+/** Heleket statuses worth explaining while the order is still pending. */
+const CRYPTO_STATUS_COPY: Record<string, string> = {
+  check: "Waiting for your payment to reach the network.",
+  process: "Payment detected. Waiting for network confirmations.",
+  confirm_check: "Payment detected. Waiting for network confirmations.",
+  wrong_amount_waiting:
+    "We received less than the invoice amount. Send the remainder from the Heleket page to complete the payment.",
+};
 
 const FOCUS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4]/30";
@@ -78,6 +95,11 @@ function OrderVerifyContent() {
   const router = useRouter();
 
   const reference = searchParams.get("reference") ?? "";
+  const provider = toPaymentProvider(
+    searchParams.get("provider") ?? (reference.startsWith("hlk_") ? "heleket" : null),
+  );
+  const isCrypto = provider === "heleket";
+  const gateway = GATEWAY_NAME[provider];
   const {
     data,
     isLoading,
@@ -91,7 +113,8 @@ function OrderVerifyContent() {
     maxPolls,
     checkStatusNow,
     isManualChecking,
-  } = useVerifyPayment(reference || null);
+  } = useVerifyPayment(reference || null, POLLING[provider]);
+  const gatewayStatus = data?.gatewayStatus;
 
   const [countdown, setCountdown] = useState(5);
 
@@ -133,8 +156,8 @@ function OrderVerifyContent() {
             No payment reference found
           </h1>
           <p className="text-sm text-[#5A6A85] mt-1 max-w-xs mx-auto">
-            This page needs a payment reference from Paystack. Start again from
-            the checkout page.
+            This page needs a payment reference from the payment page. Start
+            again from the checkout page.
           </p>
         </div>
         <Link href="/dashboard/hosting" className={PRIMARY_BTN}>
@@ -156,7 +179,7 @@ function OrderVerifyContent() {
             Verifying your payment…
           </h1>
           <p className="text-sm text-[#5A6A85] mt-1 max-w-xs mx-auto">
-            Please wait while we confirm your payment with Paystack.
+            Please wait while we confirm your payment with {gateway}.
           </p>
         </div>
         <ReferenceLine reference={reference} />
@@ -180,7 +203,14 @@ function OrderVerifyContent() {
             Awaiting confirmation
           </h1>
           <p className="text-sm text-[#5A6A85] mt-1 max-w-sm mx-auto tabular-nums">
-            {!isExhausted ? (
+            {isCrypto ? (
+              !isExhausted ? (
+                (gatewayStatus && CRYPTO_STATUS_COPY[gatewayStatus]) ??
+                "Waiting for Heleket to confirm your crypto payment. This usually takes a few minutes."
+              ) : (
+                "Your crypto payment hasn't confirmed yet. Some networks are slow; your order is safe and services will provision automatically once it confirms."
+              )
+            ) : !isExhausted ? (
               `Checking transaction status with Paystack (attempt ${pollCount + 1} of ${maxPolls})…`
             ) : (
               "Paystack has received your payment instruction. Verification is taking longer than usual. Your order is safe, and services will provision automatically once it's confirmed."
@@ -193,7 +223,7 @@ function OrderVerifyContent() {
         <div className="px-4 py-3 rounded-lg border border-[#E8900A]/25 bg-[#FFF4E0] text-sm text-[#9A5B00] text-left w-full">
           <p className="font-medium mb-0.5">No need to wait here</p>
           <p className="text-xs">
-            You can safely leave this page. We&apos;ll email you as soon as Paystack confirms the transaction.
+            You can safely leave this page. We&apos;ll email you as soon as {gateway} confirms the transaction.
           </p>
         </div>
 
@@ -228,6 +258,9 @@ function OrderVerifyContent() {
       isError && error instanceof Error
         ? error.message
         : "Payment verification failed. The transaction may have been cancelled or declined.";
+    const hint = isCrypto
+      ? "If the crypto invoice expired or was cancelled, you can pay this order again from Invoices. Contact support if you already sent funds."
+      : null;
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center gap-4 max-w-md mx-auto">
@@ -240,6 +273,9 @@ function OrderVerifyContent() {
           <p className="text-sm text-[#5A6A85] mt-1 max-w-xs mx-auto">
             {message}
           </p>
+          {hint && (
+            <p className="text-xs text-[#5A6A85] mt-2 max-w-xs mx-auto">{hint}</p>
+          )}
         </div>
 
         <ReferenceLine reference={reference} />

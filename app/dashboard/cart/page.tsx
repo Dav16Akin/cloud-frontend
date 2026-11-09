@@ -22,6 +22,7 @@ import {
 import { useCartStore, getCartItemKey, cartItemLabel, type CartItem } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { useGetSslProducts } from "@/hooks/useSsl";
+import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 import { toast } from "sonner";
 
 /** Real term in years for a cart item, if the item carries one (never assumed). */
@@ -37,6 +38,7 @@ function DashboardCartContent() {
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
 
   const { items, removeItem, clearCart, grandTotal, addSslItem } = useCartStore();
+  const { cryptoAvailable } = usePaymentMethod();
 
   // SSL pricing for quick add
   // Quick-add is only offered once the real PositiveSSL product (and its
@@ -325,8 +327,12 @@ function DashboardCartContent() {
                 />
               </span>
               <div>
-                <p className="text-sm font-medium text-[#031033]">Paystack verified</p>
-                <p className="text-xs text-[#5A6A85] mt-0.5">Direct gateway checkout</p>
+                <p className="text-sm font-medium text-[#031033]">
+                  {cryptoAvailable ? "Paystack or crypto" : "Paystack verified"}
+                </p>
+                <p className="text-xs text-[#5A6A85] mt-0.5">
+                  {cryptoAvailable ? "Choose how to pay at checkout" : "Direct gateway checkout"}
+                </p>
               </div>
             </div>
           </div>

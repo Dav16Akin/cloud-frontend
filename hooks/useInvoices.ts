@@ -6,8 +6,14 @@ import {
   getOrderInvoice,
   type Invoice,
   type PayOrderResponse,
+  type PaymentProvider,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import {
+  paymentInProgressReference,
+  redirectToPayment,
+  verifyPath,
+} from "@/lib/payments";
 
 // ── List user invoices ─────────────────────────────────────────────────────────
 
@@ -64,17 +70,20 @@ export const useGetInvoice = (id: string) => {
 
 export const usePayInvoice = () => {
   return useMutation({
-    mutationFn: (orderId: string) => payOrder(orderId),
+    mutationFn: ({ orderId, provider }: { orderId: string; provider?: PaymentProvider }) =>
+      payOrder(orderId, provider),
     onSuccess: (res) => {
-      const paymentUrl = res?.data?.paymentUrl;
-      if (paymentUrl) {
-        toast.success("Redirecting to Paystack payment gateway...");
-        window.location.href = paymentUrl;
-      } else {
-        toast.error("Payment initialization succeeded but no gateway URL was returned.");
-      }
+      redirectToPayment(res?.data ?? {});
     },
     onError: (err: any) => {
+      // A crypto payment on the current invoice is still confirming: starting
+      // a new one would orphan it, so follow the existing payment instead.
+      const reference = paymentInProgressReference(err);
+      if (reference) {
+        toast.info(err.message);
+        window.location.href = verifyPath(reference, "heleket");
+        return;
+      }
       toast.error(err?.message || "Failed to initialize payment. Please try again.");
     },
   });

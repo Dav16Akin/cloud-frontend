@@ -99,7 +99,7 @@ export function HostingProvisioningCard({
     {
       id: 1,
       title: "Payment confirmed",
-      desc: "Order verified via Paystack",
+      desc: "Order payment verified",
       done: true,
       active: false,
     },

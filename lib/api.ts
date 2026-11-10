@@ -1468,13 +1468,20 @@ export type SuggestDomainsPayload = {
   extensions?: string[];
 };
 
-/** POST /domains/suggest — suggest domain names from backend using OpenProvider */
+/**
+ * POST /domains/suggest — suggest domain names from backend using OpenProvider.
+ *
+ * Public endpoint, called from public search pages. It deliberately skips
+ * `fetchWithRefresh`: a stale token there would trigger a failed refresh that
+ * logs the visitor out and redirects them away mid-search.
+ */
 export const suggestDomains = (
   payload: SuggestDomainsPayload,
 ): Promise<{ success: boolean; data: DomainSuggestionItem[]; message: string }> =>
-  fetchWithRefresh(`${BASE_URL}/domains/suggest`, {
+  fetch(`${BASE_URL}/domains/suggest`, {
     method: "POST",
     headers: getHeaders(),
+    credentials: "include",
     body: JSON.stringify(payload),
   }).then(handleResponse);
 

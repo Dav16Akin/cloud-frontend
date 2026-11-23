@@ -10,6 +10,7 @@ import {
   forgotPassword,
   verifyResetOTP,
   resetPassword,
+  ApiError,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
@@ -36,8 +37,15 @@ export const useLogin = (redirectTo = "/dashboard") => {
       toast.success("Welcome back!");
       router.push(redirectTo); // Respect redirect param (e.g. /cart/checkout)
     },
-    onError: (err: Error) => {
+    onError: (err: Error, variables) => {
       toast.error(err.message);
+      // Signing in with an unverified account: take them to the code screen
+      // and send a fresh code, rather than leaving them at a dead end.
+      if (err instanceof ApiError && err.code === "ACCOUNT_NOT_VERIFIED") {
+        router.push(
+          `/verify?email=${encodeURIComponent(variables.email.trim())}&resend=1`,
+        );
+      }
     },
   });
 };
@@ -63,11 +71,17 @@ export const useRegister = () => {
       postcode: string;
     }) => registerUser(data),
     onSuccess: (res, variables) => {
-      toast.success(
+      // The account exists either way; `otpSent: false` means the email
+      // itself failed, so the verify page offers an immediate resend.
+      const otpSent = res?.data?.otpSent !== false;
+      const message =
         res?.message ||
-          "Account created! Check your email for the verification code.",
+        "Account created! Check your email for the verification code.";
+      if (otpSent) toast.success(message);
+      else toast.warning(message);
+      router.push(
+        `/verify?email=${encodeURIComponent(variables.email)}${otpSent ? "" : "&sent=0"}`,
       );
-      router.push(`/verify?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (err: Error) => {
       toast.error(err.message);

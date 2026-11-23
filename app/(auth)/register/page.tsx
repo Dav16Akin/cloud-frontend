@@ -28,69 +28,117 @@ const countryOptions = Object.entries(countryNames)
   .map(([code, name]) => ({ code, name }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-const registerSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(1, "First name is required")
-      .max(100, "First name is too long"),
-    lastName: z
-      .string()
-      .min(1, "Last name is required")
-      .max(100, "Last name is too long"),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Enter a valid email address"),
-    phoneNumber: z.string().min(7, "Enter a valid phone number"),
-    companyName: z
-      .string()
-      .max(200, "Company name must be 200 characters or fewer"),
-    address: z
-      .string()
-      .min(3, "Street address is required")
-      .max(255, "Street address is too long"),
-    houseNumber: z
-      .string()
-      .max(50, "Unit / suite must be 50 characters or fewer"),
-    city: z.string().min(1, "City is required").max(100, "City is too long"),
-    state: z
-      .string()
-      .min(1, "State / Province is required")
-      .max(100, "State / Province is too long"),
-    country: z.string().regex(/^[A-Z]{2}$/, "Select a country"),
-    postcode: z
-      .string()
-      .min(1, "Postcode is required")
-      .max(20, "Postcode is too long"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(72, "Password must be 72 characters or fewer")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .superRefine((data, ctx) => {
-    const parsed = parsePhoneNumberFromString(
-      data.phoneNumber,
-      data.country as CountryCode,
-    );
-    if (!parsed || !parsed.isValid()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["phoneNumber"],
-        message: "Enter a valid phone number for the selected country",
-      });
-    }
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+// Mirrors the backend rules (src/modules/auth/auth.validations.ts). Values are
+// trimmed here because the backend trims too: a field holding only spaces
+// would otherwise look filled in and then be rejected after submitting.
+const registerSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name is required")
+    .max(100, "First name is too long"),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Last name is required")
+    .max(100, "Last name is too long"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .max(254, "Email is too long")
+    .email("Enter a valid email address"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .max(32, "Phone number is too long"),
+  companyName: z
+    .string()
+    .trim()
+    .max(200, "Company name must be 200 characters or fewer"),
+  address: z
+    .string()
+    .trim()
+    .min(1, "Street address is required")
+    .min(3, "Enter a valid street address")
+    .max(255, "Street address is too long"),
+  houseNumber: z
+    .string()
+    .trim()
+    .max(50, "Unit / suite must be 50 characters or fewer"),
+  city: z
+    .string()
+    .trim()
+    .min(1, "City is required")
+    .max(100, "City is too long"),
+  state: z
+    .string()
+    .trim()
+    .min(1, "State / Province is required")
+    .max(100, "State / Province is too long"),
+  country: z.string().regex(/^[A-Z]{2}$/, "Select a country"),
+  postcode: z
+    .string()
+    .trim()
+    .min(1, "Postcode is required")
+    .max(20, "Postcode is too long"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(72, "Password must be 72 characters or fewer")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+});
 
 type FormState = z.infer<typeof registerSchema>;
 type FieldErrors = Partial<Record<keyof FormState, string>>;
+
+// Order matches the form, so the "still needed" hint reads top to bottom.
+const FIELD_LABELS: Array<[keyof FormState, string]> = [
+  ["firstName", "First name"],
+  ["lastName", "Last name"],
+  ["email", "Email address"],
+  ["phoneNumber", "Phone number"],
+  ["companyName", "Company name"],
+  ["address", "Street address"],
+  ["houseNumber", "Unit / suite"],
+  ["city", "City"],
+  ["state", "State / Province"],
+  ["postcode", "Postal / Zip code"],
+  ["country", "Country"],
+  ["password", "Password"],
+  ["confirmPassword", "Confirm password"],
+];
+
+const parsePhone = (form: FormState) =>
+  parsePhoneNumberFromString(form.phoneNumber, form.country as CountryCode);
+
+/**
+ * Every problem with the form, one message per field. The phone and
+ * password-match checks run on their own so they are reported even while
+ * other fields are still empty.
+ */
+function getFieldErrors(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+  const result = registerSchema.safeParse(form);
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const key = issue.path[0] as keyof FormState;
+      if (!errors[key]) errors[key] = issue.message;
+    }
+  }
+  if (!errors.phoneNumber && !errors.country && !parsePhone(form)?.isValid()) {
+    errors.phoneNumber = "Enter a valid phone number for the selected country";
+  }
+  if (!errors.confirmPassword && form.password !== form.confirmPassword) {
+    errors.confirmPassword = "Passwords do not match";
+  }
+  return errors;
+}
+
+const clamp = (value: string, max: number) => value.trim().slice(0, max);
 
 const inputBase =
   "h-11 w-full rounded-lg border bg-white px-3.5 text-base sm:text-sm text-[#031033] placeholder:text-[#5A6A85]/70 outline-none transition-colors focus:ring-4";
@@ -160,6 +208,10 @@ export default function RegisterPage() {
     Array<{ display_name: string; address?: Record<string, string> }>
   >([]);
   const [addressLoading, setAddressLoading] = useState(false);
+  // True only while the user is typing in the street address field. Without
+  // it the lookup also ran while typing a city or state, and its results
+  // dropped down over the very fields being filled in.
+  const [addressActive, setAddressActive] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -191,7 +243,7 @@ export default function RegisterPage() {
       .filter(Boolean)
       .join(", ");
 
-    if (form.address.trim().length < 3) return;
+    if (!addressActive || form.address.trim().length < 3) return;
 
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
@@ -201,8 +253,12 @@ export default function RegisterPage() {
           `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`,
           { signal: controller.signal, headers: { "Accept-Language": "en" } },
         );
-        if (response.ok) setAddressSuggestions(await response.json());
+        const results: unknown = response.ok ? await response.json() : [];
+        if (!controller.signal.aborted) {
+          setAddressSuggestions(Array.isArray(results) ? results : []);
+        }
       } catch {
+        // Suggestions are a convenience; the address can always be typed.
         if (!controller.signal.aborted) setAddressSuggestions([]);
       } finally {
         if (!controller.signal.aborted) setAddressLoading(false);
@@ -213,62 +269,92 @@ export default function RegisterPage() {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [countryName, form.address, form.city, form.state]);
+  }, [addressActive, countryName, form.address, form.city, form.state]);
+
+  const closeAddressSuggestions = () => {
+    setAddressActive(false);
+    setAddressSuggestions([]);
+    setAddressLoading(false);
+  };
 
   const selectAddress = (suggestion: (typeof addressSuggestions)[number]) => {
     const address = suggestion.address ?? {};
-    const selectedCountry = (
-      address.country_code ?? form.country
-    ).toUpperCase();
+    const suggestedCountry = (address.country_code ?? "").toUpperCase();
     setForm((previous) => ({
       ...previous,
-      address: address.road ?? suggestion.display_name,
-      houseNumber: address.house_number ?? previous.houseNumber,
+      // Clamped to the same limits the form validates against, so picking a
+      // suggestion can never leave a field in an invalid state.
+      address: clamp(address.road ?? suggestion.display_name, 255),
+      houseNumber: address.house_number
+        ? clamp(address.house_number, 50)
+        : previous.houseNumber,
       city:
-        address.city ??
-        address.town ??
-        address.village ??
-        address.municipality ??
-        previous.city,
-      state: address.state ?? previous.state,
-      postcode: address.postcode ?? previous.postcode,
-      country: selectedCountry,
+        clamp(
+          address.city ??
+            address.town ??
+            address.village ??
+            address.municipality ??
+            "",
+          100,
+        ) || previous.city,
+      state: clamp(address.state ?? "", 100) || previous.state,
+      postcode: clamp(address.postcode ?? "", 20) || previous.postcode,
+      country: countryNames[suggestedCountry]
+        ? suggestedCountry
+        : previous.country,
     }));
-    setAddressSuggestions([]);
+    setErrors((previous) => ({
+      ...previous,
+      address: undefined,
+      houseNumber: undefined,
+      city: undefined,
+      state: undefined,
+      postcode: undefined,
+      country: undefined,
+    }));
+    closeAddressSuggestions();
   };
 
   const set = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (key === "address" && value.trim().length < 3) {
-      setAddressSuggestions([]);
-    }
-    if (submitted && errors[key]) {
+    if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
   };
 
   const validateField = (key: keyof FormState) => {
-    const result = registerSchema.safeParse(form);
-    if (!result.success) {
-      const fieldErr = result.error.flatten().fieldErrors[key]?.[0];
-      setErrors((prev) => ({ ...prev, [key]: fieldErr }));
-    } else {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
-    }
+    const fieldErrors = getFieldErrors(form);
+    setErrors((prev) => ({
+      ...prev,
+      [key]: fieldErrors[key],
+      // Changing the password or country can fix (or break) the field that
+      // depends on it, so keep an already-touched dependant in step.
+      ...(key === "password" && form.confirmPassword
+        ? { confirmPassword: fieldErrors.confirmPassword }
+        : {}),
+      ...(key === "country" && form.phoneNumber
+        ? { phoneNumber: fieldErrors.phoneNumber }
+        : {}),
+    }));
   };
+
+  // The button stays inactive until every field is valid and the terms box
+  // is ticked; `missing` tells the user exactly what is still outstanding.
+  const formErrors = useMemo(() => getFieldErrors(form), [form]);
+  const missing = [
+    ...FIELD_LABELS.filter(([key]) => formErrors[key]).map(([, label]) => label),
+    ...(agreed ? [] : ["Terms and Conditions agreement"]),
+  ];
+  const canSubmit = missing.length === 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPending) return;
     setSubmitted(true);
 
-    const result = registerSchema.safeParse(form);
-    if (!result.success) {
-      const flat = result.error.flatten().fieldErrors;
-      const errs: FieldErrors = {};
-      (Object.keys(flat) as (keyof FormState)[]).forEach((k) => {
-        errs[k] = flat[k]?.[0];
-      });
-      setErrors(errs);
+    const fieldErrors = getFieldErrors(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
       return;
     }
 
@@ -279,20 +365,35 @@ export default function RegisterPage() {
       return;
     }
 
-    const { confirmPassword: _, ...payload } = result.data;
-    register(payload, {
-      onError: (error) => {
-        if (!(error instanceof ApiError) || !error.fieldErrors) return;
-        const serverErrors: FieldErrors = {};
-        (Object.keys(error.fieldErrors) as (keyof FormState)[]).forEach(
-          (key) => {
-            if (key === "confirmPassword") return;
-            serverErrors[key] = error.fieldErrors?.[key]?.[0];
-          },
-        );
-        setErrors((prev) => ({ ...prev, ...serverErrors }));
+    const { confirmPassword: _, ...payload } = registerSchema.parse(form);
+    register(
+      // Send the number in international form so the backend reads it the
+      // same way regardless of how it was typed.
+      { ...payload, phoneNumber: parsePhone(form)?.number ?? payload.phoneNumber },
+      {
+        onError: (error) => {
+          if (!(error instanceof ApiError)) return;
+          // The account already exists but was never verified (an earlier
+          // attempt was interrupted): take them to the code screen and send
+          // a fresh code instead of leaving them stuck.
+          if (error.code === "EMAIL_NOT_VERIFIED") {
+            router.push(
+              `/verify?email=${encodeURIComponent(payload.email)}&resend=1`,
+            );
+            return;
+          }
+          if (!error.fieldErrors) return;
+          const serverErrors: FieldErrors = {};
+          (Object.keys(error.fieldErrors) as (keyof FormState)[]).forEach(
+            (key) => {
+              if (key === "confirmPassword") return;
+              serverErrors[key] = error.fieldErrors?.[key]?.[0];
+            },
+          );
+          setErrors((prev) => ({ ...prev, ...serverErrors }));
+        },
       },
-    });
+    );
   };
 
   return (
@@ -353,8 +454,8 @@ export default function RegisterPage() {
                     id="register-first-name"
                     required
                     aria-required="true"
-                    type="text"
                     autoComplete="given-name"
+                    type="text"
                     placeholder="Adaeze"
                     value={form.firstName}
                     onChange={(e) => set("firstName", e.target.value)}
@@ -372,8 +473,8 @@ export default function RegisterPage() {
                     id="register-last-name"
                     required
                     aria-required="true"
-                    type="text"
                     autoComplete="family-name"
+                    type="text"
                     placeholder="Okafor"
                     value={form.lastName}
                     onChange={(e) => set("lastName", e.target.value)}
@@ -394,8 +495,8 @@ export default function RegisterPage() {
                     id="register-email"
                     required
                     aria-required="true"
-                    type="email"
                     autoComplete="email"
+                    type="email"
                     placeholder="you@company.com"
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
@@ -413,8 +514,8 @@ export default function RegisterPage() {
                     id="register-phone"
                     required
                     aria-required="true"
-                    type="tel"
                     autoComplete="tel"
+                    type="tel"
                     placeholder="+234 803 123 4567"
                     value={form.phoneNumber}
                     onChange={(e) => {
@@ -439,8 +540,8 @@ export default function RegisterPage() {
                 </label>
                 <input
                   id="register-company"
-                  type="text"
                   autoComplete="organization"
+                  type="text"
                   placeholder="Acme Innovations Ltd."
                   value={form.companyName}
                   onChange={(e) => set("companyName", e.target.value)}
@@ -464,12 +565,26 @@ export default function RegisterPage() {
                     autoComplete="address-line1"
                     placeholder="12 Adeola Odeku Street"
                     value={form.address}
-                    onChange={(e) => set("address", e.target.value)}
-                    onBlur={() => validateField("address")}
+                    onChange={(e) => {
+                      set("address", e.target.value);
+                      setAddressActive(true);
+                      if (e.target.value.trim().length < 3) {
+                        setAddressSuggestions([]);
+                        setAddressLoading(false);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") closeAddressSuggestions();
+                    }}
+                    onBlur={() => {
+                      closeAddressSuggestions();
+                      validateField("address");
+                    }}
                     aria-invalid={!!errors.address}
                     className={inputClass(errors.address)}
                   />
-                  {(addressLoading || addressSuggestions.length > 0) && (
+                  {addressActive &&
+                    (addressLoading || addressSuggestions.length > 0) && (
                     <div className="relative z-20">
                       <div className="absolute left-0 right-0 mt-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-lg">
                         {addressLoading && (
@@ -477,9 +592,9 @@ export default function RegisterPage() {
                             Searching addresses...
                           </p>
                         )}
-                        {addressSuggestions.map((suggestion) => (
+                        {addressSuggestions.map((suggestion, index) => (
                           <button
-                            key={suggestion.display_name}
+                            key={`${index}-${suggestion.display_name}`}
                             type="button"
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => selectAddress(suggestion)}
@@ -502,8 +617,8 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="register-house-number"
-                    type="text"
                     autoComplete="address-line2"
+                    type="text"
                     placeholder="Suite 4B"
                     value={form.houseNumber}
                     onChange={(e) => set("houseNumber", e.target.value)}
@@ -524,8 +639,8 @@ export default function RegisterPage() {
                     id="register-city"
                     required
                     aria-required="true"
-                    type="text"
                     autoComplete="address-level2"
+                    type="text"
                     placeholder="Lagos"
                     value={form.city}
                     onChange={(e) => set("city", e.target.value)}
@@ -543,8 +658,8 @@ export default function RegisterPage() {
                     id="register-state"
                     required
                     aria-required="true"
-                    type="text"
                     autoComplete="address-level1"
+                    type="text"
                     placeholder="Lagos State"
                     value={form.state}
                     onChange={(e) => set("state", e.target.value)}
@@ -562,8 +677,8 @@ export default function RegisterPage() {
                     id="register-postcode"
                     required
                     aria-required="true"
-                    type="text"
                     autoComplete="postal-code"
+                    type="text"
                     placeholder="100001"
                     value={form.postcode}
                     onChange={(e) => set("postcode", e.target.value)}
@@ -583,8 +698,8 @@ export default function RegisterPage() {
                   id="register-country"
                   required
                   aria-required="true"
-                  aria-label="Country"
                   autoComplete="country"
+                  aria-label="Country"
                   value={form.country}
                   onChange={(e) => set("country", e.target.value)}
                   onBlur={() => validateField("country")}
@@ -616,8 +731,8 @@ export default function RegisterPage() {
                       id="register-password"
                       required
                       aria-required="true"
-                      type={showPass ? "text" : "password"}
                       autoComplete="new-password"
+                      type={showPass ? "text" : "password"}
                       placeholder="At least 8 characters"
                       value={form.password}
                       onChange={(e) => set("password", e.target.value)}
@@ -653,8 +768,8 @@ export default function RegisterPage() {
                       id="register-confirm-password"
                       required
                       aria-required="true"
-                      type={showConfirm ? "text" : "password"}
                       autoComplete="new-password"
+                      type={showConfirm ? "text" : "password"}
                       placeholder="Repeat your password"
                       value={form.confirmPassword}
                       onChange={(e) => set("confirmPassword", e.target.value)}
@@ -750,8 +865,9 @@ export default function RegisterPage() {
             <button
               id="register-submit"
               type="submit"
-              disabled={isPending}
-              className="h-11 w-full px-5 rounded-lg bg-[#1787D4] text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1787D4]/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              disabled={!canSubmit || isPending}
+              aria-describedby={canSubmit ? undefined : "register-missing"}
+              className="h-11 w-full px-5 rounded-lg bg-[#1787D4] text-sm font-medium text-white transition-colors hover:bg-[#1370B5] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1787D4]/30 flex items-center justify-center gap-2 disabled:cursor-not-allowed cursor-pointer disabled:bg-slate-300 disabled:hover:bg-slate-300"
             >
               {isPending ? (
                 <>
@@ -762,6 +878,17 @@ export default function RegisterPage() {
                 <span>Create account</span>
               )}
             </button>
+            {!canSubmit && (
+              <p
+                id="register-missing"
+                className="text-xs text-slate-500 leading-relaxed -mt-3"
+              >
+                <span className="font-medium text-slate-600">
+                  To create your account, complete:
+                </span>{" "}
+                {missing.join(", ")}.
+              </p>
+            )}
           </form>
 
           {SHOW_GOOGLE_SIGN_IN && (

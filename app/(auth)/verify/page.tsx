@@ -13,6 +13,10 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") || "";
+  // `resend=1`: the account already existed unverified, so no code has been
+  // sent for this visit yet. `sent=0`: signup worked but the email failed.
+  const needsCode = searchParams.get("resend") === "1";
+  const sendFailed = searchParams.get("sent") === "0";
 
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -20,8 +24,19 @@ function VerifyContent() {
   const { mutate: verify, isPending } = useVerifyOTP();
   const { mutate: resend, isPending: isResending } = useResendOTP();
 
-  // 20-second cooldown for resend button
-  const [resendCooldown, setResendCooldown] = useState(20);
+  // 20-second cooldown for resend button (skipped when the first email
+  // never went out, so the user can ask for one straight away)
+  const [resendCooldown, setResendCooldown] = useState(sendFailed ? 0 : 20);
+
+  // Send a fresh code once when arriving without one, then drop the flag
+  // from the URL so a page refresh doesn't send another.
+  const autoResent = useRef(false);
+  useEffect(() => {
+    if (!needsCode || !email || autoResent.current) return;
+    autoResent.current = true;
+    resend({ email });
+    router.replace(`/verify?email=${encodeURIComponent(email)}`);
+  }, [needsCode, email, resend, router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -42,13 +57,25 @@ function VerifyContent() {
   }, [email, router]);
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
+    const digits = value.replace(/\D/g, "");
+    if (value && !digits) return;
     const next = [...code];
-    next[index] = value;
-    setCode(next);
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+    if (digits.length <= 1) {
+      next[index] = digits;
+      setCode(next);
+      if (digits && index < 5) inputRefs.current[index + 1]?.focus();
+      return;
     }
+    // Several digits at once: the phone's "from Mail/Messages" code
+    // suggestion or a paste drops the whole code into one box.
+    digits
+      .slice(0, 6 - index)
+      .split("")
+      .forEach((digit, offset) => {
+        next[index + offset] = digit;
+      });
+    setCode(next);
+    inputRefs.current[Math.min(index + digits.length, 5)]?.focus();
   };
 
   const handleKeyDown = (
@@ -66,6 +93,7 @@ function VerifyContent() {
       .replace(/\D/g, "")
       .slice(0, 6);
     if (pasted.length === 6) {
+      e.preventDefault();
       setCode(pasted.split(""));
       inputRefs.current[5]?.focus();
     }
@@ -121,9 +149,11 @@ function VerifyContent() {
           Verify your email
         </h1>
         <p className="mt-2 text-sm text-[#5A6A85] leading-relaxed max-w-sm mx-auto">
-          We sent a 6-digit code to{" "}
-          <span className="font-medium text-[#031033]">{email || "your email"}</span>.
-          Enter it below to activate your account.
+          {sendFailed ? "We couldn't email your code to" : "We sent a 6-digit code to"}{" "}
+          <span className="font-medium text-[#031033]">{email || "your email"}</span>.{" "}
+          {sendFailed
+            ? "Tap Resend Code below to try again."
+            : "Enter it below to activate your account."}
         </p>
       </div>
 
@@ -146,8 +176,8 @@ function VerifyContent() {
                 type="text"
                 inputMode="numeric"
                 autoComplete={i === 0 ? "one-time-code" : "off"}
-                aria-label={`Digit ${i + 1}`}
-                maxLength={1}
+                aria-label={`Digit ${i + 1} of 6`}
+                maxLength={6}
                 value={digit}
                 onChange={(e) => handleChange(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}

@@ -1289,7 +1289,7 @@ export type OrderItem = {
 /** Backend cart item shapes sent to POST /orders/initialize */
 export type BackendCartItem =
   | { type: "HOSTING"; planId: string; billingCycle?: "monthly" | "quarterly" | "yearly" }
-  | { type: "DOMAIN"; domainName: string; extension: string }
+  | { type: "DOMAIN"; domainName: string; extension: string; period?: number }
   | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
   | { type: "VPS"; planId: string; image: string; location: string; name?: string; sshKeyId?: string }
   | { type: "SSL"; domainName: string; productId?: number; period?: number; csr?: string; approverEmail?: string };
@@ -1445,7 +1445,24 @@ export type DomainResult = {
     price: number | null;
     currency: string | null;
   };
+  /**
+   * Registration terms on offer (NGN), only for TLDs that allow multi-year
+   * registration (.ng / .com.ng). Absent means 1 year only.
+   */
+  periods?: DomainPeriodPrice[];
 };
+
+export type DomainPeriodPrice = { years: number; price: number };
+
+/** Price for a registration term of `years`, or null if that term isn't offered. */
+export const domainTermPrice = (r: DomainResult, years: number): number | null => {
+  if (r.periods?.length) return r.periods.find((p) => p.years === years)?.price ?? null;
+  return years === 1 ? r.price.price : null;
+};
+
+/** Shortest registration term offered for a search result (1 when it has no `periods`). */
+export const defaultDomainTerm = (r: DomainResult): number =>
+  r.periods?.length ? Math.min(...r.periods.map((p) => p.years)) : 1;
 
 /** POST /domains/search — check availability of a domain name across multiple TLDs */
 export const searchDomains = (
@@ -1536,6 +1553,8 @@ export type RegisteredDomain = {
   registrationDate: string;
   /** undefined when the API does not report it (never assume "on") */
   autoRenew?: boolean;
+  /** WHMCS = registered through NIRA (.ng); only these can renew for more than 1 year. */
+  registrar?: "OPENPROVIDER" | "WHMCS";
   /** Current nameservers — defaults to ["ns1.nupatcloud.com","ns2.nupatcloud.com"] */
   nameservers?: string[];
 };
@@ -2195,11 +2214,12 @@ export interface RenewDomainResponse extends PaymentInitFields {
 export const renewDomain = (
   id: string,
   provider?: PaymentProvider,
+  period?: number,
 ): Promise<{ success: boolean; data: RenewDomainResponse; message?: string }> =>
   fetchWithRefresh(`${BASE_URL}/domains/${encodeURIComponent(id)}/renew`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify({ provider }),
+    body: JSON.stringify({ provider, ...(period ? { period } : {}) }),
   }).then(handleResponse);
 
 /**
@@ -2210,4 +2230,8 @@ export const getPaymentAvailability = (): Promise<{ heleket: boolean }> =>
   fetch(`${BASE_URL}/users/health`)
     .then(handleResponse)
     .then((res: { heleket?: unknown }) => ({ heleket: res?.heleket === true }));
+
+/** True when the API refused DNS because the domain has no hosting (no DNS zone on our server). */
+export const isDnsNeedsHostingError = (err: unknown): err is ApiError =>
+  err instanceof ApiError && err.code === "DNS_NEEDS_HOSTING";
 

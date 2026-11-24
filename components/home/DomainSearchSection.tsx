@@ -17,10 +17,13 @@ import {
   searchDomains,
   suggestDomains,
   extractAlternativeDomainNames,
+  domainTermPrice,
+  defaultDomainTerm,
   DomainResult,
 } from "@/lib/api";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, findCartDomain } from "@/store/cartStore";
 import { formatApiPrice } from "@/lib/formatPrice";
+import { DomainTermSelect } from "@/components/ui/domain-term-select";
 import { toast } from "sonner";
 
 const EXTENSIONS = [
@@ -51,7 +54,17 @@ export default function DomainSearchSection() {
   const [filter, setFilter] = useState<FilterTab>("all");
   const [suggestedAlternativeNames, setSuggestedAlternativeNames] = useState<string[]>([]);
 
-  const { addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
+  // Chosen registration term per domain (only rows with `periods` offer a choice)
+  const [terms, setTerms] = useState<Record<string, number>>({});
+
+  const { items, addDomainItem, removeItem, hasItem, openDrawer } = useCartStore();
+
+  // In the cart, the term is locked to what was added (older carts have no period = 1 year)
+  const termFor = (r: DomainResult) => {
+    const inCart = findCartDomain(items, r.domain);
+    if (inCart) return inCart.period ?? 1;
+    return terms[r.domain] ?? defaultDomainTerm(r);
+  };
 
   const executeSearch = async (searchTerm: string) => {
     const trimmed = searchTerm.trim();
@@ -61,6 +74,7 @@ export default function DomainSearchSection() {
     setErrorMsg("");
     setSearchedTerm(trimmed);
     setFilter("all");
+    setTerms({});
 
     const baseWord = trimmed.replace(/\.[a-z0-9.]+$/i, "");
     suggestDomains({
@@ -106,7 +120,9 @@ export default function DomainSearchSection() {
   };
 
   const handleAddToCart = (result: DomainResult) => {
-    if (result.price.price == null) return;
+    const years = termFor(result);
+    const price = domainTermPrice(result, years);
+    if (price == null) return;
     const dotIdx = result.domain.indexOf(".");
     // Guard: every domain must have a valid extension for the backend schema
     if (dotIdx === -1) return;
@@ -118,10 +134,11 @@ export default function DomainSearchSection() {
       type: "DOMAIN",
       domainName,
       extension,
-      price: result.price.price,
+      price,
       // Cart totals are charged in naira; the domain search API prices in NGN.
       currency: result.price.currency ?? "NGN",
       isPremium: result.isPremium,
+      period: years,
     });
 
     toast.success(`${result.domain} added to cart`, {
@@ -151,8 +168,9 @@ export default function DomainSearchSection() {
 
   // Prices are shown in the currency the API returns (NGN for domain search).
   const formatPrice = (r: DomainResult) => {
-    if (r.price.price == null) return "—";
-    return formatApiPrice(r.price.price, r.price.currency);
+    const price = domainTermPrice(r, termFor(r));
+    if (price == null) return "—";
+    return formatApiPrice(price, r.price.currency);
   };
 
   const formatRenewalPrice = (r: DomainResult) => {
@@ -453,8 +471,20 @@ export default function DomainSearchSection() {
                                 {formatPrice(result)}
                               </span>
                               <span className="text-xs text-[#5A6A85]">
-                                first year
+                                {termFor(result) === 1 ? "first year" : `for ${termFor(result)} years`}
                               </span>
+                              {result.periods?.length ? (
+                                <DomainTermSelect
+                                  domain={result.domain}
+                                  periods={result.periods}
+                                  value={termFor(result)}
+                                  disabled={isInCart}
+                                  onChange={(years) =>
+                                    setTerms((t) => ({ ...t, [result.domain]: years }))
+                                  }
+                                  className="ml-auto self-center"
+                                />
+                              ) : null}
                             </div>
                             {formatRenewalPrice(result) && (
                               <p className="text-xs text-[#5A6A85] mt-0.5">
@@ -501,7 +531,7 @@ export default function DomainSearchSection() {
                             <button
                               type="button"
                               onClick={() => handleAddToCart(result)}
-                              disabled={result.price.price == null}
+                              disabled={domainTermPrice(result, termFor(result)) == null}
                               className={`w-full h-9 px-4 text-sm font-medium rounded-lg flex items-center justify-center gap-2 bg-[#1787D4] hover:bg-[#1370B5] text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${FOCUS_RING}`}
                             >
                               <ShoppingCart className="w-4 h-4" />

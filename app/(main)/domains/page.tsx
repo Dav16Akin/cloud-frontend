@@ -20,10 +20,13 @@ import {
   searchDomains,
   suggestDomains,
   extractAlternativeDomainNames,
+  domainTermPrice,
+  defaultDomainTerm,
   DomainResult,
 } from "@/lib/api";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, findCartDomain } from "@/store/cartStore";
 import { formatApiPrice } from "@/lib/formatPrice";
+import { DomainTermSelect } from "@/components/ui/domain-term-select";
 import { useGetSslProducts } from "@/hooks/useSsl";
 import { toast } from "sonner";
 
@@ -49,7 +52,17 @@ export default function DomainsPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [suggestedAlternativeNames, setSuggestedAlternativeNames] = useState<string[]>([]);
 
-  const { addDomainItem, addSslItem, removeItem, hasItem } = useCartStore();
+  // Chosen registration term per domain (only rows with `periods` offer a choice)
+  const [terms, setTerms] = useState<Record<string, number>>({});
+
+  const { items, addDomainItem, addSslItem, removeItem, hasItem } = useCartStore();
+
+  // In the cart, the term is locked to what was added (older carts have no period = 1 year)
+  const termFor = (r: DomainResult) => {
+    const inCart = findCartDomain(items, r.domain);
+    if (inCart) return inCart.period ?? 1;
+    return terms[r.domain] ?? defaultDomainTerm(r);
+  };
 
   // Fetch real SSL pricing — Positive SSL (id:41) 1-year price; hook returns [] when unauthenticated.
   // null when not loaded, in which case the SSL upsell is hidden instead of showing a made-up price.
@@ -65,6 +78,7 @@ export default function DomainsPage() {
     setState("searching");
     setResults([]);
     setFilter("all");
+    setTerms({});
 
     const baseWord = trimmed.replace(/\.[a-z0-9.]+$/i, "");
     suggestDomains({
@@ -96,7 +110,9 @@ export default function DomainsPage() {
   };
 
   const handleAddToCart = (result: DomainResult) => {
-    if (result.price.price == null) return;
+    const years = termFor(result);
+    const price = domainTermPrice(result, years);
+    if (price == null) return;
     const dotIdx = result.domain.indexOf(".");
     // Guard: every domain must have a valid extension for the backend schema
     if (dotIdx === -1) return;
@@ -108,10 +124,11 @@ export default function DomainsPage() {
       type: "DOMAIN",
       domainName,
       extension,
-      price: result.price.price,
+      price,
       // Cart totals are charged in naira; the domain search API prices in NGN.
       currency: result.price.currency ?? "NGN",
       isPremium: result.isPremium,
+      period: years,
     });
     toast.success(`${result.domain} added to cart`, {
       action: { label: "View cart", onClick: () => window.location.href = "/cart" },
@@ -131,8 +148,9 @@ export default function DomainsPage() {
 
   // Prices are shown in the currency the API returns (NGN for domain search).
   const formatPrice = (r: DomainResult) => {
-    if (r.price.price == null) return "—";
-    return formatApiPrice(r.price.price, r.price.currency);
+    const price = domainTermPrice(r, termFor(r));
+    if (price == null) return "—";
+    return formatApiPrice(price, r.price.currency);
   };
 
   const formatRenewalPrice = (r: DomainResult) => {
@@ -451,7 +469,7 @@ export default function DomainsPage() {
                                 }`}
                               >
                                 {formatPrice(result)}{" "}
-                                <span className="font-normal text-[#5A6A85]">/ first year</span>
+                                <span className="font-normal text-[#5A6A85]">/ {termFor(result) === 1 ? "first year" : `${termFor(result)} years`}</span>
                               </p>
                               {formatRenewalPrice(result) && (
                                 <p className="text-xs text-[#5A6A85]">
@@ -506,7 +524,7 @@ export default function DomainsPage() {
                               >
                                 {formatPrice(result)}
                               </p>
-                              <p className="text-xs text-[#5A6A85]">first year</p>
+                              <p className="text-xs text-[#5A6A85]">{termFor(result) === 1 ? "first year" : `${termFor(result)} years`}</p>
                               {formatRenewalPrice(result) && (
                                 <p className="text-xs text-[#5A6A85] mt-0.5 tabular-nums">
                                   {formatRenewalPrice(result)} / year to renew
@@ -517,6 +535,17 @@ export default function DomainsPage() {
                             <p className="text-xs text-[#5A6A85]">—</p>
                           )}
                         </div>
+                        {result.available && result.periods?.length ? (
+                          <DomainTermSelect
+                            domain={result.domain}
+                            periods={result.periods}
+                            value={termFor(result)}
+                            disabled={hasItem(`domain:${result.domain}`)}
+                            onChange={(years) =>
+                              setTerms((t) => ({ ...t, [result.domain]: years }))
+                            }
+                          />
+                        ) : null}
                         {result.available &&
                           (hasItem(`domain:${result.domain}`) ? (
                             <button
@@ -533,7 +562,7 @@ export default function DomainsPage() {
                               type="button"
                               id={`domain-add-${result.domain.replace(".", "-")}`}
                               onClick={() => handleAddToCart(result)}
-                              disabled={result.price.price == null}
+                              disabled={domainTermPrice(result, termFor(result)) == null}
                               className="inline-flex h-9 items-center gap-1.5 px-4 text-sm font-medium bg-[#1787D4] text-white hover:bg-[#1370B5] transition-colors rounded-lg shrink-0 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1787D4] focus-visible:ring-offset-2"
                             >
                               <ShoppingCart className="w-4 h-4" aria-hidden="true" />

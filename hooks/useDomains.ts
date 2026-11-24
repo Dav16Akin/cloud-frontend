@@ -15,6 +15,7 @@ import {
   renewDomain,
   suggestDomains,
   extractAlternativeDomainNames,
+  isDnsNeedsHostingError,
   type RegisteredDomain,
   type CreateDNSRecordPayload,
   type UpdateDNSRecordPayload,
@@ -108,6 +109,7 @@ export const useGetDomainById = (id: string | null) => {
         registrationDate: d.registeredAt ?? d.registrationDate ?? "",
         expiryDate: d.expiresAt ?? d.expiryDate ?? "",
         autoRenew: typeof d.autoRenew === "boolean" ? d.autoRenew : undefined,
+        registrar: d.registrar,
         // Pass through nameservers array if present
         nameservers: Array.isArray(d.nameservers) ? d.nameservers : undefined,
       };
@@ -125,6 +127,11 @@ export const useGetDomainDNSRecords = (id: string) => {
     queryFn: () => getDomainDNSRecords(id),
     enabled: !!token && !!id,
     staleTime: 30 * 1000,
+    // A domain without hosting has no DNS zone here — retrying won't change that.
+    retry: (failureCount, error) =>
+      !isDnsNeedsHostingError(error) &&
+      ![401, 403, 404, 429].includes((error as { status?: number })?.status ?? 0) &&
+      failureCount < 2,
     select: (res) => res.data,
   });
 };
@@ -245,8 +252,16 @@ export const useGetDomainAuthCode = (domainId: string) => {
 
 export const useRenewDomain = () => {
   return useMutation({
-    mutationFn: ({ id, provider }: { id: string; provider?: PaymentProvider }) =>
-      renewDomain(id, provider),
+    mutationFn: ({
+      id,
+      provider,
+      period,
+    }: {
+      id: string;
+      provider?: PaymentProvider;
+      /** Years; only .ng (registrar WHMCS) domains accept more than 1. */
+      period?: number;
+    }) => renewDomain(id, provider, period),
     onSuccess: (res) => {
       redirectToPayment(res.data ?? {});
     },

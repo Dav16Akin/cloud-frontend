@@ -23,6 +23,8 @@ import {
   suggestDomains,
   extractAlternativeDomainNames,
   initializeCartPayment,
+  domainTermPrice,
+  defaultDomainTerm,
   type DomainResult,
   type BackendCartItem,
 } from "@/lib/api";
@@ -98,7 +100,8 @@ export default function DomainRegistrationWizard({
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
 
   // ── Configuration State (from "Your domain is ready" screen) ───────────
-  const termYears = 1;
+  // Registration term — only .ng / .com.ng results (with `periods`) offer more than 1 year
+  const [termYears, setTermYears] = useState<number>(1);
   const [autoRenew, setAutoRenew] = useState<boolean>(false);
   const [privacyProtection, setPrivacyProtection] = useState<boolean>(true);
   const [includeSsl, setIncludeSsl] = useState<boolean>(false);
@@ -202,6 +205,7 @@ export default function DomainRegistrationWizard({
         const chosen = exactMatch || comMatch || res.data[0];
 
         setSelectedResult(chosen);
+        setTermYears(defaultDomainTerm(chosen));
         if (exactMatch && exactMatch.available) {
           setStep2View("ready");
         } else {
@@ -231,6 +235,7 @@ export default function DomainRegistrationWizard({
   // Select a domain from Step 2 list -> transition to "Your domain is ready" configuration view
   const handleSelectDomain = (result: DomainResult) => {
     setSelectedResult(result);
+    setTermYears(defaultDomainTerm(result));
     setStep2View("ready");
   };
 
@@ -256,8 +261,16 @@ export default function DomainRegistrationWizard({
   // Calculations
   const selectedDomainName = selectedResult?.domain || searchQuery || "";
   const unitPrice = selectedResult?.price?.price ?? 0;
-  const domainSubtotal = unitPrice * termYears;
-  const sslSubtotal = includeSsl ? positiveSslPrice * termYears : 0;
+  // The registry prices each term directly (not years × 1-year price)
+  const domainSubtotal = selectedResult
+    ? (domainTermPrice(selectedResult, termYears) ?? 0)
+    : 0;
+  const termPeriods = selectedResult?.periods?.length
+    ? [...selectedResult.periods].sort((a, b) => a.years - b.years)
+    : null;
+  const termLabel = `${termYears} year${termYears === 1 ? "" : "s"}`;
+  // SSL is always a 1-year certificate, whatever the domain term
+  const sslSubtotal = includeSsl ? positiveSslPrice : 0;
   const grandTotal = domainSubtotal + sslSubtotal;
 
   // Filter out primary result from other results in Step 2 list
@@ -301,6 +314,7 @@ export default function DomainRegistrationWizard({
         price: domainSubtotal,
         currency: selectedResult.price?.currency || "NGN",
         isPremium: selectedResult.isPremium ?? false,
+        period: termYears,
       });
 
       if (includeSsl) {
@@ -309,7 +323,7 @@ export default function DomainRegistrationWizard({
           domainName: domain,
           price: sslSubtotal,
           productId: 41,
-          period: termYears,
+          period: 1,
           productName: "PositiveSSL Certificate",
         });
       }
@@ -320,6 +334,7 @@ export default function DomainRegistrationWizard({
           type: "DOMAIN",
           domainName,
           extension,
+          ...(termYears > 1 ? { period: termYears } : {}),
         },
       ];
 
@@ -328,7 +343,7 @@ export default function DomainRegistrationWizard({
           type: "SSL",
           domainName: domain,
           productId: 41,
-          period: termYears,
+          period: 1,
         });
       }
 
@@ -939,7 +954,7 @@ export default function DomainRegistrationWizard({
                     ₦{domainSubtotal.toLocaleString()}
                   </span>
                   <span className="text-xs text-[#5A6A85] block">
-                    for 1 year
+                    for {termLabel}
                   </span>
                 </div>
               </div>
@@ -959,14 +974,29 @@ export default function DomainRegistrationWizard({
                 </div>
 
                 <div className="relative">
-                  <select
-                    id="registration-term-select"
-                    value={1}
-                    disabled
-                    className="h-10 pl-3 pr-8 rounded-lg border border-[#D5DCE6] bg-[#F2F5FC] text-sm text-[#031033] tabular-nums outline-none appearance-none cursor-not-allowed"
-                  >
-                    <option value={1}>1 Year (₦{unitPrice.toLocaleString()})</option>
-                  </select>
+                  {termPeriods ? (
+                    <select
+                      id="registration-term-select"
+                      value={termYears}
+                      onChange={(e) => setTermYears(Number(e.target.value))}
+                      className="h-10 pl-3 pr-8 rounded-lg border border-[#D5DCE6] bg-white text-sm text-[#031033] tabular-nums outline-none appearance-none cursor-pointer focus:border-[#1787D4]"
+                    >
+                      {termPeriods.map((p) => (
+                        <option key={p.years} value={p.years}>
+                          {p.years} Year{p.years === 1 ? "" : "s"} (₦{p.price.toLocaleString()})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      id="registration-term-select"
+                      value={1}
+                      disabled
+                      className="h-10 pl-3 pr-8 rounded-lg border border-[#D5DCE6] bg-[#F2F5FC] text-sm text-[#031033] tabular-nums outline-none appearance-none cursor-not-allowed"
+                    >
+                      <option value={1}>1 Year (₦{unitPrice.toLocaleString()})</option>
+                    </select>
+                  )}
                   <ChevronDown className="w-4 h-4 text-[#5A6A85] absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
@@ -1490,8 +1520,8 @@ export default function DomainRegistrationWizard({
                       </span>
                     </div>
                     <p className="text-xs text-[#5A6A85] mt-0.5 tabular-nums">
-                      1-year registration · {getTodayFormatted()} –{" "}
-                      {getExpiryDateFormatted(1)}
+                      {termYears}-year registration · {getTodayFormatted()} –{" "}
+                      {getExpiryDateFormatted(termYears)}
                     </p>
                   </div>
                 </div>
@@ -1716,7 +1746,7 @@ export default function DomainRegistrationWizard({
                       {selectedDomainName}
                     </span>
                     <span className="text-xs text-[#5A6A85]">
-                      1-year registration
+                      {termYears}-year registration
                     </span>
                   </div>
                   <span className="font-semibold text-[#031033] shrink-0">
@@ -1845,7 +1875,7 @@ export default function DomainRegistrationWizard({
                     Expires
                   </span>
                   <span className="font-medium text-[#031033] mt-0.5 block tabular-nums">
-                    {getExpiryDateFormatted(1)}
+                    {getExpiryDateFormatted(termYears)}
                   </span>
                 </div>
                 <div>

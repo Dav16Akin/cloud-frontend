@@ -23,6 +23,7 @@ import {
   Signal,
   RefreshCcw,
   Info,
+  Server,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -35,7 +36,7 @@ import {
   useGetDomainAuthCode,
   useRenewDomain,
 } from "@/hooks/useDomains";
-import type { DNSRecord, DNSRecordType } from "@/lib/api";
+import { isDnsNeedsHostingError, type DNSRecord, type DNSRecordType } from "@/lib/api";
 import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
 
@@ -225,9 +226,13 @@ export default function ManageDomainPage() {
   const {
     data: records,
     isLoading,
-    isError,
+    isError: dnsQueryFailed,
+    error: dnsError,
     refetch,
   } = useGetDomainDNSRecords(id);
+  // Domains bought without hosting have no DNS zone on our server (by design)
+  const dnsNeedsHosting = isDnsNeedsHostingError(dnsError);
+  const isError = dnsQueryFailed && !dnsNeedsHosting;
   const { mutate: createRecord, isPending: creating } =
     useCreateDomainDNSRecord(id);
   const { mutate: updateRecord, isPending: updating } =
@@ -240,6 +245,9 @@ export default function ManageDomainPage() {
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>("overview");
   const { mutate: renewDomain, isPending: renewing } = useRenewDomain();
   const payment = usePaymentMethod();
+
+  // ── Renewal term (only .ng domains offer more than 1 year) ──
+  const [renewYears, setRenewYears] = useState(1);
 
   // ── Transfer out state ──
   const { mutate: getAuthCode, isPending: fetchingAuthCode } =
@@ -757,22 +765,24 @@ export default function ManageDomainPage() {
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
-              <button
-                id="domain-dns-add"
-                onClick={() => {
-                  setShowCreate((p) => !p);
-                  setEditTarget(null);
-                }}
-                className={btnGhostSm}
-              >
-                <Plus className="w-4 h-4" />
-                Add record
-              </button>
+              {!dnsNeedsHosting && (
+                <button
+                  id="domain-dns-add"
+                  onClick={() => {
+                    setShowCreate((p) => !p);
+                    setEditTarget(null);
+                  }}
+                  className={btnGhostSm}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add record
+                </button>
+              )}
             </div>
           </div>
 
           {/* ── Create Form ── */}
-          {showCreate && (
+          {showCreate && !dnsNeedsHosting && (
             <form
               onSubmit={handleCreate}
               className="p-5 border-b border-[#EEF2F7] bg-[#F2F5FC] flex flex-col gap-4"
@@ -1036,7 +1046,38 @@ export default function ManageDomainPage() {
               </button>
             </div>
           )}
-          {!isLoading && !isError && (!records || records.length === 0) && (
+          {dnsNeedsHosting && (
+            <div
+              id="domain-dns-needs-hosting"
+              className="flex flex-col items-center justify-center py-12 text-center px-5"
+            >
+              <Server className="w-6 h-6 text-[#5A6A85] mb-2" aria-hidden="true" />
+              <p className="text-sm font-medium text-[#031033]">
+                DNS for this domain is managed with a hosting plan
+              </p>
+              <p className="text-sm text-[#5A6A85] mt-1 max-w-md leading-relaxed">
+                {dnsError?.message}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+                <Link
+                  id="domain-dns-add-hosting"
+                  href="/dashboard/hosting/purchase"
+                  className={btnPrimary}
+                >
+                  Add hosting
+                </Link>
+                <button
+                  id="domain-dns-goto-nameservers"
+                  type="button"
+                  onClick={() => setActiveDetailTab("nameservers")}
+                  className={btnSecondary}
+                >
+                  Change nameservers
+                </button>
+              </div>
+            </div>
+          )}
+          {!isLoading && !isError && !dnsNeedsHosting && (!records || records.length === 0) && (
             <div className="flex flex-col items-center justify-center py-12 text-center px-5">
               <p className="text-sm font-medium text-[#031033]">
                 No DNS records yet
@@ -1163,24 +1204,56 @@ export default function ManageDomainPage() {
                 Renewing extends the registration period so the domain does
                 not expire. The registry&apos;s standard price for this
                 extension applies.
+                {domain.registrar === "WHMCS"
+                  ? " You'll see the exact amount on the payment page before you pay."
+                  : ""}
               </p>
               <div className="max-w-sm">
                 <PaymentMethodSelector {...payment} variant="compact" disabled={renewing} />
               </div>
-              <button
-                id="domain-renew-cta"
-                type="button"
-                onClick={() => renewDomain({ id, provider: payment.method })}
-                disabled={renewing}
-                className={`${btnPrimary} self-start`}
-              >
-                {renewing ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RefreshCcw className="w-4 h-4" />
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Only .ng domains (registered through NIRA via WHMCS) renew for more than 1 year */}
+                {domain.registrar === "WHMCS" && (
+                  <select
+                    id="domain-renew-years"
+                    aria-label="Renewal term"
+                    value={renewYears}
+                    onChange={(e) => setRenewYears(Number(e.target.value))}
+                    disabled={renewing}
+                    className={`${inputCls} w-auto cursor-pointer`}
+                  >
+                    {[1, 2, 3, 4, 5].map((y) => (
+                      <option key={y} value={y}>
+                        {y} year{y === 1 ? "" : "s"}
+                      </option>
+                    ))}
+                  </select>
                 )}
-                {renewing ? "Starting renewal…" : "Renew domain"}
-              </button>
+                <button
+                  id="domain-renew-cta"
+                  type="button"
+                  onClick={() =>
+                    renewDomain({
+                      id,
+                      provider: payment.method,
+                      period: domain.registrar === "WHMCS" ? renewYears : undefined,
+                    })
+                  }
+                  disabled={renewing}
+                  className={btnPrimary}
+                >
+                  {renewing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCcw className="w-4 h-4" />
+                  )}
+                  {renewing
+                    ? "Starting renewal…"
+                    : domain.registrar === "WHMCS"
+                      ? `Renew for ${renewYears} year${renewYears === 1 ? "" : "s"}`
+                      : "Renew domain"}
+                </button>
+              </div>
             </div>
             <div className={`${cardCls} flex items-center justify-between gap-4 p-5`}>
               <div>

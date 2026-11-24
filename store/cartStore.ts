@@ -15,9 +15,10 @@ export type CartDomainItem = {
   type: "DOMAIN";
   domainName: string; // e.g. "example"
   extension: string;  // e.g. "com.ng"
-  price: number;      // NGN retail price (from backend search)
+  price: number;      // NGN retail price for the whole term (from backend search)
   currency: string;   // wholesale source currency (informational)
   isPremium: boolean;
+  period?: number;    // registration term in years; only .ng / .com.ng offer > 1. Missing = 1 (older carts)
 };
 
 export type CartSslItem = {
@@ -72,7 +73,7 @@ type CartStore = {
   grandTotal: () => number;
   toBackendItems: () => Array<
     | { type: "HOSTING"; planId: string }
-    | { type: "DOMAIN"; domainName: string; extension: string }
+    | { type: "DOMAIN"; domainName: string; extension: string; period?: number }
     | { type: "DOMAIN_TRANSFER"; domainName: string; extension: string; authCode: string }
     | { type: "SSL"; domainName: string; productId?: number; period?: number }
   >;
@@ -148,6 +149,7 @@ export const useCartStore = create<CartStore>()(
               type: "DOMAIN" as const,
               domainName: item.domainName,
               extension: item.extension,
+              ...(item.period && item.period > 1 ? { period: item.period } : {}),
             };
           if (item.type === "DOMAIN_TRANSFER")
             return {
@@ -198,10 +200,20 @@ export const useCartStore = create<CartStore>()(
 /** Returns the display label for a cart item */
 export function cartItemLabel(item: CartItem): string {
   if (item.type === "HOSTING") return `${item.planName} Hosting`;
-  if (item.type === "DOMAIN")  return `${item.domainName}.${item.extension}`;
+  if (item.type === "DOMAIN")
+    return `${item.domainName}.${item.extension}${
+      item.period && item.period > 1 ? ` (${item.period} years)` : ""
+    }`;
   if (item.type === "DOMAIN_TRANSFER") return `${item.domainName}.${item.extension} (Transfer)`;
   if (item.type === "SSL")     return `SSL — ${item.domainName}`;
   return "";
+}
+
+/** The DOMAIN cart item for a full domain ("example.com.ng"), if any */
+export function findCartDomain(items: CartItem[], domain: string): CartDomainItem | undefined {
+  return items.find(
+    (i): i is CartDomainItem => i.type === "DOMAIN" && `${i.domainName}.${i.extension}` === domain,
+  );
 }
 
 /** Unique key helper — exported so other modules can build keys */
